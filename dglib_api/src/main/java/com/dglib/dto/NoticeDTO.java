@@ -25,5 +25,6 @@ public class NoticeDTO {
 	private boolean isPinned;
 	
 	private List<NoticeImageDTO> images; // 이미지 목록
-	private String writerName; // 작성자 이름(Member 에서 추출)
+	private String memberId;             // 작성자 ID (식별자 용도)
+	private String writerName;           // 작성자 이름(표시용)
 }

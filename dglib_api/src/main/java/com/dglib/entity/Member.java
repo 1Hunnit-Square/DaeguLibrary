@@ -56,7 +56,7 @@ public class Member {
 	private boolean checkTerms;
 	
 	@Column(nullable = false)
-	private int panalty;
+	private int penalty;
 	
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)

@@ -26,7 +26,7 @@ public class NoticeImage {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private int ino;
 	
 	@Column(nullable = false)
 	private String imageUrl;
@@ -35,7 +35,7 @@ public class NoticeImage {
 	private String originalFilename;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "notice_id") // 글번호(FK)
+	@JoinColumn(name = "notice_ano") // 글번호(FK)
 	private Notice notice;
 	
 

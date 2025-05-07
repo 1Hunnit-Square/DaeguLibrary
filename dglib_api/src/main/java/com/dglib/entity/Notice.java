@@ -32,7 +32,7 @@ public class Notice {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id; // 글번호(PK)
+	private int ano; // 글번호(PK)
 	
 	@Column(nullable = false, length = 200)
 	private String title;

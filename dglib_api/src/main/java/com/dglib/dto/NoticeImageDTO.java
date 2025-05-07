@@ -13,8 +13,8 @@ import lombok.Setter;
 @Builder
 public class NoticeImageDTO {
 	
-	private int id;
+	private int ino;
 	private String imageUrl;
-	private String orginalFilename;
+	private String originalFilename;
 
 }

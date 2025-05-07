@@ -8,6 +8,6 @@ import com.dglib.entity.NoticeImage;
 
 public interface NoticeImageRepository extends JpaRepository<NoticeImage, Integer>{
 	
-	List<NoticeImage> findByNoticeId(int noticeId);
+	List<NoticeImage> findByNotice_Ano(int ano);
 
 }

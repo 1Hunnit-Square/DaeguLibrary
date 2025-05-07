@@ -35,7 +35,7 @@ public class NoticeImage {
 	private String originalFilename;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "notice_ano") // 글번호(FK)
+	@JoinColumn(name = "notice_ano", nullable = false) // 글번호(FK)
 	private Notice notice;
 	
 

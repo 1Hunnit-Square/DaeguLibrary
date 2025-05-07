@@ -3,7 +3,7 @@ package com.dglib.dto;
 import java.time.LocalDate;
 
 import com.dglib.entity.Member;
-import com.dglib.entity.Qna_Q;
+import com.dglib.entity.Question;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -17,12 +17,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Qna_ADTO {
+public class AnswerDTO {
 	
-	private int ano;	//답변글 번호
-	private Qna_Q qna_q;	//fk 질문글 번호
+	private long ano;	//답변글 번호
+	private long qno;	//질문글 번호
 	private LocalDate createDate;	//등록일
 	private LocalDate modifyDate;	//수정일	
 	private String content;	//내용
-	Member member;	//회원id
+	private String memberId ;	//회원id
 }

@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Qna_QDTO {
-	private int qno;	//글번호
+public class QuestionDTO {
+	private long qno;	//글번호
 	private String title;	//제목	
 	private String content;	//내용
 	private boolean checkPublic;	//공개, 비공개	

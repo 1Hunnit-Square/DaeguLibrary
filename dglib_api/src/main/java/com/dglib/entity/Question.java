@@ -19,11 +19,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Qna_Q {
+public class Question {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int qno;	//글번호
+	private long qno;	//글번호
 	
 	@Column(length = 200, nullable = false)
 	private String title;	//제목	
@@ -37,7 +37,7 @@ public class Qna_Q {
 	@Column(nullable = false)
 	private LocalDate createDate;	//등록일
 	
-	@Column(nullable = true)
+	@Column
 	private LocalDate modifyDate;	//수정일
 	
 	@Column(nullable = false)
@@ -47,6 +47,14 @@ public class Qna_Q {
 	@JoinColumn(name = "id", nullable = false)
 	Member member;	//회원id
 	
+	public void updateTitle(String title) {
+		this.title = title;
+		this.modifyDate = LocalDate.now();
+	}
+	public void updateContent(String content) {
+		this.content = content;
+		this.modifyDate = LocalDate.now();
+	}
 
 	
 	

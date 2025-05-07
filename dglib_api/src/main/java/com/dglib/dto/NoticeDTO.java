@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class NoticeDTO {
-	private int ano;
+	private Long ano;
 	private String title;
 	private String content;
 	private LocalDate createDate;

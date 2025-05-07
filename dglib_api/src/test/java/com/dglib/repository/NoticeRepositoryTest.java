@@ -38,5 +38,11 @@ public class NoticeRepositoryTest {
 		assertThat(list.get(0).getTitle()).isEqualTo("테스트 제목");
 	}
 	
+	@Test
+	@DisplayName("수정 테스트")
+	void testModify() {
+		
+	}
+	
 
 }

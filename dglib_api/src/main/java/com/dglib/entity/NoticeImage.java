@@ -26,7 +26,7 @@ public class NoticeImage {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int ino;
+	private Long ino;
 	
 	@Column(nullable = false)
 	private String imageUrl;

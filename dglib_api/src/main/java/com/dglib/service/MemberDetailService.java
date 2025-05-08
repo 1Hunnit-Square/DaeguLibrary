@@ -26,7 +26,7 @@ public class MemberDetailService implements UserDetailsService {
 		
 		Member member = optionalMember.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 		
-		MemberDTO memberDTO = new MemberDTO(member.getMid(), member.getPw(), member.getName(), member.getEmail(), member.getRole().name());
+		MemberDTO memberDTO = new MemberDTO(member.getMid(), member.getPw(), member.getName(), member.getMno(), member.getRole().name());
 		
 		return memberDTO;
 	}

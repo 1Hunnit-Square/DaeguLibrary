@@ -17,15 +17,14 @@ public class MemberDTO extends User{
 	private String mid;
 	private String pw;
 	private String name;
-	private String email;
+	private String mno;
 	private String roleName;
-	private int mno;
 	
-	public MemberDTO(String mid, String pw, String name, String email, String roleName) {
+	public MemberDTO(String mid, String pw, String name, String mno, String roleName) {
 		super(mid, pw, List.of(new SimpleGrantedAuthority("ROLE_"+roleName)));
 		this.mid = mid;
 		this.name = name;
-		this.email = email;
+		this.mno = mno;
 		this.roleName = roleName;
 	}
 
@@ -33,7 +32,7 @@ public class MemberDTO extends User{
 		Map<String, Object> dataMap = new HashMap<>();
 		dataMap.put("mid", mid);
 		dataMap.put("name", name);
-		dataMap.put("email", email);
+		dataMap.put("mno", mno);
 		dataMap.put("roleName", roleName);
 		
 		return dataMap;

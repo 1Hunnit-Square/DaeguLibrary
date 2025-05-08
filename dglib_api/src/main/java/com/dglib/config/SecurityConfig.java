@@ -11,6 +11,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.dglib.security.LoginFailHandler;
+import com.dglib.security.LoginSuccessHandler;
+
 @Configuration
 public class SecurityConfig {
 	
@@ -27,7 +30,9 @@ public class SecurityConfig {
 		http.csrf(config -> config.disable()); 
 		
 		http.formLogin(config -> {
-	        config.loginPage("/api/member/login");
+	        config.loginProcessingUrl("/api/member/login");
+	        config.successHandler(new LoginSuccessHandler());
+	        config.failureHandler(new LoginFailHandler());
 	        });
 		
 		return http.build();

@@ -1,0 +1,25 @@
+{
+  "hash": "bcb63643",
+  "configHash": "953ec6b8",
+  "lockfileHash": "a4daf450",
+  "browserHash": "28f21697",
+  "optimized": {
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "0e0f1121",
+      "needsInterop": false
+    },
+    "recoil": {
+      "src": "../../node_modules/recoil/es/index.js",
+      "file": "recoil.js",
+      "fileHash": "b6bd88de",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-LORZZD4G": {
+      "file": "chunk-LORZZD4G.js"
+    }
+  }
+}

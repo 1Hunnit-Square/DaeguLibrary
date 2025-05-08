@@ -55,8 +55,5 @@ public class Question {
 		this.content = content;
 		this.modifyDate = LocalDate.now();
 	}
-
-	
-	
 	
 }

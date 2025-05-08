@@ -32,7 +32,7 @@ public class Question {
 	private String content;	//내용
 	
 	@Column(nullable = false)
-	private boolean checkPublic;	//공개, 비공개	
+	private boolean checkPublic = false;	//공개, 비공개	
 	
 	@Column(nullable = false)
 	private LocalDate createDate;	//등록일

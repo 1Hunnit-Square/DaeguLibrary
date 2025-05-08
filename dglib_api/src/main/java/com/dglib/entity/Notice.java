@@ -61,8 +61,8 @@ public class Notice {
 
 	
 	// FK: 회원 ID(작성자)
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
+	@ManyToOne
+	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 	
 	

@@ -45,4 +45,10 @@ public class Answer {
 	@ManyToOne
 	@JoinColumn(name = "id", nullable = false)
 	Member member;	//회원id
+	
+	
+	public void updateContent(String content) {
+		this.content = content;
+		this.modifyDate = LocalDate.now();
+	}
 }

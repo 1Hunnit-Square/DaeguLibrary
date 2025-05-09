@@ -8,6 +8,6 @@ import com.dglib.entity.EventImage;
 
 public interface EventImageRepository extends JpaRepository<EventImage, Long>{
 	
-	List<EventImage> findByEvents_Eno(Long eno);
+	List<EventImage> findByEvent_Eno(Long eno);
 	
 }

@@ -36,7 +36,7 @@ public class EventBanner {
 	private String imageUrl;
 	
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "events_eno", nullable = false)
-	private Events events;
+	@JoinColumn(name = "event_eno", nullable = false)
+	private Event event;
 
 }

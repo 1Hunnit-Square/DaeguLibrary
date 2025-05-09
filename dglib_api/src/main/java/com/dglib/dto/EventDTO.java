@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventsDTO {
+public class EventDTO {
 	
 	private Long eno;
 	private String title;

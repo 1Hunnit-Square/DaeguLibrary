@@ -14,7 +14,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dglib.entity.EventBanner;
-import com.dglib.entity.Events;
+import com.dglib.entity.Event;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
@@ -25,13 +25,13 @@ public class EventBannerRepositoryTest {
 	@Autowired
 	private EventBannerRepository eventBannerRepository;
 	@Autowired
-	private EventsRepository eventsRepository;
+	private EventRepository eventRepository;
 	@Autowired
 	private MemberRepository memberRepository;
 
 	
 	private Member adminMember;	
-	private Events testEvents;
+	private Event testEvent;
 	
 	@BeforeEach
 	public void setup() {
@@ -55,7 +55,7 @@ public class EventBannerRepositoryTest {
 		        .build();
 		memberRepository.save(adminMember);
 		
-		testEvents = Events.builder()
+		testEvent = Event.builder()
 				.title("새소식 제목")
 				.content("새소식 내용")
 				.postedAt(LocalDateTime.now())
@@ -65,7 +65,7 @@ public class EventBannerRepositoryTest {
 				.member(adminMember)
 				.build();
 
-		eventsRepository.save(testEvents);
+		eventRepository.save(testEvent);
 	}
 	
 	
@@ -77,7 +77,7 @@ public class EventBannerRepositoryTest {
 		EventBanner banner = EventBanner.builder()
 				.imageName("배너 이름")
 				.imageUrl("이미지 Url")
-				.events(testEvents)
+				.event(testEvent)
 				.build();
 		
 		EventBanner savedBanner = eventBannerRepository.save(banner);
@@ -93,13 +93,13 @@ public class EventBannerRepositoryTest {
 		EventBanner banner = EventBanner.builder()
 				.imageName("조회 배너")
 				.imageUrl("조회 Url")
-				.events(testEvents)
+				.event(testEvent)
 				.build();
 		
 		EventBanner savedBanner = eventBannerRepository.save(banner);
 		
-		// Events의 eno로 배너 조회
-        EventBanner foundBanner = eventBannerRepository.findByEvents_Eno(testEvents.getEno()).orElse(null);
+		// Event의 eno로 배너 조회
+        EventBanner foundBanner = eventBannerRepository.findByEvent_Eno(testEvent.getEno()).orElse(null);
         
         assertThat(foundBanner).isNotNull();
         assertThat(foundBanner.getImageName()).isEqualTo("조회 배너");
@@ -114,7 +114,7 @@ public class EventBannerRepositoryTest {
 		EventBanner banner = EventBanner.builder()
 				.imageName("배너 수정 전")
 				.imageUrl("수정 전 Url")
-				.events(testEvents)
+				.event(testEvent)
 				.build();
 		
 		EventBanner savedBanner = eventBannerRepository.save(banner);
@@ -125,7 +125,7 @@ public class EventBannerRepositoryTest {
         savedBanner.setImageUrl("/banner/after.jpg");
 		eventBannerRepository.save(savedBanner);
 
-        EventBanner foundBanner = eventBannerRepository.findByEvents_Eno(testEvents.getEno()).orElse(null);
+        EventBanner foundBanner = eventBannerRepository.findByEvent_Eno(testEvent.getEno()).orElse(null);
 
         assertThat(foundBanner).isNotNull();
         assertThat(foundBanner.getImageName()).isEqualTo("수정 후 배너");
@@ -142,7 +142,7 @@ public class EventBannerRepositoryTest {
 	    EventBanner banner = EventBanner.builder()
 	            .imageName("삭제할 배너")
 	            .imageUrl("/banner/delete.jpg")
-	            .events(testEvents)
+	            .event(testEvent)
 	            .build();
 
 	    EventBanner savedBanner = eventBannerRepository.save(banner);

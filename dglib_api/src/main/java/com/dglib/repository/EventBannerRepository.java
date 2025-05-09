@@ -8,6 +8,6 @@ import com.dglib.entity.EventBanner;
 
 public interface EventBannerRepository extends JpaRepository<EventBanner, Long>{
 	
-	Optional<EventBanner> findByEvents_Eno(Long eno);
+	Optional<EventBanner> findByEvent_Eno(Long eno);
 
 }

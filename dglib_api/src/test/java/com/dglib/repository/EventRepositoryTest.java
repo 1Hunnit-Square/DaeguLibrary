@@ -15,16 +15,16 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dglib.entity.EventImage;
-import com.dglib.entity.Events;
+import com.dglib.entity.Event;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
 
 @SpringBootTest
-public class EventsRepositoryTest {
+public class EventRepositoryTest {
 	
 	@Autowired
-	private EventsRepository eventsRepository;
+	private EventRepository eventRepository;
 	@Autowired
 	private EventImageRepository eventImageRepository;
 	@Autowired
@@ -34,7 +34,7 @@ public class EventsRepositoryTest {
 
 	
 	Member adminMember;
-	Events testEvent;
+	Event testEvent;
 	
 	@BeforeEach
 	public void setup() {
@@ -58,7 +58,7 @@ public class EventsRepositoryTest {
 	    memberRepository.save(adminMember);
 	    
 	    
-	    testEvent = Events.builder()
+	    testEvent = Event.builder()
 				.title("새소식 제목")
 				.content("새소식 내용")
 				.postedAt(LocalDateTime.now())
@@ -68,7 +68,7 @@ public class EventsRepositoryTest {
 				.member(adminMember)
 				.build();
 			
-		this.testEvent = eventsRepository.save(testEvent);
+		this.testEvent = eventRepository.save(testEvent);
 		
 		}
 	
@@ -77,7 +77,7 @@ public class EventsRepositoryTest {
 //	@Test
 	@DisplayName("새소식 등록 테스트")
 	void testCreateEvent() {
-		Events events = Events.builder()
+		Event event = Event.builder()
 				.title("새소식 제목")
 				.content("새소식 내용")
 				.postedAt(LocalDateTime.now())
@@ -87,7 +87,7 @@ public class EventsRepositoryTest {
 				.member(adminMember)
 				.build();
 		
-		Events saved = eventsRepository.save(events);
+		Event saved = eventRepository.save(event);
 		
 		assertThat(saved.getEno()).isNotNull();
 		assertThat(saved.getMember()).isEqualTo(adminMember);
@@ -98,7 +98,7 @@ public class EventsRepositoryTest {
 	@Rollback(false)
 	@DisplayName("새소식, 이미지 등록 및 조회")
 	void testCheck() {
-		Events events = Events.builder()
+		Event event = Event.builder()
 				.title("새소식 조회")
 				.content("새소식 내용 조회")
 				.postedAt(LocalDateTime.now())
@@ -111,14 +111,14 @@ public class EventsRepositoryTest {
 		EventImage image = EventImage.builder()
 				.imageUrl("/img/test.jpg")
 				.originalFilename("test.jpg")
-				.events(events)
+				.event(event)
 				.build();
-		events.addImage(image);
+		event.addImage(image);
 			
-	    Events savedEvents = eventsRepository.save(events); //events 엔티티 저장
+	    Event savedEvent = eventRepository.save(event); //event 엔티티 저장
 				
-		Events found = eventsRepository.findById(savedEvents.getEno()).orElseThrow();
-		List<EventImage> foundImages = eventImageRepository.findByEvents_Eno(savedEvents.getEno());		
+		Event found = eventRepository.findById(savedEvent.getEno()).orElseThrow();
+		List<EventImage> foundImages = eventImageRepository.findByEvent_Eno(savedEvent.getEno());		
 		
 	}
 	
@@ -127,7 +127,7 @@ public class EventsRepositoryTest {
 	@Rollback(false)
 	@DisplayName("새소식, 이미지 수정 테스트")
 	void updateTest() {
-		Events eventsUpdate = Events.builder()
+		Event eventUpdate = Event.builder()
 				.title("새소식 수정 조회")
 				.content("새소식 수정 내용 조회")
 				.postedAt(LocalDateTime.now())
@@ -136,19 +136,19 @@ public class EventsRepositoryTest {
 				.isPinned(false)
 				.member(adminMember)
 				.build();
-		Events savedEvents = eventsRepository.save(eventsUpdate);
+		Event savedEvent = eventRepository.save(eventUpdate);
 		
 		EventImage image = EventImage.builder()
 				.imageUrl("/img/test2.jpg")
 				.originalFilename("test2.jpg")
-				.events(eventsUpdate)
+				.event(eventUpdate)
 				.build();
-		savedEvents.addImage(image);
+		savedEvent.addImage(image);
 		
-		savedEvents.setTitle("수정 후 제목");
-		savedEvents.setContent("수정 후 내용");
+		savedEvent.setTitle("수정 후 제목");
+		savedEvent.setContent("수정 후 내용");
 		
-        Events updatedEvents = eventsRepository.save(savedEvents);
+        Event updatedEvent = eventRepository.save(savedEvent);
         
 	}
 	
@@ -160,9 +160,9 @@ public class EventsRepositoryTest {
 
     	Long deleteTest = testEvent.getEno();
     	
-    	eventsRepository.deleteById(deleteTest);
+    	eventRepository.deleteById(deleteTest);
     	
-    	List<EventImage> foundImages = eventImageRepository.findByEvents_Eno(deleteTest);
+    	List<EventImage> foundImages = eventImageRepository.findByEvent_Eno(deleteTest);
 	
     	System.out.println(deleteTest);
 	}

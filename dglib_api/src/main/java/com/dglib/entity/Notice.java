@@ -1,13 +1,12 @@
 package com.dglib.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,9 +40,9 @@ public class Notice {
 	private String content;
 	
 	@Column(nullable = false)
-	private LocalDate createDate; // 게시일
+	private LocalDateTime postedAt; // 게시일
 	
-	private LocalDate modifyDate; // 수정일
+	private LocalDateTime modifiedAt; // 수정일
 	
 	@Column(nullable = false)
 	private int viewCount = 0; // 조회수
@@ -54,16 +53,23 @@ public class Notice {
 	@Column(nullable = false)
 	private boolean isPinned = false; // 고정 여부
 	
+	public void addFile(NoticeFile file) {
+	    this.files.add(file);
+	    file.setNotice(this);
+	}
+		
 	
-	// 공지사항 조회 시 이미지까지 같이 조회
+	// 파일 연관관계
 	@OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<NoticeImage> images = new ArrayList<>();
+	@Builder.Default
+	private List<NoticeFile> files = new ArrayList<>();
 
 	
 	// FK: 회원 ID(작성자)
 	@ManyToOne
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
+	
 	
 	
 

@@ -16,23 +16,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "notice_image")
+@Table(name = "notice_file")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoticeImage {
+public class NoticeFile {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long ino;
+	private Long fno;
 	
 	@Column(nullable = false)
-	private String imageUrl;
+	private String originalName;
 	
 	@Column(nullable = false)
-	private String originalFilename;
+	private String filePath;
+	
+	@Column(nullable = false)
+	private String fileType;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "notice_ano", nullable = false) // 글번호(FK)

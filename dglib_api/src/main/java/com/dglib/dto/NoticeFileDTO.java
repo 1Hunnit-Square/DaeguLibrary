@@ -11,10 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoticeImageDTO {
+public class NoticeFileDTO {
 	
-	private Long ino;
-	private String imageUrl;
-	private String originalFilename;
+	private Long fno;
+	private String originalName;
+	private String filePath;
+	private String fileType;
+	
 
 }

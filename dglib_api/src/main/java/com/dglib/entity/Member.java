@@ -55,9 +55,8 @@ public class Member {
 	@Column(nullable = false)
 	private boolean checkTerms;
 	
-	@Column(nullable = false)
-	@Builder.Default
-	private int penalty = 0;
+	@Column
+	private LocalDate penaltyDate;
 	
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)

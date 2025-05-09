@@ -1,4 +1,4 @@
-package com.dglib.security;
+package com.dglib.security.jwt;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -6,7 +6,10 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 
 public class JwtProvider {
@@ -43,9 +46,17 @@ public class JwtProvider {
 					.parseClaimsJws(token)
 					.getBody();
 			
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		} catch(MalformedJwtException malformedJwtException){ 
+	        throw new JwtException("JWT_MalFormed");
+	    } catch(ExpiredJwtException expiredJwtException){ 
+	        throw new JwtException("JWT_Expired");
+	    } catch(InvalidClaimException invalidClaimException){ 
+	        throw new JwtException("JWT_Invalid");
+	    } catch(JwtException jwtException){
+	        throw new JwtException("JWT_Error");
+	    } catch(Exception e){
+	    throw new JwtException("Error");
+	    }
 		
 		
 		return claims;

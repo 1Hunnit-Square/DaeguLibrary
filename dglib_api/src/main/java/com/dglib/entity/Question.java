@@ -1,6 +1,6 @@
 package com.dglib.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,10 +35,10 @@ public class Question {
 	private boolean checkPublic = false;	//공개, 비공개	
 	
 	@Column(nullable = false)
-	private LocalDate createDate;	//등록일
+	private LocalDateTime postedAt;	//등록일
 	
 	@Column
-	private LocalDate modifyDate;	//수정일
+	private LocalDateTime modifiedAt;	//수정일
 	
 	@Column(nullable = false)
 	private int viewCount = 0;	//조회 횟수
@@ -49,11 +49,11 @@ public class Question {
 	
 	public void updateTitle(String title) {
 		this.title = title;
-		this.modifyDate = LocalDate.now();
+		this.modifiedAt = LocalDateTime.now();
 	}
 	public void updateContent(String content) {
 		this.content = content;
-		this.modifyDate = LocalDate.now();
+		this.modifiedAt = LocalDateTime.now();
 	}
 	
 }

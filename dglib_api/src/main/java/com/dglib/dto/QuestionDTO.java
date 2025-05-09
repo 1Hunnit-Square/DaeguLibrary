@@ -1,6 +1,6 @@
 package com.dglib.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,8 +11,8 @@ public class QuestionDTO {
 	private String title;	//제목	
 	private String content;	//내용
 	private boolean checkPublic;	//공개, 비공개	
-	private LocalDate createDate;	//등록일
-	private LocalDate modifyDate;	//수정일
+	private LocalDateTime postedAt;	//등록일
+	private LocalDateTime modifiedAt;	//수정일
 	private int viewCount;	//조회 횟수
 	private String memberId ;	//회원id
 	

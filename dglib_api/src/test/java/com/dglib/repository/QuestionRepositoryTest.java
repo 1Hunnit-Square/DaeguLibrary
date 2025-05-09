@@ -1,6 +1,7 @@
 package com.dglib.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,7 +53,7 @@ public class QuestionRepositoryTest {
 	    		.title("테스트글")
 	    		.content("테스트글 상세 내용입니다.")
 	    		.checkPublic(true)
-	    		.createDate(LocalDate.now())
+	    		.postedAt(LocalDateTime.now())
 	    		.viewCount(0)
 	    		.member(testMember)
 	    		.build();
@@ -61,34 +62,34 @@ public class QuestionRepositoryTest {
 	
 	
 //	@Test
-//	@DisplayName("질문글 조회 테스트")
-//	public void findQuestionTest() {
-//		long qno = question.getQno();
-//		
-//		Question find = questionRepository.findById(qno).orElseThrow(() -> new RuntimeException("질문글을 찾을 수 없습니다."));
-//		
-//		System.out.println("조회한 제목: " + find.getTitle());
-//	    System.out.println("조회한 내용: " + find.getContent());
-//	    System.out.println("작성자: " + find.getMember().getName());
-//		
-//	}
+	@DisplayName("질문글 조회 테스트")
+	public void findQuestionTest() {
+		long qno = question.getQno();
+		
+		Question find = questionRepository.findById(qno).orElseThrow(() -> new RuntimeException("질문글을 찾을 수 없습니다."));
+		
+		System.out.println("조회한 제목: " + find.getTitle());
+	    System.out.println("조회한 내용: " + find.getContent());
+	    System.out.println("작성자: " + find.getMember().getName());
+		
+	}
 	
 	
 	
 //	@Test
-//	@DisplayName("질문글 수정 테스트")
-//	public void modifyQuestionTest() {
-//		Question saved = questionRepository.save(question);
-//		
-//		saved.updateTitle("제목 수정");
-//		saved.updateContent("내용 수정");
-//		
-//		Question updated = questionRepository.save(saved);
-//		
-//		System.out.println("수정한 제목: " + updated.getTitle());
-//		System.out.println("수정한 내용: " + updated.getContent());
-//		System.out.println("수정일: " + updated.getModifyDate());
-//	}
+	@DisplayName("질문글 수정 테스트")
+	public void modifyQuestionTest() {
+		Question saved = questionRepository.save(question);
+		
+		saved.updateTitle("제목 수정");
+		saved.updateContent("내용 수정");
+		
+		Question updated = questionRepository.save(saved);
+		
+		System.out.println("수정한 제목: " + updated.getTitle());
+		System.out.println("수정한 내용: " + updated.getContent());
+		System.out.println("수정일: " + updated.getModifiedAt());
+	}
 	
 	
 	@Test

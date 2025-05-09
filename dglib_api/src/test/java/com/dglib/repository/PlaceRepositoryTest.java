@@ -1,6 +1,7 @@
 package com.dglib.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,6 @@ import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
 import com.dglib.entity.Place;
-
-import jakarta.transaction.Transactional;
 
 @SpringBootTest
 public class PlaceRepositoryTest {
@@ -56,7 +55,7 @@ public class PlaceRepositoryTest {
 				.durationTime(2)
 				.room("동아리실")
 				.people(4)
-				.applyDate(LocalDate.now())
+				.appliedAt(LocalDateTime.now())
 				.member(testMember)
 				.build();
 		
@@ -64,37 +63,37 @@ public class PlaceRepositoryTest {
 	    
 	}
 	
-//	@Test
-//	@DisplayName("이용시설 신청")
-//	public void applyPlaceTest() {
-//		
-//		testPlace = Place.builder()
-//				.useDate(LocalDate.of(2025,6,7))
-//				.startTime(LocalTime.of(14, 0))
-//				.durationTime(2)
-//				.room("동아리실")
-//				.people(4)
-//				.applyDate(LocalDate.now())
-//				.member(testMember)
-//				.build();
-//		
-//		Place saved = placeRepository.save(testPlace);
-//        System.out.println("저장된 신청 번호: " + saved.getPno());
-//		
-//	}
+	@Test
+	@DisplayName("이용시설 신청")
+	public void applyPlaceTest() {
+		
+		testPlace = Place.builder()
+				.useDate(LocalDate.of(2025,6,7))
+				.startTime(LocalTime.of(14, 0))
+				.durationTime(2)
+				.room("동아리실")
+				.people(4)
+				.appliedAt(LocalDateTime.now())
+				.member(testMember)
+				.build();
+		
+		Place saved = placeRepository.save(testPlace);
+        System.out.println("저장된 신청 번호: " + saved.getPno());
+		
+	}
 	
-//	@Test
-//	@DisplayName("이용시설 신청 조회")
-//	public void findPlaceTest() {
-//		long pno = testPlace.getPno();
-//		
-//		Place find = placeRepository.findById(pno).orElseThrow(() -> new RuntimeException("신청내역이 없음"));
-//		
-//		System.out.println("신청 번호: " + find.getPno());
-//		System.out.println("이용 시작 시간: " + find.getStartTime());
-//		System.out.println("이용 종료 시간: " + find.getEndTime());
-//		
-//	}
+	@Test
+	@DisplayName("이용시설 신청 조회")
+	public void findPlaceTest() {
+		long pno = testPlace.getPno();
+		
+		Place find = placeRepository.findById(pno).orElseThrow(() -> new RuntimeException("신청내역이 없음"));
+		
+		System.out.println("신청 번호: " + find.getPno());
+		System.out.println("이용 시작 시간: " + find.getStartTime());
+		System.out.println("이용 종료 시간: " + find.getEndTime());
+		
+	}
 
 	@Test
 	@DisplayName("이용시설 신청 삭제")

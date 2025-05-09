@@ -1,6 +1,6 @@
 package com.dglib.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,10 +33,10 @@ public class Answer {
 	private Question qna_q;
 	
 	@Column(nullable = false)
-	private LocalDate createDate;	//등록일
+	private LocalDateTime postedAt;	//등록일
 	
 	@Column
-	private LocalDate modifyDate;	//수정일	
+	private LocalDateTime modifiedAt;	//수정일	
 	
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;	//내용
@@ -49,6 +48,6 @@ public class Answer {
 	
 	public void updateContent(String content) {
 		this.content = content;
-		this.modifyDate = LocalDate.now();
+		this.modifiedAt = LocalDateTime.now();
 	}
 }

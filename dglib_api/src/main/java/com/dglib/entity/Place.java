@@ -1,6 +1,7 @@
 package com.dglib.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import jakarta.persistence.Column;
@@ -42,7 +43,7 @@ public class Place {
 	private int people;	//이용인원
 	
 	@Column(nullable = false)
-	private LocalDate applyDate;	//신청날짜
+	private LocalDateTime appliedAt;	//신청날짜
 	
 	@ManyToOne
 	@JoinColumn(name = "id", nullable = false)

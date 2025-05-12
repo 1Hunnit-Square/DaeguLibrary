@@ -25,7 +25,7 @@ public class EventDTO {
 	private boolean isHidden;
 	private boolean isPinned;
 	
-	private String memberId;
+	private String memberMid;
 	
 	private List<EventImageDTO> images;
 

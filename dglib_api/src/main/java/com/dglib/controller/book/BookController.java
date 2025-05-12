@@ -48,7 +48,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/book")
+@RequestMapping("/api/book")
 public class BookController {
 
 	private final WebClient webClient;

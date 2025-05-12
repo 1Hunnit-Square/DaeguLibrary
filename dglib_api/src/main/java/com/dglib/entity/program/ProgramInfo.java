@@ -34,10 +34,10 @@ public class ProgramInfo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long progNo;	//프로그램번호
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 200)
 	private String progName;	//프로그램명
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 18)
 	private String teachName;	//강사명
 	
 	@Column(nullable = false)
@@ -53,7 +53,7 @@ public class ProgramInfo {
 	private List<DayOfWeek> daysOfWeek;
 	//수강요일(MONDAY,	TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY,	SUNDAY)
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 20)
 	private String room;	//장소
 	
 	@Column(nullable = false)
@@ -68,16 +68,16 @@ public class ProgramInfo {
 	@Column(nullable = false)
 	private LocalTime endTime;	//수강종료시간
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 20)
 	private String target;	//수강대상
 	
 	@Column(nullable = false)
 	private int capacity;	//수강정원
 	
-	@Column
+	@Column(length = 100)
 	private String filename;	//계획서 파일명
 	
-	@Column
+	@Column(length = 200)
 	private String filePath;	//계획서경로
 	
 	

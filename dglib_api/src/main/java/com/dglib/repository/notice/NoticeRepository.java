@@ -1,10 +1,10 @@
-package com.dglib.repository;
+package com.dglib.repository.notice;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.dglib.entity.Notice;
+import com.dglib.entity.notice.Notice;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long>{
 	

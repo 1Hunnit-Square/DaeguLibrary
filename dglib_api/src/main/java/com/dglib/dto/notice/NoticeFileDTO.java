@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.notice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

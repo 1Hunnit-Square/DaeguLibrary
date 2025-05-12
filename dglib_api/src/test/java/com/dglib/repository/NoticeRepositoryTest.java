@@ -17,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
-import com.dglib.entity.Notice;
-import com.dglib.entity.NoticeFile;
+import com.dglib.entity.notice.Notice;
+import com.dglib.entity.notice.NoticeFile;
+import com.dglib.repository.notice.NoticeFileRepository;
+import com.dglib.repository.notice.NoticeRepository;
 
 @SpringBootTest
 public class NoticeRepositoryTest {

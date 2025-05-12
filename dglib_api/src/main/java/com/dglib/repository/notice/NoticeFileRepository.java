@@ -1,11 +1,11 @@
-package com.dglib.repository;
+package com.dglib.repository.notice;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.dglib.entity.NoticeFile;
+import com.dglib.entity.notice.NoticeFile;
 
 public interface NoticeFileRepository extends JpaRepository<NoticeFile, Long>{
 	

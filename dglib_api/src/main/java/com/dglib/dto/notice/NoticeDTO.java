@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.notice;
 
 import java.time.LocalDateTime;
 import java.util.List;

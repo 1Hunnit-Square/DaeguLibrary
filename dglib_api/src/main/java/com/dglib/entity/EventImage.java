@@ -36,7 +36,7 @@ public class EventImage {
 	private String originalFilename;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "event_eno", nullable = false) // 글번호(FK)
+	@JoinColumn(name = "eventEno", nullable = false) // 글번호(FK)
 	private Event event;
 
 }

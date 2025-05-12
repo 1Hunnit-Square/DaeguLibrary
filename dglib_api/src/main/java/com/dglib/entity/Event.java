@@ -57,7 +57,7 @@ public class Event {
 	private boolean isPinned = false; // 고정 여부
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id", nullable = false)
+	@JoinColumn(name = "memberId", nullable = false)
 	private Member member;	//회원아이디
 
 	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)

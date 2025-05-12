@@ -1,6 +1,6 @@
 package com.dglib.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -18,8 +18,8 @@ public class NoticeDTO {
 	private Long ano;
 	private String title;
 	private String content;
-	private LocalDate createDate;
-	private LocalDate modifyDate;
+	private LocalDateTime postedAt;
+	private LocalDateTime modifiedAt;
 	private int viewCount;
 	private boolean isHidden;
 	private boolean isPinned;

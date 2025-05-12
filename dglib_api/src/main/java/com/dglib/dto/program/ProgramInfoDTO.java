@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.program;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ProgramInfoDTO {
 	
-	private long progNo;
+	private Long progNo;
 	private String progName;
 	private String teachName;
 	private LocalDateTime applyStartAt;	//신청시작기간

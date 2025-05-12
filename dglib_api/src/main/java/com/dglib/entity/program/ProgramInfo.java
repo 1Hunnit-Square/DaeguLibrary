@@ -1,4 +1,4 @@
-package com.dglib.entity;
+package com.dglib.entity.program;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class ProgramInfo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long progNo;	//프로그램번호
+	private Long progNo;	//프로그램번호
 	
 	@Column(nullable = false)
 	private String progName;	//프로그램명

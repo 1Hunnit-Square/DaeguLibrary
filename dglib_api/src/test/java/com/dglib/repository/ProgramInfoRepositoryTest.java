@@ -12,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import com.dglib.entity.ProgramInfo;
+import com.dglib.entity.program.ProgramInfo;
+import com.dglib.repository.program.ProgramInfoRepository;
 
 import jakarta.transaction.Transactional;
 

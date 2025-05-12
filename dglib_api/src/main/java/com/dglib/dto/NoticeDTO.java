@@ -25,5 +25,5 @@ public class NoticeDTO {
 	private boolean isPinned;
 	
 	private List<NoticeFileDTO> files; // 파일 목록
-	private String memberId;             // 작성자 ID (식별자 용도)
+	private String memberMid;             // 작성자 ID (식별자 용도)
 }

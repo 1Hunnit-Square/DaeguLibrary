@@ -13,11 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dglib.entity.EventBanner;
-import com.dglib.entity.Event;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
+import com.dglib.entity.event.Event;
+import com.dglib.entity.event.EventBanner;
+import com.dglib.repository.event.EventBannerRepository;
+import com.dglib.repository.event.EventRepository;
 
 @SpringBootTest
 public class EventBannerRepositoryTest {

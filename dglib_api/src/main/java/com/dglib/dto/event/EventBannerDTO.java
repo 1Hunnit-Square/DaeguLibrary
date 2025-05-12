@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,13 +8,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class EventImageDTO {
+public class EventBannerDTO {
 	
-	private Long eino;
+	private Long bno;
+	private String imageName;
 	private String imageUrl;
-	private String originalFilename;
-	
+	private Long eno;
+
 }

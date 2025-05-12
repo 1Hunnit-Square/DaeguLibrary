@@ -1,4 +1,4 @@
-package com.dglib.entity;
+package com.dglib.entity.event;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,26 +17,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "event_img")
+@Table(name = "event_banner")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventImage {
+public class EventBanner {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long eino;
+	private Long bno;
+	
+	@Column(nullable = false)
+	private String imageName;
 	
 	@Column(nullable = false)
 	private String imageUrl;
 	
-	@Column(nullable = false)
-	private String originalFilename;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "eventEno", nullable = false) // 글번호(FK)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "eventEno", nullable = false)
 	private Event event;
 
 }

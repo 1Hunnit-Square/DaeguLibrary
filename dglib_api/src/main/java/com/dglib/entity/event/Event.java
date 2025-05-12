@@ -1,9 +1,10 @@
-package com.dglib.entity;
+package com.dglib.entity.event;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dglib.entity.Member;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

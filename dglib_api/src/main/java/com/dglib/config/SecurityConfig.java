@@ -7,9 +7,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.dglib.security.DeniedHandler;
+import com.dglib.security.LoginFailHandler;
+import com.dglib.security.LoginSuccessHandler;
+import com.dglib.security.jwt.JwtFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -27,9 +33,17 @@ public class SecurityConfig {
 		http.csrf(config -> config.disable()); 
 		
 		http.formLogin(config -> {
-	        config.loginPage("/api/member/login");
+	        config.loginProcessingUrl("/api/member/login");
+	        config.successHandler(new LoginSuccessHandler());
+	        config.failureHandler(new LoginFailHandler());
 	        });
 		
+		 http.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+		
+		 http.exceptionHandling(config -> { 
+		        config.accessDeniedHandler(new DeniedHandler());
+		    });
+		 
 		return http.build();
 	}
 	

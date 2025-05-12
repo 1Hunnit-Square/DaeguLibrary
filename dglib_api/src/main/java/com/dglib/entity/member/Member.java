@@ -33,7 +33,6 @@ public class Member {
 	@Column(nullable = false, length = 18)
 	private String name;
 	
-
 	@Column(nullable = false, length = 10, unique = true)
 	private String mno;
 	
@@ -61,11 +60,9 @@ public class Member {
 	@Column(nullable = false)
 	private boolean checkTerms;
 	
+	@Column
+	private LocalDate penaltyDate;
 
-	@Column(nullable = true)
-	private LocalDate panalty;
-
-	
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
     private MemberRole role;

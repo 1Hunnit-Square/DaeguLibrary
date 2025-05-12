@@ -2,13 +2,14 @@ import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import genreRouter from "./genreRouter";
 import Loading from "./Loading";
-import { Navigate } from "react-router-dom";
+import booksRouter from "./booksRouter";
+import { Outlet } from "react-router-dom";
 
 const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
 const Login = lazy(()=> import ("../pages/LoginPage"));
 const None = lazy(()=> import ("../pages/NonePage"));
-const BooksSearch = lazy(()=> import ("../pages/BooksSearch"));
+
 
 const root = createBrowserRouter([
 
@@ -29,13 +30,8 @@ const root = createBrowserRouter([
     },
     {
         path: "books",
-        element: <Suspense fallback={<Loading />}><BooksSearch /></Suspense>,
-        children: [
-            { path: "search", element: <Suspense fallback={<Loading />}><BooksSearch /></Suspense> },
-            { path: "organization", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-            { path: "policy", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-            { path: "location", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-        ]
+        element: <Suspense fallback={<Loading />}><Outlet /></Suspense>,
+        children: booksRouter()
     },
     {
         path: "usage/*",

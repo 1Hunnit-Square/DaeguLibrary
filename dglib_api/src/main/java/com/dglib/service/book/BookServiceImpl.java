@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.dglib.dto.book.BookDTO;
@@ -38,6 +39,7 @@ import com.dglib.entity.book.ReserveState;
 import com.dglib.entity.member.Member;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.LibraryBookRepository;
+import com.dglib.repository.book.LibraryBookSpecifications;
 import com.dglib.repository.book.RentalRepository;
 import com.dglib.repository.book.ReserveRepository;
 import com.dglib.repository.member.MemberRepository;
@@ -67,6 +69,16 @@ public class BookServiceImpl implements BookService {
 	                Book newBook = modelMapper.map(bookDto, Book.class);
 	                return bookRepository.save(newBook);
 	            });
+		List<String> callsigns = libraryBooks.stream()
+		        .map(LibraryBookDTO::getCallSign)
+		        .collect(Collectors.toList());
+		
+		List<String> existingCallsigns = libraryBookRepository.findExistingCallSigns(callsigns);
+		
+		if (!existingCallsigns.isEmpty()) {
+			throw new IllegalStateException("이미 존재하는 청구번호입니다.: " + existingCallsigns);
+		}
+
 		
 		List<LibraryBook> libraryBookEntities = libraryBooks.stream()
 		        .map(dto -> {
@@ -81,11 +93,27 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<BookSummaryDTO> getBookList(Pageable pageable) {
-		return libraryBookRepository.findBookSummaries(pageable);
-		
-		
+	public Page<BookSummaryDTO> getBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions) {
+		Specification<LibraryBook> spec = null;
+//		if (newQuery != null && !newQuery.isEmpty()) {
+//			spec = LibraryBookSpecifications.research(query, option, newQuery, newOption);
+//			LOGGER.info("재검색=====================================================================================");
+//		} else {
+//			spec = Specification.where(LibraryBookSpecifications.hasQuery(query, option));
+//			LOGGER.info("일반검색=====================================================================================");
+//		}
+		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);
+		LOGGER.info("한번에해도돼=====================================================================================");
+	    
+        Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
+        
+        return libraryBooks.map(libraryBook -> {
+            BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
+            modelMapper.map(libraryBook, BookSummaryDTO.class);
+            return dto;
+        });
 	}
+
 	
 	@Override
 	@Transactional(readOnly = true)

@@ -40,6 +40,10 @@ import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.LibraryBookRepository;
 import com.dglib.service.book.BookService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -110,14 +114,18 @@ public class BookController {
 	}
 	
 	@GetMapping("/librarybooklist")
-	public ResponseEntity<Page<BookSummaryDTO>> getLibraryBookList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-		LOGGER.info(page + " ");
-		Pageable pageable = PageRequest.of(page -1, size, Sort.by("libraryBookId").descending());
-		
-		Page<BookSummaryDTO> bookSummaryDto = bookService.getBookList(pageable);
-		
-
-		return ResponseEntity.ok(bookSummaryDto);
+	public ResponseEntity<Page<BookSummaryDTO>> getLibraryBookList(
+	    @RequestParam(defaultValue = "1") int page, 
+	    @RequestParam(defaultValue = "10") int size,
+	    @RequestParam(required = false) String query,
+	    @RequestParam(defaultValue = "전체") String option,
+	    @RequestParam(required = false) List<String> previousQueries,
+	    @RequestParam(defaultValue = "전체") List<String> previousOptions
+	    ) {
+	    
+	    Pageable pageable = PageRequest.of(page - 1, size);
+	    Page<BookSummaryDTO> bookList = bookService.getBookList(pageable, query, option, previousQueries, previousOptions);	        
+	    return ResponseEntity.ok(bookList);
 	}
 	
 	@GetMapping("/librarybookdetail/{librarybookid}")

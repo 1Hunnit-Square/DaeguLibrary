@@ -91,10 +91,17 @@ const BookRegComponent = () => {
     };
     console.log("서버로 전송될 데이터:", bookData);
     console.log(bookData.book.pubDate);
-    const response = await regBook(bookData);
-    alert("도서 등록이 완료되었습니다.");
-    setBookFormData(initialBookFormData);
-    setLibraryBooks(initialLibraryBooks);
+    try {
+      const response = await regBook(bookData);
+      alert("도서 등록이 완료되었습니다.");
+      setBookFormData(initialBookFormData);
+      setLibraryBooks(initialLibraryBooks);
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+
+
+
   };
 
   return (

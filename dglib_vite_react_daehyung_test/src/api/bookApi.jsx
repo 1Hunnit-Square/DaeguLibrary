@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_SERVER_HOST = 'http://localhost:8090';
-const prefix = `${API_SERVER_HOST}/book`;
+const prefix = `${API_SERVER_HOST}/api/book`;
 
 export const getBookreco = async (genre) => {
     const res = await axios.get(`${prefix}/bookreco/${genre}`);

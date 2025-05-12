@@ -17,7 +17,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@EntityGraph(attributePaths = {"rentals", "reserves"})
 	@Query("SELECT new com.dglib.dto.member.MemberSeaerchByMnoDTO(" +
 		       "m.id, m.name, m.mno, m.gender, m.birthDate, m.phone, m.addr, " +
-		       "m.panalty, m.state, " +
+		       "m.penaltyDate, m.state, " +
 		       "SUM(CASE WHEN r.state = com.dglib.entity.book.RentalState.BORROWED THEN 1 ELSE 0 END), " +
 		       "SUM(CASE WHEN rs.state = com.dglib.entity.book.ReserveState.RESERVED THEN 1 ELSE 0 END)) " +
 		       "FROM Member m " +

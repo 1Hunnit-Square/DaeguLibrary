@@ -20,7 +20,7 @@ public class MemberSeaerchByMnoDTO {
 	private LocalDate birthDate;
 	private String phone;
 	private String addr;
-	private LocalDate panalty;
+	private LocalDate panaltyDate;
     private MemberState state;
     private Long rentalCount;
     private Long reserveCount;

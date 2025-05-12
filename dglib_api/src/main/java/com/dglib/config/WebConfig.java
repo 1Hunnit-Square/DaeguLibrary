@@ -25,12 +25,6 @@ public class WebConfig implements WebMvcConfigurer {
 	
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
-	@Override
-	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**").allowedOrigins("http://localhost:5173")
-				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*").allowCredentials(true);
-	}
-	
 	@Bean
 	WebClient webClient() {
 		return WebClient.builder()
@@ -63,7 +57,6 @@ public class WebConfig implements WebMvcConfigurer {
 	            builder.modules(javaTimeModule); 
 	        };
 	 }
-
 
     
     @Bean

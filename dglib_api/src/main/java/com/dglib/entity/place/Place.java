@@ -39,7 +39,7 @@ public class Place {
 	@Column(nullable = false)
 	private int durationTime;	//지속시간(1~3)
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 20)
 	private String room;	//동아리실, 세미나실
 	
 	@Column(nullable = false)

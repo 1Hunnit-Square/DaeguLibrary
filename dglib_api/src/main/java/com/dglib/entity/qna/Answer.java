@@ -33,7 +33,7 @@ public class Answer {
 	
 	@OneToOne
 	@JoinColumn(name = "qno")
-	private Question qna_q;
+	private Question question;
 	
 	@Column(nullable = false)
 	private LocalDateTime postedAt;	//등록일

@@ -1,10 +1,10 @@
-package com.dglib.repository;
+package com.dglib.repository.news;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.dglib.entity.NewsImage;
+import com.dglib.entity.news.NewsImage;
 
 public interface NewsImageRepository extends JpaRepository<NewsImage, Long>{
 	

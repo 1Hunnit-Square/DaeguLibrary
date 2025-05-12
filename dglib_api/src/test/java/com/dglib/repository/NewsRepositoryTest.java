@@ -16,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
-import com.dglib.entity.News;
-import com.dglib.entity.NewsImage;
+import com.dglib.entity.news.News;
+import com.dglib.entity.news.NewsImage;
+import com.dglib.repository.news.NewsImageRepository;
+import com.dglib.repository.news.NewsRepository;
 
 @SpringBootTest
 public class NewsRepositoryTest {

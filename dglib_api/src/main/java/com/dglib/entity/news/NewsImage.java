@@ -1,4 +1,4 @@
-package com.dglib.entity;
+package com.dglib.entity.news;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

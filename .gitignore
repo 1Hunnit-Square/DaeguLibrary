@@ -67,13 +67,6 @@ ENV/
 *.weights
 *.onnx
 
-# 미디어 파일
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.mp4
-
 # 환경설정
 .env
 .env.*

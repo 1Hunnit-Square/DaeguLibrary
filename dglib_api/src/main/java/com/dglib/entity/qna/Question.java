@@ -1,9 +1,12 @@
-package com.dglib.entity;
+package com.dglib.entity.qna;
 
 import java.time.LocalDateTime;
 
+import com.dglib.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,7 +26,7 @@ public class Question {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long qno;	//글번호
+	private Long qno;	//글번호
 	
 	@Column(length = 200, nullable = false)
 	private String title;	//제목	
@@ -43,9 +46,9 @@ public class Question {
 	@Column(nullable = false)
 	private int viewCount = 0;	//조회 횟수
 	
-	@ManyToOne
-	@JoinColumn(name = "id", nullable = false)
-	Member member;	//회원id
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "memberMid", nullable = false)
+	private Member member;	//회원id
 	
 	public void updateTitle(String title) {
 		this.title = title;

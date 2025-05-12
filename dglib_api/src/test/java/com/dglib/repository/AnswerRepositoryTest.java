@@ -9,11 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.dglib.entity.Answer;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
-import com.dglib.entity.Question;
+import com.dglib.entity.qna.Answer;
+import com.dglib.entity.qna.Question;
+import com.dglib.repository.qna.AnswerRepository;
+import com.dglib.repository.qna.QuestionRepository;
 
 @SpringBootTest
 public class AnswerRepositoryTest {
@@ -52,7 +54,7 @@ public class AnswerRepositoryTest {
 	            .build();
 	    memberRepository.save(adminMember);
 	    
-	   userMember = Member.builder()
+	    userMember = Member.builder()
 	            .id("usertester")
 	            .pw("12345")
 	            .name("회원테스터")

@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.qna;
 
 import java.time.LocalDate;
 
@@ -8,10 +8,11 @@ import lombok.Setter;
 @Getter @Setter
 public class AnswerDTO {
 	
-	private long ano;	//답변글 번호
-	private long qno;	//질문글 번호
+	private Long ano;	//답변글 번호
+	private Long qno;	//질문글 번호
 	private LocalDate postedAt;	//등록일
 	private LocalDate modifiedAt;	//수정일	
 	private String content;	//내용
-	private String memberId ;	//회원id
+	
+	private String memberMid;	//회원id
 }

@@ -1,11 +1,14 @@
-package com.dglib.entity;
+package com.dglib.entity.place;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import com.dglib.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +28,7 @@ public class Place {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long pno;	//시설 신청 번호
+	private Long pno;	//시설 신청 번호
 	
 	@Column(nullable = false)
 	private LocalDate useDate;	//이용날짜
@@ -45,9 +48,9 @@ public class Place {
 	@Column(nullable = false)
 	private LocalDateTime appliedAt;	//신청날짜
 	
-	@ManyToOne
-	@JoinColumn(name = "id", nullable = false)
-	Member member;	//회원id
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "memberMid", nullable = false)
+	private Member member;	//회원id
 	
 	//종료시간
 	public LocalTime getEndTime() {

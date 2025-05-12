@@ -13,7 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.dglib.entity.Member;
 import com.dglib.entity.MemberRole;
 import com.dglib.entity.MemberState;
-import com.dglib.entity.Place;
+import com.dglib.entity.place.Place;
+import com.dglib.repository.place.PlaceRepository;
 
 @SpringBootTest
 public class PlaceRepositoryTest {

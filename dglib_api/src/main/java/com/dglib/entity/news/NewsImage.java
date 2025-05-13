@@ -28,10 +28,10 @@ public class NewsImage {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long nino;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 500)
 	private String imageUrl;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 255)
 	private String originalFilename;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

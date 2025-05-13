@@ -1,4 +1,4 @@
-package com.dglib.controller;
+package com.dglib.controller.common;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.dglib.dto.SmsRequestDTO;
+import com.dglib.dto.common.SmsRequestDTO;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.security.Keys;

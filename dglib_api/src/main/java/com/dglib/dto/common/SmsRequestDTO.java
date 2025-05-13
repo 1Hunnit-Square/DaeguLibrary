@@ -1,4 +1,4 @@
-package com.dglib.dto;
+package com.dglib.dto.common;
 
 import java.util.List;
 

@@ -57,9 +57,6 @@ public class Member {
 	@Column(nullable = false)
 	private boolean checkEmail;
 	
-	@Column(nullable = false)
-	private boolean checkTerms;
-	
 	@Column
 	private LocalDate penaltyDate;
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 
-const API_SERVER_HOST = 'http://localhost:8090';
-const prefix = `${API_SERVER_HOST}/api/member`;
+const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;
 
 export const loginPost = async (loginParam) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};

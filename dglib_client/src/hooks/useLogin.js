@@ -6,7 +6,6 @@ import RecoilLoginState from "../atoms/loginState";
 export const useLogin = () => {
 
 const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
-const resetState = useResetRecoilState(RecoilLoginState);
 
 const doLogin = async (loginParam) => {
     const result = await loginPost(loginParam);
@@ -19,7 +18,7 @@ const doLogin = async (loginParam) => {
 
 const doLogout = () => {
             removeCookie('auth');
-            resetState();
+            setLoginState({});
         }
 
 

@@ -3,13 +3,11 @@ import { getBookreco } from "../../api/bookApi";
 import { useParams } from "react-router-dom";
 
 
-const GenreComponent = () => {
-    const { genre } = useParams();
-    const defaultGenre = "literature"
+const GenreComponent = ({genre}) => {
     console.log(genre)
     const { isLoading, isFetching, data, isError } = useQuery({
-        queryKey: ['bookreco', genre ?? defaultGenre],
-        queryFn: () => getBookreco(genre ?? defaultGenre),
+        queryKey: ['bookreco', genre],
+        queryFn: () => getBookreco(genre),
         staleTime:Infinity,
         refetchOnWindowFocus: false
     })

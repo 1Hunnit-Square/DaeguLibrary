@@ -66,7 +66,7 @@ const LoginComponent = () =>{
            name = {"pw"} value = {loginParam.pw} onChange={handleChange}  placeholder="비밀번호를 입력하세요"
            />
            <div className="mx-auto my-5"><CheckBox label={"아이디저장"} checked={savedId} onChange={handleCheckBox} /></div>
-           <Button onClick = {LoginClick} className="mx-auto mb-5">로그인</Button>
+           <Button onClick = {LoginClick} className="mx-auto mb-10">로그인</Button>
      </>
     )
 }

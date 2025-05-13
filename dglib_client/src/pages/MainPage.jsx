@@ -38,8 +38,8 @@ const MainPage = () => {
                         추천도서
                     </div>
                     <div className="mt-10 w-full bg-white rounded-lg shadow-sm h-[350px] mb-10">
-                        <GenreMenu />
-                        <Outlet />
+                        <GenreMenu Component={GenreComponent} />
+                        
                     </div>
                 </div>
             </div>

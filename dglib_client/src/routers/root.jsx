@@ -17,7 +17,7 @@ const root = createBrowserRouter([
     {
         path: "",
         element: <Suspense fallback={<Loading />}><Main /></Suspense>,
-        children: genreRouter()
+        //children: genreRouter()
     },
     {
         path: "about",

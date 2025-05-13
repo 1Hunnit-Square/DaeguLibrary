@@ -1,0 +1,97 @@
+package com.dglib.service.qna;
+
+import java.time.LocalDateTime;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.dglib.dto.qna.QuestionDTO;
+import com.dglib.entity.member.Member;
+import com.dglib.entity.qna.Question;
+import com.dglib.repository.member.MemberRepository;
+import com.dglib.repository.qna.QuestionRepository;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Service
+@Transactional
+public class QuestionServiceImpl implements QuestionService	{
+	
+	private final QuestionRepository questionRepository;
+	private final MemberRepository memberRepository;
+	
+	//등록
+	@Override
+	public Long createQuestion(QuestionDTO dto) {
+		Member member = memberRepository.findById(dto.getMemberMid())
+				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없음"));
+		
+		Question question = Question.builder()
+				.title(dto.getTitle())
+				.content(dto.getContent())
+				.checkPublic(dto.getCheckPublic())
+				.postedAt(LocalDateTime.now())
+				.member(member)
+				.build();
+		
+		return questionRepository.save(question).getQno();
+	}
+	
+	//조회
+	@Override
+	public QuestionDTO getQuestion(Long qno) {
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
+		question.setViewCount(question.getViewCount() + 1);
+		
+		QuestionDTO dto = new QuestionDTO();
+		dto.setQno(question.getQno());
+		dto.setTitle(question.getTitle());
+		dto.setContent(question.getContent());
+		dto.setCheckPublic(question.isCheckPublic());
+		dto.setPostedAt(question.getPostedAt());
+		dto.setModifiedAt(question.getModifiedAt());
+		dto.setViewCount(question.getViewCount());
+		dto.setMemberMid(question.getMember().getMid());
+		
+		return dto;
+	}
+	
+	//수정
+	@Override
+	public void updateQuestion(Long qno, QuestionDTO dto) {
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
+		
+		if(dto.getTitle() != null) {
+			question.updateTitle(dto.getTitle());
+		}
+		if(dto.getContent() != null) {
+			question.updateContent(dto.getContent());
+		}
+		if(dto.getCheckPublic() != null) {
+			question.updateCheckPublic(dto.getCheckPublic());
+		}
+		
+	}
+	
+	//삭제
+	@Override
+	public void deleteQuestion(Long qno) {
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
+		
+		questionRepository.delete(question);
+	}
+	
+	@Override
+	public Page<QuestionDTO> getQuestions(Pageable pageable) {
+		
+		return null;
+	}
+
+
+}

@@ -3,9 +3,12 @@ package com.dglib.dto.qna;
 import java.time.LocalDate;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
 public class AnswerDTO {
 	
 	private Long ano;	//답변글 번호

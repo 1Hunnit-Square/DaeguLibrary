@@ -17,12 +17,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 public class Question {
 	
 	@Id
@@ -59,6 +61,11 @@ public class Question {
 	}
 	public void updateContent(String content) {
 		this.content = content;
+		this.modifiedAt = LocalDateTime.now();
+	}
+	
+	public void updateCheckPublic(boolean value) {
+		this.checkPublic = value;
 		this.modifiedAt = LocalDateTime.now();
 	}
 	

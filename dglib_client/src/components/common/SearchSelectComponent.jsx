@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { FiChevronDown } from 'react-icons/fi';
-import { useSearchInput } from "../../hooks/useSearchInput";
 import { FiSearch } from 'react-icons/fi';
 
 const SearchSelectComponent = ({
   options = [],
   onSearch,
+  input = "",
   className = "",
   inputClassName = "",
   dropdownClassName = "",
@@ -14,9 +14,10 @@ const SearchSelectComponent = ({
   placeholder = "검색어를 입력하세요...",
   defaultCategory = "전체"
 }) => {
-  const { searchQuery, handleChange } = useSearchInput();
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(defaultCategory);
+  const [searchQuery, setSearchQuery] = useState(input);
   const dropdownRef = useRef(null);
 
   const handleSubmit = (e) => {
@@ -28,6 +29,15 @@ const SearchSelectComponent = ({
     setSelectedOption(option);
     setIsOpen(false);
   };
+
+useEffect(() => {
+  setSearchQuery(input);
+}, [input]);
+
+
+useEffect(() => {
+  setSelectedOption(defaultCategory);
+}, [defaultCategory]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,7 +83,7 @@ const SearchSelectComponent = ({
         <input
           type="text"
           value={searchQuery}
-          onChange={handleChange}
+          onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={placeholder}
           className={`w-full p-2 pl-4 pr-12 rounded-2xl border border-[#00893B] focus:outline-none ${inputClassName}`}
         />

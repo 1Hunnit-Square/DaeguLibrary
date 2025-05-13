@@ -3,45 +3,18 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
-import { useQuery } from "@tanstack/react-query";
 
-const FilterBookListComponent = ( { searchParams } ) => {
+const FilterBookListComponent = () => {
     const [books, setBooks] = useState([]);
     const [pageable, setPageable] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const [searchHistory, setSearchHistory] = useState([]);
+    const navigate = useNavigate();
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['librarybooklist', searchURLParams.toString(), searchParams],
-        queryFn: () => {
-            const params = {};
-            const page = searchURLParams.get("page") || "1";
-            params.page = parseInt(page, 10);
-
-
-            if (searchURLParams.has("query")) {
-                params.query = searchURLParams.get("query");
-                params.option = searchURLParams.get("option") || "전체";
-            }
-            if (searchParams) {
-                params.searchParam = searchParams;
-            }
-
-            return getLibraryBookList(params);
-        },
-        staleTime: Infinity,
-        refetchOnWindowFocus: false,
-    });
-    useEffect(() => {
-        if (data) {
-            setBooks(data.content);
-            setPageable(data);
-            if (!searchURLParams.has("page") && data.pageable) {
-                const newParams = new URLSearchParams(searchURLParams);
-                newParams.set("page", (data.pageable.pageNumber + 1).toString());
-                setSearchURLParams(newParams, { replace: true });
-            }
-        }
-    }, [data, searchURLParams, setSearchURLParams]);
+    const isMounted = useRef(false);
+    const lastProcessedSearchParamsRef = useRef(null);
+    const latestRequestRef = useRef();
 
 
     const pageClick = useCallback((page) => {
@@ -71,7 +44,29 @@ const FilterBookListComponent = ( { searchParams } ) => {
           {pageable.totalElements !== undefined && (
               <div className="mb-4">총 도서 {pageable.totalElements}</div>
           )}
+          {!isLoading && searchURLParams.has("query") && (
+              <div className="mb-4 text-sm text-gray-600">
+                  {(() => {
+                      const urlQuery = searchURLParams.get("query");
+                      const totalElements = pageable?.totalElements ?? 0;
+                      const lastHistoryItem = searchHistory.length > 0 ? searchHistory[searchHistory.length - 1] : null;
+                      const isReSearchContext = searchHistory.length > 1 &&
+                                                lastHistoryItem?.query === urlQuery;
 
+                      let message = "";
+
+                      if (isReSearchContext) {
+                          const historyQueries = searchHistory.map(item => item.query);
+                          const joinedQueries = historyQueries.join(", ");
+                          message = `"${joinedQueries}"에 대하여 ${totalElements}개가 검색되었습니다`;
+                      } else if (urlQuery) {
+                          message = `"${urlQuery}"에 대하여 ${totalElements}개가 검색되었습니다`;
+                      }
+
+                      return message;
+                  })()}
+              </div>
+          )}
 
           <div className="space-y-6">
               {Array.isArray(books) && books.length > 0 ? (
@@ -122,7 +117,7 @@ const FilterBookListComponent = ( { searchParams } ) => {
                   )
               )}
           </div>
-          {renderPagination()}
+          {pageable.totalElements > 0 && pageable.totalPages > 1 && renderPagination()}
       </div>
     );
 }

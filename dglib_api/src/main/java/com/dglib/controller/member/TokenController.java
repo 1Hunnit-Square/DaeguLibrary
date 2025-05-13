@@ -1,4 +1,4 @@
-package com.dglib.controller.common;
+package com.dglib.controller.member;
 
 import java.util.Date;
 import java.util.Map;

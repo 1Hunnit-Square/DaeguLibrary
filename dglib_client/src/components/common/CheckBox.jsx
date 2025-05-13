@@ -1,11 +1,11 @@
-const CheckBox = ({ label, checked, onChange }) => {
+const CheckBox = ({ label, checked, onChange, checkboxClassName }) => {
   return (
-    <label className="flex items-center">
+    <label className={`flex items-center ${checkboxClassName}`}>
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="form-checkbox h-5 w-5 text-[#00893B] border-gray-300 rounded focus:ring-[#00893B]"
+        className="h-5 w-5 accent-[#00893B] border-gray-300 rounded"
       />
       <span className="ml-2 text-gray-700">{label}</span>
     </label>

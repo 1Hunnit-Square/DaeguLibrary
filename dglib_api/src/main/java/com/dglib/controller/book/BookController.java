@@ -122,7 +122,7 @@ public class BookController {
 	    @RequestParam(required = false) List<String> previousQueries,
 	    @RequestParam(defaultValue = "전체") List<String> previousOptions
 	    ) {
-	    
+	    LOGGER.info(previousQueries + " ", previousOptions + " =============-------------=================--------");
 	    Pageable pageable = PageRequest.of(page - 1, size);
 	    Page<BookSummaryDTO> bookList = bookService.getBookList(pageable, query, option, previousQueries, previousOptions);	        
 	    return ResponseEntity.ok(bookList);

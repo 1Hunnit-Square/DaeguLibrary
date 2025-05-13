@@ -95,21 +95,12 @@ public class BookServiceImpl implements BookService {
 	@Transactional(readOnly = true)
 	public Page<BookSummaryDTO> getBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions) {
 		Specification<LibraryBook> spec = null;
-//		if (newQuery != null && !newQuery.isEmpty()) {
-//			spec = LibraryBookSpecifications.research(query, option, newQuery, newOption);
-//			LOGGER.info("재검색=====================================================================================");
-//		} else {
-//			spec = Specification.where(LibraryBookSpecifications.hasQuery(query, option));
-//			LOGGER.info("일반검색=====================================================================================");
-//		}
-		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);
-		LOGGER.info("한번에해도돼=====================================================================================");
-	    
+		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);    
         Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
         
         return libraryBooks.map(libraryBook -> {
             BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
-            modelMapper.map(libraryBook, BookSummaryDTO.class);
+            modelMapper.map(libraryBook, dto);
             return dto;
         });
 	}

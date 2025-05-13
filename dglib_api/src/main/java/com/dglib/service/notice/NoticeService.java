@@ -17,3 +17,5 @@
 //	void delete(Long ano); //삭제
 //	
 //}
+
+

@@ -1,6 +1,4 @@
-package com.dglib.entity.list;
-
-import java.time.LocalDate;
+package com.dglib.entity.sms;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,19 +17,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class EventDay {
-
+public class SmsTemplate {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long eventNo; 	//일정 번호
+	private Long templateId;	//템플릿 번호
 	
-	@Column(nullable = false)
-	private LocalDate eventDate;	//일정일
-	
-	@Column(nullable = false, length = 30)
-	private String eventType;	//행사종류
-	
-	@Column(nullable = false, length = 50)
-	private String eventName;	//행사이름
-	
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String content;	//문자 내용
 }

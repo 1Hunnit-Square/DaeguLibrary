@@ -1,4 +1,4 @@
-package com.dglib.dto.list;
+package com.dglib.dto.sms;
 
 import lombok.Data;
 

@@ -1,4 +1,6 @@
-package com.dglib.entity.list;
+package com.dglib.entity.days;
+
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,12 +19,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class SmsTemplate {
-	
+public class ClosedDay {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long templateId;	//템플릿 번호
+	private Long closedId;	//휴관일 번호
 	
-	@Column(nullable = false, columnDefinition = "TEXT")
-	private String content;	//문자 내용
+	@Column(nullable = false)
+	private LocalDate closedDate; 	//휴관일
+	
+	@Column(nullable = false)
+	private boolean isClosed;	//휴관일 여부
+	
+	
 }

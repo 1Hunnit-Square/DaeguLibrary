@@ -1,4 +1,4 @@
-package com.dglib.dto.common;
+package com.dglib.dto.sms;
 
 import java.util.List;
 

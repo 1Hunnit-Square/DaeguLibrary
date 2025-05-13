@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import com.dglib.entity.list.ClosedDay;
-import com.dglib.repository.list.ClosedDayRepository;
+import com.dglib.entity.days.ClosedDay;
+import com.dglib.repository.days.ClosedDayRepository;
 
 import jakarta.transaction.Transactional;
 

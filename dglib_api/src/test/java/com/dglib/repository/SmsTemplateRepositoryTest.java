@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import com.dglib.entity.list.SmsTemplate;
-import com.dglib.repository.list.SmsTemplateRepository;
+import com.dglib.entity.sms.SmsTemplate;
+import com.dglib.repository.sms.SmsTemplateRepository;
 
 import jakarta.transaction.Transactional;
 

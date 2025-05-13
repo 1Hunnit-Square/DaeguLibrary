@@ -1,4 +1,4 @@
-package com.dglib.dto.list;
+package com.dglib.dto.days;
 
 import java.time.LocalDate;
 

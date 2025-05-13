@@ -1,4 +1,4 @@
-package com.dglib.entity.list;
+package com.dglib.entity.days;
 
 import java.time.LocalDate;
 
@@ -19,17 +19,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ClosedDay {
+public class AnnivDay {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long closedId;	//휴관일 번호
+	private Long annivNo; 	//일정 번호
 	
 	@Column(nullable = false)
-	private LocalDate closedDate; 	//휴관일
+	private LocalDate annivDate;	//일정일
 	
-	@Column(nullable = false)
-	private boolean isClosed;	//휴관일 여부
+	@Column(nullable = false, length = 30)
+	private String annivType;	//행사종류
 	
+	@Column(nullable = false, length = 50)
+	private String annivName;	//행사이름
 	
 }

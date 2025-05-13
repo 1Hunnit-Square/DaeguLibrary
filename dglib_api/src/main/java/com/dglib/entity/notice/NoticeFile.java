@@ -28,13 +28,13 @@ public class NoticeFile {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long fno;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 255)
 	private String originalName;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 500)
 	private String filePath;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 50)
 	private String fileType;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

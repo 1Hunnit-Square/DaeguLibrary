@@ -45,6 +45,12 @@ public class Place {
 	@Column(nullable = false)
 	private int people;	//이용인원
 	
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String participants;	       //참가자 명단
+	
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String purpose;	       //사용목적
+	
 	@Column(nullable = false)
 	private LocalDateTime appliedAt;	//신청날짜
 	

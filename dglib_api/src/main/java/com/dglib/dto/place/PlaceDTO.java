@@ -18,6 +18,8 @@ public class PlaceDTO {
 	private String room;	//동아리실, 세미나실
 	private int people;	//이용인원
 	private LocalDateTime appliedAt;	//신청날짜
+	private String participants;	       //참가자 명단
+	private String purpose; //사용목적
 	
 	private String memberMid;	//회원id
 	

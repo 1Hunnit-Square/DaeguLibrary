@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const DynamicTab = ({ tabsConfig }) => {
-  const [activeTabIndex, setActiveTabIndex] = useState(
-    Array.isArray(tabsConfig) && tabsConfig.length > 0 ? 0 : -1
-  );
+const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
+  const findActiveIndex = () => {
+    if (activeTabId && tabsConfig.length > 0) {
+      const index = tabsConfig.findIndex(tab => tab.id === activeTabId);
+      return index !== -1 ? index : 0;
+    }
+    return Array.isArray(tabsConfig) && tabsConfig.length > 0 ? 0 : -1;
+  };
+
+  const [activeTabIndex, setActiveTabIndex] = useState(findActiveIndex);
   const lastTabIndex = tabsConfig.length - 1;
+
+
+  useEffect(() => {
+    const newIndex = findActiveIndex();
+    if (newIndex !== activeTabIndex) {
+      setActiveTabIndex(newIndex);
+    }
+  }, [activeTabId, tabsConfig]);
+
+
+  const handleTabClick = (index) => {
+    setActiveTabIndex(index);
+    if (onTabChange && tabsConfig[index]) {
+      onTabChange(tabsConfig[index].id);
+    }
+  };
 
   return (
     <div className="mx-auto w-[90%] mt-10 bg-white">
@@ -12,27 +34,18 @@ const DynamicTab = ({ tabsConfig }) => {
         {tabsConfig.map((tab, index) => {
           let borderClass = '';
 
-
           if (lastTabIndex <= 1) {
-
             if (index === 0) {
               borderClass = 'border-r border-t border-black';
-            }
-
-            else {
+            } else {
               borderClass = 'border-l border-t border-black';
             }
-          }
-
-          else {
+          } else {
             if (index === 0) {
-
               borderClass = 'border-r border-t border-black';
             } else if (index === lastTabIndex) {
-
               borderClass = 'border-l border-t border-black';
             } else {
-
               borderClass = 'border-l border-t border-r border-black';
             }
           }
@@ -49,7 +62,7 @@ const DynamicTab = ({ tabsConfig }) => {
                     : `bg-gray-100 text-gray-400 hover:text-gray-700 hover:bg-white border border-gray-300`
                 }
               `}
-              onClick={() => setActiveTabIndex(index)}
+              onClick={() => handleTabClick(index)}
               role="tab"
               aria-selected={activeTabIndex === index}
               aria-controls={`tabpanel-${tab.id || index}`}
@@ -64,13 +77,14 @@ const DynamicTab = ({ tabsConfig }) => {
       <div
         className="p-5 pt-10 flex justify-center"
         role="tabpanel"
-        aria-labelledby={`tab-${tabsConfig[activeTabIndex].id || activeTabIndex}`}
-        id={`tabpanel-${tabsConfig[activeTabIndex].id || activeTabIndex}`}
+        aria-labelledby={`tab-${tabsConfig[activeTabIndex]?.id || activeTabIndex}`}
+        id={`tabpanel-${tabsConfig[activeTabIndex]?.id || activeTabIndex}`}
       >
-        {typeof tabsConfig[activeTabIndex].content === 'function'
-          ? tabsConfig[activeTabIndex].content()
-          : tabsConfig[activeTabIndex].content
-        }
+        {activeTabIndex >= 0 && tabsConfig[activeTabIndex] && (
+          typeof tabsConfig[activeTabIndex].content === 'function'
+            ? tabsConfig[activeTabIndex].content()
+            : tabsConfig[activeTabIndex].content
+        )}
       </div>
     </div>
   );

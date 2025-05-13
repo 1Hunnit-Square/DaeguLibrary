@@ -9,15 +9,13 @@ export const getBookreco = async (genre) => {
     return res.data;
 }
 
-export const getLibraryBookList = async (params = {}) => {
+export const getNsLibraryBookList = async (params = {}) => {
     const { page = 1, size = 10 } = params;
     const finalParams = { page, size };
-
     if (params.query) {
         finalParams.query = params.query;
         finalParams.option = params.option;
     }
-
     if (params.previousQueries && params.previousQueries.length > 0) {
         finalParams.previousQueries = params.previousQueries;
         finalParams.previousOptions = params.previousOptions;
@@ -25,10 +23,7 @@ export const getLibraryBookList = async (params = {}) => {
         console.log("previousQueries", finalParams.previousQueries);
         console.log("previousOptions", finalParams.previousOptions);
     }
-
-
-
-    const res = await axios.get(`${prefix}/librarybooklist`, {
+    const res = await axios.get(`${prefix}/nslibrarybooklist`, {
         params: finalParams,
         paramsSerializer: params => {
             return qs.stringify(params, { arrayFormat: 'repeat' });
@@ -37,4 +32,13 @@ export const getLibraryBookList = async (params = {}) => {
     });
     return res.data;
 }
+
+export const getFsLibraryBookList = async (params = {}) => {
+    const res = await axios.get(`${prefix}/fslibrarybooklist`, {
+        params: params,
+    });
+    return res.data;
+}
+
+
 

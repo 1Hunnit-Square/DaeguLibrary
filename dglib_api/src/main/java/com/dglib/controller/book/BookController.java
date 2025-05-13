@@ -29,6 +29,7 @@ import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.LibraryBookDTO;
+import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
@@ -113,8 +114,8 @@ public class BookController {
 		return ResponseEntity.ok("도서가 성공적으로 등록되었습니다.");
 	}
 	
-	@GetMapping("/librarybooklist")
-	public ResponseEntity<Page<BookSummaryDTO>> getLibraryBookList(
+	@GetMapping("/nslibrarybooklist")
+	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
 	    @RequestParam(required = false) String query,
@@ -124,7 +125,22 @@ public class BookController {
 	    ) {
 	    LOGGER.info(previousQueries + " ", previousOptions + " =============-------------=================--------");
 	    Pageable pageable = PageRequest.of(page - 1, size);
-	    Page<BookSummaryDTO> bookList = bookService.getBookList(pageable, query, option, previousQueries, previousOptions);	        
+	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions);	        
+	    return ResponseEntity.ok(bookList);
+	}
+	
+	@GetMapping("/fslibrarybooklist")
+	public ResponseEntity<Page<BookSummaryDTO>> getFsLibraryBookList(
+	    @RequestParam(defaultValue = "1") int page, 
+	    @RequestParam(defaultValue = "10") int size,
+	    LibraryBookFsDTO libraryBookFsDto) {
+		libraryBookFsDto.processSortByField();
+		libraryBookFsDto.processYearDates();
+	
+		
+		Pageable pageable = PageRequest.of(page - 1, size);
+		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto);
+	        
 	    return ResponseEntity.ok(bookList);
 	}
 	

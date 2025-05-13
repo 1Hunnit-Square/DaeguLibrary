@@ -4,35 +4,21 @@ import { FiSearch } from 'react-icons/fi';
 
 const SearchSelectComponent = ({
   options = [],
-  handleSearch,
-  input = "",
-  className = "",
-  inputClassName = "",
   dropdownClassName = "",
-  buttonClassName = "",
   selectClassName = "",
-  placeholder = "검색어를 입력하세요...",
-  defaultCategory = "전체"
+  defaultCategory = "",
+  onChange
 }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(defaultCategory);
-  const [searchQuery, setSearchQuery] = useState(input);
   const dropdownRef = useRef(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleSearch(searchQuery, selectedOption);
-  };
 
   const handleSelectOption = (option) => {
     setSelectedOption(option);
     setIsOpen(false);
+    onChange(option);
   };
-
-useEffect(() => {
-  setSearchQuery(input);
-}, [input]);
 
 
 useEffect(() => {
@@ -53,11 +39,10 @@ useEffect(() => {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className={`flex ${className}`}>
       <div className="relative mr-2" ref={dropdownRef}>
         <button
           type="button"
-          className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 border border-[#00893B] rounded-2xl bg-white  ${selectClassName}`}
+          className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
         >
           <span>{selectedOption}</span>
@@ -79,22 +64,6 @@ useEffect(() => {
         )}
       </div>
 
-      <div className="relative flex-1">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={placeholder}
-          className={`w-full p-2 pl-4 pr-12 rounded-2xl border border-[#00893B] focus:outline-none ${inputClassName}`}
-        />
-        <button
-          type="submit"
-          className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-700 p-1 ${buttonClassName}`}
-        >
-          <FiSearch size={20} />
-        </button>
-      </div>
-    </form>
   );
 };
 

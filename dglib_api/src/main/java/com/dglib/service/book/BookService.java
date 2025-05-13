@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
@@ -18,7 +19,8 @@ import com.dglib.dto.book.ReserveStateChangeDTO;
 public interface BookService {
 	
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
-	Page<BookSummaryDTO> getBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions);
+	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions);
+	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO);
 	BookDetailDTO getLibraryBookDetail(Long libraryBookId);
 	Page<RentalBookListDTO> getRentalList(Pageable pageable);
 	void reserveBook(Long libraryBookId, String id);

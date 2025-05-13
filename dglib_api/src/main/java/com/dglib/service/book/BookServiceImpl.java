@@ -24,6 +24,7 @@ import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookStatusCountDto;
 import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.LibraryBookDTO;
+import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
@@ -93,7 +94,7 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<BookSummaryDTO> getBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions) {
+	public Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions) {
 		Specification<LibraryBook> spec = null;
 		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);    
         Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
@@ -103,6 +104,18 @@ public class BookServiceImpl implements BookService {
             modelMapper.map(libraryBook, dto);
             return dto;
         });
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO) {
+		Specification<LibraryBook> spec = LibraryBookSpecifications.fsFilter(libraryBookFsDTO);
+		Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
+
+		return libraryBooks.map(libraryBook -> {
+			BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
+			modelMapper.map(libraryBook, dto);
+			return dto;
+		});
 	}
 
 	

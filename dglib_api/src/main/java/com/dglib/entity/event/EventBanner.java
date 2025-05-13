@@ -29,10 +29,10 @@ public class EventBanner {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long bno;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 200)
 	private String imageName;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 500)
 	private String imageUrl;
 	
 	@OneToOne(fetch = FetchType.LAZY)

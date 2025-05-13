@@ -29,10 +29,10 @@ public class EventImage {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long eino;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 500)
 	private String imageUrl;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 255)
 	private String originalFilename;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

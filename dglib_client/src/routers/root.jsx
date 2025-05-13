@@ -7,6 +7,7 @@ import { Navigate } from "react-router-dom";
 const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
 const Login = lazy(()=> import ("../pages/LoginPage"));
+const Logout = lazy(()=> import ("../pages/LogoutPage"));
 const None = lazy(()=> import ("../pages/NonePage"));
 const BooksSearch = lazy(()=> import ("../pages/BooksSearch"));
 
@@ -56,6 +57,10 @@ const root = createBrowserRouter([
     {
         path: "login",
         element: <Suspense fallback={<Loading />}><Login /></Suspense>
+    },
+    {
+        path: "logout",
+        element: <Suspense fallback={<Loading />}><Logout /></Suspense>
     },
     {
         path: "signup",

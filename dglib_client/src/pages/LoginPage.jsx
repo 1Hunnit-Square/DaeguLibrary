@@ -1,7 +1,7 @@
 import Layout from "../layouts"
-import { Button } from "../components/Button";
 import { useRecoilState } from "recoil";
 import RecoilLoginState from '../atoms/loginState';
+import LoginComponent from "../components/member/LoginComponent";
 
 
 
@@ -10,19 +10,14 @@ import RecoilLoginState from '../atoms/loginState';
 const LoginPage = () => {
     const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
 
-    function LoginTest(){
-        setLoginState({id : "user1"});
-        alert("테스트 완료");
-        }
-
     return (
-        <Layout sideOn={false}>
-        {
-        loginState.id ?
-        <> 테스트 완료 : {loginState.id}</>
-        :
-        <Button onClick = {LoginTest}>로그인</Button>
-        }
+            <Layout sideOn={false}>
+        <div className="mt-10 mb-3">
+        대구 도서관에 오신 것을 환영합니다.
+        </div>
+        <h1 className="text-4xl mb-3 font-bold text-gray-900">대구 도서관</h1>
+        <h2 className="text-2xl font-semibold text-gray-700">회원 로그인</h2>
+             <LoginComponent />
         </Layout>
     )
 }

@@ -1,4 +1,5 @@
 import { atom, selector } from "recoil";
+import { getCookie } from "../util/cookieUtil";
 
 const loginState = atom({
     key:'loginState',
@@ -6,8 +7,11 @@ const loginState = atom({
 })
 
 function loadCookie(){
-    // 쿠키 읽는 부분 구현 필요
-    return {};
+    const memberInfo = getCookie("auth") ?? {};
+    if(memberInfo){
+        memberInfo.name = decodeURIComponent(memberInfo.name);
+    }
+    return memberInfo;
 }
 
 export default loginState

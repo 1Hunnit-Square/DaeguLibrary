@@ -49,12 +49,15 @@ public class Event {
 	private LocalDateTime modifiedAt; // 수정일
 
 	@Column(nullable = false)
+	@Builder.Default
 	private int viewCount = 0; // 조회수
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean isHidden = false; // 숨김 여부
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean isPinned = false; // 고정 여부
 	
 	@ManyToOne(fetch = FetchType.LAZY)

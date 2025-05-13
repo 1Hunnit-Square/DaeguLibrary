@@ -35,6 +35,7 @@ public class Question {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;	//내용
 	
+	@Builder.Default
 	@Column(nullable = false)
 	private boolean checkPublic = false;	//공개, 비공개	
 	
@@ -44,6 +45,7 @@ public class Question {
 	@Column
 	private LocalDateTime modifiedAt;	//수정일
 	
+	@Builder.Default
 	@Column(nullable = false)
 	private int viewCount = 0;	//조회 횟수
 	

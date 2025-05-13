@@ -62,7 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	        return true;
 	    }
 	    
-	    if(path.startsWith("/api/book/")) {
+	    if(path.startsWith("/api/")) {
 	        return true;
 	    }
 	    

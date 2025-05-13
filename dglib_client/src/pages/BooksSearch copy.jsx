@@ -26,17 +26,17 @@ const BooksSearch = () => {
           setIsChecked(true);
           setResults(2);
         }
-      //    if (location.pathname === '/books/search') {
-      //   setSearchParams({
-      //     query: "",
-      //     option: "전체"
-      //   });
-      //   setIsSearched(false);
-      //   setIsChecked(false);
-      //   setResults(0);
-      //   setIsLoading(false);
-      //   prevCheckedStateRef.current = false;
-      // }
+         if (location.pathname === '/books/search') {
+        setSearchParams({
+          query: "",
+          option: "전체"
+        });
+        setIsSearched(false);
+        setIsChecked(false);
+        setResults(0);
+        setIsLoading(false);
+        prevCheckedStateRef.current = false;
+      }
 
 
 

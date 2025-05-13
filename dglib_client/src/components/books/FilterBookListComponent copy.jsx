@@ -4,7 +4,7 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
 
-const FilterBookListComponent = () => {
+const FilterBookListComponent = ({ searchParams, isSearched, isChecked, onSearchResults }) => {
     const [books, setBooks] = useState([]);
     const [pageable, setPageable] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +15,105 @@ const FilterBookListComponent = () => {
     const isMounted = useRef(false);
     const lastProcessedSearchParamsRef = useRef(null);
     const latestRequestRef = useRef();
+    useEffect(() => {
+        if (!isMounted.current) {
+            isMounted.current = true;
+            lastProcessedSearchParamsRef.current = searchParams;
+            return;
+        }
+        if (isSearched && searchParams?.query &&
+            JSON.stringify(searchParams) !== JSON.stringify(lastProcessedSearchParamsRef.current))
+        {
+            const newSearchEntry = { query: searchParams.query, option: searchParams.option };
+            let updatedHistory = [];
+            let targetPage = 1;
+            const newUrlParams = new URLSearchParams();
 
+            if (!isChecked) {
+                updatedHistory = [newSearchEntry];
+                newUrlParams.set("query", searchParams.query);
+                newUrlParams.set("option", searchParams.option);
+                newUrlParams.set("page", targetPage.toString());
+                newUrlParams.delete("ischecked");
+            } else {
+                updatedHistory = [...searchHistory, newSearchEntry];
+                searchHistory.forEach(historyItem => {
+                    newUrlParams.append("prev_query", historyItem.query);
+                    newUrlParams.append("prev_option", historyItem.option);
+                });
+
+                newUrlParams.set("query", searchParams.query);
+                newUrlParams.set("option", searchParams.option);
+
+                newUrlParams.set("page", targetPage.toString());
+                newUrlParams.set("ischecked", "true");
+
+            }
+            setSearchHistory(updatedHistory);
+            setSearchURLParams(newUrlParams);
+            lastProcessedSearchParamsRef.current = searchParams;
+        }
+    }, [isSearched, isChecked, searchParams, searchHistory, searchURLParams, setSearchURLParams]);
+
+
+    useEffect(() => {
+        const currentPage = parseInt(searchURLParams.get("page") || "1", 10);
+        const urlQuery = searchURLParams.get("query");
+        const urlOption = searchURLParams.get("option");
+
+        const currentRequestIdentifier = searchURLParams.toString();
+        latestRequestRef.current = currentRequestIdentifier;
+
+        const getBookList = async (requestIdentifier) => {
+            const params = {};
+            params.page = currentPage;
+
+            if (urlQuery && urlOption) {
+                params.query = urlQuery;
+                params.option = urlOption;
+
+
+                const prevQueriesFromUrl = searchURLParams.getAll("prev_query");
+                const prevOptionsFromUrl = searchURLParams.getAll("prev_option");
+
+                if (prevQueriesFromUrl.length > 0 && prevOptionsFromUrl.length > 0) {
+                    params.previousQueries = prevQueriesFromUrl;
+                    params.previousOptions = prevOptionsFromUrl;
+                }
+
+            }
+
+            if (latestRequestRef.current === requestIdentifier) {
+                setIsLoading(true);
+            } else {
+                return;
+            }
+            try {
+                navigate(`/books/search?${params}`)
+                const response = await getLibraryBookList(params);
+
+                if (latestRequestRef.current === requestIdentifier) {
+                    const content = Array.isArray(response?.content) ? response.content : [];
+                    setBooks(content);
+                    setPageable(response);
+                    onSearchResults(content.length);
+
+
+                }
+
+            } catch (error) {
+                     alert("도서 목록을 가져오는 중 오류가 발생했습니다." + error.response.data.message);
+            } finally {
+                setIsLoading(false);
+
+            }
+        };
+        ;
+        getBookList(currentRequestIdentifier);
+
+        return () => {};
+
+    }, [searchURLParams, onSearchResults]);
 
     const pageClick = useCallback((page) => {
         const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);

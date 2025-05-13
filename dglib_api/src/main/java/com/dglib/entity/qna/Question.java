@@ -1,11 +1,13 @@
-package com.dglib.entity.board;
+package com.dglib.entity.qna;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 
 import com.dglib.entity.member.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,11 +23,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Qna_Q {
+public class Question {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int qno;	//글번호
+	private Long qno;	//글번호
 	
 	@Column(length = 200, nullable = false)
 	private String title;	//제목	
@@ -34,23 +36,28 @@ public class Qna_Q {
 	private String content;	//내용
 	
 	@Column(nullable = false)
-	private boolean checkPublic;	//공개, 비공개	
+	private boolean checkPublic = false;	//공개, 비공개	
 	
 	@Column(nullable = false)
-	private LocalDate createDate;	//등록일
+	private LocalDateTime postedAt;	//등록일
 	
-	@Column(nullable = true)
-	private LocalDate modifyDate;	//수정일
+	@Column
+	private LocalDateTime modifiedAt;	//수정일
 	
 	@Column(nullable = false)
 	private int viewCount = 0;	//조회 횟수
 	
-	@ManyToOne
-	@JoinColumn(name = "memberId", nullable = false)
-	Member member;	//회원id
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "memberMid", nullable = false)
+	private Member member;	//회원id
 	
-
-	
-	
+	public void updateTitle(String title) {
+		this.title = title;
+		this.modifiedAt = LocalDateTime.now();
+	}
+	public void updateContent(String content) {
+		this.content = content;
+		this.modifiedAt = LocalDateTime.now();
+	}
 	
 }

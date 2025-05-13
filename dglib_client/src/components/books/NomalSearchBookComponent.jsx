@@ -174,7 +174,13 @@ const NomalSearchBookComponent = () => {
             <div className="container mx-auto px-4 py-8 max-w-3xl">
           {!isSearched && pageable.totalElements !== undefined ? (
               <div className="mb-4">총 {pageable.totalElements}권의 도서를 찾았습니다. </div>
-          ) : (<div>"{previousQuery}, {query}"에 대하여 {pageable.totalElements}권의 도서를 찾았습니다.</div>
+          ) : (
+              <div>
+                {previousQuery ?
+                  `"${previousQuery}, ${query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.` :
+                  `"${query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.`
+                }
+              </div>
           )}
           <div className="space-y-6">
               {Array.isArray(books) && books.length > 0 ? (

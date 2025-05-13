@@ -12,10 +12,10 @@ const genreRouter = () => ([
     },
     {
         path : ":genre",
-        element: <Suspense fallback={Loading}><GenreComponent /></Suspense>
+        element: <Suspense fallback={<Loading />}><GenreComponent /></Suspense>
     },
-    
+
 
 ])
 
-export default genreRouter; 
+export default genreRouter;

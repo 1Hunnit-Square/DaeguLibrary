@@ -13,7 +13,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
       pages.push(
         <button
           key={i}
-          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200'}`}
           onClick={() => !isLoading && onPageChange(i)}
           disabled={isLoading}
         >

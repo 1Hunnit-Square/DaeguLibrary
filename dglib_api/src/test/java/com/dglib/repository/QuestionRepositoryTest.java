@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.dglib.entity.Member;
-import com.dglib.entity.MemberRole;
-import com.dglib.entity.MemberState;
+import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberRole;
+import com.dglib.entity.member.MemberState;
 import com.dglib.entity.qna.Question;
+import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.QuestionRepository;
 
 @SpringBootTest
@@ -32,10 +33,10 @@ public class QuestionRepositoryTest {
 	@BeforeEach
 	public void setup() {
 		testMember = Member.builder()
-	            .id("tester")
+	            .mid("tester")
 	            .pw("12345")
 	            .name("테스터")
-	            .mno(1)
+	            .mno("1")
 	            .gender("F")
 	            .birthDate(LocalDate.of(2000, 1, 1))
 	            .phone("01012345678")
@@ -43,8 +44,6 @@ public class QuestionRepositoryTest {
 	            .email("test@dglib.com")
 	            .checkSms(true)
 	            .checkEmail(true)
-	            .checkTerms(true)
-	            .panalty(0)
 	            .role(MemberRole.USER)
 	            .state(MemberState.NORMAL)
 	            .build();

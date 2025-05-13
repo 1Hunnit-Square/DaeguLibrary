@@ -9,11 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.dglib.entity.Member;
-import com.dglib.entity.MemberRole;
-import com.dglib.entity.MemberState;
+import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberRole;
+import com.dglib.entity.member.MemberState;
 import com.dglib.entity.qna.Answer;
 import com.dglib.entity.qna.Question;
+import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.AnswerRepository;
 import com.dglib.repository.qna.QuestionRepository;
 
@@ -30,16 +31,16 @@ public class AnswerRepositoryTest {
 	MemberRepository memberRepository;
 	
 	Member adminMember, userMember;
-	Question question;
+	Question questionEntity;
 	Answer answer;
 	
 	@BeforeEach
 	public void setup() {
 		adminMember = Member.builder()
-	            .id("admintester")
+	            .mid("admintester")
 	            .pw("00000")
 	            .name("관리자테스터")
-	            .mno(1111)
+	            .mno("1111")
 	            .gender("F")
 	            .birthDate(LocalDate.of(2025, 1, 1))
 	            .phone("01099999999")
@@ -47,18 +48,16 @@ public class AnswerRepositoryTest {
 	            .email("testadmin@dglib.com")
 	            .checkSms(true)
 	            .checkEmail(true)
-	            .checkTerms(true)
-	            .panalty(0)
 	            .role(MemberRole.ADMIN)
 	            .state(MemberState.NORMAL)
 	            .build();
 	    memberRepository.save(adminMember);
 	    
 	    userMember = Member.builder()
-	            .id("usertester")
+	            .mid("usertester")
 	            .pw("12345")
 	            .name("회원테스터")
-	            .mno(1)
+	            .mno("1")
 	            .gender("M")
 	            .birthDate(LocalDate.of(2000, 1, 1))
 	            .phone("01012345678")
@@ -66,14 +65,12 @@ public class AnswerRepositoryTest {
 	            .email("test@dglib.com")
 	            .checkSms(true)
 	            .checkEmail(true)
-	            .checkTerms(true)
-	            .panalty(0)
 	            .role(MemberRole.USER)
 	            .state(MemberState.NORMAL)
 	            .build();
 	    memberRepository.save(userMember);
 	    
-	    question = Question.builder()
+	    questionEntity = Question.builder()
 	    		.title("테스트 질문글")
 	    		.content("테스트 질문글 상세 내용")
 	    		.checkPublic(false)
@@ -81,10 +78,10 @@ public class AnswerRepositoryTest {
 	    		.viewCount(0)
 	    		.member(userMember)
 	    		.build();
-	    question = questionRepository.save(question);
+	    questionEntity = questionRepository.save(questionEntity);
 	    
 	    answer = Answer.builder()
-	    		.qna_q(question)
+	    		.question(questionEntity)
 	    		.postedAt(LocalDateTime.now())
 	    		.content("관리자 답변 글 테스트")
 	    		.member(adminMember)
@@ -99,7 +96,7 @@ public class AnswerRepositoryTest {
 	@DisplayName("답변 글 저장 테스트")
 	public void createAnswerTest() {
 		    Answer answer = Answer.builder()
-		    		.qna_q(question)
+		    		.question(questionEntity)
 		    		.content("테스트 답변글 상세 내용")
 		    		.postedAt(LocalDateTime.now())
 		    		.member(adminMember)
@@ -107,14 +104,14 @@ public class AnswerRepositoryTest {
 		    
 		Answer saved = answerRepository.save(answer);
 		
-		System.out.println("답변글 생성, 질문번호: " + saved.getQna_q().getQno());
+		System.out.println("답변글 생성, 질문번호: " + saved.getQuestion().getQno());
 	}
 	
 	@Test
 	@DisplayName("답변 글 조회 테스트")
 	public void findAnswerTest() {
 		long ano = answer.getAno();
-		long qno = question.getQno();
+		long qno = questionEntity.getQno();
 		
 		Answer Afind = answerRepository.findById(ano).orElseThrow(() -> new RuntimeException("답변글을 찾을 수 없음"));
 		Question Qfind = questionRepository.findById(qno).orElseThrow(() -> new RuntimeException("질물글을 찾을 수 없음"));

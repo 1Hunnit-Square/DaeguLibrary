@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import com.dglib.entity.Member;
-import com.dglib.entity.MemberRole;
-import com.dglib.entity.MemberState;
+import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberRole;
+import com.dglib.entity.member.MemberState;
 import com.dglib.entity.program.ProgramInfo;
 import com.dglib.entity.program.ProgramUse;
+import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.program.ProgramInfoRepository;
 import com.dglib.repository.program.ProgramUseRepository;
 
@@ -52,8 +53,6 @@ public class ProgramUseRepositoryTest {
 	                .email("tester@example.com")
 	                .checkSms(true)
 	                .checkEmail(true)
-	                .checkTerms(true)
-	                .penalty(0)
 	                .role(MemberRole.USER)
 	                .state(MemberState.NORMAL)
 	                .build();

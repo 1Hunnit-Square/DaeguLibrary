@@ -93,7 +93,7 @@ public class ClosedDayServiceImpl implements ClosedDayService{
 			ids.addAll(registerMondays(year, month));
 		}
 		
-		// 명절(2025년 기준. 필요 시 외부 API나 DB로 관리 가능) 등록
+		// 명절(2025년 기준. 필요 시 외부 API나 DB로 관리) 등록
 		ids.add(registerClosedDay(ClosedDayDTO.builder()
 				.closedDate(LocalDate.of(2025, 1, 29)) //설날
 				.isClosed(true)

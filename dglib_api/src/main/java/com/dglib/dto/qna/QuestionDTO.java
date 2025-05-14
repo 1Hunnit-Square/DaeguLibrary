@@ -22,5 +22,7 @@ public class QuestionDTO {
 	private String memberMid;	//회원id
 	
 	
+	private String status;	//질문 현황: 접수or완료
+	
 	
 }

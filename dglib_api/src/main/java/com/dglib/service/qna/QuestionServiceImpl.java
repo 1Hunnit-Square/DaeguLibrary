@@ -11,6 +11,7 @@ import com.dglib.dto.qna.QuestionDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.qna.Question;
 import com.dglib.repository.member.MemberRepository;
+import com.dglib.repository.qna.AnswerRepository;
 import com.dglib.repository.qna.QuestionRepository;
 
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ public class QuestionServiceImpl implements QuestionService	{
 
    	private final QuestionRepository questionRepository;
 	private final MemberRepository memberRepository;
+	private final AnswerRepository answerRepository;	
 	
 	//등록
 	@Override
@@ -58,6 +60,7 @@ public class QuestionServiceImpl implements QuestionService	{
 		dto.setModifiedAt(question.getModifiedAt());
 		dto.setViewCount(question.getViewCount());
 		dto.setMemberMid(question.getMember().getMid());
+		
 		
 		return dto;
 	}
@@ -122,6 +125,9 @@ public class QuestionServiceImpl implements QuestionService	{
 					dto.setModifiedAt(question.getModifiedAt());
 					dto.setViewCount(question.getViewCount());
 					dto.setMemberMid(question.getMember().getMid());
+					
+					
+					
 					return dto;
 				});
 	}

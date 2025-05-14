@@ -1,4 +1,4 @@
-import Layout from "../layouts"
+import Layout from "../layouts/Layout"
 import { useRecoilState } from "recoil";
 import RecoilLoginState from '../atoms/loginState';
 import { useLogin } from "../hooks/useLogin";
@@ -11,13 +11,18 @@ import { useEffect } from "react";
 
 
 const LogoutPage = () => {
+    const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
     const { doLogout } = useLogin();
     const { moveToPath } = useMoveTo();
 
     useEffect(()=> {
-    doLogout();
-    alert("로그아웃 완료");
-    moveToPath("/");
+        if (!loginState.mid){
+        moveToPath("/");
+        } else {
+        doLogout();
+        alert("로그아웃 완료");
+        moveToPath("/");
+        }
 
     },[]);
 

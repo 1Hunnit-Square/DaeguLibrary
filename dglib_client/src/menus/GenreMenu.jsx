@@ -3,9 +3,9 @@ import { useState } from "react";
 
 const GenreMenu = ({ Component }) => {
 
-    const [ genre , setGenre ] = useState("literacture");
+    const [ genre , setGenre ] = useState("literature");
     const category = {
-        "literacture":"문학",
+        "literature":"문학",
         "philosophy":"철학",
         "religion":"종교",
         "history":"역사",
@@ -19,7 +19,7 @@ const GenreMenu = ({ Component }) => {
     const getNavLinkClass = (key) => {
         return genre == key
             ? "text-black font-bold"
-            : "text-gray-500 hover:text-black";
+            : "text-gray-500 hover:text-black cursor-pointer";
     };
 
     function menuHandler(key){
@@ -29,7 +29,7 @@ const GenreMenu = ({ Component }) => {
     return (
         <>
         <div className="p-4">
-            <ul className="flex space-x-10 ml-10 cursor-pointer">
+            <ul className="flex space-x-10 ml-10">
                {
                Object.keys(category).map((key) => (
                 <li key={key} className={getNavLinkClass(key)} onClick={() => menuHandler(key)}>{category[key]}</li>

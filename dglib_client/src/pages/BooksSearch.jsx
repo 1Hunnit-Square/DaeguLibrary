@@ -1,4 +1,4 @@
-import Layout from "../layouts";
+import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
 import DynamicTab from "../menus/DynamicTab";
 import NomalSearchBookComponent from "../components/books/NomalSearchBookComponent";

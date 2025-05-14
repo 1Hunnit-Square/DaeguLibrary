@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Loading from "./Loading";
 import booksRouter from "./booksRouter";
 import { Outlet } from "react-router-dom";
+import signUpRouter from "./signUpRouter";
 
 const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
@@ -58,7 +59,8 @@ const root = createBrowserRouter([
     },
     {
         path: "signup",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+        element: <Suspense fallback={<Loading />}><Outlet /></Suspense>,
+        children: signUpRouter()
     },
 
 ]);

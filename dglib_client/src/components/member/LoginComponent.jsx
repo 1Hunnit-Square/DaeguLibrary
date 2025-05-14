@@ -7,8 +7,8 @@ import { useLogin } from "../../hooks/useLogin";
 import { useMoveTo } from "../../hooks/useMoveTo";
 
 const LoginComponent = () =>{
-    const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
-    const [loginParam, setLoginParam] = useState({});
+    const [ loginState, setLoginState ] = useRecoilState(RecoilLoginState);
+    const [ loginParam, setLoginParam ] = useState({});
     const [ savedId, setSavedId ] = useState(false);
     const { doLogin } = useLogin();
     const { moveToPath } = useMoveTo();
@@ -65,7 +65,7 @@ const LoginComponent = () =>{
            className="block mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500"
            name = {"pw"} value = {loginParam.pw} onChange={handleChange}  placeholder="비밀번호를 입력하세요"
            />
-           <div className="mx-auto my-5"><CheckBox label={"아이디저장"} checked={savedId} onChange={handleCheckBox} /></div>
+           <div className="mx-auto my-5"><CheckBox checkboxClassName={"justify-center"} label={"아이디저장"} checked={savedId} onChange={handleCheckBox} /></div>
            <Button onClick = {LoginClick} className="mx-auto mb-10">로그인</Button>
      </>
     )

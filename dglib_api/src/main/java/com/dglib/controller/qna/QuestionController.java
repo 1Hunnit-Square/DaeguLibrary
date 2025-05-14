@@ -1,5 +1,7 @@
 package com.dglib.controller.qna;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/questions")
+@RequestMapping("/api/question")
 public class QuestionController {
 
 	private final QuestionService questionService;
@@ -47,5 +49,12 @@ public class QuestionController {
 	public ResponseEntity<Void> deleteQuestion(@PathVariable Long qno){
 		questionService.deleteQuestion(qno);
 		return ResponseEntity.noContent().build();
+	}
+	
+	
+	@GetMapping
+	public ResponseEntity<Page<QuestionDTO>> getQuestions(Pageable pageable){
+		Page<QuestionDTO> questions = questionService.getQuestions(pageable);
+		return ResponseEntity.ok(questions);
 	}
 }

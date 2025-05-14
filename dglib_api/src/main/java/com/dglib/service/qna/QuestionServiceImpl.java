@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 public class QuestionServiceImpl implements QuestionService	{
-	
-	private final QuestionRepository questionRepository;
+
+   	private final QuestionRepository questionRepository;
 	private final MemberRepository memberRepository;
 	
 	//등록
@@ -45,6 +45,7 @@ public class QuestionServiceImpl implements QuestionService	{
 	public QuestionDTO getQuestion(Long qno) {
 		Question question = questionRepository.findById(qno)
 				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
+		
 		question.setViewCount(question.getViewCount() + 1);
 		
 		QuestionDTO dto = new QuestionDTO();
@@ -87,11 +88,24 @@ public class QuestionServiceImpl implements QuestionService	{
 		questionRepository.delete(question);
 	}
 	
+	//페이징
 	@Override
 	public Page<QuestionDTO> getQuestions(Pageable pageable) {
 		
-		return null;
+		return questionRepository.findAll(pageable)
+				.map(question -> {
+					QuestionDTO dto = new QuestionDTO();
+					dto.setQno(question.getQno());
+					dto.setTitle(question.getTitle());
+					dto.setContent(question.getContent());
+					dto.setCheckPublic(question.isCheckPublic());
+					dto.setPostedAt(question.getPostedAt());
+					dto.setModifiedAt(question.getModifiedAt());
+					dto.setViewCount(question.getViewCount());
+					dto.setMemberMid(question.getMember().getMid());
+					return dto;
+				});
 	}
-
+	
 
 }

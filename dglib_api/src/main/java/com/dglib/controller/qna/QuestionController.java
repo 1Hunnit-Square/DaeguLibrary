@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.qna.QuestionDTO;
@@ -46,8 +47,8 @@ public class QuestionController {
 	}
 	
 	@DeleteMapping("/{qno}")
-	public ResponseEntity<Void> deleteQuestion(@PathVariable Long qno){
-		questionService.deleteQuestion(qno);
+	public ResponseEntity<Void> deleteQuestion(@PathVariable Long qno, @RequestParam String mid){
+		questionService.deleteQuestion(qno, mid);
 		return ResponseEntity.noContent().build();
 	}
 	

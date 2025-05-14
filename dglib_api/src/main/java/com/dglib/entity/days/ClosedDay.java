@@ -29,7 +29,8 @@ public class ClosedDay {
 	private LocalDate closedDate; 	//휴관일
 	
 	@Column(nullable = false)
-	private boolean isClosed;	//휴관일 여부
+	@Builder.Default
+	private boolean isClosed = true;	//휴관일 여부
 	
 	
 }

@@ -2,28 +2,24 @@ import { useState, useEffect, useRef } from "react";
 import { FiChevronDown } from 'react-icons/fi';
 import { FiSearch } from 'react-icons/fi';
 
-const SearchSelectComponent = ({
+const SelectComponent = ({
   options = [],
   dropdownClassName = "",
   selectClassName = "",
-  defaultCategory = "",
-  onChange
+  onChange,
+  value,
 }) => {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(defaultCategory);
   const dropdownRef = useRef(null);
 
   const handleSelectOption = (option) => {
-    setSelectedOption(option);
     setIsOpen(false);
-    onChange(option);
+    onChange({ target: { value: option } });
   };
 
 
-useEffect(() => {
-  setSelectedOption(defaultCategory);
-}, [defaultCategory]);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,12 +41,12 @@ useEffect(() => {
           className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span>{selectedOption}</span>
+          <span>{value}</span>
           <FiChevronDown className={`ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
-          <div className={`absolute z-10 -mt-4 ${dropdownClassName} bg-white border dropdownClassName border-[#00893B] rounded-lg shadow-lg`}>
+          <div className={`absolute z-10 -mt-4 bg-white border dropdownClassName border-[#00893B] rounded-lg shadow-lg w-full ${dropdownClassName}`}>
             {options.map((option, index) => (
               <div
                 key={index}
@@ -67,4 +63,4 @@ useEffect(() => {
   );
 };
 
-export default SearchSelectComponent;
+export default SelectComponent;

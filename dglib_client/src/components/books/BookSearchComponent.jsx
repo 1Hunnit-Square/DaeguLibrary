@@ -1,23 +1,21 @@
-import Layout from "../layouts";
-import SubHeader from "../layouts/SubHeader";
-import DynamicTab from "../menus/DynamicTab";
-import NomalSearchBookComponent from "../components/books/NomalSearchBookComponent";
-import FilterSearchBookComponent from "../components/books/FilterSearchBookComponent";
+import DynamicTab from "../../menus/DynamicTab";
+import NomalSearchBookComponent from "./NomalSearchBookComponent";
+import FilterSearchBookComponent from "./FilterSearchBookComponent";
 import { useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-const BooksSearch = () => {
+
+const BookSearchComponent = () => {
   const [searchURLParams, setSearchURLParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('info');
-   useEffect(() => {
 
+  useEffect(() => {
     if (!searchURLParams.has("tab")) {
       const newParams = new URLSearchParams(searchURLParams);
       newParams.set("tab", "info");
       setSearchURLParams(newParams, { replace: true });
     }
   }, []);
-
 
   useEffect(() => {
     const tabParam = searchURLParams.get("tab");
@@ -26,6 +24,7 @@ const BooksSearch = () => {
     }
   }, [searchURLParams]);
 
+
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
     const newParams = new URLSearchParams();
@@ -33,11 +32,6 @@ const BooksSearch = () => {
     newParams.set("page", "1");
     setSearchURLParams(newParams);
   };
-
-
-
-
-
 
   const myTabs = [
     {
@@ -52,16 +46,18 @@ const BooksSearch = () => {
     }
   ];
 
+
   return (
-    <Layout>
-      <SubHeader subTitle="통합검색" mainTitle="도서정보" />
+
+      <div className="container mx-auto py-6">
       <DynamicTab
         tabsConfig={myTabs}
         activeTabId={activeTab}
         onTabChange={handleTabChange}
       />
-    </Layout>
+  </div>
+
   );
 }
 
-export default BooksSearch;
+export default BookSearchComponent;

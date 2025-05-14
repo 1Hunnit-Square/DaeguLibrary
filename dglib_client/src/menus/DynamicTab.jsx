@@ -29,8 +29,8 @@ const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
   };
 
   return (
-    <div className="mx-auto w-[90%] mt-10 bg-white">
-      <div className="flex">
+    <div className="mx-auto w-full mt-10 bg-white">
+      <div className="flex mx-auto w-[90%]">
         {tabsConfig.map((tab, index) => {
           let borderClass = '';
 
@@ -63,10 +63,6 @@ const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
                 }
               `}
               onClick={() => handleTabClick(index)}
-              role="tab"
-              aria-selected={activeTabIndex === index}
-              aria-controls={`tabpanel-${tab.id || index}`}
-              id={`tab-${tab.id || index}`}
             >
               {tab.label}
             </button>
@@ -75,10 +71,7 @@ const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
       </div>
 
       <div
-        className="p-5 pt-10 flex justify-center"
-        role="tabpanel"
-        aria-labelledby={`tab-${tabsConfig[activeTabIndex]?.id || activeTabIndex}`}
-        id={`tabpanel-${tabsConfig[activeTabIndex]?.id || activeTabIndex}`}
+        className="p-5 pt-10 w-full"
       >
         {activeTabIndex >= 0 && tabsConfig[activeTabIndex] && (
           typeof tabsConfig[activeTabIndex].content === 'function'

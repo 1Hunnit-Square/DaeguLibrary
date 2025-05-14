@@ -1,7 +1,9 @@
 package com.dglib.entity.book;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,10 +44,10 @@ public class LibraryBook {
 	private Book book;
 	
 	@OneToMany(mappedBy = "libraryBook")
-	private List<Rental> rentals;
+	private Set<Rental> rentals = new LinkedHashSet<>();
 	
 	@OneToMany(mappedBy = "libraryBook")
 	@OrderBy("reserveDate ASC")
-	private List<Reserve> reserves;
+	private Set<Reserve> reserves  = new LinkedHashSet<>();
 
 }

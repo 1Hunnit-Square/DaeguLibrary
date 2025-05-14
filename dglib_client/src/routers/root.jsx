@@ -3,12 +3,18 @@ import { createBrowserRouter } from "react-router-dom";
 import Loading from "./Loading";
 import booksRouter from "./booksRouter";
 import { Outlet } from "react-router-dom";
+import aboutRouter from "./aboutRouter";
+import adminRouter from "./adminRouter";
+
 
 const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
+const Books = lazy(()=> import ("../pages/BooksPage"));
 const Login = lazy(()=> import ("../pages/LoginPage"));
 const Logout = lazy(()=> import ("../pages/LogoutPage"));
 const None = lazy(()=> import ("../pages/NonePage"));
+const Admin = lazy(()=> import ("../pages/AdminPage"));
+const SearchBookApi = lazy(()=> import ("../components/books/SearchBookApiComponent"));
 
 
 const root = createBrowserRouter([
@@ -20,16 +26,11 @@ const root = createBrowserRouter([
     {
         path: "about",
         element: <Suspense fallback={<Loading />}><About /></Suspense>,
-        children: [
-            { path: "greeting", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-            { path: "organization", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-            { path: "policy", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-            { path: "location", element: <Suspense fallback={<Loading />}><None /></Suspense> },
-        ]
+        children: aboutRouter()
     },
     {
         path: "books",
-        element: <Suspense fallback={<Loading />}><Outlet /></Suspense>,
+        element: <Suspense fallback={<Loading />}><Books /></Suspense>,
         children: booksRouter()
     },
     {
@@ -60,6 +61,16 @@ const root = createBrowserRouter([
         path: "signup",
         element: <Suspense fallback={<Loading />}><None /></Suspense>
     },
+    {
+        path: "admin",
+        element: <Suspense fallback={<Loading />}><Admin /></Suspense>,
+        children: adminRouter()
+    },
+    {
+        path: "searchbookapi",
+        element: <Suspense fallback={<Loading />}><SearchBookApi /></Suspense>
+
+    }
 
 ]);
 

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getBookreco } from "../../api/bookApi";
 import { useParams } from "react-router-dom";
+import Loading from "../../routers/Loading";
 
 
 const GenreComponent = ({genre}) => {
@@ -13,7 +14,7 @@ const GenreComponent = ({genre}) => {
     })
 
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return <Loading />
     if (isError) return <div>데이터 로딩 중 오류가 발생했습니다.</div>;
     if (!data) {return <div>데이터를 받아오지 못했습니다.</div>;}
     let books;

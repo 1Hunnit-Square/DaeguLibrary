@@ -1,4 +1,4 @@
-import Layout from "../layouts"
+import Layout from "../layouts/Layout"
 import QMenuComponent from "../components/main/QMenuComponent";
 import GenreMenu from "../menus/GenreMenu";
 import GenreComponent from "../components/main/GenreComponent";

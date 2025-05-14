@@ -19,9 +19,9 @@ import com.dglib.dto.book.ReserveStateChangeDTO;
 public interface BookService {
 	
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
-	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions);
-	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO);
-	BookDetailDTO getLibraryBookDetail(Long libraryBookId);
+	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
+	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
+	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
 	Page<RentalBookListDTO> getRentalList(Pageable pageable);
 	void reserveBook(Long libraryBookId, String id);
 	Page<ReserveBookListDTO> getReserveList(Pageable pageable);

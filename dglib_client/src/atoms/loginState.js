@@ -6,6 +6,14 @@ const loginState = atom({
     default: loadCookie()
 })
 
+export const memberIdSelector = selector({
+    key: 'memberIdSelector',
+    get: ({get}) => {
+        const login = get(loginState);
+        return login?.mid || null;
+    }
+});
+
 function loadCookie(){
     const memberInfo = getCookie("auth") ?? {};
     if(memberInfo){

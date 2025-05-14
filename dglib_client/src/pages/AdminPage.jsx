@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import SubHeader from "../layouts/SubHeader";
 
 
-const AboutPage = () => {
+const AdminPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
 
@@ -21,7 +21,7 @@ const AboutPage = () => {
 
 
     const LSideMenu = [
-        { id: "greeting", label: "인사말", path: "/about/greeting" },
+        { id: "regBook", label: "도서등록", path: "/admin/regbook" },
         { id: "organization", label: "조직 및 현황", path: "/about/organization" },
         { id: "policy", label: "도서관 정책", path: "/about/policy" },
         { id: "location", label: "오시는길", path: "/about/location" },]
@@ -33,4 +33,4 @@ const AboutPage = () => {
     )
 }
 
-export default AboutPage;
+export default AdminPage;

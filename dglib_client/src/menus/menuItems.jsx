@@ -77,7 +77,7 @@ const defaultMenuItems = [
     title: '관리자',
     link: '/admin',
     subMenus: [
-      { name: '관리자서브', link: '/admin/sub' }
+      { name: '도서등록', link: '/admin/regbook' }
     ]
   };
 
@@ -85,7 +85,7 @@ const defaultMenuItems = [
     key: 'menuItemsSelector',
     get: ({get}) => {
       const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'user' // 나중에 바꾸셈
+      const userRole = 'admin' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
         menuItems[5] = adminMenuItem;

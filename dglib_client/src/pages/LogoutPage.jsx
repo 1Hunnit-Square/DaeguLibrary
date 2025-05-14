@@ -1,4 +1,4 @@
-import Layout from "../layouts"
+import Layout from "../layouts/Layout"
 import { useRecoilState } from "recoil";
 import RecoilLoginState from '../atoms/loginState';
 import { useLogin } from "../hooks/useLogin";
@@ -24,7 +24,7 @@ const LogoutPage = () => {
     return (
         <>
         Logout...
-        </>  
+        </>
     )
 }
 

@@ -26,20 +26,20 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	Optional<LibraryBook> findByLibraryBookId(Long id);
 	
 	
-	@Query("SELECT new com.dglib.dto.book.BookSummaryDTO(" +
-		       "b.bookTitle, " +                
-		       "b.author, " +              
-		       "b.publisher, " +           
-		       "b.pubDate, " +      
-		       "b.cover, " +               
-		       "lb.location, " +            
-		       "lb.callSign, " +            
-		       "b.isbn, " +                 
-		       "lb.libraryBookId, " +       
-		       "CASE WHEN EXISTS (SELECT 1 FROM Rental r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state != com.dglib.entity.book.RentalState.RETURNED) THEN true ELSE false END" + 
-		       ") " +
-		       "FROM LibraryBook lb JOIN lb.book b")
-	Page<BookSummaryDTO> findBookSummaries(Pageable pageable);
+//	@Query("SELECT new com.dglib.dto.book.BookSummaryDTO(" +
+//		       "b.bookTitle, " +                
+//		       "b.author, " +              
+//		       "b.publisher, " +           
+//		       "b.pubDate, " +      
+//		       "b.cover, " +               
+//		       "lb.location, " +            
+//		       "lb.callSign, " +            
+//		       "b.isbn, " +                 
+//		       "lb.libraryBookId, " +       
+//		       "CASE WHEN EXISTS (SELECT 1 FROM Rental r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state != com.dglib.entity.book.RentalState.RETURNED) THEN true ELSE false END" + 
+//		       ") " +
+//		       "FROM LibraryBook lb JOIN lb.book b")
+//	Page<BookSummaryDTO> findBookSummaries(Pageable pageable);
 	
 	
 	@EntityGraph(attributePaths = "book")
@@ -49,6 +49,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 			+ "CASE WHEN EXISTS (SELECT 1 FROM Reserve r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state = com.dglib.entity.book.ReserveState.RESERVED) THEN true ELSE false END"
 			+ ") " + "FROM LibraryBook lb JOIN lb.book b WHERE lb.libraryBookId = :libraryBookId")
 	Page<LibraryBookSearchByBookIdDTO> findBookByLibraryBookId(Long libraryBookId, Pageable pageable);
+	
+	@EntityGraph(attributePaths = {"book", "rentals", "reserves", "reserves.member"})
+	Optional<LibraryBook> findWithDetailsByLibraryBookId(Long libraryBookId);
 	
 	
 	
@@ -68,7 +71,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 
 	
-	@EntityGraph(attributePaths = "book")
+	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Page<LibraryBook> findAll(Specification<LibraryBook> spec, Pageable pageable);
 
 }

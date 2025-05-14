@@ -1,6 +1,5 @@
 import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
-import genreRouter from "./genreRouter";
 import Loading from "./Loading";
 import booksRouter from "./booksRouter";
 import { Outlet } from "react-router-dom";
@@ -17,7 +16,6 @@ const root = createBrowserRouter([
     {
         path: "",
         element: <Suspense fallback={<Loading />}><Main /></Suspense>,
-        //children: genreRouter()
     },
     {
         path: "about",

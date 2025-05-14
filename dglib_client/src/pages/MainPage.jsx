@@ -1,6 +1,5 @@
 import Layout from "../layouts"
 import QMenuComponent from "../components/main/QMenuComponent";
-import { Outlet } from "react-router-dom";
 import GenreMenu from "../menus/GenreMenu";
 import GenreComponent from "../components/main/GenreComponent";
 
@@ -39,7 +38,7 @@ const MainPage = () => {
                     </div>
                     <div className="mt-10 w-full bg-white rounded-lg shadow-sm h-[350px] mb-10">
                         <GenreMenu Component={GenreComponent} />
-                        
+
                     </div>
                 </div>
             </div>

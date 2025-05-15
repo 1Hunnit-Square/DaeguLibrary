@@ -34,4 +34,4 @@ const SearchComponent = ({
   );
 };
 
-export default SearchComponent;
+export default memo(SearchComponent);

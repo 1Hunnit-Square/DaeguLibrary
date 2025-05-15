@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Search from "./Search";
 
 
-const Header = memo(() => {
+const Header = () => {
     return(
         <>
             <div className="flex justify-end mr-10 mt-3"> <LoginMenu /> </div>
@@ -16,6 +16,6 @@ const Header = memo(() => {
             {/* <div className="w-full bg-emerald-900 p-15"><Search /></div> */}
         </>
     );
-});
+};
 
-export default Header;
+export default memo(Header);

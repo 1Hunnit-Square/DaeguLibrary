@@ -1,6 +1,6 @@
 import { useMemo, memo } from 'react';
 
-const DynamicTab = memo(({ tabsConfig, activeTabId, onTabChange }) => {
+const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
 
   const activeTabIndex = useMemo(() => {
     if (activeTabId && tabsConfig.length > 0) {
@@ -72,7 +72,7 @@ const DynamicTab = memo(({ tabsConfig, activeTabId, onTabChange }) => {
       </div>
     </div>
   );
-});
+};
 
 
-export default DynamicTab;
+export default memo(DynamicTab);

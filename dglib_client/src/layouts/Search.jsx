@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { FiSearch } from 'react-icons/fi';
 
-const Search = memo(() => {
+const Search = () => {
     return (
         <div className="search relative w-full flex justify-center">
             <div className="relative w-[70%]">
@@ -19,6 +19,6 @@ const Search = memo(() => {
             </div>
         </div>
     );
-});
+};
 
-export default Search;
+export default memo(Search);

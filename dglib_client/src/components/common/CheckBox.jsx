@@ -1,6 +1,6 @@
 import {memo} from 'react';
 
-const CheckBox = memo(({ label, checked, onChange, checkboxClassName, inputClassName }) => {
+const CheckBox = ({ label, checked, onChange, checkboxClassName, inputClassName }) => {
   return (
     <label className={`flex items-center ${checkboxClassName}`}>
       <input
@@ -12,6 +12,6 @@ const CheckBox = memo(({ label, checked, onChange, checkboxClassName, inputClass
       <span className="ml-2 text-gray-700">{label}</span>
     </label>
   );
-})
+}
 
-export default CheckBox;
+export default memo(CheckBox);

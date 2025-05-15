@@ -1,7 +1,7 @@
 import { useMemo, memo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-const LSide = memo(({ LMainMenu, LSideMenu }) => {
+const LSide = ({ LMainMenu, LSideMenu }) => {
   const location = useLocation();
   console.log("너왜 한번찍히는데 왜 리렌더링돼???");
 
@@ -53,6 +53,6 @@ const LSide = memo(({ LMainMenu, LSideMenu }) => {
       </div>
     </div>
   );
-});
+};
 
-export default LSide;
+export default memo(LSide);

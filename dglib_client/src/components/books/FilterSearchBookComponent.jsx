@@ -1,5 +1,5 @@
 import Button from "../common/Button";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import SelectCopmonent from "../common/SelectComponent";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

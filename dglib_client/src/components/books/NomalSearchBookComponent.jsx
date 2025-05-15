@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRecoilValue } from "recoil";
@@ -11,7 +11,7 @@ import Loading from "../../routers/Loading";
 import Button from "../common/Button";
 import { memberIdSelector } from "../../atoms/loginState";
 
-const NomalSearchBookComponent = React.memo(() => {
+const NomalSearchBookComponent = () => {
     const [state, setState] = useState({
         books: [],
         pageable: {},
@@ -424,8 +424,6 @@ const NomalSearchBookComponent = React.memo(() => {
             </div>
         </div>
     );
-}, (prevProps, nextProps) => {
-    return true;
-});
+}
 
-export default NomalSearchBookComponent;
+export default memo(NomalSearchBookComponent);

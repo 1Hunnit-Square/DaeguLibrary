@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, memo } from "react";
 import { FiChevronDown } from 'react-icons/fi';
 import { FiSearch } from 'react-icons/fi';
 
-const SelectComponent = memo(({
+const SelectComponent = ({
   options = [],
   dropdownClassName = "",
   selectClassName = "",
@@ -61,6 +61,6 @@ const SelectComponent = memo(({
       </div>
 
   );
-});
+};
 
-export default SelectComponent;
+export default memo(SelectComponent);

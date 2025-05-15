@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, memo, useCallback } from "react";
 
-const SubHeader = memo(( {subTitle, mainTitle} ) => {
+const SubHeader = ( {subTitle, mainTitle} ) => {
     const [showToast, setShowToast] = useState(false);
 
     const handleShare = useCallback(() => {
@@ -40,6 +40,6 @@ const SubHeader = memo(( {subTitle, mainTitle} ) => {
         )}
         </div>
     );
-});
+};
 
-export default SubHeader;
+export default memo(SubHeader);

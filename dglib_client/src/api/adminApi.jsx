@@ -1,5 +1,4 @@
 import axios from 'axios';
-import qs from 'qs';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.admin}`;

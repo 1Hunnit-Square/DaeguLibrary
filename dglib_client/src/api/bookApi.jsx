@@ -1,6 +1,7 @@
-import axios from 'axios';
 import qs from 'qs';
+import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
+
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.book}`;
 
@@ -20,8 +21,6 @@ export const getNsLibraryBookList = async (params = {}, mid) => {
         finalParams.previousQueries = params.previousQueries;
         finalParams.previousOptions = params.previousOptions;
         finalParams.isChecked = params.isChecked;
-        console.log("previousQueries", finalParams.previousQueries);
-        console.log("previousOptions", finalParams.previousOptions);
     }
     if (mid) {
         finalParams.mid = mid;
@@ -66,20 +65,13 @@ export const reserveBook = async (reservationData) => {
 
 export const searchBookApi = async (searchTerm, page = 1) => {
     const encodedSearchTerm = encodeURIComponent(searchTerm);
-    const res = await axios.get(`${prefix}/search/${encodedSearchTerm}?page=${page}`);
+    const res = await axios.get(`${prefix}/search/${encodedSearchTerm}`, {
+        params: { page }
+    });
     return res.data;
 }
 
-export const regBookCheck = async (isbn) =>{
-    const res = await axios.get(`${prefix}/regbookcheck/${isbn}`);
-    return res.data;
 
-}
-
-export const deleteLibraryBook = async (librarybookid) => {
-    const res = await axios.delete(`${prefix}/deletelibrarybook/${librarybookid}`);
-    return res.data;
-}
 
 
 

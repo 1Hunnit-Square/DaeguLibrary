@@ -84,6 +84,7 @@ const FilterSearchBookComponent = () => {
             return getFsLibraryBookList(searchURLParams, mid);
         },
         refetchOnWindowFocus: false,
+        retry: false,
         enabled: searchableParams.some(param => searchURLParams.has(param))
     });
 
@@ -224,7 +225,7 @@ const FilterSearchBookComponent = () => {
                         ) : (
                             <div>
 
-                                    검색결과에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.
+                                    검색결과에 대하여 {pageable?.totalElements ?? 0}권의 도서를 찾았습니다.
 
                             </div>
                         )}

@@ -2,7 +2,7 @@ import Button from "../common/Button";
 import CheckBox from "../common/CheckBox";
 import { useRecoilState } from "recoil";
 import RecoilLoginState from '../../atoms/loginState';
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useLogin } from "../../hooks/useLogin";
 import { useMoveTo } from "../../hooks/useMoveTo";
 
@@ -21,7 +21,7 @@ const LoginComponent = () =>{
         }
     },[])
 
-    function LoginClick(){
+    const LoginClick = useCallback(()=> {
         if(savedId)
         localStorage.setItem("savedId",loginParam.id);
         else
@@ -41,18 +41,18 @@ const LoginComponent = () =>{
         })
 
         
-        }
+        });
     
-    function handleChange (e){
+    const handleChange = (e) => {
         setLoginParam(prev => ({
         ...prev,
         [e.target.name]: e.target.value
         }));
-    }
+    };
 
-     function handleCheckBox (e){
+     const handleCheckBox = useCallback((e) => {
         setSavedId(e.target.checked);
-    }
+    });
 
 
     return(

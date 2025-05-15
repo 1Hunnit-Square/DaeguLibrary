@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CheckBox from "../common/CheckBox";
 import Button from "../common/Button";
@@ -13,7 +13,7 @@ const navigate = useNavigate();
 const termStyle = "border p-3 pt-5 mb-10 h-48 overflow-y-scroll whitespace-pre-wrap bg-white-100 text-sm text-left";
 
 useEffect(() => {
-
+console.log("print terms");
 fetch("/terms/library.txt")
 .then((res) => res.text())
 .then((text) => setLibaryText(text));
@@ -26,10 +26,9 @@ fetch("/terms/company.txt")
 .then((res) => res.text())
 .then((text) => setCompanyText(text));
 
-
 },[]);
 
-function handleCheckBox (e, value){
+const handleCheckBox = useCallback((e, value) => {
         if(value == "all"){
         const checking = e.target.checked ? true : false;
         setCheckTerms((prev) => {
@@ -44,15 +43,15 @@ function handleCheckBox (e, value){
            ...prev,  [value] : e.target.checked
         }));
         }
-    }
+    });
 
-function handleNext(){
+const handleNext = useCallback(() => {
 if(checkTerms.library&&checkTerms.privacy&&checkTerms.company)
 navigate("/signup/auth");
 else{
   alert("이용약관에 동의해주셔야 서비스 이용이 가능합니다.")
 }
-}
+});
 
 
 return (
@@ -90,6 +89,6 @@ return (
       <Button onClick={handleNext}>회원가입</Button>
 </>
 );
-}
+};
 
 export default TermsComponent;

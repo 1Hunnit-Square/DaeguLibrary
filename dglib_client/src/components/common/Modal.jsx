@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import Draggable from "react-draggable";
 
 // 예시 : <Modal isOpen={isOpen} title={"제목"} onClose={handleClose} Confirm={"확인"} onConfirm={handleConfirm}> 내용 </Modal>
@@ -31,4 +31,4 @@ const Modal = ({ isOpen, title, children, onClose, Confirm, onConfirm, dragOn=tr
     </div>
   );
 }
-  export default Modal;
+  export default memo(Modal);

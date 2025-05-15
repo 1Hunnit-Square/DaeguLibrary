@@ -1,12 +1,13 @@
 import Button from "../common/Button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { checkAuthCode, sendAuthCode } from "../../api/smsApi";
 
 const AuthCodeComponent = ({phoneNum, handleNext}) => {
     const [ code, setCode ] = useState("");
     const [ retry, setRetry ] = useState(false);
- 
+    const navigate  = useNavigate();
 
     const smsSendMutation = useMutation({
     mutationFn : (num) => sendAuthCode(num),
@@ -22,7 +23,9 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     mutationFn: (params) => checkAuthCode(params),
     onSuccess: (data) => {
         console.log(data);
-    },
+        if(data)
+        navigate("/signup/join", { state: { phone : phoneNum }});
+            },
     onError: (error) => {
     console.error("error :", error);
     }
@@ -37,7 +40,7 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     }
    },[])
 
-   function handleChange(e){
+   const handleChange = (e) => {
     if (/[^0-9]/.test(e.target.value)) return;
 
     setCode(e.target.value);
@@ -48,9 +51,9 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
         }
         smsCheckMutation.mutate(params);
    }
-   }
+   };
 
-   function handleClick(){
+   const handleClick= useCallback(() => {
     if(!retry){
     const onConfirm = confirm("문자를 재전송 하겠습니까?");
     
@@ -62,7 +65,7 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     }, 10000)
 
     }}
-   }
+   });
 
 
     return (<>

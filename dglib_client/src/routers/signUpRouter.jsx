@@ -4,6 +4,7 @@ import Loading from "./Loading";
 
 const TermsPage = lazy(()=> import ("../pages/signup/TermsPage"));
 const AuthPage = lazy(()=> import ("../pages/signup/AuthPage"));
+const JoinPage = lazy(()=> import ("../pages/signup/JoinPage"));
 
 const signUpRouter = () => ([
 
@@ -18,8 +19,11 @@ const signUpRouter = () => ([
     {
         path : "auth",
         element: <Suspense fallback={<Loading />}><AuthPage /></Suspense>
+    },
+    {
+        path : "join",
+        element: <Suspense fallback={<Loading />}><JoinPage /></Suspense>
     }
-
 
 ])
 

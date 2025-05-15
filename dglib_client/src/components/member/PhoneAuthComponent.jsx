@@ -1,5 +1,5 @@
 import Button from "../common/Button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo, useCallback } from "react";
 
 const PhoneAuthComponent = ({handleNext}) => {
 
@@ -13,7 +13,7 @@ const PhoneAuthComponent = ({handleNext}) => {
     }
     ,[]);
 
-    function handleChange(e){
+    const handleChange = (e) => {
         if (/[^0-9]/.test(e.target.value)) return;
 
         setPhoneNum(prev =>
@@ -25,15 +25,15 @@ const PhoneAuthComponent = ({handleNext}) => {
         if(e.target.name =="second" && e.target.value.length == 4){
             phoneRef.third.current.focus();
         }
-    }
+    };
 
-    function handleClick(){
+    const handleClick = useCallback(() => {
         if(phoneNum.second.length >= 3 && phoneNum.third.length >=4)
         confirm(`${phoneNum.first}-${phoneNum.second}-${phoneNum.third}로 문자를 전송하시겠습니까?`)
         && handleNext("authCode", `${phoneNum.first}${phoneNum.second}${phoneNum.third}`);
         else
         alert("휴대전화 번호를 제대로 입력했는지 확인해주세요.");
-    }
+    });
 
     return (<>
     <div className="my-5">본인인증할 휴대폰 번호를 입력하세오.</div>

@@ -2,7 +2,7 @@ import Button from "../../components/common/Button";
 import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
 import Modal from "../../components/common/Modal";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
 import AuthCodeComponent from "../../components/member/AuthCodeComponent";
 
@@ -11,16 +11,16 @@ const [isOpen, setIsOpen] = useState(false);
 const [ authStep, setAuthStep ] = useState("phoneAuth");
 const [ phoneNum, setPhoneNum ] = useState("");
 
-function handleAuth(){
+const handleAuth = () => {
 setIsOpen(true);
 }
 
-function handleClose(){
+const handleClose = useCallback(() => {
 setIsOpen(false);
 setAuthStep("phoneAuth");
-}
+});
 
-function handleNext(step, phone = ""){
+const handleNext = (step, phone = "") => {
 setAuthStep(step);
 setPhoneNum(phone);
 }

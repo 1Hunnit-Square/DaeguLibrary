@@ -9,6 +9,7 @@ import AuthCodeComponent from "../../components/member/AuthCodeComponent";
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
 const [ authStep, setAuthStep ] = useState("phoneAuth");
+const [ phoneNum, setPhoneNum ] = useState("");
 
 function handleAuth(){
 setIsOpen(true);
@@ -19,8 +20,9 @@ setIsOpen(false);
 setAuthStep("phoneAuth");
 }
 
-function handleStep(step){
+function handleNext(step, phone = ""){
 setAuthStep(step);
+setPhoneNum(phone);
 }
 
 return (
@@ -31,8 +33,8 @@ return (
         <Button onClick={handleAuth}>인증하기</Button>
     </div>
 <Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
-    {authStep == "phoneAuth" && <PhoneAuthComponent handleStep={handleStep} />}
-    {authStep == "authCode" && <AuthCodeComponent />}
+    {authStep == "phoneAuth" && <PhoneAuthComponent handleNext={handleNext} />}
+    {authStep == "authCode" && <AuthCodeComponent phoneNum={phoneNum} handleNext={handleNext}/>}
 </Modal>
 </Layout>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 );

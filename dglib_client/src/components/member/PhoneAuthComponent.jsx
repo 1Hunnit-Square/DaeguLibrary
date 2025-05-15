@@ -1,7 +1,7 @@
 import Button from "../common/Button";
 import { useState, useRef, useEffect } from "react";
 
-const PhoneAuthComponent = ({handleStep}) => {
+const PhoneAuthComponent = ({handleNext}) => {
 
     const [ phoneNum, setPhoneNum ] = useState({first:"010", second:"", third:""});
     const inputStyle = "border rounded w-15 h-9 mx-1 pb-1 text-center"
@@ -29,7 +29,8 @@ const PhoneAuthComponent = ({handleStep}) => {
 
     function handleClick(){
         if(phoneNum.second.length >= 3 && phoneNum.third.length >=4)
-        confirm(`${phoneNum.first}-${phoneNum.second}-${phoneNum.third}로 문자를 전송하시겠습니까?`) && handleStep("authCode");
+        confirm(`${phoneNum.first}-${phoneNum.second}-${phoneNum.third}로 문자를 전송하시겠습니까?`)
+        && handleNext("authCode", `${phoneNum.first}${phoneNum.second}${phoneNum.third}`);
         else
         alert("휴대전화 번호를 제대로 입력했는지 확인해주세요.");
     }

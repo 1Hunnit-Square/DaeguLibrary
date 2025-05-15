@@ -3,6 +3,7 @@ package com.dglib.controller.member;
 import java.util.Date;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ import com.dglib.security.jwt.JwtProvider;
 public class TokenController {
 	
 	@PostMapping("/api/member/refresh")
-	public Map<String, Object> refresh(@RequestHeader("Authorization") String authHeader, String refreshToken){
+	public ResponseEntity<Map<String, Object>> refresh(@RequestHeader("Authorization") String authHeader, String refreshToken){
 		if(refreshToken == null) {
 			throw new JwtException("NULL_REFRESH");
 		}
@@ -27,7 +28,7 @@ public class TokenController {
 		String accessToken = authHeader.substring(7);
 		
 		if(checkExpiredToken(accessToken) == false ) {
-		    return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+		    return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken));
 		}
 		
 		Map<String, Object> claims = JwtProvider.validateToken(refreshToken);
@@ -36,7 +37,7 @@ public class TokenController {
 		String newRefreshToken = checkHourTime((Integer) claims.get("exp")) == true ? 
 				JwtProvider.generateToken(claims, 60*24) : refreshToken;
 		
-		return Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken);
+		return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken));
 	}
 	
 	

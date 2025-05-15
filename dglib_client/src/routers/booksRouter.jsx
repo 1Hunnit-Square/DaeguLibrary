@@ -5,6 +5,8 @@ import Loading from "./Loading";
 const BookSearch = lazy(() => import("../components/books/BookSearchComponent"));
 const NewBook = lazy(() => import("../components/books/NewBookComponent"));
 const Detail = lazy(() => import("../components/books/LibraryBookDetailComponent"));
+const RecommendBook = lazy(() => import("../components/books/RecommendBookComponent"));
+const TopBook = lazy(() => import("../components/books/TopBorrowedBookComponent"));
 const booksRouter = () => ([
 
     {
@@ -22,6 +24,14 @@ const booksRouter = () => ([
     {
         path: "detail/:librarybookid",
         element: <Suspense fallback={<Loading />}><Detail /></Suspense>
+    },
+    {
+        path: "recommend",
+        element: <Suspense fallback={<Loading />}><RecommendBook /></Suspense>
+    },
+    {
+        path: "top",
+        element: <Suspense fallback={<Loading />}><TopBook /></Suspense>
     }
 
 

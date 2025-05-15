@@ -20,7 +20,7 @@ const defaultMenuItems = [
         { name: '통합검색', link: '/books/search' },
         { name: '신착도서', link: '/books/new' },
         { name: '추천도서', link: '/books/recommend' },
-        { name: '대출베스트도서', link: '/books/popular' }
+        { name: '대출베스트도서', link: '/books/top' }
       ]
     },
     {
@@ -50,7 +50,7 @@ const defaultMenuItems = [
       subMenus: [
         { name: '공지사항', link: '/community/notice' },
         { name: '새소식', link: '/community/news' },
-        { name: '문의게시판', link: '/community/inquiry' },
+        { name: '문의게시판', link: '/community/qna' },
         { name: '도서관갤러리', link: '/community/gallery' },
         { name: '보도자료', link: '/community/press' },
         { name: '도서기증', link: '/community/donation' }
@@ -59,15 +59,15 @@ const defaultMenuItems = [
     {
       id: 6,
       title: '내서재',
-      link: '/mylib',
+      link: '/mylibrary',
       subMenus: [
-        { name: '대출 현황', link: '/mylib/borrowstatus' },
-        { name: '도서 예약', link: '/mylib/reservation' },
-        { name: '관심 도서', link: '/mylib/wishlist' },
-        { name: '희망 도서', link: '/mylib/request' },
-        { name: '프로그램 신청 내역', link: '/mylib/program' },
-        { name: '이용 신청 안내', link: '/mylib/usage-guide' },
-        { name: '맞춤 정보', link: '/mylib/personalized' }
+        { name: '대출현황', link: '/mylibrary/borrowstatus' },
+        { name: '도서예약', link: '/mylibrary/bookreservation' },
+        { name: '관심도서', link: '/mylibrary/wishlist' },
+        { name: '희망도서', link: '/mylibrary/request' },
+        { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
+        { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
+        { name: '맞춤정보', link: '/mylibrary/personalized' }
       ]
     }
   ];
@@ -85,7 +85,7 @@ const defaultMenuItems = [
     key: 'menuItemsSelector',
     get: ({get}) => {
       const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'admin' // 나중에 바꾸셈
+      const userRole = 'user' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
         menuItems[5] = adminMenuItem;

@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import SubHeader from "../layouts/SubHeader";
 
 
-const AboutPage = () => {
+const CommunityPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
 
     const LSideMenu = [
-        { id: "greeting", label: "인사말", path: "/about/greeting" },
-        { id: "organization", label: "조직 및 현황", path: "/about/organization" },
-        { id: "policy", label: "도서관 정책", path: "/about/policy" },
-        { id: "location", label: "오시는길", path: "/about/location" },]
+        { id: "notice", label: "공지사항", path: "/community/notice" },
+        { id: "news", label: "새소식", path: "/community/news" },
+        { id: "qna", label: "문의게시판", path: "/community/qna" },
+        { id: "gallery", label: "도서관갤러리", path: "/community/gallery" },
+        { id: "press", label: "보도자료", path: "/community/press" },
+        { id: "donation", label: "도서기증", path: "/community/donation" },]
 
     useEffect(() => {
         const currentPath = location.pathname;
@@ -28,11 +30,11 @@ const AboutPage = () => {
 
 
     return (
-        <Layout LMainMenu={"도서관소개"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서관 소개" />
+        <Layout LMainMenu={"시민참여"} LSideMenu={LSideMenu} >
+            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="시민참여" />
             <Outlet />
         </Layout>
     )
 }
 
-export default AboutPage;
+export default CommunityPage;

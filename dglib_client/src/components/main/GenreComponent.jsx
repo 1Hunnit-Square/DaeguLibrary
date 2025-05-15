@@ -14,7 +14,9 @@ const GenreComponent = ({genre}) => {
     })
 
 
-    if (isLoading) return <Loading />
+    if (isLoading) return <div className="flex justify-center items-center h-64">
+                            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                            </div>
     if (isError) return <div>데이터 로딩 중 오류가 발생했습니다.</div>;
     if (!data) {return <div>데이터를 받아오지 못했습니다.</div>;}
     let books;

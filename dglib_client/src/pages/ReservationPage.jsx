@@ -3,16 +3,14 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useEffect, useState } from "react";
 import SubHeader from "../layouts/SubHeader";
 
-
-const AboutPage = () => {
+const ReservationPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
 
     const LSideMenu = [
-        { id: "greeting", label: "인사말", path: "/about/greeting" },
-        { id: "organization", label: "조직 및 현황", path: "/about/organization" },
-        { id: "policy", label: "도서관 정책", path: "/about/policy" },
-        { id: "location", label: "오시는길", path: "/about/location" },]
+        { id: "bookrequest", label: "희망도서 신청", path: "/reservation/bookrequest" },
+        { id: "program", label: "프로그램 신청", path: "/reservation/program" },
+        { id: "facility", label: "시설 이용 신청", path: "/reservation/facility" }]
 
     useEffect(() => {
         const currentPath = location.pathname;
@@ -28,11 +26,11 @@ const AboutPage = () => {
 
 
     return (
-        <Layout LMainMenu={"도서관소개"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서관 소개" />
+        <Layout LMainMenu={"신청 및 예약"} LSideMenu={LSideMenu} >
+            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="신청 및 예약" />
             <Outlet />
         </Layout>
     )
 }
 
-export default AboutPage;
+export default ReservationPage;

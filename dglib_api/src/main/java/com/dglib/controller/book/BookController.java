@@ -110,9 +110,7 @@ public class BookController {
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
 		bookService.registerBook(bookRegistration);
 		LOGGER.info("도서 등록 성공");
-		
-	    
-		return ResponseEntity.ok("도서가 성공적으로 등록되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping("/nslibrarybooklist")
@@ -166,7 +164,7 @@ public class BookController {
 	@PostMapping("/reservebook")
 	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
 		bookService.reserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
-		return ResponseEntity.ok("도서 예약이 완료되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping("/reservebooklist")
@@ -182,27 +180,27 @@ public class BookController {
 	public ResponseEntity<String> cancelReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
         LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
         bookService.cancelReserveBook(reserveStateChangeDtos);
-        return ResponseEntity.ok("도서 예약이 취소되었습니다.");
+        return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/rereservebook")
 	public ResponseEntity<String> reReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 		LOGGER.info("도서 재예약 요청: {}", reserveStateChangeDtos);
 		bookService.reReserveBook(reserveStateChangeDtos);
-		return ResponseEntity.ok("도서 예약이 완료되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/completeborrowing")
 	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 		LOGGER.info("도서 대출 완료 요청: {}", reserveStateChangeDtos);
 		bookService.completeBorrowing(reserveStateChangeDtos);
-		return ResponseEntity.ok("도서 대출이 완료되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	@PostMapping("/returnbook")
 	public ResponseEntity<String> returnBook(@RequestBody List<RentalStateChangeDTO> rentalStateChangeDto) {
         LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
         bookService.completeBookReturn(rentalStateChangeDto);
-        return ResponseEntity.ok("도서 반납이 완료되었습니다.");
+        return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping("searchlibrarybook/{libraryBookId}")
@@ -213,14 +211,13 @@ public class BookController {
 
 
 		return ResponseEntity.ok(memberList);
-		
 	}
 	
 	@PostMapping("rentbook")
 	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
 		LOGGER.info("도서 대출 요청: {}", rentBookDto);
 		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
-		return ResponseEntity.ok("도서 대출이 완료되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 
 }

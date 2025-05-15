@@ -5,6 +5,10 @@ import booksRouter from "./booksRouter";
 import { Outlet } from "react-router-dom";
 import aboutRouter from "./aboutRouter";
 import adminRouter from "./adminRouter";
+import usageRouter from "./usageRouter";
+import reservationRouter from "./reservationRouter";
+import communityRouter from "./communityRouter";
+import myLibraryRouter from "./myLibraryRouter";
 
 
 const Main = lazy(()=> import ("../pages/MainPage"));
@@ -14,8 +18,11 @@ const Login = lazy(()=> import ("../pages/LoginPage"));
 const Logout = lazy(()=> import ("../pages/LogoutPage"));
 const None = lazy(()=> import ("../pages/NonePage"));
 const Admin = lazy(()=> import ("../pages/AdminPage"));
+const Usage = lazy(()=> import ("../pages/UsagePage"));
 const SearchBookApi = lazy(()=> import ("../components/books/SearchBookApiComponent"));
-
+const Reservation = lazy(()=> import ("../pages/ReservationPage"));
+const Community = lazy(()=> import ("../pages/CommunityPage"));
+const MyLibrary = lazy(()=> import ("../pages/MyLibraryPage"));
 
 const root = createBrowserRouter([
 
@@ -34,20 +41,24 @@ const root = createBrowserRouter([
         children: booksRouter()
     },
     {
-        path: "usage/*",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+        path: "usage",
+        element: <Suspense fallback={<Loading />}><Usage /></Suspense>,
+        children: usageRouter()
     },
     {
-        path: "reservation/*",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+        path: "reservation",
+        element: <Suspense fallback={<Loading />}><Reservation /></Suspense>,
+        children: reservationRouter()
     },
     {
-        path: "community/*",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+        path: "community",
+        element: <Suspense fallback={<Loading />}><Community /></Suspense>,
+        children: communityRouter()
     },
     {
-        path: "mylib/*",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+        path: "mylibrary",
+        element: <Suspense fallback={<Loading />}><MyLibrary /></Suspense>,
+        children: myLibraryRouter()
     },
     {
         path: "login",

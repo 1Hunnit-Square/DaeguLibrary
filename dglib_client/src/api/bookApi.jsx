@@ -70,5 +70,16 @@ export const searchBookApi = async (searchTerm, page = 1) => {
     return res.data;
 }
 
+export const regBookCheck = async (isbn) =>{
+    const res = await axios.get(`${prefix}/regbookcheck/${isbn}`);
+    return res.data;
+
+}
+
+export const deleteLibraryBook = async (librarybookid) => {
+    const res = await axios.delete(`${prefix}/deletelibrarybook/${librarybookid}`);
+    return res.data;
+}
+
 
 

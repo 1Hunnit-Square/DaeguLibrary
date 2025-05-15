@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, memo, useRef } from "react";
 import { FiChevronDown } from 'react-icons/fi';
 import { FiSearch } from 'react-icons/fi';
 
-const SearchSelectComponent = ({
+const SearchSelectComponent = memo(({
   options = [],
   handleSearch,
   wrapClassName = "",
@@ -97,6 +97,6 @@ useEffect(() => {
       </div>
     </form>
   );
-};
+});
 
 export default SearchSelectComponent;

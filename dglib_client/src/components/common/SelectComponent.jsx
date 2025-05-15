@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { FiChevronDown } from 'react-icons/fi';
 import { FiSearch } from 'react-icons/fi';
 
-const SelectComponent = ({
+const SelectComponent = memo(({
   options = [],
   dropdownClassName = "",
   selectClassName = "",
@@ -61,6 +61,6 @@ const SelectComponent = ({
       </div>
 
   );
-};
+});
 
 export default SelectComponent;

@@ -6,5 +6,6 @@ import lombok.Data;
 public class LibraryBookDTO {
 	private String location;
     private String callSign;
+    private Long LibraryBookId;
 
 }

@@ -73,5 +73,22 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Page<LibraryBook> findAll(Specification<LibraryBook> spec, Pageable pageable);
+	
+	@EntityGraph(attributePaths = {"book"})
+	List<LibraryBook> findAllByBookIsbn(String isbn);
+	
+	@EntityGraph(attributePaths = {"book"})
+	boolean existsByBookIsbn(String isbn);
+	
+	
+	@Query("SELECT lb.libraryBookId FROM LibraryBook lb WHERE lb.libraryBookId IN :libraryBookIds")
+    List<Long> findExistingLibraryBookIds(@Param("libraryBookIds") List<Long> libraryBookIds);
+	
+	@Query("SELECT lb.callSign FROM LibraryBook lb WHERE lb.callSign IN :callSigns AND lb.libraryBookId NOT IN :excludeIds")
+    List<String> findExistingCallSignsExcludeIds(@Param("callSigns") List<String> callSigns, @Param("excludeIds") List<Long> excludeIds);
+	
+	
+	
+	
 
 }

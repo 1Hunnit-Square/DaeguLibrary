@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { menuItemsSelector } from './menuItems';
 import { useRecoilValue } from 'recoil';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { menuVariants, subMenuVariants, subMenuContainerVariants } from '../animations/menuAnimation';
+import {
+    menuVariants,
+    subMenuVariants,
+    subMenuContainerVariants,
+} from '../animations/menuAnimation';
 
 const MainMenu = () => {
     const [isHovering, setIsHovering] = useState(false);
@@ -14,34 +18,53 @@ const MainMenu = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const widths = menuRefs.current.map(ref => ref.getBoundingClientRect().width);
-        setMenuWidths(widths);
-    }, []);
+        if (menuRefs.current.length === menuItems.length) {
+            const widths = menuRefs.current.map(ref =>
+                ref?.getBoundingClientRect().width || 0
+            );
+            setMenuWidths(widths);
+        }
+    }, [menuItems.length]);
 
     const handleNavigation = (e, path) => {
         e.preventDefault();
-        setIsHovering(false);
-        setActiveMenuIndex(null);
+        if (isHovering || activeMenuIndex !== null) {
+            setIsHovering(false);
+            setActiveMenuIndex(null);
+        }
         navigate(path);
     };
 
+    const handleMouseEnter = (index) => {
+        if (activeMenuIndex !== index) {
+            setActiveMenuIndex(index);
+        }
+        if (!isHovering) {
+            setIsHovering(true);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (isHovering || activeMenuIndex !== null) {
+            setIsHovering(false);
+            setActiveMenuIndex(null);
+        }
+    };
+
     return (
-        <div className="relative w-full" onMouseLeave={() => {
-                setIsHovering(false);
-                setActiveMenuIndex(null);
-            }}
-        >
+        <div className="relative w-full" onMouseLeave={handleMouseLeave}>
             <div className="flex justify-center py-3 bg-white relative">
                 <div className="flex items-end">
                     {menuItems.map((menu, index) => (
                         <div
                             key={menu.id}
-                            ref={el => menuRefs.current[index] = el}
-                            className="px-12 relative"
-                            onMouseEnter={() => {
-                                setIsHovering(true);
-                                setActiveMenuIndex(index);
+                            ref={el => {
+                                if (el && !menuRefs.current[index]) {
+                                    menuRefs.current[index] = el;
+                                }
                             }}
+                            className="px-12 relative"
+                            onMouseEnter={() => handleMouseEnter(index)}
                         >
                             <div className="h-full flex items-center justify-center relative">
                                 <a
@@ -55,7 +78,6 @@ const MainMenu = () => {
                                 >
                                     {menu.title}
                                 </a>
-
                             </div>
                         </div>
                     ))}
@@ -78,8 +100,8 @@ const MainMenu = () => {
                                 <div
                                     key={menu.id}
                                     className="px-6 flex justify-center"
-                                    style={{ width: `${menuWidths[index]}px` }}
-                                    onMouseEnter={() => setActiveMenuIndex(index)}
+                                    style={{ width: `${menuWidths[index] || 0}px` }}
+                                    onMouseEnter={() => handleMouseEnter(index)}
                                 >
                                     <motion.ul
                                         className="py-4 text-center"

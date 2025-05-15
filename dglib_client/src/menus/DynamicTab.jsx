@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useMemo, memo } from 'react';
 
-const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
-  const findActiveIndex = () => {
+const DynamicTab = memo(({ tabsConfig, activeTabId, onTabChange }) => {
+
+  const activeTabIndex = useMemo(() => {
     if (activeTabId && tabsConfig.length > 0) {
       const index = tabsConfig.findIndex(tab => tab.id === activeTabId);
       return index !== -1 ? index : 0;
     }
     return Array.isArray(tabsConfig) && tabsConfig.length > 0 ? 0 : -1;
-  };
+  }, [activeTabId, tabsConfig]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(findActiveIndex);
   const lastTabIndex = tabsConfig.length - 1;
 
 
-  useEffect(() => {
-    const newIndex = findActiveIndex();
-    if (newIndex !== activeTabIndex) {
-      setActiveTabIndex(newIndex);
-    }
-  }, [activeTabId, tabsConfig]);
-
-
   const handleTabClick = (index) => {
-    setActiveTabIndex(index);
     if (onTabChange && tabsConfig[index]) {
       onTabChange(tabsConfig[index].id);
     }
@@ -81,6 +72,7 @@ const DynamicTab = ({ tabsConfig, activeTabId, onTabChange }) => {
       </div>
     </div>
   );
-};
+});
+
 
 export default DynamicTab;

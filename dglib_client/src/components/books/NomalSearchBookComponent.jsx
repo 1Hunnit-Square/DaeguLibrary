@@ -1,86 +1,84 @@
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRecoilValue } from "recoil";
+
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import CheckBox from "../common/CheckBox";
-import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getNsLibraryBookList } from "../../api/bookApi";
 import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 
+const NomalSearchBookComponent = React.memo(() => {
+    const [state, setState] = useState({
+        books: [],
+        pageable: {},
+        isSearched: false,
+        isChecked: false,
+        selectedBooks: new Set(),
+        isAllSelected: false
+    });
 
 
-const NomalSearchBookComponent = () => {
-    const [books, setBooks] = useState([]);
-    const [pageable, setPageable] = useState({});
+    const { books, pageable, isSearched, isChecked, selectedBooks, isAllSelected } = state;
+
     const [searchURLParams, setSearchURLParams] = useSearchParams();
-    const [isSearched, setIsSearched] = useState(false);
-    const [isChecked, setIsChecked] = useState(false);
-    const [selectedBooks, setSelectedBooks] = useState(new Set());
-    const [isAllSelected, setIsAllSelected] = useState(false);
     const queryClient = useQueryClient();
     const mid = useRecoilValue(memberIdSelector);
 
-    const [searchParams, setSearchParams] = useState({
-        query: "",
-        option: "전체"
-    });
+
+    const queryParams = useMemo(() => ({
+        query: searchURLParams.get("query") || "",
+        option: searchURLParams.get("option") || "전체",
+        page: searchURLParams.get("page") || "1",
+        isChecked: searchURLParams.has("isChecked"),
+        previousQuery: searchURLParams.get("previousQuery") || "",
+        previousOption: searchURLParams.get("previousOption") || ""
+    }), [searchURLParams]);
+
+    const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
+
 
     useEffect(() => {
-        if (books && books.length > 0 && selectedBooks.size === books.length) {
-            setIsAllSelected(true);
-        } else {
-            setIsAllSelected(false);
-        }
+        const { query, isChecked: isCheckedParam } = queryParams;
 
-    }, [books, selectedBooks])
 
-    useEffect(() => {
-        const query = searchURLParams.get("query");
-        const option = searchURLParams.get("option");
-        const isChecked = searchURLParams.get("isChecked");
         if (!query && searchURLParams.has("page")) {
-            setBooks([]);
-            setPageable({});
-            setIsSearched(false);
-            setIsChecked(false);
-            setSearchParams({
-                query: "",
-                option: "전체"
-            });
+            setState(prev => ({
+                ...prev,
+                books: [],
+                pageable: {},
+                isSearched: false,
+                isChecked: false
+            }));
             return;
         }
+
         if (query) {
-            setSearchParams({
-                query: query,
-                option: option || "전체"
-            });
-            setIsSearched(true);
+            setState(prev => ({ ...prev, isSearched: true }));
         }
-        if (isChecked) {
-            setIsChecked(true);
-        } else {
-            setIsChecked(false);
-        }
-    }, [searchURLParams]);
 
-
+        setState(prev => ({ ...prev, isChecked: !!isCheckedParam }));
+    }, [queryParams, searchURLParams]);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['librarybooklist', searchURLParams.toString(), mid],
         queryFn: () => {
-            const params = {};
-            const page = searchURLParams.get("page") || "1";
-            params.page = parseInt(page, 10);
-            if (searchURLParams.has("query")) {
-                params.query = searchURLParams.get("query");
-                params.option = searchURLParams.get("option");
+            const params = {
+                page: parseInt(queryParams.page, 10)
+            };
+
+            if (queryParams.query) {
+                params.query = queryParams.query;
+                params.option = queryParams.option;
             }
+
             if (isChecked) {
-                const previousQuery = searchURLParams.get("previousQuery");
-                const previousOption = searchURLParams.get("previousOption");
+                const previousQuery = queryParams.previousQuery;
+                const previousOption = queryParams.previousOption;
+
                 if (previousQuery) {
                     params.previousQueries = previousQuery.split(",");
                     params.previousOptions = previousOption.split(",");
@@ -89,31 +87,34 @@ const NomalSearchBookComponent = () => {
                     params.previousOptions = [];
                 }
             }
+
             return getNsLibraryBookList(params, mid);
         },
         refetchOnWindowFocus: false,
     });
 
+
+
     useEffect(() => {
-        if (data) {
-            setBooks(data.content);
-            setPageable(data);
-            console.log(data);
-            if (!searchURLParams.has("page") && data.pageable) {
-                const newParams = new URLSearchParams(searchURLParams);
-                newParams.set("tab", "info");
-                newParams.set("page", (data.pageable.pageNumber + 1).toString());
-                setSearchURLParams(newParams, { replace: true });
-            }
-        }
+
+        if (!data) return;
+
+        setState(prev => {
+            const newBooks = data.content || [];
+            const newIsAllSelected = prev.selectedBooks.size === newBooks.length && newBooks.length > 0;
+
+            return {
+                ...prev,
+                books: newBooks,
+                pageable: data,
+                isAllSelected: newIsAllSelected
+            };
+        });
+
     }, [data, searchURLParams, setSearchURLParams]);
 
-    const handleSearch = (searchQuery, selectedOption) => {
-        setSearchParams({
-            query: searchQuery,
-            option: selectedOption
-        });
-        setIsSearched(true);
+
+    const handleSearch = useCallback((searchQuery, selectedOption) => {
         const newParams = new URLSearchParams();
 
         if (!isChecked) {
@@ -122,45 +123,63 @@ const NomalSearchBookComponent = () => {
             newParams.set("isSearched", "true");
             newParams.delete("isChecked");
         } else {
-            const currentQuery = searchURLParams.get("query");
-            const currentOption = searchURLParams.get("option");
+            const currentQuery = queryParams.query;
+            const currentOption = queryParams.option;
+
             newParams.set("query", searchQuery);
             newParams.set("option", selectedOption);
             newParams.set("isSearched", "true");
             newParams.set("isChecked", "true");
 
-            let previousQueries = searchURLParams.get("previousQuery") || "";
-            let previousOptions = searchURLParams.get("previousOption") || "";
-            previousQueries = previousQueries ? previousQueries.split(",") : [];
-            previousOptions = previousOptions ? previousOptions.split(",") : [];
+            let previousQueries = queryParams.previousQuery ? queryParams.previousQuery.split(",") : [];
+            let previousOptions = queryParams.previousOption ? queryParams.previousOption.split(",") : [];
+
             if (currentQuery) {
                 previousQueries.push(currentQuery);
                 previousOptions.push(currentOption);
             }
+
             newParams.set("previousQuery", previousQueries.join(","));
             newParams.set("previousOption", previousOptions.join(","));
         }
+
         newParams.set("tab", "info");
         newParams.set("page", "1");
-        setSelectedBooks(new Set());
-        setIsAllSelected(false);
+
+
+        setState(prev => ({
+            ...prev,
+            selectedBooks: new Set(),
+            isAllSelected: false
+        }));
 
         setSearchURLParams(newParams);
-    };
+    }, [isChecked, queryParams, setSearchURLParams]);
 
-    const pageClick = (page) => {
-        const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
+
+    const pageClick = useCallback((page) => {
+        const currentPageFromUrl = parseInt(queryParams.page, 10);
+
         if (page === currentPageFromUrl || isLoading) return;
+
         const newParams = new URLSearchParams(searchURLParams);
         newParams.set("page", page.toString());
         setSearchURLParams(newParams);
-        setSelectedBooks(new Set());
-    };
 
-    const onChangeRe = (e) => {
+        setState(prev => ({
+            ...prev,
+            selectedBooks: new Set()
+        }));
+    }, [queryParams.page, searchURLParams, isLoading, setSearchURLParams]);
+
+
+    const onChangeRe = useCallback((e) => {
         const newValue = e.target.checked;
-        setIsChecked(newValue);
 
+        setState(prev => ({
+            ...prev,
+            isChecked: newValue
+        }));
 
         const newParams = new URLSearchParams(searchURLParams);
         if (newValue) {
@@ -171,73 +190,216 @@ const NomalSearchBookComponent = () => {
 
         setSearchURLParams(newParams, { replace: true });
         queryClient.setQueryData(['librarybooklist', newParams.toString(), mid], pageable);
-    }
-    const onSelfClick = (e) => {
-        alert("무인예약되었습니다.")
-    }
-    const onFavoriteClick = (e) => {
-        alert("관심도서에 추가되었습니다.")
-    }
+    }, [searchURLParams, setSearchURLParams, queryClient, mid, pageable]);
 
-    const handleSelectBooks = (e, item) => {
+
+    const onSelfClick = useCallback(() => {
+        alert("무인예약되었습니다.");
+    }, []);
+
+    const onFavoriteClick = useCallback(() => {
+        alert("관심도서에 추가되었습니다.");
+    }, []);
+
+
+    const handleSelectBooks = useCallback((e, itemId) => {
         const isSelected = e.target.checked;
-        setSelectedBooks(prev => {
-            const newSelectedBooks = new Set(prev);
+
+        setState(prev => {
+            const newSelectedBooks = new Set(prev.selectedBooks);
+
             if (isSelected) {
-
-                newSelectedBooks.add(item.libraryBookId);
+                newSelectedBooks.add(itemId);
             } else {
-                newSelectedBooks.delete(item.libraryBookId);
+                newSelectedBooks.delete(itemId);
             }
-            return newSelectedBooks;
-        });
-    }
 
-    const handleSelectAll = (e) => {
+            return {
+                ...prev,
+                selectedBooks: newSelectedBooks,
+                isAllSelected: newSelectedBooks.size === prev.books.length && prev.books.length > 0
+            };
+        });
+    }, []);
+
+
+    const handleSelectAll = useCallback((e) => {
         const isSelected = e.target.checked;
-        setIsAllSelected(isSelected);
-        if (isSelected) {
-            const newSelectedBooks = new Set();
-            books.forEach(book => {
-            newSelectedBooks.add(book.libraryBookId);
-        });
-        setSelectedBooks(newSelectedBooks);
-        } else {
-        setSelectedBooks(new Set());
-        }
-    }
 
-    const clickSelectFavorite = () => {
+        setState(prev => {
+            const newSelectedBooks = new Set();
+
+            if (isSelected) {
+                prev.books.forEach(book => {
+                    newSelectedBooks.add(book.libraryBookId);
+                });
+            }
+
+            return {
+                ...prev,
+                selectedBooks: newSelectedBooks,
+                isAllSelected: isSelected
+            };
+        });
+    }, []);
+
+
+    const clickSelectFavorite = useCallback(() => {
         if (selectedBooks.size === 0) {
             alert("관심도서를 선택해주세요.");
             return;
         }
 
         const selectedTitles = Array.from(selectedBooks).map(bookId => {
-        const book = books.find(book => book.libraryBookId === bookId);
-        return book.bookTitle;
+            const book = books.find(book => book.libraryBookId === bookId);
+            return book?.bookTitle || '';
         });
-        alert("관심도서에 추가되었습니다." + selectedTitles.join(", "));
 
-    }
-
-
+        alert("관심도서에 추가되었습니다: " + selectedTitles.join(", "));
+    }, [selectedBooks, books]);
 
 
     const { renderPagination } = usePagination(pageable, pageClick, isLoading);
-    const searchOption = ["전체", "제목", "저자", "출판사"];
-    const query = searchURLParams.get("query");
-    const previousQuery = searchURLParams.get("previousQuery");
 
 
+    const renderBookList = useMemo(() => {
+        if (isLoading) {
+            return (
+
+                    <Loading />
+
+            );
+        }
+
+        if (!Array.isArray(books) || books.length === 0) {
+            return searchURLParams.has("query") ? (
+                <div className="flex justify-center items-center py-10">
+                    <p className="text-gray-500">검색 결과가 없습니다.</p>
+                </div>
+            ) : (
+                <div className="flex justify-center items-center py-10">
+                    <p className="text-gray-500">표시할 도서가 없습니다.</p>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                <div className="flex mx-3 gap-3">
+                    <CheckBox
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                        inputClassName="hover:cursor-pointer"
+                    />
+                    <Button
+                        onClick={clickSelectFavorite}
+                        className=""
+                    >
+                        관심도서 담기
+                    </Button>
+                </div>
+                {books.map((book, index) => {
+                    const key = book?.libraryBookId ?? `book-index-${index}`;
+                    const libraryBookId = book.libraryBookId;
+                    const canReserve = book.rented === true && book.reserveCount < 2 && book.alreadyReservedByMember === false;
+
+                    if (!book) return null;
+
+                    return (
+                        <div
+                            key={key}
+                            className="flex flex-row bg-white rounded-lg -mt-1 shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-6 p-6"
+                        >
+                            <div className="w-full md:w-48 flex justify-center">
+                                <CheckBox
+                                    checked={selectedBooks.has(book.libraryBookId)}
+                                    onChange={(e) => handleSelectBooks(e, book.libraryBookId)}
+                                    inputClassName="hover:cursor-pointer relative bottom-30 right-1"
+                                />
+                                <img
+                                    src={book.cover || '/placeholder-image.png'}
+                                    alt={book.bookTitle || '표지 없음'}
+                                    className="h-64 object-contain"
+                                    onError={(e) => e.currentTarget.src = '/placeholder-image.png'}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <Link
+                                    to={`/books/detail/${libraryBookId}`}
+                                    className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer"
+                                >
+                                    {book.bookTitle}
+                                </Link>
+                                <div className="space-y-2 text-gray-600">
+                                    <p className="text-sm"><span className="font-medium">저자:</span> {book.author || '-'}</p>
+                                    <p className="text-sm"><span className="font-medium">출판사:</span> {book.publisher || '-'}</p>
+                                    <p className="text-sm"><span className="font-medium">출판일:</span> {book.pubDate || '-'}</p>
+                                    <p className="text-sm"><span className="font-medium">자료위치:</span> {book.location || '-'}</p>
+                                    <p className="text-sm"><span className="font-medium">청구기호:</span> {book.callSign || '-'}</p>
+                                    <p className="text-sm">
+                                        <span className="font-medium">도서상태:</span>
+                                        {book.rented === undefined ? '-' : (book.rented ? "대출중" : "대출가능")}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex flex-col justify-center items-center gap-3">
+                                <Button
+                                    disabled={!canReserve || isLoading}
+                                    className={`${canReserve ? 'bg-blue-500 hover:bg-blue-600 cursor-pointer' : 'bg-gray-400 hover:bg-gray-400 hover:cursor-default'}`}
+                                >
+                                    대출예약
+                                </Button>
+                                <Button
+                                    className="bg-fuchsia-800 hover:bg-fuchsia-900"
+                                    onClick={onSelfClick}
+                                >
+                                    무인예약
+                                </Button>
+                                <Button
+                                    className=""
+                                    onClick={onFavoriteClick}
+                                >
+                                    관심도서
+                                </Button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </>
+        );
+    }, [books, isLoading, searchURLParams, isAllSelected, handleSelectAll, clickSelectFavorite, selectedBooks, handleSelectBooks, onSelfClick, onFavoriteClick]);
+
+
+    const renderSearchResultCount = useMemo(() => {
+        if (!isSearched && pageable.totalElements !== undefined) {
+            return (
+                <div className="mb-4">
+                    <p className="">총 {pageable.totalElements}권의 도서를 찾았습니다.</p>
+                </div>
+            );
+        }
+
+        if (pageable.totalElements !== undefined) {
+            return (
+                <div>
+                    {queryParams.previousQuery ?
+                        `"${queryParams.previousQuery}, ${queryParams.query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.` :
+                        `"${queryParams.query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.`
+                    }
+                </div>
+            );
+        }
+
+        return null;
+    }, [isSearched, pageable.totalElements, queryParams.previousQuery, queryParams.query]);
 
     return (
         <div>
             <SearchSelectComponent
                 options={searchOption}
                 handleSearch={handleSearch}
-                input={searchParams.query}
-                defaultCategory={searchParams.option}
+                input={queryParams.query}
+                defaultCategory={queryParams.option}
                 selectClassName="mr-5"
                 dropdownClassName="w-32"
                 className="w-[50%] mx-110"
@@ -254,98 +416,16 @@ const NomalSearchBookComponent = () => {
             }
 
             <div className="container mx-auto px-4 py-8 w-ful">
-
-                {isLoading ? (
-                    <div className="flex justify-center items-center py-10">
-                        <Loading />
-                    </div>
-                ) : (
-                    <>
-
-                        {!isSearched && pageable.totalElements !== undefined ? (
-                            <div className="mb-4">
-                                <p className="">총 {pageable.totalElements}권의 도서를 찾았습니다. </p>
-                            </div>
-                        ) : (
-                            <div>
-                                {previousQuery ?
-                                    `"${previousQuery}, ${query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.` :
-                                    `"${query}"에 대하여 ${pageable.totalElements}권의 도서를 찾았습니다.`
-                                }
-                            </div>
-                        )}
-                        <div className="space-y-6">
-
-                            {Array.isArray(books) && books.length > 0 ? (
-                                <>
-                                <div className="flex mx-3 gap-3">
-                                <CheckBox checked={isAllSelected} onChange={(e) => handleSelectAll(e)} inputClassName={"hover:cursor-pointer"} />
-                                <Button children={"관심도서 담기"} onClick={clickSelectFavorite} className={""} />
-                                </div>
-                                {books.map((book, index) => {
-                                    const key = book?.libraryBookId ?? `book-index-${index}`;
-                                    const libraryBookId = book.libraryBookId;
-                                    const canReserve = book.rented === true && book.reserveCount < 2 && book.alreadyReservedByMember === false;
-                                    if (!book) return null;
-                                    return (
-                                        <div key={key}
-                                            className="flex flex-row bg-white rounded-lg -mt-1 shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-6 p-6"
-                                        >
-
-                                            <div className="w-full md:w-48 flex justify-center">
-                                                <CheckBox checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1"} />
-                                                <img
-                                                    src={book.cover || '/placeholder-image.png'}
-                                                    alt={book.bookTitle || '표지 없음'}
-                                                    className="h-64 object-contain"
-                                                    onError={(e) => e.currentTarget.src = '/placeholder-image.png'}
-                                                />
-                                            </div>
-                                            <div className="flex-1">
-                                                <Link to={`/books/detail/${libraryBookId}`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
-                                                    {book.bookTitle}
-                                                </Link>
-                                                <div className="space-y-2 text-gray-600">
-                                                    <p className="text-sm"><span className="font-medium">저자:</span> {book.author || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">출판사:</span> {book.publisher || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">출판일:</span> {book.pubDate || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">자료위치:</span> {book.location || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">청구기호:</span> {book.callSign || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">도서상태:</span>
-                                                        {book.rented === undefined ? '-' : (book.rented ? "대출중" : "대출가능")}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col justify-center items-center gap-3">
-                                                <Button disabled={!canReserve || isLoading} className={`${canReserve ? 'bg-blue-500 hover:bg-blue-600 cursor-pointer' : 'bg-gray-400 hover:bg-gray-400 hover:cursor-default'}`}  children="대출예약"/>
-                                                <Button className="bg-fuchsia-800 hover:bg-fuchsia-900" onClick={onSelfClick} children="무인예약"/>
-                                                <Button className= "" onClick={onFavoriteClick} children="관심도서"/>
-                                            </div>
-                                        </div>
-                                    );
-
-                                })}
-                                </>
-
-                            ) : (
-                                searchURLParams.has("query") ? (
-                                    <div className="flex justify-center items-center py-10">
-                                        <p className="text-gray-500">검색 결과가 없습니다.</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex justify-center items-center py-10">
-                                        <p className="text-gray-500">표시할 도서가 없습니다.</p>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </>
-                )}
+                {renderSearchResultCount}
+                <div className="space-y-6">
+                    {renderBookList}
+                </div>
                 {renderPagination()}
             </div>
         </div>
-
-        );
-}
+    );
+}, (prevProps, nextProps) => {
+    return true;
+});
 
 export default NomalSearchBookComponent;

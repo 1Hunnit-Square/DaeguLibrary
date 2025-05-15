@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentalBookListDTO;
@@ -31,6 +32,9 @@ public interface BookService {
 	void completeBookReturn(List<RentalStateChangeDTO> rentalBookListDtos);
 	Page<LibraryBookSearchByBookIdDTO> searchByLibraryBookBookId(Long libraryBookId, Pageable pageable);
 	void rentBook(Long libraryBookId, String mno);
+	List<LibraryBookDTO> getLibraryBookList(String isbn);
+	void deleteLibraryBook(Long libraryBookId, String isbn);
+	
 	
      
 

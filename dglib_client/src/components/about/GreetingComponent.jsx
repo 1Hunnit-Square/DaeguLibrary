@@ -1,4 +1,5 @@
 const GreetingComponent = () => {
+
     const timelineData = [
         {
             year: "2025",

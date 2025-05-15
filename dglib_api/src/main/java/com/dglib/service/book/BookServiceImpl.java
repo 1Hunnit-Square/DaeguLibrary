@@ -3,6 +3,7 @@ package com.dglib.service.book;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,33 +66,113 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	public void registerBook(BookRegistrationDTO bookRegistrationDto) {
-		BookDTO bookDto = bookRegistrationDto.getBook();
-		List<LibraryBookDTO> libraryBooks = bookRegistrationDto.getLibraryBooks();
-		Book bookEntity = bookRepository.findById(bookDto.getIsbn())
-	            .orElseGet(() -> {
-	                Book newBook = modelMapper.map(bookDto, Book.class);
-	                return bookRepository.save(newBook);
-	            });
-		List<String> callsigns = libraryBooks.stream()
-		        .map(LibraryBookDTO::getCallSign)
-		        .collect(Collectors.toList());
-		
-		List<String> existingCallsigns = libraryBookRepository.findExistingCallSigns(callsigns);
-		
-		if (!existingCallsigns.isEmpty()) {
-			throw new IllegalStateException("이미 존재하는 청구번호입니다.: " + existingCallsigns);
-		}
-
-		
-		List<LibraryBook> libraryBookEntities = libraryBooks.stream()
-		        .map(dto -> {
-		            LibraryBook entity = modelMapper.map(dto, LibraryBook.class);
-		            entity.setBook(bookEntity);
-		            return entity;
-		        })
-		        .collect(Collectors.toList());
-
-		libraryBookRepository.saveAll(libraryBookEntities);
+	    BookDTO bookDto = bookRegistrationDto.getBook();
+	    List<LibraryBookDTO> libraryBooks = bookRegistrationDto.getLibraryBooks();
+	    Map<String, Long> callSignCount = new HashMap<>();
+	    for (LibraryBookDTO book : libraryBooks) {
+	        String callSign = book.getCallSign();
+	        callSignCount.put(callSign, callSignCount.getOrDefault(callSign, 0L) + 1);
+	    }
+	    List<String> duplicatesInRequest = callSignCount.entrySet().stream()
+	            .filter(entry -> entry.getValue() > 1)
+	            .map(Map.Entry::getKey)
+	            .collect(Collectors.toList());
+	            
+	    if (!duplicatesInRequest.isEmpty()) {
+	        throw new IllegalStateException("요청 내에 중복된 청구번호가 존재합니다: " + duplicatesInRequest);
+	    }
+	    
+	    Book bookEntity = bookRepository.findById(bookDto.getIsbn()).orElseGet(() -> {
+	        Book newBook = modelMapper.map(bookDto, Book.class);
+	        return bookRepository.save(newBook);
+	    });
+	    
+	    List<Long> allLibraryBookIds = libraryBooks.stream()
+	            .map(LibraryBookDTO::getLibraryBookId)
+	            .collect(Collectors.toList());
+	    
+	    
+	    List<Long> existingLibraryBookIds = libraryBookRepository.findExistingLibraryBookIds(allLibraryBookIds);
+	    
+	    
+	    List<LibraryBookDTO> newLibraryBooks = new ArrayList<>();
+	    List<LibraryBookDTO> existingLibraryBooks = new ArrayList<>();
+	    
+	    for (LibraryBookDTO dto : libraryBooks) {
+	        if (existingLibraryBookIds.contains(dto.getLibraryBookId())) {
+	            existingLibraryBooks.add(dto);
+	        } else {
+	            newLibraryBooks.add(dto);
+	        }
+	    }
+	    
+	   
+	    if (!newLibraryBooks.isEmpty()) {
+	        List<String> newCallSigns = newLibraryBooks.stream()
+	                .map(LibraryBookDTO::getCallSign)
+	                .collect(Collectors.toList());
+	                
+	        List<String> duplicateCallSigns = libraryBookRepository.findExistingCallSignsExcludeIds(
+	                newCallSigns, existingLibraryBookIds);
+	                
+	        if (!duplicateCallSigns.isEmpty()) {
+	            throw new IllegalStateException("이미 존재하는 청구번호입니다.: " + duplicateCallSigns);
+	        }
+	    }
+	    
+	    
+	    if (!existingLibraryBooks.isEmpty()) {
+	        
+	        List<LibraryBook> existingEntities = libraryBookRepository.findAllById(existingLibraryBookIds);
+	        Map<Long, LibraryBook> existingEntityMap = existingEntities.stream()
+	                .collect(Collectors.toMap(LibraryBook::getLibraryBookId, entity -> entity));
+	        
+	       
+	        Map<Long, String> changedCallSigns = new HashMap<>(); 
+	        
+	        
+	        for (LibraryBookDTO dto : existingLibraryBooks) {
+	            LibraryBook entity = existingEntityMap.get(dto.getLibraryBookId());
+	            if (entity != null && !entity.getCallSign().equals(dto.getCallSign())) {
+	                changedCallSigns.put(dto.getLibraryBookId(), dto.getCallSign());
+	            } 
+	        }
+	        
+	        
+	        if (!changedCallSigns.isEmpty()) {
+	            List<String> callSignsToCheck = new ArrayList<>(changedCallSigns.values());
+	            List<Long> excludeIds = new ArrayList<>(changedCallSigns.keySet());
+	            List<String> duplicates = libraryBookRepository.findExistingCallSignsExcludeIds(
+	                    callSignsToCheck, excludeIds);
+	                    
+	            if (!duplicates.isEmpty()) {
+	                throw new IllegalStateException("이미 존재하는 청구번호입니다.: " + duplicates);
+	            }
+	        }
+	        
+	        
+	        for (LibraryBookDTO dto : existingLibraryBooks) {
+	            LibraryBook entity = existingEntityMap.get(dto.getLibraryBookId());
+	            if (entity != null) {
+	                modelMapper.map(dto, entity);
+	                entity.setBook(bookEntity);
+	            }
+	        }
+	        
+	        libraryBookRepository.saveAll(existingEntities);
+	    }
+	    
+	    if (!newLibraryBooks.isEmpty()) {
+	        List<LibraryBook> newLibraryBookEntities = newLibraryBooks.stream()
+	                .map(dto -> {
+	                    LibraryBook entity = modelMapper.map(dto, LibraryBook.class);
+	                    entity.setBook(bookEntity);
+	                    return entity;
+	                })
+	                .collect(Collectors.toList());
+	                
+	        libraryBookRepository.saveAll(newLibraryBookEntities);
+	    }
 	}
 	
 	@Override
@@ -499,6 +580,23 @@ public class BookServiceImpl implements BookService {
 		rental.setDueDate(LocalDate.now().plusDays(7));
 		rental.setState(RentalState.BORROWED);
 		rentalRepository.save(rental);		
+	}
+	
+	@Override
+	public List<LibraryBookDTO> getLibraryBookList(String isbn) {
+		List<LibraryBook> libraryBooks = libraryBookRepository.findAllByBookIsbn(isbn);
+		return libraryBooks.stream().map(libraryBook -> modelMapper.map(libraryBook, LibraryBookDTO.class))
+				.collect(Collectors.toList());
+		
+	}
+	
+	@Override
+	public void deleteLibraryBook(Long libraryBookId, String isbn) {
+		libraryBookRepository.deleteById(libraryBookId);
+		boolean exists = libraryBookRepository.existsByBookIsbn(isbn);
+		if (!exists) {
+			bookRepository.deleteById(isbn);
+		}	
 	}
 }
 

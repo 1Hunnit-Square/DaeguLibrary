@@ -1,5 +1,5 @@
 import Button from "../common/Button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import SelectCopmonent from "../common/SelectComponent";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,19 +43,20 @@ const FilterSearchBookComponent = () => {
         }));
     };
 
-    const handleSortByChange = (value) => {
+    const handleSortByChange = useCallback((value) => {
         setFilters(prev => ({
             ...prev,
             sortBy: value
         }));
-    };
+    }, []);
 
-    const handleOrderByChange = (value) => {
+    const handleOrderByChange = useCallback((value) => {
         setFilters(prev => ({
             ...prev,
             orderBy: value
         }));
-    };
+    }, []);
+
 
     useEffect(() => {
         const newFilters = {};
@@ -70,52 +71,59 @@ const FilterSearchBookComponent = () => {
 
 
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         const newParams = new URLSearchParams(filters);
+        newParams.set("tab", "settings");
 
         setSearchURLParams(newParams);
-    };
+    }, [filters, setSearchURLParams]);
 
     const { data, isLoading, isErrer } = useQuery({
         queryKey: ["librarybooklist", searchURLParams.toString(), mid],
         queryFn: () => {
             return getFsLibraryBookList(searchURLParams, mid);
         },
-        staleTime: Infinity,
         refetchOnWindowFocus: false,
         enabled: searchableParams.some(param => searchURLParams.has(param))
     });
 
+    const [hasSetInitialParams, setHasSetInitialParams] = useState(false);
+
     useEffect(() => {
-        if (data) {
+        if (data && !hasSetInitialParams) {
             setBooks(data.content);
             console.log(data.content);
             setPageable(data);
-            if (!searchURLParams.has("page") && data.pageable) {
+            const currentTab = searchURLParams.get("tab");
+            if (!searchURLParams.has("page") && data.pageable && currentTab !== "info") {
+                setHasSetInitialParams(true);
                 const newParams = new URLSearchParams(searchURLParams);
-                newParams.set("tab", "info");
                 newParams.set("page", (data.pageable.pageNumber + 1).toString());
+                if (currentTab !== "settings") {
+                newParams.set("tab", "info");
+            }
                 setSearchURLParams(newParams, { replace: true });
             }
         }
-    }, [data, searchURLParams, setSearchURLParams]);
+    }, [data, hasSetInitialParams]);
 
-        const pageClick = (page) => {
+        const pageClick = useCallback((page) => {
         const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
         if (page === currentPageFromUrl || isLoading) return;
         const newParams = new URLSearchParams(searchURLParams);
         newParams.set("page", page.toString());
         setSearchURLParams(newParams);
         setSelectedBooks(new Set());
-    };
-    const onSelfClick = (e) => {
-        alert("무인예약되었습니다.")
-    }
-    const onFavoriteClick = (e) => {
-        alert("관심도서에 추가되었습니다.")
-    }
+    }, [isLoading, searchURLParams, setSearchURLParams]);
 
-    const handleSelectBooks = (e, item) => {
+    const onSelfClick = useCallback((e) => {
+        alert("무인예약되었습니다.")
+    }, []);
+    const onFavoriteClick = useCallback((e) => {
+        alert("관심도서에 추가되었습니다.")
+    }, []);
+
+    const handleSelectBooks = useCallback((e, item) => {
         const isSelected = e.target.checked;
         setSelectedBooks(prev => {
             const newSelectedBooks = new Set(prev);
@@ -127,9 +135,9 @@ const FilterSearchBookComponent = () => {
             }
             return newSelectedBooks;
         });
-    }
+    }, []);
 
-    const handleSelectAll = (e) => {
+    const handleSelectAll = useCallback((e) => {
         const isSelected = e.target.checked;
         setIsAllSelected(isSelected);
         if (isSelected) {
@@ -141,9 +149,9 @@ const FilterSearchBookComponent = () => {
         } else {
         setSelectedBooks(new Set());
         }
-    }
+    }, [books]);
 
-    const clickSelectFavorite = () => {
+    const clickSelectFavorite = useCallback(() => {
         if (selectedBooks.size === 0) {
             alert("관심도서를 선택해주세요.");
             return;
@@ -155,14 +163,14 @@ const FilterSearchBookComponent = () => {
         });
         alert("관심도서에 추가되었습니다." + selectedTitles.join(", "));
 
-    }
+    }, [selectedBooks, books]);
 
     const { renderPagination } = usePagination(pageable, pageClick, isLoading);
 
 
 
-    const sortOption = ["제목", "저자", "출판사", "발행연도"];
-    const orderByOption = ["오름차순", "내림차순"];
+    const sortOption = useMemo(() => ["제목", "저자", "출판사", "발행연도"], []);
+    const orderByOption = useMemo(() => ["오름차순", "내림차순"], []);
 
     return (
         <div>

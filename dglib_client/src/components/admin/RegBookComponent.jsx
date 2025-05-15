@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { regBook } from "../../api/adminApi";
+import { regBook, regBookCheck, deleteLibraryBook } from "../../api/adminApi";
 import Button from "../common/Button";
+import { useMutation } from "@tanstack/react-query";
 import SelectComponent from "../common/SelectComponent";
+import Loading from "../../routers/Loading";
+
 
 const initialBookFormData = {
   bookTitle: "",
@@ -13,67 +16,70 @@ const initialBookFormData = {
   cover: "",
 };
 
-const initialLibraryBooks = [{ id: 0, location: "", callSign: "" }];
+const initialLibraryBooks = [{ id: 0, location: "", callSign: "", libraryBookId: "" }];
 
 const RegBookComponent = () => {
   const [bookFormData, setBookFormData] = useState(initialBookFormData);
   const [libraryBooks, setLibraryBooks] = useState(initialLibraryBooks);
   const Location = ["자료실1", "자료실2", "자료실3"];
 
+  const regBookMutation = useMutation({
+    mutationFn: async (bookData) => {
+      const response = await regBook(bookData);
+      return response;
+    },
+    onSuccess: (data) => {
+      alert("도서 등록이 완료되었습니다.");
+      setBookFormData(initialBookFormData);
+      setLibraryBooks(initialLibraryBooks);
+    },
+    onError: (error) => {
+      alert(error.response.data.message);
+    },
+  });
 
-  const resetBookInfo = () => {
-    setBookFormData(initialBookFormData);
-    setLibraryBooks(initialLibraryBooks);
-  };
-
-  const addHolding = () => {
-    const newId = libraryBooks.length
-      ? Math.max(...libraryBooks.map((e) => e.id)) + 1
-      : 0;
-    setLibraryBooks([
-      ...libraryBooks,
-      { id: newId, location: "", callSign: "" },
-    ]);
-  };
-
-  const removeHolding = (id) => {
-    setLibraryBooks(
-      libraryBooks.filter((libraryBook) => libraryBook.id !== id)
-    );
-  };
-
-  const updateHolding = (id, field, value) => {
-    setLibraryBooks(
-      libraryBooks.map((libraryBook) =>
-        libraryBook.id === id ? { ...libraryBook, [field]: value } : libraryBook
-      )
-    );
-  };
-
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.data.type === "BOOK_SELECTED") {
-        setLibraryBooks([{ id: 1, location: "", callSign: "" }]);
-        setBookFormData({
-          bookTitle: event.data.book.bookTitle,
-          author: event.data.book.author,
-          publisher: event.data.book.publisher,
-          pubDate: event.data.book.pubDate,
-          isbn: event.data.book.isbn,
-          description: event.data.book.description,
-          cover: event.data.book.cover,
-        });
+  const getRegBookCheckMutation = useMutation({
+    mutationFn: async (isbn) => {
+      const response = await regBookCheck(isbn);
+      return response;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      if (data.length > 0) {
+        setLibraryBooks(
+          data.map((libraryBook, index) => ({
+            id: index,
+            location: libraryBook.location,
+            callSign: libraryBook.callSign,
+            libraryBookId: libraryBook.libraryBookId,
+          }))
+        )
       }
-    };
+    },
+    onError: (error) => {
+      alert(error.response.data.message);
+    },
+  })
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  const deleteLibraryBookMutation = useMutation({
+    mutationFn: async (params) => {
+      const { libraryBookId, isbn } = params;
+      const response = await deleteLibraryBook(libraryBookId, isbn);
+      return response;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      alert("도서 삭제가 완료되었습니다.");
+      if (libraryBooks.length === 0) {
+      resetBookInfo();
+    }
+    },
+    onError: (error) => {
+      alert(error.response.data.message);
+    },
+  })
 
-  const searchClick = () => {
-    const windowName = "등록도서 검색"
-    window.open(`/searchbookapi`, windowName, "_blank", "width=1200,height=800");
-  };
+
 
   const sumbit = async () => {
     const isHoldingValid = libraryBooks.every(
@@ -101,24 +107,92 @@ const RegBookComponent = () => {
       book: {
         ...bookFormData,
       },
-      libraryBooks: libraryBooks.map(({ location, callSign }) => ({
+      libraryBooks: libraryBooks.map(({ location, callSign, libraryBookId }) => ({
         location,
         callSign,
+        libraryBookId,
       })),
     };
 
-    try {
-      const response = await regBook(bookData);
-      alert("도서 등록이 완료되었습니다.");
-      setBookFormData(initialBookFormData);
-      setLibraryBooks(initialLibraryBooks);
-    } catch (error) {
-      alert(error.response.data.message);
-    }
+    regBookMutation.mutate(bookData);
   };
+
+
+  const resetBookInfo = () => {
+    setBookFormData(initialBookFormData);
+    setLibraryBooks(initialLibraryBooks);
+  };
+
+  const addHolding = () => {
+    const newId = libraryBooks.length
+      ? Math.max(...libraryBooks.map((e) => e.id)) + 1
+      : 0;
+    setLibraryBooks([
+      ...libraryBooks,
+      { id: newId, location: "", callSign: "" },
+    ]);
+  };
+
+  const removeHolding = (id, libraryBookId) => {
+    if (libraryBookId) {
+      if (confirm("소장중인 도서입니다 정말 삭제하시겠습니까??")) {
+        console.log(bookFormData.isbn);
+        deleteLibraryBookMutation.mutate({
+        libraryBookId,
+        isbn: bookFormData.isbn
+      })
+
+    } else {
+      return;
+    }
+    };
+     setLibraryBooks(
+      libraryBooks.filter((libraryBook) => libraryBook.id !== id)
+    );
+  }
+
+  const updateHolding = (id, field, value) => {
+    setLibraryBooks(
+      libraryBooks.map((libraryBook) =>
+        libraryBook.id === id ? { ...libraryBook, [field]: value } : libraryBook
+      )
+    );
+  };
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === "BOOK_SELECTED") {
+        setLibraryBooks([{ id: 1, location: "", callSign: "" }]);
+        setBookFormData({
+          bookTitle: event.data.book.bookTitle,
+          author: event.data.book.author,
+          publisher: event.data.book.publisher,
+          pubDate: event.data.book.pubDate,
+          isbn: event.data.book.isbn,
+          description: event.data.book.description,
+          cover: event.data.book.cover,
+        });
+        getRegBookCheckMutation.mutate(event.data.book.isbn);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const searchClick = () => {
+    const windowName = "등록도서 검색"
+    window.open(`/searchbookapi`, windowName, "_blank", "width=1200,height=800");
+  };
+
+
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
+      {(regBookMutation.isPending || getRegBookCheckMutation.isPending) && (
+        <Loading text="도서 등록중입니다.." />
+      )}
       <div className="bg-white rounded-lg p-6 mb-6">
         <div className="flex items-center mb-6">
           <span className="font-semibold text-lg text-gray-700 mr-4">도서 검색</span>
@@ -258,7 +332,7 @@ const RegBookComponent = () => {
                   />
                 </div>
               </div>
-              <Button onClick={() => removeHolding(libraryBook.id)} children="삭제" className="bg-red-700 hover:bg-red-800" />
+              <Button onClick={() => removeHolding(libraryBook.id, libraryBook.libraryBookId)} children="삭제" className="bg-red-700 hover:bg-red-800" />
             </div>
           ))}
         </div>

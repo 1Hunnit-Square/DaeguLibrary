@@ -1,16 +1,16 @@
 import Layout from "../layouts/Layout"
 import { Outlet, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import SubHeader from "../layouts/SubHeader";
 
 const ReservationPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
 
-    const LSideMenu = [
+    const LSideMenu = useMemo(() => [
         { id: "bookrequest", label: "희망도서 신청", path: "/reservation/bookrequest" },
         { id: "program", label: "프로그램 신청", path: "/reservation/program" },
-        { id: "facility", label: "시설 이용 신청", path: "/reservation/facility" }]
+        { id: "facility", label: "시설 이용 신청", path: "/reservation/facility" }], []);
 
     useEffect(() => {
         const currentPath = location.pathname;

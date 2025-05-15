@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,7 +66,6 @@ public class BookController {
 	public Mono<ResponseEntity<Map<String, String>>> bookReco(@PathVariable String genre) {
 		LOGGER.info("genre: {}", genre);
 		String path = "/bookreco/" + genre;
-		
 		return webClient.get()
 				.uri(path).retrieve().bodyToMono(String.class).map(result -> {
 					LOGGER.info("result: {}", result);
@@ -78,12 +78,7 @@ public class BookController {
 					responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
 					return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
 				});
-		
-		
-
-		
 	}
-	
 	@GetMapping("/search/{searchTerm}")
 	public Mono<ResponseEntity<String>> searchBookApi(@PathVariable String searchTerm,
 										@RequestParam(defaultValue = "1") int page,
@@ -105,13 +100,7 @@ public class BookController {
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("백엔드 서버와 통신 중 오류가 발생했습니다."));
                 });
 	}
-	
-	@PostMapping("/regbook")
-	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
-		bookService.registerBook(bookRegistration);
-		LOGGER.info("도서 등록 성공");
-		return ResponseEntity.ok().build();
-	}
+
 	
 	@GetMapping("/nslibrarybooklist")
 	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
@@ -203,22 +192,24 @@ public class BookController {
         return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("searchlibrarybook/{libraryBookId}")
+	@GetMapping("/searchlibrarybook/{libraryBookId}")
 	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
 		LOGGER.info("libraryBookId: {}", libraryBookId);
 		Pageable pageable = PageRequest.of(page - 1, size);
 		Page<LibraryBookSearchByBookIdDTO> memberList = bookService.searchByLibraryBookBookId(libraryBookId, pageable);
-
-
 		return ResponseEntity.ok(memberList);
 	}
 	
-	@PostMapping("rentbook")
+	@PostMapping("/rentbook")
 	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
 		LOGGER.info("도서 대출 요청: {}", rentBookDto);
 		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
 		return ResponseEntity.ok().build();
 	}
+	
+	
+	
+	
 
 }
 	

@@ -24,4 +24,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long>{
     //회원이 같은 날, 같은 시설을 이미 예약했는지 확인
     boolean existsByMember_MidAndRoomAndUseDate(String mid, String room, LocalDate useDate);
 
+	// 해당 날짜에 예약한 내역 조회
+    List<Place> findByMember_MidAndUseDate(String memberMid, LocalDate useDate);
+
 }

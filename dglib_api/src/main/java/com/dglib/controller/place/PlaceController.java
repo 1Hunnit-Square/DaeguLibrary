@@ -34,7 +34,7 @@ public class PlaceController {
 	public ResponseEntity<String> registerPlace(@RequestBody PlaceDTO dto){
 		Long pno = placeService.registerPlace(dto);
 		
-		return ResponseEntity.ok("신청이 완료되었습니다. 신청번호: " + pno);
+		return ResponseEntity.ok().build();
 	}
 	
 	// 조회
@@ -57,7 +57,7 @@ public class PlaceController {
 	public ResponseEntity<String> delete(@PathVariable Long pno){
 		placeService.delete(pno);
 		
-		return ResponseEntity.ok("성공적으로 취소되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
 	// 이미 예약된 시간대인지 확인(버튼 비활성화)

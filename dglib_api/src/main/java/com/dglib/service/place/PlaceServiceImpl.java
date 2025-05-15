@@ -1,6 +1,8 @@
 package com.dglib.service.place;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,9 @@ public class PlaceServiceImpl implements PlaceService{
 	// 등록
 	@Override
 	public Long registerPlace(PlaceDTO dto) {
+		
+		// 시간 겹치는 다른 시설 예약 방지
+		validateDuplicateReservation(dto);
 		
 		// 회원 존재 여부 확인
 		Member member = memberRepository.findById(dto.getMemberMid())
@@ -83,6 +88,25 @@ public class PlaceServiceImpl implements PlaceService{
 				.build();
 		
 		return placeRepository.save(place).getPno();
+	}
+	
+	// 다른 시설 예약 시 시간 겹치면 예약 불가
+	private void validateDuplicateReservation(PlaceDTO dto) {
+		LocalDate useDate = dto.getUseDate();
+		LocalTime startTime = dto.getStartTime();
+		LocalTime endTime = startTime.plusHours(dto.getDurationTime());
+		
+		List<Place> reservations = placeRepository.findByMember_MidAndUseDate(dto.getMemberMid(),useDate);
+		
+		boolean hasOverlap = reservations.stream().anyMatch(p -> {        //p는 reservation 리스트 안의 각 Place 개체 하나임
+			LocalTime existingStart = p.getStartTime();
+			LocalTime existingEnd = existingStart.plusHours(p.getDurationTime());
+			return startTime.isBefore(existingEnd) && endTime.isAfter(existingStart);
+		});
+		
+		if(hasOverlap) {
+			throw new IllegalStateException("이미 해당 시간대에 다른 시설을 예약하셨습니다.");
+		}
 	}
 	
 	// 조회

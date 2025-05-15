@@ -72,7 +72,7 @@ public class NoticeServiceImpl implements NoticeService {
             }
         }
 		
-		// 저장 및 아이디 빈환
+		// 저장 및 아이디 반환
 		Notice saved = noticeRepository.save(notice);
 		return saved.getAno();
 		

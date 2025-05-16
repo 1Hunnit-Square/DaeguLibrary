@@ -12,7 +12,7 @@ public interface QuestionService {
 	void updateQuestion(Long qno, QuestionDTO dto);
 	void deleteQuestion(Long qno, String requesterMid);
 	Page<QuestionDTO> getQuestions(Pageable pageable);
-	Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable);
+	Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable, String requesterMid);
 	
 	
 }

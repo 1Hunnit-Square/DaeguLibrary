@@ -32,7 +32,7 @@ public class QuestionController {
 		return ResponseEntity.ok(qno);
 	}
 	
-	// 조회
+	// 상세 조회
 	@GetMapping("/{qno}")
 	public ResponseEntity<QuestionDTO> getQuestion(@PathVariable Long qno)	{
 		return ResponseEntity.ok(questionService.getQuestion(qno));
@@ -58,7 +58,8 @@ public class QuestionController {
 	
 	//질문 목록 조회
 	@GetMapping
-	public ResponseEntity<Page<QuestionDTO>> getPagedQuestions(Pageable pageable) {
-	    return ResponseEntity.ok(questionService.getQuestionsWithStatus(pageable));
+	public ResponseEntity<Page<QuestionDTO>> getPagedQuestions(Pageable pageable, @RequestParam(required = false) String mid) {
+		String requesterMid = (mid != null) ? mid : "";
+	    return ResponseEntity.ok(questionService.getQuestionsWithStatus(pageable, requesterMid));
 	}
 }

@@ -79,27 +79,42 @@ public class QuestionServiceImpl implements QuestionService	{
 		return dto;
 	}
 	
-		//목록 조회
-		@Override
-		public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable) {
-			return questionRepository.findAll(pageable)
-				.map(question -> {
-					QuestionDTO dto = new QuestionDTO();
-					dto.setQno(question.getQno());
-					dto.setTitle(question.getTitle());
-					dto.setContent(question.getContent());
-					dto.setCheckPublic(question.isCheckPublic());
-					dto.setPostedAt(question.getPostedAt());
-					dto.setModifiedAt(question.getModifiedAt());
-					dto.setViewCount(question.getViewCount());
-					dto.setMemberMid(question.getMember().getMid());
+	//이름 마스킹
+	private String maskName(String name) {
+		return "*".repeat(name.length());
+	}
 
-					// 핵심은 이거 하나!
-					dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
+	//목록 조회
+	@Override
+	public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable, String requesterMid) {
+		return questionRepository.findAll(pageable)
+			.map(question -> {
+				QuestionDTO dto = new QuestionDTO();
+				dto.setQno(question.getQno());
+				dto.setTitle(question.getTitle());
+				dto.setContent(question.getContent());
+				dto.setCheckPublic(question.isCheckPublic());
+				dto.setPostedAt(question.getPostedAt());
+				dto.setModifiedAt(question.getModifiedAt());
+				dto.setViewCount(question.getViewCount());
+				dto.setMemberMid(question.getMember().getMid());
+				
+				String writerMid = question.getMember().getMid();     // 작성자 ID
+				String writerName = question.getMember().getName();     // 작성자 이름
 
-					return dto;
-				});
-		}
+				if (question.isCheckPublic() || writerMid.equals(requesterMid)) {
+					// 공개글이거나 본인이 작성한 글이면 이름 그대로
+					dto.setMemberMid(writerName);
+				} else {
+					// 그 외는 마스킹
+					dto.setMemberMid("*".repeat(writerName.length()));
+				}
+				
+				dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
+
+				return dto;
+			});
+	}
 	
 	//수정
 	@Override
@@ -161,9 +176,7 @@ public class QuestionServiceImpl implements QuestionService	{
 					dto.setModifiedAt(question.getModifiedAt());
 					dto.setViewCount(question.getViewCount());
 					dto.setMemberMid(question.getMember().getMid());
-					
-					
-					
+		
 					return dto;
 				});
 	}

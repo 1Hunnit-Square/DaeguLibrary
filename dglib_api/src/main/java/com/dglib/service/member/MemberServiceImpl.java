@@ -26,6 +26,11 @@ public class MemberServiceImpl implements MemberService {
 		return memberRepository.findByMno(mno, pageable);
 	}
 	
+	@Override
+	public boolean existById(String mid) {
+		return memberRepository.existsById(mid);
+	}
+	
 	
 	
 	

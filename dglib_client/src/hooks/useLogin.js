@@ -1,4 +1,4 @@
-import { loginPost } from "../api/loginApi";
+import { loginPost } from "../api/memberApi";
 import { setCookie, removeCookie } from "../util/cookieUtil";
 import { useResetRecoilState, useRecoilState } from "recoil";
 import RecoilLoginState from "../atoms/loginState";

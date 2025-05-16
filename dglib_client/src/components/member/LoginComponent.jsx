@@ -38,7 +38,7 @@ const LoginComponent = () =>{
                 alert(data.name+"님 ㅎㅇ");
                 moveToPath("/");
             }
-        })
+        },[loginParam, savedId])
 
         
         });
@@ -52,8 +52,12 @@ const LoginComponent = () =>{
 
      const handleCheckBox = useCallback((e) => {
         setSavedId(e.target.checked);
-    });
+    },[]);
 
+    const handleKeydown= (e) =>{
+    if(e.key === "Enter")
+        LoginClick();
+    }
 
     return(
         <>
@@ -63,7 +67,7 @@ const LoginComponent = () =>{
            />
            <input type="password" required
            className="block mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500"
-           name = {"pw"} value = {loginParam.pw} onChange={handleChange}  placeholder="비밀번호를 입력하세요"
+           name = {"pw"} value = {loginParam.pw} onChange={handleChange} onKeyDown={handleKeydown} placeholder="비밀번호를 입력하세요"
            />
            <div className="mx-auto my-5"><CheckBox checkboxClassName={"justify-center"} label={"아이디저장"} checked={savedId} onChange={handleCheckBox} /></div>
            <Button onClick = {LoginClick} className="mx-auto mb-10">로그인</Button>

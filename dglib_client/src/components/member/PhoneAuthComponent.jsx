@@ -28,12 +28,13 @@ const PhoneAuthComponent = ({handleNext}) => {
     };
 
     const handleClick = useCallback(() => {
-        if(phoneNum.second.length >= 3 && phoneNum.third.length >=4)
-        confirm(`${phoneNum.first}-${phoneNum.second}-${phoneNum.third}로 문자를 전송하시겠습니까?`)
-        && handleNext("authCode", `${phoneNum.first}${phoneNum.second}${phoneNum.third}`);
-        else
+        if(phoneNum.second.length >= 3 && phoneNum.third.length >=4){
+        const fullNumber = `${phoneNum.first}-${phoneNum.second}-${phoneNum.third}`;
+        confirm(`${fullNumber}로 문자를 전송하시겠습니까?`)
+        && handleNext("authCode", `${fullNumber}`);
+        } else
         alert("휴대전화 번호를 제대로 입력했는지 확인해주세요.");
-    });
+    },[phoneNum]);
 
     return (<>
     <div className="my-5">본인인증할 휴대폰 번호를 입력하세오.</div>

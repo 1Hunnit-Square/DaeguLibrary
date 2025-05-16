@@ -11,7 +11,7 @@ public interface MemberService {
 	
 	Page<MemberSeaerchByMnoDTO> searchByMno(String mno, Pageable pageable);
 	
-	
+	boolean existById(String mid);
 	
 
 }

@@ -49,7 +49,7 @@ public class SmsService {
 		String salt = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 		String signature = null;
 		try {
-			signature = EncryptUtil.sha256Encode(apiSecret, dateTime + salt);
+			signature = EncryptUtil.sha256Encode(apiSecret, dateTime + salt, "HEX");
 		} catch (Exception e) {
 			throw new RuntimeException("ENCODE_ERROR");
 		}

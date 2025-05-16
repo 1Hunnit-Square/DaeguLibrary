@@ -12,3 +12,15 @@ export const loginPost = async (loginParam) => {
     return res.data;
 }
 
+export const cardPost = async (param) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    const form = new FormData();
+    form.append('mid', param);
+    const res = await axios.post(`${prefix}/cardinfo`, form, header);
+    return res.data;
+}
+
+export const idExist = async (param) => {
+    const res = await axios.get(`${prefix}/existId`, { params : param });
+    return res.data;
+}

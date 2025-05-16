@@ -43,7 +43,7 @@ const handleCheckBox = useCallback((e, value) => {
            ...prev,  [value] : e.target.checked
         }));
         }
-    });
+    },[]);
 
 const handleNext = useCallback(() => {
 if(checkTerms.library&&checkTerms.privacy&&checkTerms.company)
@@ -51,7 +51,7 @@ navigate("/signup/auth");
 else{
   alert("이용약관에 동의해주셔야 서비스 이용이 가능합니다.")
 }
-});
+},[checkTerms]);
 
 
 return (

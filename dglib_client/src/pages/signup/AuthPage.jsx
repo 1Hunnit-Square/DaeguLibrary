@@ -11,19 +11,19 @@ const [isOpen, setIsOpen] = useState(false);
 const [ authStep, setAuthStep ] = useState("phoneAuth");
 const [ phoneNum, setPhoneNum ] = useState("");
 
-const handleAuth = () => {
+const handleAuth = useCallback(() => {
 setIsOpen(true);
-}
+},[])
 
 const handleClose = useCallback(() => {
 setIsOpen(false);
 setAuthStep("phoneAuth");
-});
+},[]);
 
-const handleNext = (step, phone = "") => {
+const handleNext = useCallback((step, phone = "") => {
 setAuthStep(step);
 setPhoneNum(phone);
-}
+},[]);
 
 return (
 <Layout sideOn={false}>

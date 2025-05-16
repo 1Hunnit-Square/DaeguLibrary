@@ -32,12 +32,12 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
    });
 
    useEffect(()=>{
-    if(phoneNum){
-        smsSendMutation.mutate(phoneNum);
-    } else {
+    if(!phoneNum){
         alert("잘못된 접근입니다. 다시 시도해주세요.");
         handleNext("phoneAuth");
     }
+        smsSendMutation.mutate(phoneNum.replace(/-/g,""));
+
    },[])
 
    const handleChange = (e) => {
@@ -46,26 +46,26 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     setCode(e.target.value);
     if(e.target.value.length == 6){
         const params = {
-            phone : phoneNum,
+            phone : phoneNum.replace(/-/g,""),
             code : e.target.value
         }
         smsCheckMutation.mutate(params);
    }
    };
 
-   const handleClick= useCallback(() => {
+   const handleClick= () => {
     if(!retry){
-    const onConfirm = confirm("문자를 재전송 하겠습니까?");
+    const onConfirm = confirm(`${phoneNum}로 문자를 재전송 하겠습니까?`);
     
     if(onConfirm){
-    smsSendMutation.mutate(phoneNum);
+    smsSendMutation.mutate(phoneNum.replace(/-/g,""));
     setRetry(true);
     setTimeout(()=>{
     setRetry(false);
     }, 10000)
 
     }}
-   });
+   };
 
 
     return (<>

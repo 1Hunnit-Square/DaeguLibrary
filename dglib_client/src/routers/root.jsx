@@ -9,6 +9,7 @@ const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
 const Login = lazy(()=> import ("../pages/LoginPage"));
 const Logout = lazy(()=> import ("../pages/LogoutPage"));
+const MemberCard = lazy(()=> import ("../pages/MemberCardPage"));
 const None = lazy(()=> import ("../pages/NonePage"));
 
 
@@ -44,6 +45,10 @@ const root = createBrowserRouter([
     {
         path: "community/*",
         element: <Suspense fallback={<Loading />}><None /></Suspense>
+    },
+    {
+        path: "mylib/card",
+        element: <Suspense fallback={<Loading />}><MemberCard /></Suspense>
     },
     {
         path: "mylib/*",

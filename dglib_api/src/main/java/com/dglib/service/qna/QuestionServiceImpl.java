@@ -7,11 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.dglib.dto.qna.AnswerDTO;
 import com.dglib.dto.qna.QuestionDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.qna.Question;
 import com.dglib.repository.member.MemberRepository;
-import com.dglib.repository.qna.AnswerRepository;
 import com.dglib.repository.qna.QuestionRepository;
 
 import jakarta.transaction.Transactional;
@@ -24,7 +24,7 @@ public class QuestionServiceImpl implements QuestionService	{
 
    	private final QuestionRepository questionRepository;
 	private final MemberRepository memberRepository;
-	private final AnswerRepository answerRepository;	
+
 	
 	//등록
 	@Override
@@ -43,7 +43,7 @@ public class QuestionServiceImpl implements QuestionService	{
 		return questionRepository.save(question).getQno();
 	}
 	
-	//조회
+	//상세 조회
 	@Override
 	public QuestionDTO getQuestion(Long qno) {
 		Question question = questionRepository.findById(qno)
@@ -61,9 +61,45 @@ public class QuestionServiceImpl implements QuestionService	{
 		dto.setViewCount(question.getViewCount());
 		dto.setMemberMid(question.getMember().getMid());
 		
+		dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
+		
+		if(question.getAnswer() != null) {
+			question.getAnswer().getAno();
+			AnswerDTO answerDto = new AnswerDTO();
+			answerDto.setAno(question.getAnswer().getAno());
+			answerDto.setQno(question.getQno());
+			answerDto.setPostedAt(question.getAnswer().getPostedAt());
+			answerDto.setModifiedAt(question.getAnswer().getModifiedAt());
+			answerDto.setContent(question.getAnswer().getContent());
+			answerDto.setMemberMid(question.getAnswer().getMember().getMid());
+			
+			dto.setAnswer(answerDto);
+		}
 		
 		return dto;
 	}
+	
+		//목록 조회
+		@Override
+		public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable) {
+			return questionRepository.findAll(pageable)
+				.map(question -> {
+					QuestionDTO dto = new QuestionDTO();
+					dto.setQno(question.getQno());
+					dto.setTitle(question.getTitle());
+					dto.setContent(question.getContent());
+					dto.setCheckPublic(question.isCheckPublic());
+					dto.setPostedAt(question.getPostedAt());
+					dto.setModifiedAt(question.getModifiedAt());
+					dto.setViewCount(question.getViewCount());
+					dto.setMemberMid(question.getMember().getMid());
+
+					// 핵심은 이거 하나!
+					dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
+
+					return dto;
+				});
+		}
 	
 	//수정
 	@Override
@@ -132,10 +168,5 @@ public class QuestionServiceImpl implements QuestionService	{
 				});
 	}
 	
-	//페이지별 접수 or 완료
-	@Override
-	public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable) {
-		return questionRepository.findAllWithStatus(pageable);
-	}
-
+	
 }

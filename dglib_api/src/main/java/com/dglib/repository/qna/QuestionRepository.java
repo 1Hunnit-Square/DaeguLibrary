@@ -22,4 +22,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 			""")
 	
 	Page<QuestionDTO> findAllWithStatus(Pageable pageable);
+	
+	
+	
 }

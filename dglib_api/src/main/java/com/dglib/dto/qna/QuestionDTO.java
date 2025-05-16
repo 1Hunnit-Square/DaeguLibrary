@@ -21,8 +21,9 @@ public class QuestionDTO {
 	
 	private String memberMid;	//회원id
 	
-	
 	private String status;	//질문 현황: 접수or완료
+	
+	private AnswerDTO answer;	//답변 내용 가져오게
 	
 	public QuestionDTO(Long qno, String title, String content, String status) {
 		this.qno = qno;

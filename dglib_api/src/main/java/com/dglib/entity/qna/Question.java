@@ -54,6 +54,9 @@ public class Question {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Member member;	//회원id
 	
+	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY)
+	private Answer answer;
+	
 	public void updateTitle(String title) {
 		this.title = title;
 		this.modifiedAt = LocalDateTime.now();
@@ -68,7 +71,6 @@ public class Question {
 		this.modifiedAt = LocalDateTime.now();
 	}
 	
-	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY)
-	private Answer answer;
+	
 	
 }

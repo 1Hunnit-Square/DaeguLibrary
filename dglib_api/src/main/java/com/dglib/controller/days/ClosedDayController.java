@@ -1,5 +1,6 @@
 package com.dglib.controller.days;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -17,53 +18,64 @@ import com.dglib.service.days.ClosedDayService;
 
 import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequestMapping("/api/closed")
-@RequiredArgsConstructor
-public class ClosedDayController {
-	
-	private final ClosedDayService closedDayService;
-	
-	// 휴관일 등록
-	@PostMapping("/register")
-	public ResponseEntity<Long> registerClosedDay(@RequestBody ClosedDayDTO dto){
-		Long id = closedDayService.registerClosedDay(dto);
-		
-		return ResponseEntity.ok(id);
-	}
-	
-	// 월별 휴관일 조회
-	@GetMapping
-	public ResponseEntity<List<ClosedDayDTO>> getMonthlyList(@RequestParam int year, @RequestParam int month){
-		List<ClosedDayDTO> list = closedDayService.getMonthlyList(year, month);
-		
-		return ResponseEntity.ok(list);
-	}
-	
-	// 삭제
-	@DeleteMapping("/{closedId}")
-	public ResponseEntity<Void> delete(@PathVariable Long closedId){
-		closedDayService.delete(closedId);
-		
-		return ResponseEntity.noContent().build();
-	}
-	
-	// 해당 월의 월요일 등록(휴관일)
-	@PostMapping("/mondays")
-	public ResponseEntity<List<Long>> registerMondays(@RequestParam int year, @RequestParam int month){
-		List<Long> ids = closedDayService.registerMondays(year, month);
-		
-		return ResponseEntity.ok(ids);
+	@RestController
+	@RequestMapping("/api/closed")
+	@RequiredArgsConstructor
+	public class ClosedDayController {
 
-	}
-	
-	// 전체 휴관일 등록
-	@PostMapping("/holidays")
-	public ResponseEntity<List<Long>> registerPolicy(@RequestParam int year) {
-	    List<Long> ids = closedDayService.registerHolidays(year);
-	    
-	    return ResponseEntity.ok(ids);
+	    private final ClosedDayService closedDayService;
+
+	    // 수동 등록
+	    @PostMapping("/register")
+	    public ResponseEntity<LocalDate> register(@RequestBody ClosedDayDTO dto) {
+	        LocalDate date = closedDayService.registerClosedDay(dto);
+	        return ResponseEntity.ok(date);
+	    }
+
+	    // 단일 조회
+	    @GetMapping("/{date}")
+	    public ResponseEntity<ClosedDayDTO> get(@PathVariable("date") String dateStr) {
+	        LocalDate date = LocalDate.parse(dateStr);
+	        ClosedDayDTO dto = closedDayService.get(date);
+	        return ResponseEntity.ok(dto);
+	    }
+
+	    // 월별 조회
+	    @GetMapping
+	    public ResponseEntity<List<ClosedDayDTO>> getMonthlyList(
+	            @RequestParam int year,
+	            @RequestParam int month) {
+	        List<ClosedDayDTO> list = closedDayService.getMonthlyList(year, month);
+	        return ResponseEntity.ok(list);
+	    }
+
+	    // 삭제
+	    @DeleteMapping("/{date}")
+	    public ResponseEntity<Void> delete(@PathVariable("date") String dateStr) {
+	        LocalDate date = LocalDate.parse(dateStr);
+	        closedDayService.delete(date);
+	        return ResponseEntity.noContent().build();
+	    }
+
+	    // 월요일 자동 등록
+	    @PostMapping("/auto/mondays")
+	    public ResponseEntity<Void> registerMondays(@RequestParam int year) {
+	        closedDayService.registerMondays(year);
+	        return ResponseEntity.ok().build();
+	    }
+
+	    // 공휴일 자동 등록
+	    @PostMapping("/auto/holidays")
+	    public ResponseEntity<Void> registerHolidays(@RequestParam int year) {
+	        closedDayService.registerHolidays(year);
+	        return ResponseEntity.ok().build();
+	    }
+
+	    // 개관일 자동 등록 (매년 7월 8일)
+	    @PostMapping("/auto/anniv")
+	    public ResponseEntity<Void> registerOpeningDay(@RequestParam int year) {
+	        closedDayService.registerLibraryAnniversary(year);
+	        return ResponseEntity.ok().build();
+	    }
 	}
 
-
-}

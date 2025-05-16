@@ -1,5 +1,7 @@
 package com.dglib.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
@@ -22,58 +24,85 @@ public class ClosedDayRepositoryTest {
 	@Autowired
 	private ClosedDayRepository closedDayRepository;
 	
+	ClosedDay testDay;
+	
 //	@Test
-	@DisplayName("휴관일 등록")
-	public void createClosedDay() {
-		ClosedDay closed = ClosedDay.builder()
-				.closedDate(LocalDate.of(2025, 5, 1))
+    @DisplayName("휴관일 등록")
+	public void registerClosedDayTest() {
+		testDay = ClosedDay.builder()
+				.closedDate(LocalDate.of(2025, 5, 5))
+				.reason("어린이날")
 				.isClosed(true)
 				.build();
 		
-		ClosedDay saved = closedDayRepository.save(closed);
-		System.out.println("등록된 휴관일 ID: " + saved.getClosedId());
+		ClosedDay saved = closedDayRepository.save(testDay);
+		System.out.println("저장된 휴관일: " + saved.getClosedDate());
+		System.out.println("사유: " + saved.getReason());
 	}
 	
 //	@Test
-    @DisplayName("휴관일 조회")
-    public void readClosedDay() {
-        ClosedDay saved = closedDayRepository.save(
-                ClosedDay.builder()
-                        .closedDate(LocalDate.of(2025, 6, 1))
-                        .build()
-        );
+	@DisplayName("휴관일 조회")
+	public void findClosedDayTest() {
+		ClosedDay day = ClosedDay.builder()
+				.closedDate(LocalDate.of(2025, 5, 5))
+				.reason("어린이날")
+				.isClosed(true)
+				.build();
+		closedDayRepository.save(day);
+		
+		ClosedDay find = closedDayRepository.findById(LocalDate.of(2025, 5, 5))
+				.orElseThrow(() -> new RuntimeException("해당 날짜 없음"));
+		
+		System.out.println("조회한 날짜: " + find.getClosedDate());
+		System.out.println("사유: " + find.getReason());
+		System.out.println("휴관여부: " + find.isClosed());
+	}
+	
+//	@Test
+	@DisplayName("휴관일 수정")
+	public void updateClosedDayTest() {
+		LocalDate date = LocalDate.of(2025, 6, 10);
+		closedDayRepository.save(ClosedDay.builder()
+				.closedDate(date)
+				.reason("수정 전")
+				.isClosed(true)
+				.build());
 
-        closedDayRepository.findById(saved.getClosedId());
-        System.out.println("등록된 휴관일 ID: " + saved.getClosedId());
-    }
-    
-//    @Test
-    @DisplayName("휴관일 수정")
-    public void updateClosedDay() {
-        ClosedDay saved = closedDayRepository.save(
-        		ClosedDay.builder()
-        				.closedDate(LocalDate.of(2025, 5, 5))
-                        .build()
-        );
+		ClosedDay find = closedDayRepository.findById(date)
+				.orElseThrow(() -> new RuntimeException("해당 날짜 없음"));
+		find.setReason("수정된 사유");
+		find.setClosed(false);
 
-        saved.setClosedDate(LocalDate.of(2025, 5, 8));
-        closedDayRepository.save(saved);
-    }
-    
-    @Test
+		ClosedDay updated = closedDayRepository.save(find);
+
+		assertThat(updated.getReason()).isEqualTo("수정된 사유");
+		assertThat(updated.isClosed()).isFalse();
+
+		System.out.println("수정된 날짜: " + updated.getClosedDate());
+		System.out.println("변경된 사유: " + updated.getReason());
+		System.out.println("변경된 휴관 여부: " + updated.isClosed());
+	}
+	
+	@Test
     @DisplayName("휴관일 삭제")
-    public void deleteClosedDay() {
-        ClosedDay saved = closedDayRepository.save(
-                ClosedDay.builder()
-                        .closedDate(LocalDate.of(2025, 7, 1))
-                        .build()
-        );
+    public void deleteClosedDayTest() {
+        // given
+        LocalDate date = LocalDate.of(2025, 6, 10);
+        closedDayRepository.save(ClosedDay.builder()
+                .closedDate(date)
+                .reason("삭제 테스트")
+                .isClosed(true)
+                .build());
 
-        Long id = saved.getClosedId();
-        closedDayRepository.deleteById(id);
+        // when
+        closedDayRepository.deleteById(date);
 
-        boolean exists = closedDayRepository.findById(id).isPresent();
-        System.out.println("삭제 여부: " + (exists ? "실패" : "성공"));
+        // then
+        boolean exists = closedDayRepository.findById(date).isPresent();
+        System.out.println("삭제된 날짜: " + date);
+        System.out.println("삭제 후 존재 여부: " + exists);
+        assertThat(exists).isFalse();
     }
+	
 	
 }

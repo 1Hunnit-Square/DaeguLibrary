@@ -53,18 +53,28 @@ public class AnnivDayController {
 		return ResponseEntity.ok(annivDayService.getByMonth(year, month));
 	}
 	
+	// 년,월,일별 조회
+	@GetMapping("/day")
+	public ResponseEntity<List<AnnivDayDTO>> getDailyList(
+	        @RequestParam int year,
+	        @RequestParam int month,
+	        @RequestParam int day) {
+	    return ResponseEntity.ok(annivDayService.getDailyList(year, month, day));
+	}
+	
 	// 일정 수정
 	@PutMapping("/{annivNo}")
 	public ResponseEntity<String> update(@PathVariable Long annivNo, @RequestBody AnnivDayDTO dto) {
 		annivDayService.updateAnnivDay(annivNo, dto);
-		return ResponseEntity.ok("일정이 성공적으로 수정되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
 	// 삭제
 	@DeleteMapping("/{annivNo}")
     public ResponseEntity<String> delete(@PathVariable Long annivNo) {
         annivDayService.delete(annivNo);
-        return ResponseEntity.ok("일정 삭제 완료!");
+        return ResponseEntity.noContent().build();
+
     }
 
 }

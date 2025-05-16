@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dglib.entity.days.ClosedDay;
 
-public interface ClosedDayRepository extends JpaRepository<ClosedDay, Long>{
+public interface ClosedDayRepository extends JpaRepository<ClosedDay, LocalDate>{
 	
-	List<ClosedDay> findByClosedDateBetween(LocalDate start, LocalDate end);
+	boolean existsByClosedDate(LocalDate closedDate);
 
+    List<ClosedDay> findByClosedDateBetween(LocalDate start, LocalDate end);
 }

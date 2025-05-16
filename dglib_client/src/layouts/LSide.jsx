@@ -3,22 +3,16 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 const LSide = ({ LMainMenu, LSideMenu }) => {
   const location = useLocation();
-  console.log("너왜 한번찍히는데 왜 리렌더링돼???");
 
   const activeMenu = useMemo(() => {
     const currentPath = location.pathname;
-
-
-    const currentMenuItem = LSideMenu.find(menu =>
-      currentPath.includes(menu.path)
-    );
-
-
+    const currentMenuItem = LSideMenu.find(menu => {
+      const menuBasePath = menu.path.split('?')[0];
+      return currentPath === menuBasePath;
+    });
     if (currentMenuItem) {
       return currentMenuItem.id;
     }
-
-
     return LSideMenu[0]?.id || null;
   }, [location.pathname, LSideMenu]);
 

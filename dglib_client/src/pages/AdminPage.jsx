@@ -21,13 +21,11 @@ const AdminPage = () => {
 
 
     const LSideMenu = useMemo(() => [
-        { id: "regBook", label: "도서등록", path: "/admin/regbook" },
-        { id: "organization", label: "조직 및 현황", path: "/about/organization" },
-        { id: "policy", label: "도서관 정책", path: "/about/policy" },
-        { id: "location", label: "오시는길", path: "/about/location" },], [])
+        { id: "regBook", label: "도서관리", path: "/admin/bookmanagement?tab=booklist&page=1" },
+        { id: "borrow", label: "대출예약관리", path: "/admin/borrow?tab=borrow&page=1" },], [])
     return (
-        <Layout LMainMenu={"도서관소개"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서관 소개" />
+        <Layout LMainMenu={"관리자"} LSideMenu={LSideMenu} >
+            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="관리자" />
             <Outlet />
         </Layout>
     )

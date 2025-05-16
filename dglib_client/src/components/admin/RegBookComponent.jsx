@@ -45,15 +45,26 @@ const RegBookComponent = () => {
     },
     onSuccess: (data) => {
       console.log(data);
-      if (data.length > 0) {
+      if (data.libraryBooks && data.libraryBooks.length > 0) {
         setLibraryBooks(
-          data.map((libraryBook, index) => ({
+          data.libraryBooks.map((libraryBook, index) => ({
             id: index,
             location: libraryBook.location,
             callSign: libraryBook.callSign,
             libraryBookId: libraryBook.libraryBookId,
           }))
         )
+      }
+      if (data.book && data.book.bookTitle) {
+        setBookFormData({
+          bookTitle: data.book.bookTitle,
+          author: data.book.author,
+          publisher: data.book.publisher,
+          pubDate: data.book.pubDate,
+          isbn: data.book.isbn,
+          description: data.book.description,
+          cover: data.book.cover,
+        });
       }
     },
     onError: (error) => {
@@ -97,6 +108,11 @@ const RegBookComponent = () => {
       bookFormData.pubDate &&
       bookFormData.isbn &&
       bookFormData.description;
+    if (bookFormData.description === "" || bookFormData.description.trim() === "") {
+      alert("도서 설명을 입력해주세요.");
+      return;
+    }
+
 
     if (!isBookDataValid || !isHoldingValid) {
       alert("도서정보를 모두 입력해주세요.");
@@ -162,6 +178,7 @@ const RegBookComponent = () => {
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data.type === "BOOK_SELECTED") {
+
         setLibraryBooks([{ id: 1, location: "", callSign: "" }]);
         setBookFormData({
           bookTitle: event.data.book.bookTitle,
@@ -191,7 +208,7 @@ const RegBookComponent = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {(regBookMutation.isPending || getRegBookCheckMutation.isPending) && (
-        <Loading text="도서 등록중입니다.." />
+        <Loading text={ regBookMutation.isPending ? "도서 등록중입니다.."  : "도서 정보 입력중입니다.." } />
       )}
       <div className="bg-white rounded-lg p-6 mb-6">
         <div className="flex items-center mb-6">
@@ -259,12 +276,23 @@ const RegBookComponent = () => {
               />
             </div>
 
-            <div className="flex items-end justify-end h-[73px]">
+            <div className="flex flex-col items-end justify-end h-[73px]">
               {bookFormData.bookTitle && (
                 <div className="text-sm text-green-600 font-medium">
                   ✓ 도서 정보가 입력되었습니다
                 </div>
               )}
+              {bookFormData.isbn ? (
+                libraryBooks.some(book => book.libraryBookId) ? (
+                  <div className="text-sm text-green-600 font-medium">
+                      ✓ 소장중인 도서입니다.
+                    </div>
+                  ) : (
+                    <div className="text-sm text-red-600 font-medium">
+                      ✓ 신규 도서입니다
+                    </div>
+                  )
+              ) : null}
             </div>
           </div>
         </div>
@@ -272,11 +300,16 @@ const RegBookComponent = () => {
         <div className="flex gap-8 mt-6">
             <div className="flex-1">
                 <label className="font-medium text-gray-700 block mb-2">도서 설명</label>
-                <textarea
-                className="w-full h-96 p-4 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#00893B]"
-                value={bookFormData.description || "도서 설명이 없습니다."}
-                readOnly
-                />
+                  <textarea className={`w-full h-96 p-4 border border-gray-300 rounded-md ${
+                    !bookFormData.bookTitle ? 'bg-gray-50' : 'bg-white'} focus:outline-none focus:ring-1 focus:ring-[#00893B]`}
+                    placeholder={bookFormData.bookTitle && !bookFormData.description && "도서 설명이 없습니다."}
+                    value={bookFormData.bookTitle ? bookFormData.description : ""}
+                    readOnly={!bookFormData.bookTitle}
+                    onChange={(e) => { if (bookFormData.bookTitle) {
+                        setBookFormData({
+                            ...bookFormData,
+                            description: e.target.value
+                        })}}}/>
             </div>
             <div className="w-72 flex flex-col">
             <label className="font-medium text-gray-700 block mb-2">표지 이미지</label>
@@ -298,7 +331,7 @@ const RegBookComponent = () => {
        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-[#00893B]">소장정보</h3>
           <Button onClick={addHolding} children="+" className="bg-blue-500 hover:bg-blue-600" />

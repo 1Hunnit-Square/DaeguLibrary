@@ -18,20 +18,22 @@ const LibraryBookDetailComponent = () => {
 
 
     const reserveMutation = useMutation({
-        mutationFn: (reservationData) => reserveBook(reservationData),
+        mutationFn: async (reservationData) => {
+            return await reserveBook(reservationData)
+        },
         onSuccess: () => {
             queryClient.invalidateQueries(['libraryBookDetail', librarybookid]);
             alert(`'${libraryBookDetail.bookTitle}' 도서를 예약했습니다.`);
         },
         onError: (error) => {
             console.log("예약 변경 오류:", error);
-            alert(error.response?.data?.message || "도서 예약에 실패했습니다.");
+            alert("도서 예약에 실패했습니다. " + error.response?.data?.message);
         }
     });
 
     const handleReserveClick = () => {
         reserveMutation.mutate({
-            id: mid,
+            mid: mid,
             libraryBookId: libraryBookDetail.libraryBookId,
         });
     };

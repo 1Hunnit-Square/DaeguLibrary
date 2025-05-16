@@ -5,6 +5,7 @@ import Loading from "./Loading";
 const ReadingRoom = lazy(() => import("../components/usage/ReadingRoomComponent"));
 const MemberShip = lazy(() => import("../components/usage/MemberShipComponent"));
 const BorrowReturn = lazy(() => import("../components/usage/BorrowReturnComponent"));
+const MemberSearch = lazy(() => import("../components/admin/MemberSearchComponent"));
 
 
 

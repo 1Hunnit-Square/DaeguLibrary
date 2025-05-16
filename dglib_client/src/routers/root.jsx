@@ -23,6 +23,8 @@ const SearchBookApi = lazy(()=> import ("../components/books/SearchBookApiCompon
 const Reservation = lazy(()=> import ("../pages/ReservationPage"));
 const Community = lazy(()=> import ("../pages/CommunityPage"));
 const MyLibrary = lazy(()=> import ("../pages/MyLibraryPage"));
+const MemberSearch = lazy(()=> import ("../components/admin/MemberSearchComponent"));
+const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSearchComponent"));
 
 const root = createBrowserRouter([
 
@@ -81,7 +83,16 @@ const root = createBrowserRouter([
         path: "searchbookapi",
         element: <Suspense fallback={<Loading />}><SearchBookApi /></Suspense>
 
+    },
+    {
+        path: "membersearch",
+        element: <Suspense fallback={<Loading />}><MemberSearch /></Suspense>
+    },
+    {
+        path : "librarybooksearch",
+        element: <Suspense fallback={<Loading />}><LibraryBookSearch /></Suspense>
     }
+
 
 ]);
 

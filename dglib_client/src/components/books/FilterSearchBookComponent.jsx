@@ -34,6 +34,34 @@ const FilterSearchBookComponent = () => {
     const queryClient = useQueryClient();
     const mid = useRecoilValue(memberIdSelector);
 
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["librarybooklist", searchURLParams.toString(), mid],
+        queryFn: () => {
+            return getFsLibraryBookList(searchURLParams, mid);
+        },
+        refetchOnWindowFocus: false,
+    });
+
+    const [hasSetInitialParams, setHasSetInitialParams] = useState(false);
+
+    useEffect(() => {
+        if (data && !hasSetInitialParams) {
+            setBooks(data.content);
+            console.log(data.content);
+            setPageable(data);
+            const currentTab = searchURLParams.get("tab");
+            // if (!searchURLParams.has("page") && data.pageable && currentTab !== "info") {
+            //     setHasSetInitialParams(true);
+            //     const newParams = new URLSearchParams(searchURLParams);
+            //     newParams.set("page", (data.pageable.pageNumber + 1).toString());
+            //     if (currentTab !== "settings") {
+            //     newParams.set("tab", "info");
+            // }
+            //     setSearchURLParams(newParams, { replace: true });
+            // }
+        }
+    }, [data, hasSetInitialParams]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -78,35 +106,7 @@ const FilterSearchBookComponent = () => {
         setSearchURLParams(newParams);
     }, [filters, setSearchURLParams]);
 
-    const { data, isLoading, isErrer } = useQuery({
-        queryKey: ["librarybooklist", searchURLParams.toString(), mid],
-        queryFn: () => {
-            return getFsLibraryBookList(searchURLParams, mid);
-        },
-        refetchOnWindowFocus: false,
-        retry: false,
-        enabled: searchableParams.some(param => searchURLParams.has(param))
-    });
 
-    const [hasSetInitialParams, setHasSetInitialParams] = useState(false);
-
-    useEffect(() => {
-        if (data && !hasSetInitialParams) {
-            setBooks(data.content);
-            console.log(data.content);
-            setPageable(data);
-            const currentTab = searchURLParams.get("tab");
-            if (!searchURLParams.has("page") && data.pageable && currentTab !== "info") {
-                setHasSetInitialParams(true);
-                const newParams = new URLSearchParams(searchURLParams);
-                newParams.set("page", (data.pageable.pageNumber + 1).toString());
-                if (currentTab !== "settings") {
-                newParams.set("tab", "info");
-            }
-                setSearchURLParams(newParams, { replace: true });
-            }
-        }
-    }, [data, hasSetInitialParams]);
 
         const pageClick = useCallback((page) => {
         const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
@@ -214,11 +214,15 @@ const FilterSearchBookComponent = () => {
             </div>
         </div>
             {isLoading ? (
-                    <div className="flex justify-center items-center py-10">
-                        <Loading />
-                    </div>
-                ) : (
-                    <>
+                            <Loading />
+                            ) : isError ? (
+                                <div className="flex justify-center items-center py-10">
+                                    <p className="text-red-500 font-medium">
+                                        서버에서 책 데이터를 불러오는데 실패했습니다.
+                                    </p>
+                                </div>
+                            ) : (
+                        <>
 
                         {pageable.totalElements !== undefined ? (
                             <div className="mb-4">총 {pageable.totalElements}권의 도서를 찾았습니다. </div>
@@ -236,7 +240,7 @@ const FilterSearchBookComponent = () => {
                             {Array.isArray(books) && books.length > 0 ? (
                                 <>
                                 <div className="flex mx-3 gap-3">
-                                <CheckBox checked={isAllSelected} onChange={(e) => handleSelectAll(e)} inputClassName={"hover:cursor-pointer"} />
+                                <CheckBox checked={isAllSelected} onChange={(e) => handleSelectAll(e)} inputClassName={"hover:cursor-pointer w-4 h-4"} />
                                 <Button children={"관심도서 담기"} onClick={clickSelectFavorite} className={""} />
                                 </div>
                                 {books.map((book, index) => {
@@ -250,7 +254,7 @@ const FilterSearchBookComponent = () => {
                                         >
 
                                             <div className="w-full md:w-48 flex justify-center">
-                                                <CheckBox checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1"} />
+                                                <CheckBox checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"} />
                                                 <img
                                                     src={book.cover || '/placeholder-image.png'}
                                                     alt={book.bookTitle || '표지 없음'}
@@ -304,4 +308,4 @@ const FilterSearchBookComponent = () => {
     );
 }
 
-export default FilterSearchBookComponent;
+export default memo(FilterSearchBookComponent);

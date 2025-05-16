@@ -230,7 +230,7 @@ const NomalSearchBookComponent = () => {
                 {renderSearchResultCount}
                 <div className="space-y-6">
                    {isLoading ? (
-                        <Loading text="도서 검색중입니다"/>
+                        <Loading />
                     ) : isError ? (
                         <div className="flex justify-center items-center py-10">
                             <p className="text-red-500 font-medium">

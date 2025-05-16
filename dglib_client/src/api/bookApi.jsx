@@ -58,6 +58,7 @@ export const getLibraryBookDetail = async (librarybookid, mid) => {
 };
 
 export const reserveBook = async (reservationData) => {
+    console.log("예약 데이터", reservationData);
     const res = await axios.post(`${prefix}/reservebook`, reservationData, { headers: { 'Content-Type': 'application/json' } });
     return res.data;
 

@@ -132,7 +132,7 @@ const SearchBookApi = () => {
 
             {searchMutation.isPending ? (
                 <div className="flex justify-center items-center py-10">
-                    <Loading />
+                    <Loading text="도서 검색중입니다..." />
                 </div>
             ) : (
                 <>

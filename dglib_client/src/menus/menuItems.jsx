@@ -75,9 +75,10 @@ const defaultMenuItems = [
   const adminMenuItem = {
     id: 6,
     title: '관리자',
-    link: '/admin/regbook',
+    link: '/admin/bookmanagement?tab=booklist&page=1',
     subMenus: [
-      { name: '도서등록', link: '/admin/regbook' }
+      { name: '도서관리', link: '/admin/bookmanagement?tab=booklist&page=1' },
+      { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
     ]
   };
 

@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/answer")
-public class AnswetController {
+public class AnswerController {
 
 	private final AnswerService answerService;
 	

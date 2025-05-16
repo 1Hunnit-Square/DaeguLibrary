@@ -34,7 +34,7 @@ public class Answer {
 	private Long ano;
 	
 	@OneToOne
-	@JoinColumn(name = "qno")
+	@JoinColumn(name = "qno", nullable = false)
 	private Question question;
 	
 	@Column(nullable = false)

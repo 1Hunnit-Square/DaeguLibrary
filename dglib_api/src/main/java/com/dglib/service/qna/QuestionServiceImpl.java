@@ -132,5 +132,10 @@ public class QuestionServiceImpl implements QuestionService	{
 				});
 	}
 	
+	//페이지별 접수 or 완료
+	@Override
+	public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable) {
+		return questionRepository.findAllWithStatus(pageable);
+	}
 
 }

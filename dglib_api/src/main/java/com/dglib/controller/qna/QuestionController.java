@@ -25,18 +25,20 @@ public class QuestionController {
 
 	private final QuestionService questionService;
 	
+	// 질문 등록
 	@PostMapping
 	public ResponseEntity<Long> createQuestion(@RequestBody QuestionDTO dto) {
 		Long qno = questionService.createQuestion(dto);
 		return ResponseEntity.ok(qno);
 	}
 	
-	
+	// 조회
 	@GetMapping("/{qno}")
 	public ResponseEntity<QuestionDTO> getQuestion(@PathVariable Long qno)	{
 		return ResponseEntity.ok(questionService.getQuestion(qno));
 	}
 	
+	// 수정
 	@PutMapping("/{qno}")
 	public ResponseEntity<Void>	updateQuestion(
 			@PathVariable Long qno, 
@@ -46,16 +48,17 @@ public class QuestionController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	
+	// 삭제
 	@DeleteMapping("/{qno}")
 	public ResponseEntity<Void> deleteQuestion(@PathVariable Long qno, @RequestParam String mid){
 		questionService.deleteQuestion(qno, mid);
 		return ResponseEntity.noContent().build();
 	}
 	
-	
+	//질문 목록 조회
 	@GetMapping
-	public ResponseEntity<Page<QuestionDTO>> getQuestions(Pageable pageable){
-		Page<QuestionDTO> questions = questionService.getQuestions(pageable);
-		return ResponseEntity.ok(questions);
+	public ResponseEntity<Page<QuestionDTO>> getPagedQuestions(Pageable pageable) {
+	    return ResponseEntity.ok(questionService.getQuestionsWithStatus(pageable));
 	}
 }

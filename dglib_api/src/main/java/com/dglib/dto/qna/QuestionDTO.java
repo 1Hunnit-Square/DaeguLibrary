@@ -24,5 +24,11 @@ public class QuestionDTO {
 	
 	private String status;	//질문 현황: 접수or완료
 	
+	public QuestionDTO(Long qno, String title, String content, String status) {
+		this.qno = qno;
+		this.title = title;
+		this.content = content;
+		this.status = status;
+	}
 	
 }

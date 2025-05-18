@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ import com.dglib.repository.book.ReserveRepository;
 import com.dglib.repository.member.MemberRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -82,10 +85,15 @@ public class BookServiceImpl implements BookService {
 	        throw new IllegalStateException("요청 내에 중복된 청구번호가 존재합니다: " + duplicatesInRequest);
 	    }
 	    
-	    Book bookEntity = bookRepository.findById(bookDto.getIsbn()).orElseGet(() -> {
-	        Book newBook = modelMapper.map(bookDto, Book.class);
-	        return bookRepository.save(newBook);
-	    });
+	    Book bookEntity = bookRepository.findById(bookDto.getIsbn())
+	    	    .map(existingBook -> {
+	    	        modelMapper.map(bookDto, existingBook);
+	    	        return bookRepository.save(existingBook);
+	    	    })
+	    	    .orElseGet(() -> {
+	    	        Book newBook = modelMapper.map(bookDto, Book.class);
+	    	        return bookRepository.save(newBook);
+	    	    });
 	    
 	    List<Long> allLibraryBookIds = libraryBooks.stream()
 	            .map(LibraryBookDTO::getLibraryBookId)
@@ -156,6 +164,7 @@ public class BookServiceImpl implements BookService {
 	            if (entity != null) {
 	                modelMapper.map(dto, entity);
 	                entity.setBook(bookEntity);
+	                
 	            }
 	        }
 	        
@@ -167,6 +176,7 @@ public class BookServiceImpl implements BookService {
 	                .map(dto -> {
 	                    LibraryBook entity = modelMapper.map(dto, LibraryBook.class);
 	                    entity.setBook(bookEntity);
+	                    entity.setRegLibraryBookDate(LocalDate.now());
 	                    return entity;
 	                })
 	                .collect(Collectors.toList());
@@ -237,7 +247,9 @@ public class BookServiceImpl implements BookService {
 	public BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid) {
 	    LibraryBook libraryBook = libraryBookRepository.findWithDetailsByLibraryBookId(libraryBookId)
 	            .orElseThrow(() -> new EntityNotFoundException("도서를 찾을 수 없습니다."));
-	    
+	    LOGGER.info("도서 대출정보" + libraryBook.getRentals().toString());
+	    LOGGER.info("도서 예악정보" + libraryBook.getReserves().toString());
+
 	    BookDetailDTO dto = new BookDetailDTO();
 	    boolean isRented = libraryBook.getRentals().stream()
 	            .anyMatch(rental -> rental.getState() != RentalState.RETURNED);
@@ -250,12 +262,13 @@ public class BookServiceImpl implements BookService {
 	            .anyMatch(reserve -> reserve.getMember().getMid().equals(mid) 
 	                    && reserve.getState() == ReserveState.RESERVED);
 	    
-	    dto.setRented(isRented);
-	    dto.setReserveCount(reserveCount);
-	    dto.setAlreadyReservedByMember(alreadyReservedByMember);
+	    
 	    
 	    modelMapper.map(libraryBook.getBook(), dto);
 	    modelMapper.map(libraryBook, dto);
+	    dto.setRented(isRented);
+	    dto.setReserveCount(reserveCount);
+	    dto.setAlreadyReservedByMember(alreadyReservedByMember);
 	    
 	    return dto;
 	}
@@ -275,11 +288,17 @@ public class BookServiceImpl implements BookService {
 	}
 	
 	@Override
-	public void reserveBook(Long libraryBookId, String id) {
+	public void reserveBook(Long libraryBookId, String mid) {
 		LibraryBook libraryBook = libraryBookRepository.findById(libraryBookId).orElse(null);
-		Member member = memberRepository.findById(id).orElse(null);
+		Member member = memberRepository.findById(mid).orElse(null);
 		BookStatusCountDto countDto = libraryBookRepository.countReserveAndBorrowDto(member.getMno(), ReserveState.RESERVED, RentalState.BORROWED);
 		LOGGER.info("대출예약현황" + countDto);
+		boolean alreadyReservedByMember = mid != null && libraryBook.getReserves().stream()
+	            .anyMatch(reserve -> reserve.getMember().getMid().equals(mid) 
+	                    && reserve.getState() == ReserveState.RESERVED);
+		if (alreadyReservedByMember) {
+			throw new IllegalStateException("이미 예약된 도서입니다.");
+		}
 		if (reserveRepository.countByReserveState(libraryBookId, ReserveState.RESERVED) >= 2) {
 			throw new IllegalStateException("해당 도서의 예약가능 횟수가 초과되었습니다.");
 		}
@@ -583,10 +602,23 @@ public class BookServiceImpl implements BookService {
 	}
 	
 	@Override
-	public List<LibraryBookDTO> getLibraryBookList(String isbn) {
-		List<LibraryBook> libraryBooks = libraryBookRepository.findAllByBookIsbn(isbn);
-		return libraryBooks.stream().map(libraryBook -> modelMapper.map(libraryBook, LibraryBookDTO.class))
-				.collect(Collectors.toList());
+	public BookRegistrationDTO getLibraryBookList(String isbn) {
+		Book book = bookRepository.findByIsbn(isbn);
+		BookRegistrationDTO bookRegistrationDTO = new BookRegistrationDTO();
+		if (book != null) {
+			BookDTO bookDTO = modelMapper.map(book, BookDTO.class);
+			List<LibraryBookDTO> libraryBookDTOs = book.getLibraryBooks().stream()
+	                .map(libraryBook -> modelMapper.map(libraryBook, LibraryBookDTO.class))
+	                .collect(Collectors.toList());
+			bookRegistrationDTO = new BookRegistrationDTO();
+			bookRegistrationDTO.setBook(bookDTO);
+			bookRegistrationDTO.setLibraryBooks(libraryBookDTOs);
+		}
+		
+		
+
+		
+		return bookRegistrationDTO;
 		
 	}
 	

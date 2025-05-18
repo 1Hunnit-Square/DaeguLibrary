@@ -25,14 +25,6 @@ public class MemberController {
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberController.class);
 	private final MemberService serviceMember;
 	
-	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSeaerchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-		LOGGER.info("memberNumber: {}", memberNumber);
-		Pageable pageable = PageRequest.of(page -1, size);
-		Page<MemberSeaerchByMnoDTO> memberList = serviceMember.searchByMno(memberNumber, pageable);
-		
-
-		return ResponseEntity.ok(memberList);
-	}
+	
 
 }

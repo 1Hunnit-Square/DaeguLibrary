@@ -39,6 +39,7 @@ public class BookRepositoryTest {
                 .callSign("A123")
                 .location("자료실1")
                 .book(book1)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 01))
                 .build();
         
         Book book2 = Book.builder()
@@ -55,6 +56,7 @@ public class BookRepositoryTest {
                 .callSign("A456")
                 .location("자료실1")
                 .book(book2)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book3 = Book.builder()
@@ -71,6 +73,7 @@ public class BookRepositoryTest {
                 .callSign("A789")
                 .location("자료실1")
                 .book(book3)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book4 = Book.builder()
@@ -87,6 +90,7 @@ public class BookRepositoryTest {
                 .callSign("B123")
                 .location("자료실1")
                 .book(book4)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book5 = Book.builder()
@@ -103,6 +107,7 @@ public class BookRepositoryTest {
                 .callSign("B456")
                 .location("자료실1")
                 .book(book5)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book6 = Book.builder()
@@ -119,6 +124,7 @@ public class BookRepositoryTest {
                 .callSign("B789")
                 .location("자료실1")
                 .book(book6)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book7 = Book.builder()
@@ -135,6 +141,7 @@ public class BookRepositoryTest {
                 .callSign("C123")
                 .location("자료실2")
                 .book(book7)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book8 = Book.builder()
@@ -151,6 +158,7 @@ public class BookRepositoryTest {
                 .callSign("C456")
                 .location("자료실2")
                 .book(book8)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book9 = Book.builder()
@@ -167,6 +175,7 @@ public class BookRepositoryTest {
                 .callSign("C789")
                 .location("자료실2")
                 .book(book9)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         
         Book book10 = Book.builder()
@@ -183,21 +192,25 @@ public class BookRepositoryTest {
                 .callSign("D123")
                 .location("자료실2")
                 .book(book10)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         LibraryBook libraryBook11 = LibraryBook.builder()
                 .callSign("D456")
                 .location("자료실2")
                 .book(book1)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         LibraryBook libraryBook12 = LibraryBook.builder()
                 .callSign("D789")
                 .location("자료실2")
                 .book(book2)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         LibraryBook libraryBook13 = LibraryBook.builder()
                 .callSign("E123")
                 .location("자료실2")
                 .book(book1)
+                .regLibraryBookDate(LocalDate.of(2025, 5, 02))
                 .build();
         bookRepository.saveAll(List.of(book1, book2, book3, book4, book5, book6, book7, book8, book9, book10));
         libraryBookRepository.saveAll(List.of(libraryBook1, libraryBook2, libraryBook3, libraryBook4, libraryBook5, libraryBook6, libraryBook7, libraryBook8, libraryBook9, libraryBook10, libraryBook11, libraryBook12, libraryBook13));

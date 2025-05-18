@@ -140,72 +140,21 @@ public class BookController {
 		return ResponseEntity.ok(bookDetailDto);
 	}
 	
-	@GetMapping("/rentallist")
-	public ResponseEntity<Page<RentalBookListDTO>> getRentalList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		LOGGER.info(page + " ");
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("rentId").descending());
-		Page<RentalBookListDTO> rentalList = bookService.getRentalList(pageable);
-		LOGGER.info("rentalList: {}", rentalList);
-		return ResponseEntity.ok(rentalList);
-	}
+
 	
 	@PostMapping("/reservebook")
 	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
+		LOGGER.info("도서 예약 요청: {}", reserveDto);
 		bookService.reserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
 		return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("/reservebooklist")
-	public ResponseEntity<Page<ReserveBookListDTO>> reserveBookList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("reserveDate").descending());
-		Page<ReserveBookListDTO> reserveList = bookService.getReserveList(pageable);
-		LOGGER.info("reserveList: {}", reserveList);
-		return ResponseEntity.ok(reserveList);
-	}
+
+
 	
-	@PostMapping("/cancelreservebook")
-	public ResponseEntity<String> cancelReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-        LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
-        bookService.cancelReserveBook(reserveStateChangeDtos);
-        return ResponseEntity.ok().build();
-	}
 	
-	@PostMapping("/rereservebook")
-	public ResponseEntity<String> reReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 재예약 요청: {}", reserveStateChangeDtos);
-		bookService.reReserveBook(reserveStateChangeDtos);
-		return ResponseEntity.ok().build();
-	}
 	
-	@PostMapping("/completeborrowing")
-	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 대출 완료 요청: {}", reserveStateChangeDtos);
-		bookService.completeBorrowing(reserveStateChangeDtos);
-		return ResponseEntity.ok().build();
-	}
-	@PostMapping("/returnbook")
-	public ResponseEntity<String> returnBook(@RequestBody List<RentalStateChangeDTO> rentalStateChangeDto) {
-        LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
-        bookService.completeBookReturn(rentalStateChangeDto);
-        return ResponseEntity.ok().build();
-	}
 	
-	@GetMapping("/searchlibrarybook/{libraryBookId}")
-	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
-		LOGGER.info("libraryBookId: {}", libraryBookId);
-		Pageable pageable = PageRequest.of(page - 1, size);
-		Page<LibraryBookSearchByBookIdDTO> memberList = bookService.searchByLibraryBookBookId(libraryBookId, pageable);
-		return ResponseEntity.ok(memberList);
-	}
-	
-	@PostMapping("/rentbook")
-	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
-		LOGGER.info("도서 대출 요청: {}", rentBookDto);
-		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
-		return ResponseEntity.ok().build();
-	}
 	
 	
 	

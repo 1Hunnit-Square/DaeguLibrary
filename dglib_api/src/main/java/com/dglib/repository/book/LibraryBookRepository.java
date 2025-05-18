@@ -50,7 +50,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 			+ ") " + "FROM LibraryBook lb JOIN lb.book b WHERE lb.libraryBookId = :libraryBookId")
 	Page<LibraryBookSearchByBookIdDTO> findBookByLibraryBookId(Long libraryBookId, Pageable pageable);
 	
-	@EntityGraph(attributePaths = {"book", "rentals", "reserves", "reserves.member"})
+	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Optional<LibraryBook> findWithDetailsByLibraryBookId(Long libraryBookId);
 	
 	
@@ -73,6 +73,8 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Page<LibraryBook> findAll(Specification<LibraryBook> spec, Pageable pageable);
+	
+	
 	
 	@EntityGraph(attributePaths = {"book"})
 	List<LibraryBook> findAllByBookIsbn(String isbn);

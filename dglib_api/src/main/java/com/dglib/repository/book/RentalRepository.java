@@ -35,5 +35,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@EntityGraph(attributePaths = "member")
 	List<Rental> findByMemberMidInAndState(Collection<String> memberIds, RentalState state);
+	
+
 
 }

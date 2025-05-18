@@ -32,7 +32,7 @@ public interface BookService {
 	void completeBookReturn(List<RentalStateChangeDTO> rentalBookListDtos);
 	Page<LibraryBookSearchByBookIdDTO> searchByLibraryBookBookId(Long libraryBookId, Pageable pageable);
 	void rentBook(Long libraryBookId, String mno);
-	List<LibraryBookDTO> getLibraryBookList(String isbn);
+	BookRegistrationDTO getLibraryBookList(String isbn);
 	void deleteLibraryBook(Long libraryBookId, String isbn);
 	
 	

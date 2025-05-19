@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from config import logger, ALADIN_KEY, ALADIN_API_SEARCH_URL
+from dglib_python.config import logger, ALADIN_KEY, ALADIN_API_SEARCH_URL
 import httpx
-from models.book import book_cache
-from schedulers.book_updater import start_scheduler, stop_scheduler, run_update_with_retry
-from services.aladin import get_total_results_count, get_books_by_page
+from dglib_python.models.book import book_cache
+from dglib_python.schedulers.book_updater import start_scheduler, stop_scheduler, run_update_with_retry
+from dglib_python.services.aladin import get_total_results_count, get_books_by_page
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -70,7 +70,9 @@ async def book_search(
         logger.error(f"검색 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=f"검색 처리 중 오류가 발생했습니다: {str(e)}")
 
-
-if __name__ == "__main__":
+def main():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+if __name__ == "__main__":
+     main()

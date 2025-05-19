@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.base import JobLookupError
-from config import logger, GENRE_MAP
-from services.book_service import update_selected_book_data, update_failed_genres
+from dglib_python.config import logger, GENRE_MAP
+from dglib_python.services.book_service import update_selected_book_data, update_failed_genres
 
 scheduler = AsyncIOScheduler()
 

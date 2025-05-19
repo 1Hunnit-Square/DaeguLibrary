@@ -1,5 +1,5 @@
-from config import logger, ALADIN_API_URL, ALADIN_KEY, ALADIN_API_SEARCH_URL
-from utils.http import safe_request
+from dglib_python.config import logger, ALADIN_API_URL, ALADIN_KEY, ALADIN_API_SEARCH_URL
+from dglib_python.utils.http import safe_request
 import httpx
 import html
 

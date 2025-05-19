@@ -3,7 +3,7 @@ import time
 import requests
 import asyncio
 import httpx
-from config import logger, MAX_RETRIES, RETRY_DELAY
+from dglib_python.config import logger, MAX_RETRIES, RETRY_DELAY
 
 # def safe_request(url, params, max_retries=MAX_RETRIES, delay=RETRY_DELAY):
    

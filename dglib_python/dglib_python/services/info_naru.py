@@ -1,8 +1,8 @@
 
 from datetime import datetime, timedelta
-from config import logger, INFO_NARU_URL, INFO_NARU_KEY, GENRE_MAP
-from utils.http import safe_request
-from services.aladin import get_aladin_book_info
+from dglib_python.config import logger, INFO_NARU_URL, INFO_NARU_KEY, GENRE_MAP
+from dglib_python.utils.http import safe_request
+from dglib_python.services.aladin import get_aladin_book_info
 import httpx
 
 async def fetch_popular_books(genre: str):

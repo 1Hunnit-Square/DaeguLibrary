@@ -1,7 +1,7 @@
 import asyncio
-from config import logger
-from models.book import book_cache
-from services.info_naru import fetch_popular_books
+from dglib_python.config import logger
+from dglib_python.models.book import book_cache
+from dglib_python.services.info_naru import fetch_popular_books
 
 async def update_selected_book_data(genres_to_update: list[str]) -> bool:
    

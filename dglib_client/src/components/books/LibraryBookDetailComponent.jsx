@@ -44,9 +44,7 @@ const LibraryBookDetailComponent = () => {
         if (libraryBookDetail.overdue && !confirm("연체중인 도서입니다. 예약하시겠습니까?")) {
             return;
         }
-        if (!confirm("연체중인 도서입니다. 예약하시겠습니까?")) {
-            return;
-        }
+
 
         reserveMutation.mutate({
             mid: mid,

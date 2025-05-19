@@ -1,5 +1,6 @@
 package com.dglib.repository.book;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,12 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@EntityGraph(attributePaths = "member")
 	List<Rental> findByMemberMid(String mid);
+	
+	@EntityGraph(attributePaths = "member")
+	@Query("SELECT r FROM Rental r WHERE r.state = com.dglib.entity.book.RentalState.BORROWED AND r.dueDate < :today")
+    List<Rental> findOverdueRentals(
+        @Param("today") LocalDate today
+    );
 	
 
 

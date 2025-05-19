@@ -560,15 +560,26 @@ public class BookServiceImpl implements BookService {
             libraryBookIds.add(reserve.getLibraryBook().getLibraryBookId());
         }
         List<Long> distinctLibraryBookIds = libraryBookIds.stream().collect(Collectors.toList());
-        List<Long> BorrowedLibraryBookIds = rentalRepository.findBorrowedLibraryBookIdsIn(distinctLibraryBookIds);
+        List<Long> borrowedLibraryBookIds = rentalRepository.findBorrowedLibraryBookIdsIn(distinctLibraryBookIds);
+        
+        List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
+        
+        
             
       
         List<Rental> rentalsToCreate = new ArrayList<>();
         for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
             Reserve reserve = reserveMap.get(dto.getReserveId());            
-            if (BorrowedLibraryBookIds.contains(reserve.getLibraryBook().getLibraryBookId())) {
+            if (borrowedLibraryBookIds.contains(reserve.getLibraryBook().getLibraryBookId())) {
                 throw new IllegalStateException("이미 대출 중인 도서입니다.");
-            }            
+            }
+            String mid = dto.getMid();
+            boolean isMemberOverdue = overdueRentals.stream()
+            	    .anyMatch(rental -> rental.getMember().getMid().equals(mid));
+            if (isMemberOverdue) {
+            	throw new IllegalStateException("연체된 도서가 있어 대출할 수 없습니다. 연체중인 회원 ID: " + mid);
+            }
+            
             reserve.changeState(ReserveState.BORROWED);
             Rental rental = new Rental();
             rental.setLibraryBook(reserve.getLibraryBook());

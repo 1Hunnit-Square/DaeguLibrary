@@ -24,26 +24,6 @@ public class LibraryBookFsDTO {
     private LocalDate yearStartDate;
     private LocalDate yearEndDate;
     
-    public void processSortByField() {
-    	if (sortBy == null) {
-            setSortBy("bookTitle");
-            return;
-        }
-        switch (sortBy) {
-            case "제목":
-            	setSortBy("bookTitle");
-                break;
-            case "저자":
-            	setSortBy("author");
-                break;
-            case "출판사":
-            	setSortBy("publisher");
-                break;
-            case "발행연도":
-            	setSortBy("pubDate");
-            	break;
-        }
-    }
     
     public void processYearDates() {
         if (yearStart != null) {

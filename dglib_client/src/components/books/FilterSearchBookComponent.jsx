@@ -20,7 +20,7 @@ const FilterSearchBookComponent = () => {
         yearEnd: "",
         publisher: "",
         sortBy: "제목",
-        orderBy: "오름차순",
+        orderBy: "내림차순",
         keyword: "",
         page: 1,
         size: 10
@@ -40,8 +40,8 @@ const FilterSearchBookComponent = () => {
         yearEnd: searchURLParams.get("yearEnd") || "",
         publisher: searchURLParams.get("publisher") || "",
         keyword: searchURLParams.get("keyword") || "",
-        sortBy: searchURLParams.get("sortBy") || "제목",
-        orderBy: searchURLParams.get("orderBy") || "오름차순",
+        sortBy: searchURLParams.get("sortBy") || "bookTitle",
+        orderBy: searchURLParams.get("orderBy") || "desc",
         page: searchURLParams.get("page") || "1",
         size: searchURLParams.get("size") || "10",
         tab: searchURLParams.get("tab") || "settings"
@@ -97,9 +97,25 @@ const FilterSearchBookComponent = () => {
 
 
     const handleSearch = useCallback(() => {
+
+        const sortFieldMap = {
+            "제목": "bookTitle",
+            "저자": "author",
+            "출판사": "publisher",
+            "발행연도": "pubDate"
+        };
+
+
+        const orderDirectionMap = {
+            "오름차순": "asc",
+            "내림차순": "desc"
+        };
+
         const newParams = new URLSearchParams(filters);
         newParams.set("tab", "settings");
         newParams.set("page", "1");
+        newParams.set("sortBy", sortFieldMap[filters.sortBy] || "bookTitle");
+        newParams.set("orderBy", orderDirectionMap[filters.orderBy] || "desc");
 
         setSearchURLParams(newParams);
     }, [filters, setSearchURLParams]);
@@ -171,7 +187,7 @@ const FilterSearchBookComponent = () => {
 
 
     const sortOption = useMemo(() => ["제목", "저자", "출판사", "발행연도"], []);
-    const orderByOption = useMemo(() => ["오름차순", "내림차순"], []);
+    const orderByOption = useMemo(() => ["내림차순", "오름차순"], []);
 
     return (
         <div>
@@ -201,8 +217,8 @@ const FilterSearchBookComponent = () => {
                 </div>
                 <div className="flex items-center">
                     <p className="w-24 font-medium text-gray-700">정렬기준</p>
-                    <SelectCopmonent options={sortOption} defaultCategory="제목" selectClassName="w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]" dropdownClassName="w-32" onChange={handleSortByChange} />
-                    <SelectCopmonent options={orderByOption} defaultCategory="오름차순" selectClassName="w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]" dropdownClassName="w-32" onChange={handleOrderByChange}  />
+                    <SelectCopmonent name="sortBy" value={filters.sortBy} options={sortOption} defaultCategory="제목" selectClassName="w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]" dropdownClassName="w-32" onChange={handleSortByChange} />
+                    <SelectCopmonent name="orderBy" value={filters.orderBy} options={orderByOption} defaultCategory="오름차순" selectClassName="w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]" dropdownClassName="w-32" onChange={handleOrderByChange}  />
                 </div>
                 <div className="flex items-center col-span-2">
                     <p className="w-24 font-medium text-gray-700">키워드</p>

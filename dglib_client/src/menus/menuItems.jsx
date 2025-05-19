@@ -72,15 +72,30 @@ const defaultMenuItems = [
     }
   ];
 
-  const adminMenuItem = {
+  const getDateParams = () => {
+  const today = new Date();
+  const aMonthAgo = new Date(today);
+  aMonthAgo.setDate(today.getDate() - 30);
+
+  const endDateStr = today.toLocaleDateString('fr-CA');
+  const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
+
+  return `startDate=${startDateStr}&endDate=${endDateStr}`;
+};
+
+  const getAdminMenuItem = () => {
+  const dateParams = getDateParams();
+
+  return {
     id: 6,
     title: '관리자',
-    link: '/admin/bookmanagement?tab=booklist&page=1',
+    link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
     subMenus: [
-      { name: '도서관리', link: '/admin/bookmanagement?tab=booklist&page=1' },
+      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}` },
       { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
     ]
   };
+};
 
   export const menuItemsSelector = selector({
     key: 'menuItemsSelector',
@@ -89,7 +104,7 @@ const defaultMenuItems = [
       const userRole = 'admin' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
-        menuItems[5] = adminMenuItem;
+        menuItems[5] = getAdminMenuItem();
       }
 
       return menuItems;

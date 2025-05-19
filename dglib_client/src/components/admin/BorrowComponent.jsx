@@ -7,6 +7,9 @@ import BorrowBookComponent from './BorrowBookComponent';
 
 const BorrowComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const today = new Date();
+    const aMonthAgo = new Date(today);
+    aMonthAgo.setDate(today.getDate() - 30);
 
 
     const activeTab = useMemo(() => {
@@ -19,6 +22,10 @@ const BorrowComponent = () => {
         const newParams = new URLSearchParams();
         newParams.set("tab", tabId);
         newParams.set("page", "1");
+        if (tabId === 'reservation' || tabId === 'borrowlist') {
+            newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
+            newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+        }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 

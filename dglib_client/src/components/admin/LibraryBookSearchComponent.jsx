@@ -124,7 +124,7 @@ const LibraryBookSearchComponent = () => {
                           <span className={`px-1 py-1 text-xs font-semibold rounded-full ${
                             book.rented || book.reserved ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
                           }`}>
-                            {book.rented || book.reserved ? '불가' : '가능'}
+                            {book.rented ? "대출중" : book.reserved ? "예약중" : "가능"}
                           </span>
                         </td>
                         <td className="py-2 px-2 text-center">

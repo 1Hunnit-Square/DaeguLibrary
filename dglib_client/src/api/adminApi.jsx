@@ -35,6 +35,13 @@ export const searchByLibraryBookId = async (libraryBookId) => {
     return res.data;
 }
 
+export const getLibraryBookList = async (params = {}) => {
+    const res = await axios.get(`${prefix}/librarybooklist`, {
+        params: params,
+    });
+    return res.data;
+}
+
 export const getRentalList = async (params = {}) => {
     const res = await axios.get(`${prefix}/rentallist`, {
         params: params,

@@ -8,6 +8,7 @@ const SelectComponent = ({
   selectClassName = "",
   onChange,
   value,
+  name = "",
 }) => {
 
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ const SelectComponent = ({
 
   const handleSelectOption = (option) => {
     setIsOpen(false);
-    onChange({ target: { value: option } });
+    onChange(option);
   };
 
 
@@ -38,7 +39,7 @@ const SelectComponent = ({
       <div className="relative mr-2" ref={dropdownRef}>
         <button
           type="button"
-          className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white  ${selectClassName}`}
+          className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B]  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
         >
           <span>{value}</span>
@@ -52,6 +53,7 @@ const SelectComponent = ({
                 key={index}
                 className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
                 onClick={() => handleSelectOption(option)}
+                name={name}
               >
                 {option}
               </div>

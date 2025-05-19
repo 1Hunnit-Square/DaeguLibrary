@@ -10,12 +10,14 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.dglib.dto.book.ReservationCountDTO;
+import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
 
@@ -23,8 +25,8 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	int countByLibraryBookLibraryBookIdAndState(Long libraryBookId, ReserveState state);
 	boolean existsByLibraryBookLibraryBookIdAndMemberMidAndState(Long libraryBookId, String id, ReserveState state);
 	
-	@EntityGraph(attributePaths = {"libraryBook", "libraryBook.book", "member"})
-	Page<Reserve> findAll(Pageable pageable);
+//	@EntityGraph(attributePaths = {"libraryBook", "libraryBook.book", "member"})
+//	Page<Reserve> findAll(Pageable pageable);
 	
 	
 	@EntityGraph(attributePaths = {"libraryBook", "member"})
@@ -44,5 +46,8 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	
 	@EntityGraph(attributePaths = "member")
 	List<Reserve> findByMemberMidInAndState(Collection<String> memberIds, ReserveState state);
+	
+	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book"})
+	Page<Reserve> findAll(Specification<Reserve> spec, Pageable pageable);
 	
 }

@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 public class ReserveBookListDTO {
-	
+
 	private Long reserveId;
 	private LocalDateTime reserveDate;
 	private boolean isUnmanned;
@@ -22,5 +22,6 @@ public class ReserveBookListDTO {
 	private String author;
 	private String isbn;
 	private Integer reservationRank;
+	private boolean isOverdue;;
 
 }

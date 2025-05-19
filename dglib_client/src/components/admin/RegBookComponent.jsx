@@ -352,9 +352,9 @@ const RegBookComponent = () => {
                   <SelectComponent
                   selectClassName="bg-white border dropdownClassName rounded-lg shadow-lg"
                   dropdownClassName="border-[#666666]"
-                  value={libraryBook.location}
+                  value={libraryBook.location || ""}
                   options={Location}
-                  onChange={(e) => updateHolding(libraryBook.id, "location", e.target.value)} />
+                  onChange={(value) => updateHolding(libraryBook.id, "location", value)} />
                 </div>
 
                 <div className="flex flex-col w-full md:w-auto">

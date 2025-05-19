@@ -213,11 +213,11 @@ const NomalSearchBookComponent = () => {
                 handleSearch={handleSearch}
                 input={queryParams.query}
                 defaultCategory={queryParams.option}
-                selectClassName="mr-5"
-                dropdownClassName="w-32"
-                className="w-[50%] mx-110"
-                inputClassName="w-100"
-                buttonClassName="right-[calc(37%-10px)]"
+                selectClassName="mr-2 md:mr-5"
+                dropdownClassName="w-24 md:w-32"
+                className="w-full md:w-[50%] mx-auto"
+                inputClassName="w-full"
+                buttonClassName="right-2"
             />
             {isSearched && books.length > 1 &&
                 <CheckBox

@@ -33,6 +33,7 @@ import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
+import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.entity.book.Book;
 import com.dglib.entity.book.LibraryBook;
@@ -45,7 +46,9 @@ import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.LibraryBookRepository;
 import com.dglib.repository.book.LibraryBookSpecifications;
 import com.dglib.repository.book.RentalRepository;
+import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
+import com.dglib.repository.book.ReserveSpecifications;
 import com.dglib.repository.member.MemberRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -296,8 +299,12 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<RentalBookListDTO> getRentalList(Pageable pageable) {
-		Page<Rental> rentalList = rentalRepository.findAll(pageable);
+	public Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto) {
+		Specification<Rental> spec = RentalSpecifications.rsFilter(borrowedBookSearchDto);
+		Page<Rental> rentalList = rentalRepository.findAll(spec, pageable);
+		
+		
+//		Page<Rental> rentalList = rentalRepository.findAll(pageable);
 		return rentalList.map(rental -> {
 			RentalBookListDTO dto = new RentalBookListDTO();
 			modelMapper.map(rental.getLibraryBook(), dto);
@@ -355,16 +362,25 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ReserveBookListDTO> getReserveList(Pageable pageable) {
-	    Page<Reserve> reserveList = reserveRepository.findAll(pageable);
+	public Page<ReserveBookListDTO> getReserveList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto) {
+		Specification<Reserve> spec = ReserveSpecifications.rsFilter(borrowedBookSearchDto);
+	    Page<Reserve> reserveList = reserveRepository.findAll(spec, pageable);
 	    Map<Long, List<Reserve>> bookReservationsMap = new HashMap<>();
+	    List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
+	    
 	    return reserveList.map(reserve -> {
 	        ReserveBookListDTO dto = new ReserveBookListDTO();
 	        LibraryBook libraryBook = reserve.getLibraryBook();
+	        String mid = reserve.getMember().getMid();
+            boolean isOverdue = overdueRentals.stream()
+            	    .anyMatch(rental -> rental.getMember().getMid().equals(mid)); 
 	        modelMapper.map(libraryBook, dto);
 	        modelMapper.map(libraryBook.getBook(), dto);
 	        modelMapper.map(reserve.getMember(), dto);
 	        modelMapper.map(reserve, dto);
+	        if(isOverdue) {
+	        	dto.setOverdue(true);
+	        }
 	        Integer rank = null;
 	        if (reserve.getState() == ReserveState.RESERVED) {
 	            List<Reserve> reservedOnlyList = bookReservationsMap.computeIfAbsent(
@@ -681,4 +697,3 @@ public class BookServiceImpl implements BookService {
 		}	
 	}
 }
-

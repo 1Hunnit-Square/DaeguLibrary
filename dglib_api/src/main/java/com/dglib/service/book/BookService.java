@@ -15,6 +15,7 @@ import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
+import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 
 public interface BookService {
@@ -23,9 +24,9 @@ public interface BookService {
 	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
 	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
 	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
-	Page<RentalBookListDTO> getRentalList(Pageable pageable);
+	Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void reserveBook(Long libraryBookId, String id);
-	Page<ReserveBookListDTO> getReserveList(Pageable pageable);
+	Page<ReserveBookListDTO> getReserveList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void cancelReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos);
 	void reReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos);
 	void completeBorrowing(List<ReserveStateChangeDTO> reserveStateChangeDtos);

@@ -125,7 +125,7 @@ public class BookController {
 	    LibraryBookFsDTO libraryBookFsDto,
 	    @RequestHeader(value = "Authorization", required = false) String mid ) {
 		LOGGER.info("mid: {}", mid);
-		libraryBookFsDto.processSortByField();
+		LOGGER.info("libraryBookFsDto: {}", libraryBookFsDto);
 		libraryBookFsDto.processYearDates();
 		Pageable pageable = PageRequest.of(page - 1, size );
 		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto, mid);

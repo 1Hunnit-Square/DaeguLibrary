@@ -2,9 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
 import RegBookComponent from './RegBookComponent';
 import { useSearchParams } from "react-router-dom";
+import LibraryBookListComponent from './LibraryBookListComponent';
 
 const BookManagementComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const today = new Date();
+    const aMonthAgo = new Date(today);
+    aMonthAgo.setDate(today.getDate() - 30);
 
 
     const activeTab = useMemo(() => {
@@ -17,6 +21,10 @@ const BookManagementComponent = () => {
         const newParams = new URLSearchParams();
         newParams.set("tab", tabId);
         newParams.set("page", "1");
+        if (tabId === 'booklist') {
+            newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
+            newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+        }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
@@ -24,7 +32,7 @@ const BookManagementComponent = () => {
         {
         id: 'booklist',
         label: '도서목록',
-        content: <div>하이</div>
+        content: <LibraryBookListComponent />
         },
         {
         id: 'regbook',

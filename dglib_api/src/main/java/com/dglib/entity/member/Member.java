@@ -14,14 +14,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
+@Data
 public class Member {
 	@Id
 	@Column(length = 16)
@@ -76,5 +76,4 @@ public class Member {
 	@OneToMany(mappedBy = "member")
 	private List<Reserve> reserves;
 	
-
 }

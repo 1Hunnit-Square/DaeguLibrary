@@ -9,6 +9,7 @@ import IdCheckComponent from "../../components/member/IdCheckComponent";
 import PwCheckComponent from "../../components/member/PwCheckComponent";
 import PwVerifyComponent from "../../components/member/PwVerifyComponent";
 import Modal from '../../components/common/Modal';
+import { regPost } from '../../api/memberApi';
 
 const JoinPage = () => {
 
@@ -41,12 +42,12 @@ if(e.target.name == "name" && (e.target.value.length >=7 || !/^[ㄱ-ㅎ가-힣]*
   return;
 }
 
-if(e.target.name == "emailId" && (/[@]/.test(e.target.value))){
+if((e.target.name == "emailId" || e.target.name =="emailAddr") && (/[@ ]/.test(e.target.value))){
   return;
 }
 setJoinForm(prev => (
     {...prev,
-        [e.target.name] : e.target.value.trim()
+        [e.target.name] : e.target.value
     }
 )
 )
@@ -109,6 +110,30 @@ const onCloseAddr = () => {
   setIsOpen(false);
 }
 
+const toJsonParams = (data) => {
+  const params = {
+        mid : data.id,
+        pw : data.pw2,
+        name : data.name,
+        gender : data.gender,
+        birthDate : data.birthDate,
+        phone : data.phone,
+        addr : `(${data.zonecode})${data.address}(상세주소)${data.addrDetail}`,
+        email : `${data.emailId}@${data.emailAddr}`,
+        checkSms : data.checkSms,
+        checkEmail : data.checkEmail
+        }
+    return params;
+    }
+
+const regMember = async() => {
+await regPost(toJsonParams(joinForm))
+.then(res => {
+  alert("회원 등록이 완료되었습니다. 로그인해주세요.");
+  navigate("/login", { state: {}, replace: true });
+  }).catch(e => alert("회원 등록에 실패했습니다. 다시 시도해주세요."));
+}
+
 const onClickJoin = () => {
   if(!(idCheck)){
   alert("아이디 중복 검사를 수행해주세요.");
@@ -118,10 +143,12 @@ const onClickJoin = () => {
   alert("필수 입력 정보를 확인해주세요.");
   }
   else{
-    alert("통과!")
     console.log(joinForm);
+    regMember(joinForm);
   }
 }
+
+
 
 return(
 <Layout sideOn={false}>

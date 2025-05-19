@@ -28,5 +28,8 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	
 	Long countByMnoLike(String mno);
 
+	@Query("SELECT COUNT(m) > 0 FROM Member m WHERE REPLACE(m.phone, '-', '') = :phone")
+	boolean existsByPhone(String phone);
+
 
 }

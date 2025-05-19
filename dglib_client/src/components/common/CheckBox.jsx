@@ -2,7 +2,7 @@ import {memo} from 'react';
 
 const CheckBox = ({ label, checked, onChange, checkboxClassName, inputClassName, disabled = false }) => {
   return (
-    <label className={`flex items-center ${checkboxClassName}`}>
+    <label className={`flex w-max items-center ${checkboxClassName}`}>
       <input
         type="checkbox"
         checked={checked}

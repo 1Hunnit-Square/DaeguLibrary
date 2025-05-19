@@ -3,12 +3,18 @@ import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;
 
-export const loginPost = async (loginParam) => {
+export const loginPost = async (params) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const form = new FormData();
-    form.append('username', loginParam.id);
-    form.append('password', loginParam.pw);
+    form.append('username', params.id);
+    form.append('password', params.pw);
     const res = await axios.post(`${prefix}/login`, form, header);
+    return res.data;
+}
+
+export const regPost = async (params) => {
+    const header = { headers: {'Content-Type': 'application/json'}};
+    const res = await axios.post(`${prefix}/register`, params, header);
     return res.data;
 }
 

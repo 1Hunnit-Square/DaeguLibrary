@@ -14,5 +14,7 @@ public interface MemberService {
 	
 	void registerMember(RegMemberDTO regMemberDTO);
 	
+	boolean existByPhone(String phone);
+	
 
 }

@@ -11,7 +11,7 @@ const LoginComponent = () =>{
     const [ loginParam, setLoginParam ] = useState({});
     const [ savedId, setSavedId ] = useState(false);
     const { doLogin } = useLogin();
-    const { moveToPath } = useMoveTo();
+    const { moveToPath, moveToSaved } = useMoveTo();
 
     useEffect(()=>{
         const storeId = localStorage.getItem("savedId");
@@ -36,7 +36,7 @@ const LoginComponent = () =>{
             }
             else {
                 alert(data.name+"님 ㅎㅇ");
-                moveToPath("/");
+                moveToSaved();
             }
         },[loginParam, savedId])
 

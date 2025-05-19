@@ -91,6 +91,29 @@ const RegBookComponent = () => {
   })
 
 
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === "BOOK_SELECTED") {
+
+        setLibraryBooks([{ id: 1, location: "", callSign: "" }]);
+        setBookFormData({
+          bookTitle: event.data.book.bookTitle,
+          author: event.data.book.author,
+          publisher: event.data.book.publisher,
+          pubDate: event.data.book.pubDate,
+          isbn: event.data.book.isbn,
+          description: event.data.book.description,
+          cover: event.data.book.cover,
+        });
+        getRegBookCheckMutation.mutate(event.data.book.isbn);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+
 
   const sumbit = async () => {
     const isHoldingValid = libraryBooks.every(
@@ -175,27 +198,7 @@ const RegBookComponent = () => {
     );
   };
 
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.data.type === "BOOK_SELECTED") {
 
-        setLibraryBooks([{ id: 1, location: "", callSign: "" }]);
-        setBookFormData({
-          bookTitle: event.data.book.bookTitle,
-          author: event.data.book.author,
-          publisher: event.data.book.publisher,
-          pubDate: event.data.book.pubDate,
-          isbn: event.data.book.isbn,
-          description: event.data.book.description,
-          cover: event.data.book.cover,
-        });
-        getRegBookCheckMutation.mutate(event.data.book.isbn);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
   const searchClick = () => {
     const windowName = "등록도서 검색"

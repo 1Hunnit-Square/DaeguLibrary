@@ -29,6 +29,7 @@ const SearchBookApi = () => {
             },
             onError: (error) => {
                 console.error("검색 중 오류가 발생했습니다:", error);
+                alert("검색 중 오류가 발생했습니다. 다시 시도해 주세요.");
             }
         });
 
@@ -103,6 +104,8 @@ const SearchBookApi = () => {
         searchMutation.mutate({ query: currentQuery, page });
 
     }
+
+
 
 
     return (

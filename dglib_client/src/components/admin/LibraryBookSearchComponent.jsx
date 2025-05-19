@@ -63,6 +63,8 @@ const LibraryBookSearchComponent = () => {
 
     }
 
+
+
      return (
         <div className="max-w-7xl mx-auto p-8">
             {searchMutation.isPending && (
@@ -120,9 +122,9 @@ const LibraryBookSearchComponent = () => {
                         <td className="py-2 px-2 text-center overflow-hidden text-ellipsis whitespace-nowrap" title={book.pubDate}>{book.pubDate}</td>
                         <td className="py-2 px-2 text-center">
                           <span className={`px-1 py-1 text-xs font-semibold rounded-full ${
-                            book.rented ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                            book.rented || book.reserved ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
                           }`}>
-                            {book.rented ? '대출중' : '가능'}
+                            {book.rented || book.reserved ? '불가' : '가능'}
                           </span>
                         </td>
                         <td className="py-2 px-2 text-center">

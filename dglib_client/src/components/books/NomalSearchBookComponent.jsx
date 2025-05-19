@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useMemo, memo } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useState, useCallback, useMemo, memo } from "react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRecoilValue } from "recoil";
-
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import CheckBox from "../common/CheckBox";
 import { getNsLibraryBookList } from "../../api/bookApi";
@@ -26,8 +25,11 @@ const NomalSearchBookComponent = () => {
     const [selectedBooks, setSelectedBooks] = useState(new Set());
     const isChecked = queryParams.isChecked;
     const isSearched = !!queryParams.query;
+    const navigate = useNavigate();
 
     const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
+
+
     const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ['librarybooklist', searchURLParams.toString(), mid],
         queryFn: () => {
@@ -58,7 +60,7 @@ const NomalSearchBookComponent = () => {
     });
 
     const books = useMemo(() => data.content, [data.content]);
-
+    console.log(books);
 
     const isAllSelected = useMemo(() => {
         return books.length > 0 && selectedBooks.size === books.length;
@@ -257,7 +259,7 @@ const NomalSearchBookComponent = () => {
 
                                 const key = book?.libraryBookId ?? `book-index-${index}`;
                                 const libraryBookId = book.libraryBookId;
-                                const canReserve = book.rented === true && book.reserveCount < 2 && book.alreadyReservedByMember === false;
+                                const canReserve = book.rented === true && book.reserveCount < 2 && book.alreadyReservedByMember === false && book.alreadyBorrowedByMember === false;
 
                                 return (
                                     <div

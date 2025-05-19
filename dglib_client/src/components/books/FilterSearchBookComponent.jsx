@@ -25,8 +25,6 @@ const FilterSearchBookComponent = () => {
         page: 1,
         size: 10
     });
-    const [books, setBooks] = useState([]);
-    const [pageable, setPageable] = useState({});
     const [selectedBooks, setSelectedBooks] = useState(new Set());
     const [isAllSelected, setIsAllSelected] = useState(false);
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -34,7 +32,22 @@ const FilterSearchBookComponent = () => {
     const queryClient = useQueryClient();
     const mid = useRecoilValue(memberIdSelector);
 
-    const { data, isLoading, isError } = useQuery({
+    const queryParams = useMemo(() => ({
+        title: searchURLParams.get("title") || "",
+        isbn: searchURLParams.get("isbn") || "",
+        author: searchURLParams.get("author") || "",
+        yearStart: searchURLParams.get("yearStart") || "",
+        yearEnd: searchURLParams.get("yearEnd") || "",
+        publisher: searchURLParams.get("publisher") || "",
+        keyword: searchURLParams.get("keyword") || "",
+        sortBy: searchURLParams.get("sortBy") || "제목",
+        orderBy: searchURLParams.get("orderBy") || "오름차순",
+        page: searchURLParams.get("page") || "1",
+        size: searchURLParams.get("size") || "10",
+        tab: searchURLParams.get("tab") || "settings"
+    }), [searchURLParams]);
+
+    const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ["librarybooklist", searchURLParams.toString(), mid],
         queryFn: () => {
             return getFsLibraryBookList(searchURLParams, mid);
@@ -42,25 +55,9 @@ const FilterSearchBookComponent = () => {
         refetchOnWindowFocus: false,
     });
 
-    const [hasSetInitialParams, setHasSetInitialParams] = useState(false);
 
-    useEffect(() => {
-        if (data && !hasSetInitialParams) {
-            setBooks(data.content);
-            console.log(data.content);
-            setPageable(data);
-            const currentTab = searchURLParams.get("tab");
-            // if (!searchURLParams.has("page") && data.pageable && currentTab !== "info") {
-            //     setHasSetInitialParams(true);
-            //     const newParams = new URLSearchParams(searchURLParams);
-            //     newParams.set("page", (data.pageable.pageNumber + 1).toString());
-            //     if (currentTab !== "settings") {
-            //     newParams.set("tab", "info");
-            // }
-            //     setSearchURLParams(newParams, { replace: true });
-            // }
-        }
-    }, [data, hasSetInitialParams]);
+
+    const books = useMemo(() => data.content, [data.content]);
 
 
     const handleChange = (e) => {
@@ -102,20 +99,23 @@ const FilterSearchBookComponent = () => {
     const handleSearch = useCallback(() => {
         const newParams = new URLSearchParams(filters);
         newParams.set("tab", "settings");
+        newParams.set("page", "1");
 
         setSearchURLParams(newParams);
     }, [filters, setSearchURLParams]);
 
 
 
-        const pageClick = useCallback((page) => {
-        const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
-        if (page === currentPageFromUrl || isLoading) return;
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set("page", page.toString());
-        setSearchURLParams(newParams);
-        setSelectedBooks(new Set());
-    }, [isLoading, searchURLParams, setSearchURLParams]);
+    const pageClick = useCallback((page) => {
+            const currentPageFromUrl = parseInt(queryParams.page, 10);
+
+            if (page === currentPageFromUrl || isLoading) return;
+
+            const newParams = new URLSearchParams(searchURLParams);
+            newParams.set("page", page.toString());
+            setSearchURLParams(newParams);
+            setSelectedBooks(new Set());
+        }, [queryParams.page, searchURLParams, isLoading, setSearchURLParams]);
 
     const onSelfClick = useCallback((e) => {
         alert("무인예약되었습니다.")
@@ -166,7 +166,7 @@ const FilterSearchBookComponent = () => {
 
     }, [selectedBooks, books]);
 
-    const { renderPagination } = usePagination(pageable, pageClick, isLoading);
+    const { renderPagination } = usePagination(data, pageClick, isLoading);
 
 
 
@@ -214,7 +214,7 @@ const FilterSearchBookComponent = () => {
             </div>
         </div>
             {isLoading ? (
-                            <Loading />
+                            <Loading text="도서 검색중입니다" />
                             ) : isError ? (
                                 <div className="flex justify-center items-center py-10">
                                     <p className="text-red-500 font-medium">
@@ -224,12 +224,12 @@ const FilterSearchBookComponent = () => {
                             ) : (
                         <>
 
-                        {pageable.totalElements !== undefined ? (
-                            <div className="mb-4">총 {pageable.totalElements}권의 도서를 찾았습니다. </div>
+                        {data.totalElements !== undefined ? (
+                            <div className="mb-4">총 {data.totalElements}권의 도서를 찾았습니다. </div>
                         ) : (
                             <div>
 
-                                    검색결과에 대하여 {pageable?.totalElements ?? 0}권의 도서를 찾았습니다.
+                                    검색결과에 대하여 {data?.totalElements ?? 0}권의 도서를 찾았습니다.
 
                             </div>
                         )}

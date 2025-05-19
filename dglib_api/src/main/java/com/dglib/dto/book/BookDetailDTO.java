@@ -18,6 +18,8 @@ public class BookDetailDTO {
     private String description;
     private boolean isRented;
     private boolean alreadyReservedByMember;
+    private boolean alreadyBorrowedByMember;
+    private boolean isOverdue;
     private int reserveCount; 
 
 }

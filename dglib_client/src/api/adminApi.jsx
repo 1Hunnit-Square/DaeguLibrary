@@ -35,12 +35,9 @@ export const searchByLibraryBookId = async (libraryBookId) => {
     return res.data;
 }
 
-export const getRentalList = async (page = 1, size = 10) => {
+export const getRentalList = async (params = {}) => {
     const res = await axios.get(`${prefix}/rentallist`, {
-        params: {
-            page,
-            size
-        }
+        params: params,
     });
     return res.data;
 }
@@ -56,12 +53,9 @@ export const returnBook = async (returnData) => {
     return res.data;
 }
 
-export const getReserveBookList = async (page = 1, size = 10) => {
+export const getReserveBookList = async (params = {}) => {
     const res = await axios.get(`${prefix}/reservebooklist`, {
-        params: {
-            page,
-            size
-        }
+        params: params,
     });
     return res.data;
 }

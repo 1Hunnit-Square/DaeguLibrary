@@ -21,6 +21,7 @@ public class BookSummaryDTO {
     private Long libraryBookId;
     private boolean isRented;
     private boolean alreadyReservedByMember;
+    private boolean alreadyBorrowedByMember;
     private int reserveCount; 
 
 }

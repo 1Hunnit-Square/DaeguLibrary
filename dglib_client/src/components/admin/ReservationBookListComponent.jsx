@@ -1,7 +1,9 @@
 import { getReserveBookList, cancelReserveBook, reReserveBook, completeBorrowing } from "../../api/adminApi";
-import { useState, useEffect, useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import CheckBox from "../common/CheckBox";
+import { useSearchParams } from "react-router-dom";
+import { usePagination } from "../../hooks/usePagination";
 
 const ReservationBookListComponent = () => {
 
@@ -9,26 +11,78 @@ const ReservationBookListComponent = () => {
     const [selectedItems, setSelectedItems] = useState(new Map());
     const [isAllSelected, setIsAllSelected] = useState(false);
     const [selectedAction, setSelectedAction] = useState("");
+    const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const queryClient = useQueryClient();
 
     const { data: reserveData = { content: [], pageable: { pageNumber: 0 } }, isLoading } = useQuery({
-        queryKey: ['reserveList'],
-        queryFn: () => getReserveBookList(),
+        queryKey: ['reserveList', searchURLParams.toString()],
+        queryFn: () => getReserveBookList(searchURLParams),
     });
-    const reserveList = useMemo(() => reserveData.content, [reserveData.content]); //확인
+    const reserveList = useMemo(() => reserveData.content, [reserveData.content]);
+
+
+   const handleMutationSuccess = useCallback(() => {
+    queryClient.invalidateQueries(['reserveList', searchURLParams]);
+    setSelectedItems(new Map());
+    setSelectedAction("");
+    setIsAllSelected(false);
+    }, [queryClient, searchURLParams]);
+
+    const cancelMutation = useMutation({
+        mutationFn: (items) => cancelReserveBook(items),
+        onSuccess: () => {
+            alert("예약이 취소되었습니다.");
+            handleMutationSuccess();
+        },
+        onError: (error) => {
+            console.log("예약 취소 오류:", error);
+            alert(error.response.data.message);
+        }
+    });
+
+    const reserveMutation = useMutation({
+        mutationFn: (items) => reReserveBook(items),
+        onSuccess: () => {
+            alert("예약이 완료되었습니다.");
+            handleMutationSuccess();
+        },
+        onError: (error) => {
+            console.log("예약 완료 오류:", error);
+            alert(error.response.data.message);
+        }
+    });
+
+    const borrowMutation = useMutation({
+        mutationFn: (items) => completeBorrowing(items),
+        onSuccess: () => {
+            alert("대출이 완료되었습니다.");
+            handleMutationSuccess();
+        },
+        onError: (error) => {
+            console.log("대출 완료 오류:", error);
+            alert(error.response.data.message);
+        }
+    });
+
+
 
 
     useEffect(() => {
-        if (reserveList.length > 0 && selectedItems.size === reserveList.length) {
+        const selectableItemsCount = reserveList.filter(
+        item => item.state !== 'CANCELED' && item.state !== 'BORROWED'
+        ).length;
+        if (selectableItemsCount > 0 && selectedItems.size === selectableItemsCount) {
             setIsAllSelected(true);
         } else {
             setIsAllSelected(false);
         }
 
     }, [reserveList, selectedItems])
+
     useEffect(() => {
         setSelectedItems(new Map());
         setIsAllSelected(false);
-    }, [pageable.pageable?.pageNumber]);
+    }, [searchURLParams]);
 
     const handleSelectAll = (e) => {
         const isChecked = e.target.checked;
@@ -36,7 +90,8 @@ const ReservationBookListComponent = () => {
         if (isChecked) {
             const newSelectedItems = new Map();
             reserveList.forEach(item => {
-            if (item && typeof item.reserveId !== 'undefined') {
+            if (item && typeof item.reserveId !== 'undefined' &&
+                item.state !== 'CANCELED' && item.state !== 'BORROWED') {
                 newSelectedItems.set(item.reserveId, {
                     reserveId: item.reserveId,
                     state: item.state,
@@ -71,45 +126,38 @@ const ReservationBookListComponent = () => {
         })
 
     }
-    const buttonClick = async () => {
+    const buttonClick = () => {
         if (selectedItems.size === 0 || !selectedAction) {
             alert("변경할 예약을 선택하세요.");
             return;
         }
 
-        try {
-            switch (selectedAction) {
-                case "CANCELED":
-                    await cancelReserveBook(Array.from(selectedItems.values()));
-                    alert("예약이 취소되었습니다.");
-                    break;
-                case "RESERVED":
-                    await reReserveBook(Array.from(selectedItems.values()));
-                    alert("예약이 완료되었습니다.");
-                    break;
-                case "BORROWED":
-                    if (confirm("정말로 대출을 완료하시겠습니까?")) {
-                        await completeBorrowing(Array.from(selectedItems.values()));
-                        alert("대출이 완료되었습니다.");
-                    }
-            }
+        const selectedItemsArray = Array.from(selectedItems.values());
 
-        } catch (error) {
-            console.log("예약 변경 오류:", error);
-            alert(error.response.data.message);
-
+        switch (selectedAction) {
+            case "CANCELED":
+                cancelMutation.mutate(selectedItemsArray);
+                break;
+            case "RESERVED":
+                reserveMutation.mutate(selectedItemsArray);
+                break;
+            case "BORROWED":
+                if (confirm("정말로 대출을 완료하시겠습니까?")) {
+                    borrowMutation.mutate(selectedItemsArray);
+                }
+                break;
         }
-        const updatedListResponse = await getReserveBookList();
+    };
 
-        setPageable(updatedListResponse);
-        setSelectedItems(new Map());
-        setSelectedAction("");
-        setIsAllSelected(false);
+     const pageClick = useCallback((page) => {
+                if (isLoading) return;
+                const newParams = new URLSearchParams(searchURLParams);
+                newParams.set("page", page.toString());
+                setSearchURLParams(newParams);
+            }, [ searchURLParams, isLoading, setSearchURLParams]);
 
-
-
-    }
-
+    const { renderPagination } = usePagination(reserveData, pageClick, isLoading);
+    console.log("reserveData", reserveData);
     if (isLoading && !reserveList.length) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -155,7 +203,7 @@ const ReservationBookListComponent = () => {
                                 return (
                                     <tr key={item.reserveId} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200`}>
                                         <td className="py-4 px-4">
-                                            <CheckBox inputClassName="h-4 w-4" checked={selectedItems.has(item.reserveId)} onChange={(e) => handleSelectItem(e, item)} />
+                                            <CheckBox inputClassName="h-4 w-4" checked={selectedItems.has(item.reserveId)} onChange={(e) => handleSelectItem(e, item)} disabled={item.state === 'CANCELED' || item.state === 'BORROWED' ? true : false} />
                                         </td>
                                         <td className="py-4 px-6">{item.mid}</td>
                                         <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
@@ -198,6 +246,8 @@ const ReservationBookListComponent = () => {
                     변경
                 </button>
             </div>
+
+                {renderPagination()}
         </div>
     );
 }

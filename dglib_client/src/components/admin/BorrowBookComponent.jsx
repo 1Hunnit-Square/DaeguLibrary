@@ -12,7 +12,6 @@ const initialRentFormData = {
 };
 const BorrowBookComponent = () => {
     const [RentFormData, setRentFormData] = useState(initialRentFormData);
-    const [isLoading, setIsLoading] = useState(false);
 
     const borrowMutation = useMutation({
         mutationFn: async (RentData) => {
@@ -27,8 +26,6 @@ const BorrowBookComponent = () => {
             alert("도서 대출에 실패했습니다. " + error.response?.data?.message);
         }
     });
-
-
 
 
     useEffect(() => {
@@ -169,7 +166,7 @@ const BorrowBookComponent = () => {
             <div className="flex justify-center">
                 <Button
                     onClick={sumbit}
-                    disabled={isLoading}
+                    disabled={borrowMutation.isPending}
                     children="도서 대출"
                 />
             </div>

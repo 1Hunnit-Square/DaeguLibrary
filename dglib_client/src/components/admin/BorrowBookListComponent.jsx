@@ -1,24 +1,25 @@
 import { getRentalList, returnBook } from "../../api/adminApi";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "../common/Button";
 import CheckBox from "../common/CheckBox";
+import { useSearchParams } from "react-router-dom";
 
 
 const BorrowBookListComponent = () => {
 
-    const [pageable, setPageable] = useState({});
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [isAllSelected, setIsAllSelected] = useState(false);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const queryClient = useQueryClient();
 
-    const { data: rentalData = { content: [], pageable: { pageNumber: 0 } }, isLoading } = useQuery({
-        queryKey: ['rentalList', currentPage],
-        queryFn: () => getRentalList(),
+    const { data: rentalData = { content: [], totalElements: 0 }, isLoading } = useQuery({
+        queryKey: ['rentalList', searchURLParams.toString()],
+        queryFn: () => getRentalList(searchURLParams),
     });
 
-    const rentalList = useMemo(() => rentalData.content, [rentalData.content]); //확인
+    const rentalList = useMemo(() => rentalData.content, [rentalData.content]);
 
     const returnMutation = useMutation({
         mutationFn: async (rentIds) => {
@@ -28,6 +29,7 @@ const BorrowBookListComponent = () => {
             alert("도서 반납이 완료되었습니다.");
             setSelectedItems(new Set());
             setIsAllSelected(false);
+            queryClient.invalidateQueries(['rentalList', searchURLParams]);
         },
         onError: (error) => {
             console.log("도서 반납 오류:", error);
@@ -48,7 +50,9 @@ const BorrowBookListComponent = () => {
     useEffect(() => {
         setSelectedItems(new Set());
         setIsAllSelected(false);
-    }, [pageable.pageable?.pageNumber]);
+    }, [searchURLParams]);
+
+
     const handleSelectAll = (e) => {
         const isChecked = e.target.checked;
         setIsAllSelected(isChecked);
@@ -83,16 +87,14 @@ const BorrowBookListComponent = () => {
         returnMutation.mutate(Array.from(selectedItems));
     }
 
-    const pageClick = (page) => {
-        if (page - 1 === currentPage) return;
-        setCurrentPage(page - 1);
-    };
+    const pageClick = useCallback((page) => {
+            if (isLoading) return;
+            const newParams = new URLSearchParams(searchURLParams);
+            newParams.set("page", page.toString());
+            setSearchURLParams(newParams);
+        }, [ searchURLParams, isLoading, setSearchURLParams]);
 
-    const { renderPagination } = usePagination(pageable, pageClick, isLoading);
-
-
-
-
+    const { renderPagination } = usePagination(rentalData, pageClick, isLoading);
 
     return (
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

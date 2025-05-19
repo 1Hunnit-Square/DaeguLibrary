@@ -1,14 +1,19 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getLibraryBookDetail, reserveBook } from '../../api/bookApi';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
+import Button from "../common/Button";
+import { useCallback } from "react";
+import { useMoveTo } from "../../hooks/useMoveTo";
 
 
 const LibraryBookDetailComponent = () => {
     const { librarybookid } = useParams();
     const queryClient = useQueryClient();
     const mid = useRecoilValue(memberIdSelector);
+    const navigate = useNavigate();
+    const { moveToLogin } = useMoveTo();
 
 
     const { data: libraryBookDetail = {}, isLoading, isError, error } = useQuery({
@@ -31,12 +36,23 @@ const LibraryBookDetailComponent = () => {
         }
     });
 
-    const handleReserveClick = () => {
+    const handleReserveClick = useCallback(() => {
+        if (!mid) {
+            moveToLogin("로그인이 필요합니다.");
+            return;
+        }
+        if (libraryBookDetail.overdue && !confirm("연체중인 도서입니다. 예약하시겠습니까?")) {
+            return;
+        }
+        if (!confirm("연체중인 도서입니다. 예약하시겠습니까?")) {
+            return;
+        }
+
         reserveMutation.mutate({
             mid: mid,
             libraryBookId: libraryBookDetail.libraryBookId,
         });
-    };
+    }, [mid, navigate, reserveMutation, libraryBookDetail.libraryBookId] );
 
     if (isLoading || reserveMutation.isPending) {
         return (
@@ -58,7 +74,7 @@ const LibraryBookDetailComponent = () => {
     console.log("도서 상세정보", libraryBookDetail);
 
 
-    const canReserve = libraryBookDetail.rented === true && libraryBookDetail.reserveCount < 2 && libraryBookDetail.alreadyReservedByMember === false;
+    const canReserve = libraryBookDetail.rented === true && libraryBookDetail.reserveCount < 2 && libraryBookDetail.alreadyReservedByMember === false && libraryBookDetail.alreadyBorrowedByMember === false;
 
     return (
         <div className="max-w-4xl mx-auto p-8">
@@ -126,15 +142,10 @@ const LibraryBookDetailComponent = () => {
                 </div>
             </div>
             <div className="mt-8 flex justify-center">
-                <button
-                    onClick={handleReserveClick}
-                    disabled={!canReserve || isLoading}
-                    className={`px-6 py-2 rounded text-white transition ${
+                <Button children="대출예약" onClick={handleReserveClick} disabled={!canReserve || isLoading} className={`px-6 py-2 rounded text-white transition ${
                         canReserve
                             ? 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
-                            : 'bg-gray-400'}`}>
-                    대출예약
-                </button>
+                            : 'bg-gray-400'}`} />
             </div>
         </div>
     );

@@ -17,7 +17,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                     </aside>
                 )}
                 <main className="flex-1 flex flex-col">
-                    <div className="p-4 md:p-6 max-w-full">
+                    <div className="p-4 md:p-6 w-full">
                         {children}
                     </div>
                 </main>

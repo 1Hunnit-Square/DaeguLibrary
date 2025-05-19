@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 
 const SubHeader = ( {subTitle, mainTitle} ) => {
     const [showToast, setShowToast] = useState(false);
 
-    const handleShare = () => {
+    const handleShare = useCallback(() => {
         navigator.clipboard.writeText(window.location.href)
             .then(() => {
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 2000);
             });
-    };
+    }, []);
 
     const handlePrint = () => {
         window.print();
@@ -40,6 +40,6 @@ const SubHeader = ( {subTitle, mainTitle} ) => {
         )}
         </div>
     );
-}
+};
 
-export default SubHeader;
+export default memo(SubHeader);

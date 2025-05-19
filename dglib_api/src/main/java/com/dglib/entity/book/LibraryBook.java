@@ -1,7 +1,16 @@
 package com.dglib.entity.book;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.hibernate.annotations.BatchSize;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +26,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table
@@ -37,15 +48,23 @@ public class LibraryBook {
 	@Column(length = 10, nullable = false)
 	private String location;
 	
+	@Column(nullable = false)
+	private LocalDate regLibraryBookDate;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "isbn", nullable = false)
 	private Book book;
 	
-	@OneToMany(mappedBy = "libraryBook")
-	private List<Rental> rentals;
 	
 	@OneToMany(mappedBy = "libraryBook")
-	@OrderBy("reserveDate ASC")
-	private List<Reserve> reserves;
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
+	private Set<Rental> rentals;
+	
+	
+	@OneToMany(mappedBy = "libraryBook")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
+	private Set<Reserve> reserves;
 
 }

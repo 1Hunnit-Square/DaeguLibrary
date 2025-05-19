@@ -29,8 +29,10 @@ return (
 <Layout sideOn={false}>
     <SubHeader subTitle="회원가입" mainTitle="기타" />
     <div className="p-6 max-w-3xl mx-auto mb-10">
-        <h1 className = "text-3xl font-bold mb-10">휴대폰 인증</h1>
+        <h1 className = "flex text-3xl font-bold mb-10 justify-center">휴대폰 인증</h1>
+        <div className = "flex justify-center">
         <Button onClick={handleAuth}>인증하기</Button>
+        </div>
     </div>
 <Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
     {authStep == "phoneAuth" && <PhoneAuthComponent handleNext={handleNext} />}

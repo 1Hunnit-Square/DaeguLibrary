@@ -69,16 +69,16 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
 
 
     return (<>
-    {smsSendMutation.isSuccess && <div>전송된 인증 코드를 입력하세요.</div>}
-    {smsSendMutation.isPending && <div>인증 코드를 전송 중입니다...</div>}
-    {smsSendMutation.isError && <div>인증 코드 전송에 실패했습니다.</div>}
+    {smsSendMutation.isSuccess && <div className="flex justify-center">전송된 인증 코드를 입력하세요.</div>}
+    {smsSendMutation.isPending && <div className="flex justify-center">인증 코드를 전송 중입니다...</div>}
+    {smsSendMutation.isError && <div className="flex justify-center">인증 코드 전송에 실패했습니다.</div>}
     <div className="flex mx-auto mt-5 mb-3 justify-center items-center">
     <input type="text" value={code} className="border mr-1 rounded w-30 h-10 text-center text-xl" maxLength={6} onChange={handleChange} />
     {retry ?
     <Button className={"bg-gray-400 pointer-events-none"}>재전송</Button>
     : <Button onClick={handleClick}>재전송</Button>}
     </div>
-    <div className="max-h-5">
+    <div className="max-h-5 flex justify-center">
     {smsCheckMutation.isSuccess && smsCheckMutation.data && <div className="text-blue-500">인증 코드 확인이 완료되었습니다.</div>}
     {smsCheckMutation.isPending && <div>인증 코드를 확인 중입니다...</div>}
     {smsCheckMutation.isSuccess && !smsCheckMutation.data && <div className="text-red-500">잘못된 인증 코드를 입력하였습니다.</div>}

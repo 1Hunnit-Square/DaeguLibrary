@@ -15,10 +15,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,7 +66,6 @@ public class BookController {
 	public Mono<ResponseEntity<Map<String, String>>> bookReco(@PathVariable String genre) {
 		LOGGER.info("genre: {}", genre);
 		String path = "/bookreco/" + genre;
-		
 		return webClient.get()
 				.uri(path).retrieve().bodyToMono(String.class).map(result -> {
 					LOGGER.info("result: {}", result);
@@ -77,12 +78,7 @@ public class BookController {
 					responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
 					return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
 				});
-		
-		
-
-		
 	}
-	
 	@GetMapping("/search/{searchTerm}")
 	public Mono<ResponseEntity<String>> searchBookApi(@PathVariable String searchTerm,
 										@RequestParam(defaultValue = "1") int page,
@@ -104,15 +100,7 @@ public class BookController {
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("백엔드 서버와 통신 중 오류가 발생했습니다."));
                 });
 	}
-	
-	@PostMapping("/regbook")
-	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
-		bookService.registerBook(bookRegistration);
-		LOGGER.info("도서 등록 성공");
-		
-	    
-		return ResponseEntity.ok("도서가 성공적으로 등록되었습니다.");
-	}
+
 	
 	@GetMapping("/nslibrarybooklist")
 	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
@@ -121,11 +109,12 @@ public class BookController {
 	    @RequestParam(required = false) String query,
 	    @RequestParam(defaultValue = "전체") String option,
 	    @RequestParam(required = false) List<String> previousQueries,
-	    @RequestParam(defaultValue = "전체") List<String> previousOptions
+	    @RequestParam(defaultValue = "전체") List<String> previousOptions,
+	    @RequestHeader(value = "Authorization", required = false) String mid 
 	    ) {
-	    LOGGER.info(previousQueries + " ", previousOptions + " =============-------------=================--------");
-	    Pageable pageable = PageRequest.of(page - 1, size);
-	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions);	        
+		LOGGER.info("mid: {}", mid);
+	    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("libraryBookId").descending());
+	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions, mid);	        
 	    return ResponseEntity.ok(bookList);
 	}
 	
@@ -133,94 +122,43 @@ public class BookController {
 	public ResponseEntity<Page<BookSummaryDTO>> getFsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
-	    LibraryBookFsDTO libraryBookFsDto) {
+	    LibraryBookFsDTO libraryBookFsDto,
+	    @RequestHeader(value = "Authorization", required = false) String mid ) {
+		LOGGER.info("mid: {}", mid);
 		libraryBookFsDto.processSortByField();
 		libraryBookFsDto.processYearDates();
-	
-		
-		Pageable pageable = PageRequest.of(page - 1, size);
-		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto);
-	        
+		Pageable pageable = PageRequest.of(page - 1, size );
+		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto, mid);
 	    return ResponseEntity.ok(bookList);
 	}
 	
 	@GetMapping("/librarybookdetail/{librarybookid}")
-	public ResponseEntity<BookDetailDTO> getLibraryBookDetail(@PathVariable("librarybookid") Long libraryBookId) {
+	public ResponseEntity<BookDetailDTO> getLibraryBookDetail(@PathVariable("librarybookid") Long libraryBookId, @RequestHeader(value = "Authorization", required = false) String mid ) {
 		LOGGER.info("librarybookid: {}", libraryBookId);
-		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId);
-
+		LOGGER.info("mid: {}", mid);
+		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid);
 		return ResponseEntity.ok(bookDetailDto);
 	}
 	
-	@GetMapping("/rentallist")
-	public ResponseEntity<Page<RentalBookListDTO>> getRentalList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		LOGGER.info(page + " ");
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("rentId").descending());
-		Page<RentalBookListDTO> rentalList = bookService.getRentalList(pageable);
-		LOGGER.info("rentalList: {}", rentalList);
-		return ResponseEntity.ok(rentalList);
-	}
+
 	
 	@PostMapping("/reservebook")
 	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
+		LOGGER.info("도서 예약 요청: {}", reserveDto);
 		bookService.reserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
-		return ResponseEntity.ok("도서 예약이 완료되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("/reservebooklist")
-	public ResponseEntity<Page<ReserveBookListDTO>> reserveBookList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("reserveDate").descending());
-		Page<ReserveBookListDTO> reserveList = bookService.getReserveList(pageable);
-		LOGGER.info("reserveList: {}", reserveList);
-		return ResponseEntity.ok(reserveList);
-	}
-	
-	@PostMapping("/cancelreservebook")
-	public ResponseEntity<String> cancelReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-        LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
-        bookService.cancelReserveBook(reserveStateChangeDtos);
-        return ResponseEntity.ok("도서 예약이 취소되었습니다.");
-	}
-	
-	@PostMapping("/rereservebook")
-	public ResponseEntity<String> reReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 재예약 요청: {}", reserveStateChangeDtos);
-		bookService.reReserveBook(reserveStateChangeDtos);
-		return ResponseEntity.ok("도서 예약이 완료되었습니다.");
-	}
-	
-	@PostMapping("/completeborrowing")
-	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 대출 완료 요청: {}", reserveStateChangeDtos);
-		bookService.completeBorrowing(reserveStateChangeDtos);
-		return ResponseEntity.ok("도서 대출이 완료되었습니다.");
-	}
-	@PostMapping("/returnbook")
-	public ResponseEntity<String> returnBook(@RequestBody List<RentalStateChangeDTO> rentalStateChangeDto) {
-        LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
-        bookService.completeBookReturn(rentalStateChangeDto);
-        return ResponseEntity.ok("도서 반납이 완료되었습니다.");
-	}
-	
-	@GetMapping("searchlibrarybook/{libraryBookId}")
-	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
-		LOGGER.info("libraryBookId: {}", libraryBookId);
-		Pageable pageable = PageRequest.of(page - 1, size);
-		Page<LibraryBookSearchByBookIdDTO> memberList = bookService.searchByLibraryBookBookId(libraryBookId, pageable);
 
 
-		return ResponseEntity.ok(memberList);
-		
-	}
 	
-	@PostMapping("rentbook")
-	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
-		LOGGER.info("도서 대출 요청: {}", rentBookDto);
-		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
-		return ResponseEntity.ok("도서 대출이 완료되었습니다.");
-	}
+	
+	
+	
+	
+	
+	
+	
 
 }
 	

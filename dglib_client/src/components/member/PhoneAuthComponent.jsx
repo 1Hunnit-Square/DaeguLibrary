@@ -37,7 +37,7 @@ const PhoneAuthComponent = ({handleNext}) => {
     },[phoneNum]);
 
     return (<>
-    <div className="my-5">본인인증할 휴대폰 번호를 입력하세오.</div>
+    <div className="my-5 flex justify-center">본인인증할 휴대폰 번호를 입력하세오.</div>
     <div className="mb-7 text-lg flex items-center justify-center">
     <div className="text-2xl mr-2 pb-1">📱</div>
     <select name="first" className = {inputStyle} value={phoneNum.first} onChange={handleChange}>
@@ -46,7 +46,9 @@ const PhoneAuthComponent = ({handleNext}) => {
     <input name="second" ref={phoneRef.second} className = {inputStyle} maxLength={4} autoComplete="off" value={phoneNum.second} onChange={handleChange} />- 
     <input name="third" ref={phoneRef.third} className = {inputStyle} maxLength={4} autoComplete="off" value={phoneNum.third} onChange={handleChange} />
     </div>
+    <div className="flex justify-center">
     <Button onClick={handleClick}>인증코드 받기</Button>
+    </div>
     
     </>);
 }

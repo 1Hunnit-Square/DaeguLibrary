@@ -29,7 +29,7 @@ const LogoutPage = () => {
     return (
         <>
         Logout...
-        </>  
+        </>
     )
 }
 

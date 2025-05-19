@@ -19,7 +19,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Entity
@@ -49,12 +51,16 @@ public class Rental {
 	@Column(nullable = false)
 	private RentalState state;
 	
+	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "memberId", nullable = false)
+    @EqualsAndHashCode.Exclude
 	private Member member;
 	
+	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "LibraryBookId", nullable = false)
+    @EqualsAndHashCode.Exclude
 	private LibraryBook libraryBook;
 	
 	public void changeState(RentalState newState) {

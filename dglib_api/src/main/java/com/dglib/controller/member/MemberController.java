@@ -51,4 +51,5 @@ public class MemberController {
 		return ResponseEntity.ok(memberService.existById(mid));
 	}
 
+
 }

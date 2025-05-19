@@ -17,7 +17,9 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Entity
@@ -42,11 +44,15 @@ public class Reserve {
 	private ReserveState state;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@ToString.Exclude
 	@JoinColumn(name = "memberId", nullable = false)
+    @EqualsAndHashCode.Exclude
 	private Member member;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "LibraryBookId", nullable = false)	
+	@ToString.Exclude
+	@JoinColumn(name = "LibraryBookId", nullable = false)
+    @EqualsAndHashCode.Exclude
 	private LibraryBook libraryBook;
 	
 	

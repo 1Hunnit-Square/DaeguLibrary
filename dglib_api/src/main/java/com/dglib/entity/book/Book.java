@@ -16,7 +16,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -48,6 +50,8 @@ public class Book {
 	private String cover;
 	
 	@OneToMany(mappedBy = "book")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
 	private List<LibraryBook> libraryBooks;
 	
 	

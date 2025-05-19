@@ -44,7 +44,7 @@ return () => clearInterval(interval);
 
 return(
     <>
-    <div>남은 시간 : {leftTime} </div>
+    <div div className="flex justify-center">남은 시간 : {leftTime} </div>
     {isLoading && <div>QR 불러오는중..</div> }
     {error && <div>QR 불러오기 오류</div> }
     {data && <div className="flex justify-center mt-2"><QRCodeCanvas value={JSON.stringify(data)} size={128} /></div>}

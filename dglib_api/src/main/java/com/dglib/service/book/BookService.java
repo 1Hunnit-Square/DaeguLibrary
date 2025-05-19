@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.RentalBookListDTO;
@@ -19,9 +20,9 @@ import com.dglib.dto.book.ReserveStateChangeDTO;
 public interface BookService {
 	
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
-	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions);
-	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO);
-	BookDetailDTO getLibraryBookDetail(Long libraryBookId);
+	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
+	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
+	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
 	Page<RentalBookListDTO> getRentalList(Pageable pageable);
 	void reserveBook(Long libraryBookId, String id);
 	Page<ReserveBookListDTO> getReserveList(Pageable pageable);
@@ -31,6 +32,9 @@ public interface BookService {
 	void completeBookReturn(List<RentalStateChangeDTO> rentalBookListDtos);
 	Page<LibraryBookSearchByBookIdDTO> searchByLibraryBookBookId(Long libraryBookId, Pageable pageable);
 	void rentBook(Long libraryBookId, String mno);
+	BookRegistrationDTO getLibraryBookList(String isbn);
+	void deleteLibraryBook(Long libraryBookId, String isbn);
+	
 	
      
 

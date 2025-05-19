@@ -4,7 +4,7 @@ const defaultMenuItems = [
     {
       id: 1,
       title: '도서관 소개',
-      link: '/about',
+      link: '/about/greeting',
       subMenus: [
         { name: '인사말', link: '/about/greeting' },
         { name: '조직 및 현황', link: '/about/organization' },
@@ -15,18 +15,18 @@ const defaultMenuItems = [
     {
       id: 2,
       title: '도서정보',
-      link: '/books',
+      link: '/books/search?tab=info&page=1',
       subMenus: [
-        { name: '통합검색', link: '/books/search' },
+        { name: '통합검색', link: '/books/search?tab=info&page=1' },
         { name: '신착도서', link: '/books/new' },
         { name: '추천도서', link: '/books/recommend' },
-        { name: '대출베스트도서', link: '/books/popular' }
+        { name: '대출베스트도서', link: '/books/top' }
       ]
     },
     {
       id: 3,
       title: '도서관 이용',
-      link: '/usage',
+      link: '/usage/readingroom',
       subMenus: [
         { name: '자료실 이용', link: '/usage/readingroom' },
         { name: '회원가입 안내', link: '/usage/membership' },
@@ -36,7 +36,7 @@ const defaultMenuItems = [
     {
       id: 4,
       title: '신청 및 예약',
-      link: '/reservation',
+      link: '/reservation/bookrequest',
       subMenus: [
         { name: '희망도서 신청', link: '/reservation/bookrequest' },
         { name: '프로그램 신청', link: '/reservation/program' },
@@ -46,11 +46,11 @@ const defaultMenuItems = [
     {
       id: 5,
       title: '시민참여',
-      link: '/community',
+      link: '/community/notice',
       subMenus: [
         { name: '공지사항', link: '/community/notice' },
         { name: '새소식', link: '/community/news' },
-        { name: '문의게시판', link: '/community/inquiry' },
+        { name: '문의게시판', link: '/community/qna' },
         { name: '도서관갤러리', link: '/community/gallery' },
         { name: '보도자료', link: '/community/press' },
         { name: '도서기증', link: '/community/donation' }
@@ -59,15 +59,15 @@ const defaultMenuItems = [
     {
       id: 6,
       title: '내서재',
-      link: '/mylib',
+      link: '/mylibrary/borrowstatus',
       subMenus: [
-        { name: '대출 현황', link: '/mylib/borrowstatus' },
-        { name: '도서 예약', link: '/mylib/reservation' },
-        { name: '관심 도서', link: '/mylib/wishlist' },
-        { name: '희망 도서', link: '/mylib/request' },
-        { name: '프로그램 신청 내역', link: '/mylib/program' },
-        { name: '이용 신청 안내', link: '/mylib/usage-guide' },
-        { name: '맞춤 정보', link: '/mylib/personalized' }
+        { name: '대출현황', link: '/mylibrary/borrowstatus' },
+        { name: '도서예약', link: '/mylibrary/bookreservation' },
+        { name: '관심도서', link: '/mylibrary/wishlist' },
+        { name: '희망도서', link: '/mylibrary/request' },
+        { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
+        { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
+        { name: '맞춤정보', link: '/mylibrary/personalized' }
       ]
     }
   ];
@@ -75,9 +75,10 @@ const defaultMenuItems = [
   const adminMenuItem = {
     id: 6,
     title: '관리자',
-    link: '/admin',
+    link: '/admin/bookmanagement?tab=booklist&page=1',
     subMenus: [
-      { name: '관리자서브', link: '/admin/sub' }
+      { name: '도서관리', link: '/admin/bookmanagement?tab=booklist&page=1' },
+      { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
     ]
   };
 
@@ -85,7 +86,7 @@ const defaultMenuItems = [
     key: 'menuItemsSelector',
     get: ({get}) => {
       const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'user' // 나중에 바꾸셈
+      const userRole = 'admin' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
         menuItems[5] = adminMenuItem;

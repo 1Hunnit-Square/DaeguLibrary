@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, memo, useRef } from "react";
 import { FiChevronDown } from 'react-icons/fi';
 import { FiSearch } from 'react-icons/fi';
 
 const SearchSelectComponent = ({
   options = [],
   handleSearch,
+  wrapClassName = "",
   input = "",
   className = "",
   inputClassName = "",
@@ -79,13 +80,13 @@ useEffect(() => {
         )}
       </div>
 
-      <div className="relative flex-1">
+      <div className={`relative flex-1 ${wrapClassName}`}>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={placeholder}
-          className={`w-full p-2 pl-4 pr-12 rounded-2xl border border-[#00893B] focus:outline-none ${inputClassName}`}
+          className={`p-2 pl-4 pr-12 rounded-2xl border border-[#00893B] focus:outline-none ${inputClassName}`}
         />
         <button
           type="submit"
@@ -98,4 +99,4 @@ useEffect(() => {
   );
 };
 
-export default SearchSelectComponent;
+export default memo(SearchSelectComponent);

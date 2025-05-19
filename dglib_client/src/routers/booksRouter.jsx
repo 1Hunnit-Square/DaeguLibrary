@@ -2,8 +2,11 @@ import { Suspense, lazy } from "react";
 import { Navigate } from "react-router-dom";
 import Loading from "./Loading";
 
-const BooksSearch = lazy(()=> import ("../pages/BooksSearch"));
-
+const BookSearch = lazy(() => import("../components/books/BookSearchComponent"));
+const NewBook = lazy(() => import("../components/books/NewBookComponent"));
+const Detail = lazy(() => import("../components/books/LibraryBookDetailComponent"));
+const RecommendBook = lazy(() => import("../components/books/RecommendBookComponent"));
+const TopBook = lazy(() => import("../components/books/TopBorrowedBookComponent"));
 const booksRouter = () => ([
 
     {
@@ -12,7 +15,23 @@ const booksRouter = () => ([
     },
     {
         path : "search",
-        element: <Suspense fallback={<Loading />}><BooksSearch /></Suspense>
+        element: <Suspense fallback={<Loading />}><BookSearch /></Suspense>
+    },
+    {
+        path: "new",
+        element: <Suspense fallback={<Loading />}><NewBook /></Suspense>
+    },
+    {
+        path: "detail/:librarybookid",
+        element: <Suspense fallback={<Loading />}><Detail /></Suspense>
+    },
+    {
+        path: "recommend",
+        element: <Suspense fallback={<Loading />}><RecommendBook /></Suspense>
+    },
+    {
+        path: "top",
+        element: <Suspense fallback={<Loading />}><TopBook /></Suspense>
     }
 
 

@@ -80,13 +80,16 @@ return (
           {companyText}
         </div>
         
-        <div className = "flex justify-center mb-10">
+        <div className = "flex justify-center mb-8">
             <CheckBox label = {"전체 동의합니다."}
             checked={checkTerms.library&&checkTerms.privacy&&checkTerms.company} onChange={(e)=> handleCheckBox(e, "all")}/>
+            
         </div> 
-       
-
-      <Button onClick={handleNext}>회원가입</Button>
+        <div className = "flex justify-center">
+        <Button onClick={handleNext}>회원가입</Button>
+        </div>
+      
+      
 </>
 );
 };

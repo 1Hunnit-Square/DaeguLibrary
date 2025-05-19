@@ -22,12 +22,11 @@ const MemberCardPage = () => {
     return(
         <Layout sideOn={false}>
         <SubHeader subTitle="모바일 회원증" mainTitle="기타" />
-        <div className = "my-20">
-        회원 카드
-        <div className = "mt-10 justify-center items-center">
+        <div className = "flex mt-10 justify-center">회원 카드</div>
+        <div className = "my-10 justify-center items-center">
         <QRComponent mid={loginState.mid} />
         </div>
-        </div>
+        
         </Layout>
     );
 }

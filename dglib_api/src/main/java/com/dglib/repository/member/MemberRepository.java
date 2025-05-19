@@ -18,14 +18,11 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@Query("SELECT new com.dglib.dto.member.MemberSeaerchByMnoDTO(" +
 		       "m.id, m.name, m.mno, m.gender, m.birthDate, m.phone, m.addr, " +
 		       "m.penaltyDate, m.state, " +
-		       "SUM(CASE WHEN r.state = com.dglib.entity.book.RentalState.BORROWED THEN 1 ELSE 0 END), " +
-		       "SUM(CASE WHEN rs.state = com.dglib.entity.book.ReserveState.RESERVED THEN 1 ELSE 0 END)) " +
+		       "(SELECT COUNT(r2) FROM Rental r2 WHERE r2.member = m AND r2.state = com.dglib.entity.book.RentalState.BORROWED), " +
+		       "(SELECT COUNT(rs2) FROM Reserve rs2 WHERE rs2.member = m AND rs2.state = com.dglib.entity.book.ReserveState.RESERVED)) " +
 		       "FROM Member m " +
-		       "LEFT JOIN m.rentals r " +
-		       "LEFT JOIN m.reserves rs " +
-		       "WHERE m.mno = :mno " +
-		       "GROUP BY m")
-	Page<MemberSeaerchByMnoDTO> findByMno(String mno, Pageable pageable);
+		       "WHERE m.mno LIKE %:mno% ")
+		Page<MemberSeaerchByMnoDTO> findByMno(String mno, Pageable pageable);
 	
 	Optional<Member> findByMno(String mno);
 	

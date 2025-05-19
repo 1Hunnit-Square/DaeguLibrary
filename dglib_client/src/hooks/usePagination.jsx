@@ -4,7 +4,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
   const renderPagination = () => {
     if (!pageable || !pageable.pageable) return null;
     const maxPage = 20;
-    const totalPages = Math.min(pageable.totalPages, maxPage);
+    const totalPages = pageable.totalPages;
     const startPage = Math.floor((pageable.pageable.pageNumber) / 10) * 10 + 1;
     const endPage = Math.min(startPage + 9, totalPages);
     const pages = [];

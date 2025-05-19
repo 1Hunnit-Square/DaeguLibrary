@@ -29,10 +29,10 @@ public class AnswerServiceImpl implements AnswerService	{
 	@Override
 	public Long createAnswer(AnswerDTO dto) {
 		Member member = memberRepository.findById(dto.getMemberMid())
-				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
 		
 		Question question = questionRepository.findById(dto.getQno())
-				.orElseThrow(() -> new IllegalArgumentException("답변할 질문글 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 		
 		Answer answer = Answer.builder()
 				.question(question)
@@ -48,7 +48,7 @@ public class AnswerServiceImpl implements AnswerService	{
 	//조회
 	public AnswerDTO getAnswer(Long ano) {
 		Answer answer = answerRepository.findById(ano)
-				.orElseThrow(() -> new IllegalArgumentException("답변 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("답변이 없습니다."));
 		
 		
 		AnswerDTO dto = new AnswerDTO();
@@ -66,7 +66,7 @@ public class AnswerServiceImpl implements AnswerService	{
 	//수정
 	public void updateAnswer(Long ano, AnswerDTO dto) {
 		Answer answer = answerRepository.findById(ano)
-				.orElseThrow(() -> new IllegalArgumentException("답변 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("답변이 없습니다."));
 		
 		if(dto.getContent() != null) {
 			answer.updateContent(dto.getContent());
@@ -78,7 +78,7 @@ public class AnswerServiceImpl implements AnswerService	{
 	//삭제
 	public void deleteAnswer(Long ano) {
 		Answer answer = answerRepository.findById(ano)
-				.orElseThrow(() -> new IllegalArgumentException("답변 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("답변이 없습니다."));
 		
 		answerRepository.delete(answer);
 	}

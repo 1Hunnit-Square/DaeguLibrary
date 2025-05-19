@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,7 +31,7 @@ public class QuestionServiceImpl implements QuestionService	{
 	@Override
 	public Long createQuestion(QuestionDTO dto) {
 		Member member = memberRepository.findById(dto.getMemberMid())
-				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
 		
 		Question question = Question.builder()
 				.title(dto.getTitle())
@@ -45,9 +46,16 @@ public class QuestionServiceImpl implements QuestionService	{
 	
 	//상세 조회
 	@Override
-	public QuestionDTO getQuestion(Long qno) {
+	public QuestionDTO getQuestion(Long qno, String requesterMid) {
 		Question question = questionRepository.findById(qno)
-				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
+				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
+		
+		boolean isWriter = question.getMember().getMid().equals(requesterMid);
+		boolean isPublic = question.isCheckPublic();
+		
+		if(!isWriter && !isPublic) {
+			throw new IllegalAccessError("비공개 글은 작성자만 볼 수 있습니다.");
+		}
 		
 		question.setViewCount(question.getViewCount() + 1);
 		
@@ -78,13 +86,8 @@ public class QuestionServiceImpl implements QuestionService	{
 		
 		return dto;
 	}
-	
-	//이름 마스킹
-	private String maskName(String name) {
-		return "*".repeat(name.length());
-	}
 
-	//목록 조회
+	//전체 목록 조회
 	@Override
 	public Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable, String requesterMid) {
 		return questionRepository.findAll(pageable)
@@ -103,11 +106,13 @@ public class QuestionServiceImpl implements QuestionService	{
 				String writerName = question.getMember().getName();     // 작성자 이름
 
 				if (question.isCheckPublic() || writerMid.equals(requesterMid)) {
-					// 공개글이거나 본인이 작성한 글이면 이름 그대로
+					// 공개글이거나 본인이 작성한 글이면
+					dto.setContent(question.getContent());
 					dto.setMemberMid(writerName);
 				} else {
 					// 그 외는 마스킹
 					dto.setMemberMid("*".repeat(writerName.length()));
+					dto.setContent(null);
 				}
 				
 				dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
@@ -116,57 +121,12 @@ public class QuestionServiceImpl implements QuestionService	{
 			});
 	}
 	
-	//수정
+	//조회 및 검색
 	@Override
-	public void updateQuestion(Long qno, QuestionDTO dto) {
-		Question question = questionRepository.findById(qno)
-				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
-		
-		if(!question.getMember().getMid().equals(dto.getMemberMid())) {
-			throw new IllegalAccessError("작성자만 수정 가능");
-		}
-		
-		if(dto.getTitle() != null) {
-			if(!StringUtils.hasText(dto.getTitle())) {
-				throw new IllegalArgumentException("제목은 공백일 수 없음");
-			}
-			question.updateTitle(dto.getTitle());
-		}
-		
-		if(dto.getContent() != null) {
-			if(!StringUtils.hasText(dto.getContent())) {
-				throw new IllegalArgumentException("내용은 공백일 수 없음");
-			}
-			question.updateContent(dto.getContent());
-		}
-		
-		if(dto.getCheckPublic() != null) {
-			question.updateCheckPublic(dto.getCheckPublic());
-		} else {
-			throw new IllegalArgumentException("공개여부는 반드시 선택해야함");
-		}
-		
-	}
-	
-	//삭제
-	@Override
-	public void deleteQuestion(Long qno, String requesterMid) {
-		Question question = questionRepository.findById(qno)
-				.orElseThrow(() -> new IllegalArgumentException("질문 없음"));
-		
-		if(!question.getMember().getMid().equals(requesterMid)) {
-			throw new IllegalAccessError("작성자만 삭제 가능");
-		}
-		
-		questionRepository.delete(question);
-	}
-	
-	//페이징
-	@Override
-	public Page<QuestionDTO> getQuestions(Pageable pageable) {
-		
-		return questionRepository.findAll(pageable)
+	public Page<QuestionDTO> getQuestionsWithSpecification(Specification<Question> spec, Pageable pageable, String requesterMid) {
+		return questionRepository.findAll(spec, pageable)
 				.map(question -> {
+					
 					QuestionDTO dto = new QuestionDTO();
 					dto.setQno(question.getQno());
 					dto.setTitle(question.getTitle());
@@ -175,11 +135,72 @@ public class QuestionServiceImpl implements QuestionService	{
 					dto.setPostedAt(question.getPostedAt());
 					dto.setModifiedAt(question.getModifiedAt());
 					dto.setViewCount(question.getViewCount());
-					dto.setMemberMid(question.getMember().getMid());
-		
+					
+					String writerMid = question.getMember().getMid();     // 작성자 ID
+					String writerName = question.getMember().getName();     // 작성자 이름
+
+					if (question.isCheckPublic() || writerMid.equals(requesterMid)) {
+						// 공개글이거나 본인이 작성한 글이면
+						 dto.setContent(question.getContent());
+		                 dto.setMemberMid(writerName);
+					} else {
+						// 그 외는 마스킹
+						dto.setMemberMid("*".repeat(writerName.length()));
+						dto.setContent(null);
+					}
+					
+					dto.setStatus(question.getAnswer() == null ? "접수" : "완료");
+
 					return dto;
 				});
 	}
+	
+	
+	//수정
+	@Override
+	public void updateQuestion(Long qno, QuestionDTO dto) {
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
+		
+		if(!question.getMember().getMid().equals(dto.getMemberMid())) {
+			throw new IllegalAccessError("작성자만 수정 가능합니다.");
+		}
+		
+		if(dto.getTitle() != null) {
+			if(!StringUtils.hasText(dto.getTitle())) {
+				throw new IllegalArgumentException("제목은 공백일 수 없습니다.");
+			}
+			question.updateTitle(dto.getTitle());
+		}
+		
+		if(dto.getContent() != null) {
+			if(!StringUtils.hasText(dto.getContent())) {
+				throw new IllegalArgumentException("내용은 공백일 수 없습니다.");
+			}
+			question.updateContent(dto.getContent());
+		}
+		
+		if(dto.getCheckPublic() != null) {
+			question.updateCheckPublic(dto.getCheckPublic());
+		} else {
+			throw new IllegalArgumentException("공개여부는 반드시 선택해야 합니다.");
+		}
+		
+	}
+	
+	//삭제
+	@Override
+	public void deleteQuestion(Long qno, String requesterMid) {
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
+		
+		if(!question.getMember().getMid().equals(requesterMid)) {
+			throw new IllegalAccessError("작성자만 삭제 가능합니다.");
+		}
+		
+		questionRepository.delete(question);
+	}
+
 	
 	
 }

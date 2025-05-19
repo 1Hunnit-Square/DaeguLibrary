@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.dglib.entity.member.Member;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,7 +55,7 @@ public class Question {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Member member;	//회원id
 	
-	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Answer answer;
 	
 	public void updateTitle(String title) {

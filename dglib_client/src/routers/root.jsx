@@ -10,6 +10,7 @@ import usageRouter from "./usageRouter";
 import reservationRouter from "./reservationRouter";
 import communityRouter from "./communityRouter";
 import myLibraryRouter from "./myLibraryRouter";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 
@@ -28,6 +29,7 @@ const Community = lazy(()=> import ("../pages/CommunityPage"));
 const MyLibrary = lazy(()=> import ("../pages/MyLibraryPage"));
 const MemberSearch = lazy(()=> import ("../components/admin/MemberSearchComponent"));
 const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSearchComponent"));
+
 
 const root = createBrowserRouter([
 
@@ -70,7 +72,7 @@ const root = createBrowserRouter([
     },
     {
         path: "mylibrary",
-        element: <Suspense fallback={<Loading />}><MyLibrary /></Suspense>,
+        element: <ProtectedRoute><Suspense fallback={<Loading />}><MyLibrary /></Suspense></ProtectedRoute>,
         children: myLibraryRouter()
     },
     {

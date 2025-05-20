@@ -61,4 +61,9 @@ public class JwtProvider {
 		
 		return claims;
 	}
+	
+	public static String getMid(String token) {
+		Map<String, Object> claims = validateToken(token);
+        return (String) claims.get("mid"); 
+    }
 }

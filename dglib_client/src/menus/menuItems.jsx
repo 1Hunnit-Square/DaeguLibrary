@@ -63,7 +63,7 @@ const defaultMenuItems = [
       subMenus: [
         { name: '대출현황', link: '/mylibrary/borrowstatus' },
         { name: '도서예약', link: '/mylibrary/bookreservation' },
-        { name: '관심도서', link: '/mylibrary/wishlist' },
+        { name: '관심도서', link: '/mylibrary/interested' },
         { name: '희망도서', link: '/mylibrary/request' },
         { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
         { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },

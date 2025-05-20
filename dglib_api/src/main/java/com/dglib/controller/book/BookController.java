@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,9 +40,11 @@ import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
+import com.dglib.dto.member.MemberDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.LibraryBookRepository;
+import com.dglib.security.jwt.JwtProvider;
 import com.dglib.service.book.BookService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -104,14 +107,19 @@ public class BookController {
 	
 	@GetMapping("/nslibrarybooklist")
 	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
+		@RequestHeader(value = "Authorization", required = false) String authHeader,
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
 	    @RequestParam(required = false) String query,
 	    @RequestParam(defaultValue = "전체") String option,
 	    @RequestParam(required = false) List<String> previousQueries,
-	    @RequestParam(defaultValue = "전체") List<String> previousOptions,
-	    @RequestHeader(value = "Authorization", required = false) String mid 
+	    @RequestParam(defaultValue = "전체") List<String> previousOptions
 	    ) {
+		String mid = null;
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	        String token = authHeader.substring(7);
+	        mid = JwtProvider.getMid(token);     
+	    }
 		LOGGER.info("mid: {}", mid);
 	    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("libraryBookId").descending());
 	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions, mid);	        
@@ -142,12 +150,9 @@ public class BookController {
 	
 
 	
-	@PostMapping("/reservebook")
-	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
-		LOGGER.info("도서 예약 요청: {}", reserveDto);
-		bookService.reserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
-		return ResponseEntity.ok().build();
-	}
+
+	
+	
 	
 
 

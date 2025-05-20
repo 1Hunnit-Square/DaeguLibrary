@@ -1,6 +1,7 @@
 package com.dglib.dto.book;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Data;
 
@@ -12,14 +13,8 @@ public class BookDetailDTO {
     private String publisher;
     private LocalDate pubDate;
     private String cover;
-    private String location;
-    private String callSign;
     private String isbn;
     private String description;
-    private boolean isRented;
-    private boolean alreadyReservedByMember;
-    private boolean alreadyBorrowedByMember;
-    private boolean isOverdue;
-    private int reserveCount; 
+    private List<LibraryBookResponseDTO> libraryBooks;
 
 }

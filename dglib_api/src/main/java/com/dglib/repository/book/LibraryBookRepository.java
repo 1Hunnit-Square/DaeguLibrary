@@ -25,28 +25,15 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = "book")
 	Optional<LibraryBook> findByLibraryBookId(Long id);
 	
-	
-//	@Query("SELECT new com.dglib.dto.book.BookSummaryDTO(" +
-//		       "b.bookTitle, " +                
-//		       "b.author, " +              
-//		       "b.publisher, " +           
-//		       "b.pubDate, " +      
-//		       "b.cover, " +               
-//		       "lb.location, " +            
-//		       "lb.callSign, " +            
-//		       "b.isbn, " +                 
-//		       "lb.libraryBookId, " +       
-//		       "CASE WHEN EXISTS (SELECT 1 FROM Rental r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state != com.dglib.entity.book.RentalState.RETURNED) THEN true ELSE false END" + 
-//		       ") " +
-//		       "FROM LibraryBook lb JOIN lb.book b")
-//	Page<BookSummaryDTO> findBookSummaries(Pageable pageable);
+
 	
 	
 	@EntityGraph(attributePaths = "book")
 	@Query("SELECT new com.dglib.dto.book.LibraryBookSearchByBookIdDTO(" + "b.bookTitle, " + "b.author, " + "b.publisher, "
 			+ "b.pubDate, " + "lb.location, " + "lb.callSign, " + "b.isbn, " + "lb.libraryBookId, "
-			+ "CASE WHEN EXISTS (SELECT 1 FROM Rental r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state != com.dglib.entity.book.RentalState.RETURNED) THEN true ELSE false END,"
-			+ "CASE WHEN EXISTS (SELECT 1 FROM Reserve r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state = com.dglib.entity.book.ReserveState.RESERVED) THEN true ELSE false END"
+			+ "CASE WHEN EXISTS (SELECT 1 FROM Rental r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state = com.dglib.entity.book.RentalState.BORROWED) THEN true ELSE false END,"
+			+ "CASE WHEN EXISTS (SELECT 1 FROM Reserve r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state = com.dglib.entity.book.ReserveState.RESERVED AND r.isUnmanned = false) THEN true ELSE false END,"
+			+ "CASE WHEN EXISTS (SELECT 1 FROM Reserve r WHERE r.libraryBook.libraryBookId = lb.libraryBookId AND r.state = com.dglib.entity.book.ReserveState.RESERVED AND r.isUnmanned = true) THEN true ELSE false END"
 			+ ") " + "FROM LibraryBook lb JOIN lb.book b WHERE lb.libraryBookId = :libraryBookId")
 	Page<LibraryBookSearchByBookIdDTO> findBookByLibraryBookId(Long libraryBookId, Pageable pageable);
 	
@@ -58,8 +45,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = {"book"})
 	@Query("""
 		    select new com.dglib.dto.book.BookStatusCountDto(
-		        (select count(r) from Reserve r where r.state = :reserveState and r.member.mno = :mno),
-		        (select count(b) from Rental b where b.state = :rentalState and b.member.mno = :mno)
+		        (select count(r) from Reserve r where r.state = :reserveState and r.member.mno = :mno and r.isUnmanned = false),
+		        (select count(b) from Rental b where b.state = :rentalState and b.member.mno = :mno),
+		        (select count(u) from Reserve u where u.state = :reserveState and u.member.mno = :mno and u.isUnmanned = true)
 		    
 		    )
 		""")

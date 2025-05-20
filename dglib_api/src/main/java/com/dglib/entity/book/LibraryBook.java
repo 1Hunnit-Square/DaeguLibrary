@@ -66,5 +66,12 @@ public class LibraryBook {
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
 	private Set<Reserve> reserves;
+	
+	@OneToMany(mappedBy = "libraryBook")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
+	private List<InterestedBook> interestedBooks;
+	
+	
 
 }

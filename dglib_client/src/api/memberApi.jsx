@@ -30,3 +30,35 @@ export const idExist = async (param) => {
     const res = await axios.get(`${prefix}/existId`, { params : param });
     return res.data;
 }
+
+export const getInterestedBook = async (param, mid) => { //변경
+    const res = await axios.get(`${prefix}/interestedbook`, { params : param, headers: { 'Authorization': mid } });
+    return res.data;
+}
+
+export const reserveBook = async (reservationData) => { //변경
+    console.log("예약 데이터", reservationData);
+    const res = await axios.post(`${prefix}/reservebook`, reservationData, { headers: { 'Content-Type': 'application/json' } });
+    return res.data;
+
+}
+
+export const unMannedReserve = async (reservationData) => { //변경
+    console.log("무인 예약 데이터", reservationData);
+    const res = await axios.post(`${prefix}/unmannedreserve`, reservationData, { headers: { 'Content-Type': 'application/json' } });
+    return res.data;
+
+}
+
+export const addInterestedBook = async (bookData) => { //변경
+    const res = await axios.post(`${prefix}/addinterestedbook`, bookData, { headers: { 'Content-Type': 'application/json' } });
+    return res.data;
+}
+
+export const deleteInterestedBook = async (ibIds, mid) => { //변경
+    const res = await axios.delete(`${prefix}/deleteinterestedbook`, {
+        data: { ibIds },
+        headers: { 'Authorization': mid }
+    });
+    return res.data;
+}

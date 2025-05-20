@@ -1,7 +1,17 @@
 import qs from 'qs';
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
+import { getCookie } from '../util/cookieUtil';
 
+
+const getAuthHeader = () => {
+
+  const memberCookie = getCookie("auth")
+
+
+
+  return memberCookie ? { 'Authorization': `Bearer ${memberCookie.accessToken}` } : {};
+}
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.book}`;
 
@@ -10,7 +20,8 @@ export const getBookreco = async (genre) => {
     return res.data;
 }
 
-export const getNsLibraryBookList = async (params = {}, mid) => {
+export const getNsLibraryBookList = async (params = {}) => {
+    const headers = getAuthHeader();
     const { page = 1, size = 10 } = params;
     const finalParams = { page, size };
     if (params.query) {
@@ -22,14 +33,10 @@ export const getNsLibraryBookList = async (params = {}, mid) => {
         finalParams.previousOptions = params.previousOptions;
         finalParams.isChecked = params.isChecked;
     }
-    if (mid) {
-        finalParams.mid = mid;
-    }
+
     const res = await axios.get(`${prefix}/nslibrarybooklist`, {
         params: finalParams,
-        headers: {
-            'Authorization': mid
-        },
+        headers,
         paramsSerializer: params => {
             return qs.stringify(params, { arrayFormat: 'repeat' });
         }
@@ -38,7 +45,7 @@ export const getNsLibraryBookList = async (params = {}, mid) => {
     return res.data;
 }
 
-export const getFsLibraryBookList = async (params = {}, mid) => {
+export const getFsLibraryBookList = async (params = {}, mid) => { //변경
     const res = await axios.get(`${prefix}/fslibrarybooklist`, {
         params: params,
         headers: {
@@ -48,7 +55,7 @@ export const getFsLibraryBookList = async (params = {}, mid) => {
     return res.data;
 }
 
-export const getLibraryBookDetail = async (librarybookid, mid) => {
+export const getLibraryBookDetail = async (librarybookid, mid) => { //변경
     const res = await axios.get(`${prefix}/librarybookdetail/${librarybookid}`, {
         headers: {
             'Authorization': mid
@@ -57,12 +64,7 @@ export const getLibraryBookDetail = async (librarybookid, mid) => {
     return res.data;
 };
 
-export const reserveBook = async (reservationData) => {
-    console.log("예약 데이터", reservationData);
-    const res = await axios.post(`${prefix}/reservebook`, reservationData, { headers: { 'Content-Type': 'application/json' } });
-    return res.data;
 
-}
 
 export const searchBookApi = async (searchTerm, page = 1) => {
     const encodedSearchTerm = encodeURIComponent(searchTerm);
@@ -71,6 +73,8 @@ export const searchBookApi = async (searchTerm, page = 1) => {
     });
     return res.data;
 }
+
+
 
 
 

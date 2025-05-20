@@ -33,9 +33,11 @@ public class JwtFilter extends OncePerRequestFilter {
 	    String mno = (String) claims.get("mno");
 	    String roleName = (String) claims.get("roleName");
 		
-		MemberDTO memberDTO = new MemberDTO(mid, null, name, mno, roleName);
+		MemberDTO memberDTO = new MemberDTO(mid, "", name, mno, roleName);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+		
+
 		
 		filterChain.doFilter(request, response);
 		

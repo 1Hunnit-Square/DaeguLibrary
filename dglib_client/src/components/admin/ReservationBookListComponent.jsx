@@ -285,7 +285,7 @@ const ReservationBookListComponent = () => {
         newParams.set("size", sizeMap[value] || "10");
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
-
+console.log(reserveList);
 
     const options = ["회원ID", "도서번호"]
     return (
@@ -347,6 +347,7 @@ const ReservationBookListComponent = () => {
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">저자</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서번호</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">신청구분</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">신청일</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">우선순위</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">상태</th>
@@ -356,7 +357,7 @@ const ReservationBookListComponent = () => {
                     <tbody className="text-gray-700">
                         {!isLoading && reserveList.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="py-10 px-6 text-center text-gray-500 text-xl">
+                                <td colSpan="10" className="py-10 px-6 text-center text-gray-500 text-xl">
                                     예약한 도서가 없습니다.
                                 </td>
                             </tr>
@@ -372,6 +373,7 @@ const ReservationBookListComponent = () => {
                                         <td className="py-4 px-6 max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.libraryBookId}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.isbn}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap">{item.unmanned ? "무인" : "일반"}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.reserveDate}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.reservationRank !== null ? item.reservationRank + "순위" : "-"}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">

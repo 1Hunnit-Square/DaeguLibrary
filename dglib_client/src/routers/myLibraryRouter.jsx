@@ -4,6 +4,7 @@ import Loading from "./Loading";
 
 
 const BorrowStatus = lazy(() => import("../components/myLibrary/BorrowStatusComponent"));
+const InterestBook = lazy(() => import("../components/myLibrary/InterestedComponent"));
 
 
 const myLibraryRouter = () => ([
@@ -21,8 +22,8 @@ const myLibraryRouter = () => ([
         element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
     },
     {
-        path : "wishlist",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        path : "interested",
+        element: <Suspense fallback={<Loading />}><InterestBook /></Suspense>
     },
     {
         path : "request",

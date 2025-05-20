@@ -18,6 +18,8 @@ import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.InterestedBookRequestDTO;
+import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 
 public interface BookService {
@@ -38,6 +40,10 @@ public interface BookService {
 	BookRegistrationDTO getLibraryBookList(String isbn);
 	void deleteLibraryBook(Long libraryBookId, String isbn);
 	Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto);
+	void unMannedReserveBook(Long libraryBookId, String mid);
+	void addInterestedBook(String mid, Long libraryBookId);
+	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
+	
 	
 	
      

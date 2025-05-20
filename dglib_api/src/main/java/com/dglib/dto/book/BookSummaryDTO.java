@@ -19,9 +19,11 @@ public class BookSummaryDTO {
     private String callSign;
     private String isbn;
     private Long libraryBookId;
-    private boolean isRented;
+    private boolean isBorrowed;
     private boolean alreadyReservedByMember;
     private boolean alreadyBorrowedByMember;
+    private boolean alreadyUnmannedByMember;;
+    private boolean isunmanned;
     private int reserveCount; 
 
 }

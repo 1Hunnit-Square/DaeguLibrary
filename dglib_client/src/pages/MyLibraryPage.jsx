@@ -11,7 +11,7 @@ const MyLibraryPage = () => {
     const LSideMenu = [
         { id: "borrowstatus", label: "대출현황", path: "/mylibrary/borrowstatus" },
         { id: "bookreservation", label: "도서예약", path: "/mylibrary/bookreservation" },
-        { id: "wishlist", label: "관심도서", path: "/mylibrary/wishlist" },
+        { id: "interested", label: "관심도서", path: "/mylibrary/interested" },
         { id: "request", label: "희망도서", path: "/mylibrary/request" },
         { id: "program", label: "프로그램 신청 내역", path: "/mylibrary/useprogram" },
         { id: "usedfacility", label: "이용 신청 내역", path: "/mylibrary/usedfacility" },

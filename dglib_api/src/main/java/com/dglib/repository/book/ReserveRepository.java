@@ -33,11 +33,11 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
     @Query("SELECT r FROM Reserve r WHERE r.id IN :ids")
     List<Reserve> findAllByIdInWithDetails(List<Long> ids);
 	
-	@Query("select count(r.state) from LibraryBook l join l.reserves r where r.state = :state and l.libraryBookId = :libraryBookId")
+	@Query("select count(r.state) from LibraryBook l join l.reserves r where r.state = :state and l.libraryBookId = :libraryBookId and r.isUnmanned = false")
     int countByReserveState(Long libraryBookId, ReserveState state);
 	
 	@Query("SELECT new com.dglib.dto.book.ReservationCountDTO(r.libraryBook.id, COUNT(r)) " +
-		       "FROM Reserve r WHERE r.libraryBook.id IN :libraryBookIds AND r.state = :state " +
+		       "FROM Reserve r WHERE r.libraryBook.id IN :libraryBookIds AND r.state = :state and r.isUnmanned = false " +
 		       "GROUP BY r.libraryBook.id")
 	List<ReservationCountDTO> findReservationCounts(Collection<Long> libraryBookIds, ReserveState state);
 	

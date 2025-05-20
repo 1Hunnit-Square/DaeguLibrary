@@ -1,20 +1,16 @@
 import { useState, useCallback, useMemo, memo } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRecoilValue } from "recoil";
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import CheckBox from "../common/CheckBox";
 import { getNsLibraryBookList } from "../../api/bookApi";
 import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import { memberIdSelector } from "../../atoms/loginState";
 import CheckBoxNonLabel from "../common/CheckNonLabel";
 
 const NomalSearchBookComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const queryClient = useQueryClient();
-    const mid = useRecoilValue(memberIdSelector);
     const queryParams = useMemo(() => ({
         query: searchURLParams.get("query") || "",
         option: searchURLParams.get("option") || "전체",
@@ -32,7 +28,7 @@ const NomalSearchBookComponent = () => {
 
 
     const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
-        queryKey: ['librarybooklist', searchURLParams.toString(), mid],
+        queryKey: ['librarybooklist', searchURLParams.toString()],
         queryFn: () => {
             const params = {
                 page: parseInt(queryParams.page, 10)
@@ -55,7 +51,7 @@ const NomalSearchBookComponent = () => {
                     params.previousOptions = [];
                 }
             }
-            return getNsLibraryBookList(params, mid);
+            return getNsLibraryBookList(params);
         },
         refetchOnWindowFocus: false,
     });
@@ -125,8 +121,8 @@ const NomalSearchBookComponent = () => {
         }
 
         setSearchURLParams(newParams, { replace: true });
-        queryClient.setQueryData(['librarybooklist', newParams.toString(), mid], data);
-    }, [searchURLParams, setSearchURLParams, queryClient, mid, data]);
+        queryClient.setQueryData(['librarybooklist', newParams.toString()], data);
+    }, [searchURLParams, setSearchURLParams, queryClient, data]);
 
     const onSelfClick = useCallback(() => {
         alert("무인예약되었습니다.");

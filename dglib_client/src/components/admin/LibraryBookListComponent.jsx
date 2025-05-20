@@ -207,7 +207,7 @@ const LibraryBookListComponent = () => {
                                         <td className="py-4 px-6 whitespace-nowrap">{item.regLibraryBookDate}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">
                                             <span className="px-2 py-1 text-xs font-semibold rounded-full">
-                                                {item.rented?  "대출중" : "-"}
+                                                {item.rented || item.unmanned ?  "대출중" : "-"}
                                             </span>
                                         </td>
                                        <td className="py-4 px-6 whitespace-nowrap">{item.reserveCount}</td>

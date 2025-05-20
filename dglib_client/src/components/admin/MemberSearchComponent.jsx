@@ -110,7 +110,7 @@ const MemberSearchComponent = () => {
                       <td className="py-3 px-4">{member.birthDate}</td>
                       <td className="py-3 px-4">{member.gender}</td>
                       <td className="py-3 px-4">{member.phone}</td>
-                      <td className="py-3 px-4 max-w-xs truncate">{member.addr}</td>
+                      <td className="py-3 px-4 max-w-[150px] truncate">{member.addr}</td>
                       <td className="py-3 px-4 text-center">{member.rentalCount}</td>
                       <td className="py-3 px-4 text-center">{member.reserveCount}</td>
                       <td className="py-3 px-4 text-center">{member.panalty}</td>

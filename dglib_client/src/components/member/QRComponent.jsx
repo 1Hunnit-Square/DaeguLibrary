@@ -1,5 +1,5 @@
 import { QRCodeCanvas } from 'qrcode.react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { cardPost } from '../../api/memberApi';
 import { useQuery } from '@tanstack/react-query';
 
@@ -7,11 +7,10 @@ const QRComponent = ({mid}) => {
 
 const reloadTime = 1000 * 30;
 const [ leftTime, setLeftTime] = useState(reloadTime/1000);
-const [ reload, setReload ] = useState(false);
 
-const { data, error, isLoading } = useQuery({
+const { data, error, isLoading, refetch } = useQuery({
     
-    queryKey : ['card', reload],
+    queryKey : ['card'],
     queryFn: () => cardPost(mid),
     staleTime : Infinity,
     enabled: !!mid,
@@ -19,7 +18,7 @@ const { data, error, isLoading } = useQuery({
 
 const handleReload = useCallback(() => {
     console.log("리로드")
-    setReload(prev => !prev);
+    refetch();
     setLeftTime(reloadTime/1000)
 },[]);
 
@@ -45,11 +44,11 @@ return () => clearInterval(interval);
 return(
     <>
     <div div className="flex justify-center">남은 시간 : {leftTime} </div>
-    {isLoading && <div>QR 불러오는중..</div> }
-    {error && <div>QR 불러오기 오류</div> }
+    {isLoading && <div className="flex justify-center">QR 불러오는중..</div> }
+    {error && <div className="flex justify-center">QR 불러오기 오류</div> }
     {data && <div className="flex justify-center mt-2"><QRCodeCanvas value={JSON.stringify(data)} size={128} /></div>}
     </>
 )
 }
 
-export default QRComponent;
+export default memo(QRComponent);

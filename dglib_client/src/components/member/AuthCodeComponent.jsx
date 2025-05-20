@@ -15,6 +15,10 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     console.log("메세지 전송 성공");
     },
     onError: (error) => {
+        if(error.response.data.message == "ALREADY_EXIST_NUMBER"){
+            alert("이미 등록된 번호입니다. 다시 인증을 시도해주세요");
+            handleNext("phoneAuth");
+        }
     console.error("error :", error);
     }
    });

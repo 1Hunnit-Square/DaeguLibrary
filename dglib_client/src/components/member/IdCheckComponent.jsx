@@ -10,10 +10,10 @@ const idCheckMutation = useMutation({
         onSuccess: (data) => {
         console.log(data);
             if(data)
-                alert("중복된 아이디입니다.");
+                alert("중복된 아이디입니다. 다른 아이디를 입력해주세요.");
             else{
                 alert("사용 가능한 아이디입니다.")
-                handleForm(true);
+                handleForm(true,"id");
             }
 
         },
@@ -26,13 +26,16 @@ const handleIdCheck = () =>{
     if(id == ""){
         alert("아이디를 입력하세요");
         return;
+    } else if(!(/[A-Za-z]/.test(id) && /\d/.test(id) && /^[A-Za-z0-9]+$/.test(id)) || !(id.length>=6 && id.length <= 16)){
+        alert("아이디는 영문과 숫자가 포함된 조합에 맞게 6자 이상 16자 이하로 입력해주세요.");
+        return;
     }
 const param = { mid : id }
 idCheckMutation.mutate(param);
 }
 
 useEffect(()=>{
-handleForm(false);
+handleForm(false,"id");
 },[id])
 
 return(<>

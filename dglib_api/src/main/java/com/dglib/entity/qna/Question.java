@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,7 @@ public class Question {
 	private int viewCount = 0;	//조회 횟수
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_mid", referencedColumnName = "mid", nullable = false)
 	private Member member;	//회원id
 	
 	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

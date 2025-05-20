@@ -102,17 +102,23 @@ public class QuestionServiceImpl implements QuestionService	{
 				dto.setViewCount(question.getViewCount());
 				dto.setMemberMid(question.getMember().getMid());
 				
-				String writerMid = question.getMember().getMid();     // 작성자 ID
-				String writerName = question.getMember().getName();     // 작성자 이름
+				String writerMid = "";
+				String writerName = "";
 
-				if (question.isCheckPublic() || writerMid.equals(requesterMid)) {
-					// 공개글이거나 본인이 작성한 글이면
-					dto.setContent(question.getContent());
-					dto.setMemberMid(writerName);
+				if (question.getMember() != null) {
+				    writerMid = question.getMember().getMid();
+				    writerName = question.getMember().getName();
+
+				    if (question.isCheckPublic() || writerMid.equals(requesterMid)) {
+				        dto.setContent(question.getContent());
+				        dto.setMemberMid(writerName);
+				    } else {
+				        dto.setMemberMid("*".repeat(writerName.length()));
+				        dto.setContent(null);
+				    }
 				} else {
-					// 그 외는 마스킹
-					dto.setMemberMid("*".repeat(writerName.length()));
-					dto.setContent(null);
+				    dto.setMemberMid("알 수 없음");
+				    dto.setContent(null);
 				}
 				
 				dto.setStatus(question.getAnswer() == null ? "접수" : "완료");

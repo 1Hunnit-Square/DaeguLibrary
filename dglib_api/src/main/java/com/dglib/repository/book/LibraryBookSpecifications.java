@@ -7,8 +7,13 @@ import java.util.stream.IntStream;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.persistence.criteria.Predicate;
+
+import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
+import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.entity.book.LibraryBook;
+import com.dglib.entity.book.Reserve;
+import com.dglib.entity.book.ReserveState;
 
 
 public class LibraryBookSpecifications {
@@ -98,4 +103,48 @@ public class LibraryBookSpecifications {
 	    
 		return spec;
 	}
+	
+	public static Specification<LibraryBook> lsFilter(LibraryBookSearchDTO dto) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            
+  
+            if (dto.getQuery() != null && !dto.getQuery().isEmpty()) {
+                String option = dto.getOption();
+                String searchQuery  = dto.getQuery();
+                
+                switch (option) {
+                    case "도서명":
+                        predicates.add(criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + searchQuery  + "%"));
+                        break;
+                    case "저자":
+                        predicates.add(criteriaBuilder.like(
+                            root.get("book").get("author"),
+                            "%" + searchQuery  + "%"));
+                        break;
+                    case "ISBN":
+                    	predicates.add(criteriaBuilder.like(
+                    			root.get("book").get("isbn"), "%" + searchQuery  + "%"));
+                    	break;
+                    case "도서번호":
+                    	predicates.add(criteriaBuilder.like(root.get("libraryBookId").as(String.class), "%" + searchQuery  + "%"));
+                    	break;
+                }
+            }
+            
+            
+            if (dto.getStartDate() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("regLibraryBookDate"), dto.getStartDate()));
+            }
+            
+            if (dto.getEndDate() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("regLibraryBookDate"), dto.getEndDate()));
+            }
+            
+            
+  
+            
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
 }

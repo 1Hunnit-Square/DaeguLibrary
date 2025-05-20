@@ -172,8 +172,8 @@ public class AdminController {
 		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		
-		return ResponseEntity.ok().build();
+		Page<LibraryBookSummaryDTO> libraryBookList = bookService.getLibraryBookList(pageable, libraryBookSearchDto);
+		return ResponseEntity.ok(libraryBookList);
 		
 	}
 

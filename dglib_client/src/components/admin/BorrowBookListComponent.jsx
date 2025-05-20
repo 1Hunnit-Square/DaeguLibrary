@@ -3,11 +3,11 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "../common/Button";
-import CheckBox from "../common/CheckBox";
 import { useSearchParams } from "react-router-dom";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
+import CheckBoxNonLabel from "../common/CheckNonLabel";
 
 
 
@@ -225,13 +225,13 @@ const BorrowBookListComponent = () => {
                             <input type="date" value={localEndDate} onChange={handleEndDateChange} className="w-full border bg-white rounded-md p-2" />
                         </div>
                         <div className="flex gap-5 mt-5 ">
-                             <CheckBox label="전체"
+                             <CheckBoxNonLabel label="전체"
                              checked={selectedFilter === "전체"}
                              onChange={() => handleCheckChange("전체")} />
-                             <CheckBox label="대출중"
+                             <CheckBoxNonLabel label="대출중"
                              checked={selectedFilter === "대출중"}
                              onChange={() => handleCheckChange("대출중")} />
-                             <CheckBox label="연체"
+                             <CheckBoxNonLabel label="연체"
                              checked={selectedFilter === "연체"}
                              onChange={() => handleCheckChange("연체")} />
                         </div>
@@ -248,7 +248,7 @@ const BorrowBookListComponent = () => {
                     <thead className="bg-[#00893B] text-white">
                         <tr>
                             <th className="py-3 px-4 text-left">
-                                <CheckBox inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
+                                <CheckBoxNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
                             </th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원ID</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서명</th>
@@ -281,7 +281,7 @@ const BorrowBookListComponent = () => {
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 ${isOverdue ? 'bg-red-50' : ''}`}>
                                         <td className="py-4 px-4">
-                                            <CheckBox inputClassName="h-4 w-4" checked={selectedItems.has(item.rentId)} onChange={(e) => handleSelectItem(e, item)} />
+                                            <CheckBoxNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.rentId)} onChange={(e) => handleSelectItem(e, item)} />
                                         </td>
                                         <td className="py-4 px-6">{item.mid}</td>
                                         <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>

@@ -1,12 +1,12 @@
 import { getReserveBookList, cancelReserveBook, reReserveBook, completeBorrowing } from "../../api/adminApi";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import CheckBox from "../common/CheckBox";
 import { useSearchParams } from "react-router-dom";
 import { usePagination } from "../../hooks/usePagination";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
+import CheckBoxNonLabel from "../common/CheckNonLabel";
 
 const ReservationBookListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -310,17 +310,17 @@ const ReservationBookListComponent = () => {
                                         <input type="date" value={localEndDate} onChange={handleEndDateChange} className="w-full border bg-white rounded-md p-2" />
                                     </div>
                                     <div className="flex gap-5 mt-5 ">
-                                         <CheckBox label="전체"
+                                         <CheckBoxNonLabel label="전체"
                                          checked={selectedFilter === "전체"}
                                          onChange={() => handleCheckChange("전체")} />
-                                         <CheckBox label="일반"
+                                         <CheckBoxNonLabel label="일반"
                                          checked={selectedFilter === "일반"}
                                          onChange={() => handleCheckChange("일반")} />
-                                         <CheckBox label="무인"
+                                         <CheckBoxNonLabel label="무인"
                                          checked={selectedFilter === "무인"}
                                          onChange={() => handleCheckChange("무인")} />
                                          <div className="mx-26">
-                                             <CheckBox label="예약중"
+                                             <CheckBoxNonLabel label="예약중"
                                          checked={selectedState}
                                          onChange={() => handleStateChange()} />
                                          </div>
@@ -340,7 +340,7 @@ const ReservationBookListComponent = () => {
 
                         <tr>
                             <th className="py-3 px-4 text-left">
-                                <CheckBox inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
+                                <CheckBoxNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
                             </th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원ID</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서명</th>
@@ -365,7 +365,7 @@ const ReservationBookListComponent = () => {
                                 return (
                                     <tr key={item.reserveId} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 ${item.overdue && item.state === "RESERVED" ? 'bg-red-50' : ''}`}>
                                         <td className="py-4 px-4">
-                                            <CheckBox inputClassName="h-4 w-4" checked={selectedItems.has(item.reserveId)} onChange={(e) => handleSelectItem(e, item)} disabled={item.state === 'CANCELED' || item.state === 'BORROWED' ? true : false} />
+                                            <CheckBoxNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.reserveId)} onChange={(e) => handleSelectItem(e, item)} disabled={item.state === 'CANCELED' || item.state === 'BORROWED' ? true : false} />
                                         </td>
                                         <td className="py-4 px-6">{item.mid}</td>
                                         <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>

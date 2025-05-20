@@ -29,6 +29,8 @@ import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
+import com.dglib.dto.book.LibraryBookSearchDTO;
+import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
@@ -695,5 +697,22 @@ public class BookServiceImpl implements BookService {
 		if (!exists) {
 			bookRepository.deleteById(isbn);
 		}	
+	}
+	
+	@Override
+	public Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto) {
+		Specification<LibraryBook> spec = LibraryBookSpecifications.lsFilter(libraryBookSearchDto);
+	    Page<LibraryBook> bookList = libraryBookRepository.findAll(spec, pageable);
+		
+		return bookList.map(book -> {
+			LibraryBookSummaryDTO dto = new LibraryBookSummaryDTO();
+			modelMapper.map(book.getBook(), dto);
+			modelMapper.map(book, dto);
+			dto.setRented(book.getRentals().stream().anyMatch(rental -> rental.getState() == RentalState.BORROWED));
+			dto.setReserveCount((int) book.getReserves().stream()
+				    .filter(reserve -> reserve.getState() == ReserveState.RESERVED)
+				    .count());
+			return dto;
+		});
 	}
 }

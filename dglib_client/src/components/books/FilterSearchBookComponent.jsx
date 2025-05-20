@@ -8,7 +8,8 @@ import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
-import CheckBox from "../common/CheckBox";
+
+import CheckBoxNonLabel from "../common/CheckNonLabel";
 
 
 const FilterSearchBookComponent = () => {
@@ -256,7 +257,7 @@ const FilterSearchBookComponent = () => {
                             {Array.isArray(books) && books.length > 0 ? (
                                 <>
                                 <div className="flex mx-3 gap-3">
-                                <CheckBox checked={isAllSelected} onChange={(e) => handleSelectAll(e)} inputClassName={"hover:cursor-pointer w-4 h-4"} />
+                                <CheckBoxNonLabel checked={isAllSelected} onChange={(e) => handleSelectAll(e)} inputClassName={"hover:cursor-pointer w-4 h-4"} />
                                 <Button children={"관심도서 담기"} onClick={clickSelectFavorite} className={""} />
                                 </div>
                                 {books.map((book, index) => {
@@ -270,7 +271,7 @@ const FilterSearchBookComponent = () => {
                                         >
 
                                             <div className="w-full md:w-48 flex justify-center">
-                                                <CheckBox checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"} />
+                                                <CheckBoxNonLabel checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"} />
                                                 <img
                                                     src={book.cover || '/placeholder-image.png'}
                                                     alt={book.bookTitle || '표지 없음'}

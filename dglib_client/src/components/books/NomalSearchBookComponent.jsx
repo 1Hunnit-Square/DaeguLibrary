@@ -9,6 +9,7 @@ import { usePagination } from "../../hooks/usePagination";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
 import { memberIdSelector } from "../../atoms/loginState";
+import CheckBoxNonLabel from "../common/CheckNonLabel";
 
 const NomalSearchBookComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -220,7 +221,7 @@ const NomalSearchBookComponent = () => {
                 buttonClassName="right-2"
             />
             {isSearched && books.length > 1 &&
-                <CheckBox
+                <CheckBoxNonLabel
                     checked={isChecked}
                     onChange={onChangeRe}
                     label="결과 내 재검색"
@@ -242,7 +243,7 @@ const NomalSearchBookComponent = () => {
                     ) : (
                         <>
                             <div className="flex mx-3 gap-3">
-                                <CheckBox
+                                <CheckBoxNonLabel
                                     checked={isAllSelected}
                                     onChange={handleSelectAll}
                                     inputClassName="hover:cursor-pointer w-4 h-4"
@@ -267,7 +268,7 @@ const NomalSearchBookComponent = () => {
                                         className="flex flex-row bg-white rounded-lg -mt-1 shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-6 p-6"
                                     >
                                         <div className="w-full md:w-48 flex justify-center">
-                                            <CheckBox
+                                            <CheckBoxNonLabel
                                                 checked={selectedBooks.has(book.libraryBookId)}
                                                 onChange={(e) => handleSelectBooks(e, book.libraryBookId)}
                                                 inputClassName="hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"

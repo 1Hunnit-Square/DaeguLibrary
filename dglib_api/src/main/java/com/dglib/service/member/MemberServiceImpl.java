@@ -1,21 +1,27 @@
 package com.dglib.service.member;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
+import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.member.MemberRepository;
+import com.dglib.repository.member.MemberSpecifications;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,6 +60,33 @@ public class MemberServiceImpl implements MemberService {
 		return memberRepository.existsByPhone(phone);
 	}
 	
+	@Override
+	public Page<MemberListDTO> findAll(MemberSearchDTO searchDTO, Pageable pageable) {
+		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
+		Page<Member> memberList = memberRepository.findAll(spec, pageable);
+		
+		AtomicLong index = new AtomicLong(1);
+		
+		Page<MemberListDTO> result = memberList.map(member -> {
+			MemberListDTO memberListDTO = new MemberListDTO();
+			modelMapper.map(member, memberListDTO);
+			memberListDTO.setIndex(index.getAndIncrement());
+			memberListDTO.setPenaltyDays(calcPenaltyDays(member.getPenaltyDate()));
+				
+			return memberListDTO;	
+		});
+		
+		return result;
+	}
+	
+	@Override
+	public boolean penaltyCheck (String mid) {
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		if(calcPenaltyDays(member.getPenaltyDate()) > 0)
+			return true;
+		else
+			return false;
+	}
 	
 	
 	
@@ -68,6 +101,19 @@ public class MemberServiceImpl implements MemberService {
 		result = fDate + String.format("%04d", newMno+1);
 		
 		return result;
+	}
+	
+	public int calcPenaltyDays(LocalDate date) {
+		if(date == null) {
+			return 0;
+		}
+		LocalDate now = LocalDate.now();
+		Period period = Period.between(now, date);
+		int days = period.getDays()+1;
+		if(days <= 0) {
+			days = 0;
+		}
+		return days;
 	}
 	
 	

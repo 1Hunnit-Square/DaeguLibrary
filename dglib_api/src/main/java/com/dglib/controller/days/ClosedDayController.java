@@ -17,7 +17,9 @@ import com.dglib.dto.days.ClosedDayDTO;
 import com.dglib.service.days.ClosedDayService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+	@Slf4j
 	@RestController
 	@RequestMapping("/api/closed")
 	@RequiredArgsConstructor
@@ -77,5 +79,29 @@ import lombok.RequiredArgsConstructor;
 	        closedDayService.registerLibraryAnniversary(year);
 	        return ResponseEntity.ok().build();
 	    }
+	    
+	    // 연도별 자동 등록
+	    @PostMapping("/auto")
+	    public ResponseEntity<Void> registerAuto(@RequestParam int year) {
+	        try {
+	            closedDayService.registerAllAutoEventsForYear(year);
+	        } catch (Exception e) {
+	            log.warn("자동 등록 중 예외 발생 (이미 등록된 연도일 수 있음): {}", e.getMessage());
+	        }
+	        return ResponseEntity.ok().build();
+	    }
+
+
+	    // 연도 범위 자동 등록
+	    @PostMapping("/auto/range")
+	    public ResponseEntity<Void> registerAutoRange(@RequestParam int start, @RequestParam int end) {
+	        for (int y = start; y <= end; y++) {
+	            closedDayService.registerAllAutoEventsForYear(y);
+	        }
+	        return ResponseEntity.ok().build();
+	    }
+
+
+
 	}
 

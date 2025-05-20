@@ -22,5 +22,7 @@ public interface ClosedDayService {
 	void registerHolidays(int year); // 공휴일 등록(설날, 추석은 당일만)
 	
 	void registerLibraryAnniversary(int year); // 개관일 등록(매년 7월 8일)	
+	
+	void registerAllAutoEventsForYear(int year); // 연도별 자동 등록
 
 }

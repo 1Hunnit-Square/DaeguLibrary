@@ -16,7 +16,9 @@ import com.dglib.entity.days.ClosedDay;
 import com.dglib.repository.days.ClosedDayRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -145,12 +147,18 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	    }
 	}
 	
-	
-	
-	
-	
+	@Override
+	public void registerAllAutoEventsForYear(int year) {
+	    try {
+	        registerMondays(year);
+	        registerHolidays(year);
+	        registerLibraryAnniversary(year);
+	    } catch (Exception e) {
+	        log.warn("자동 등록 중 예외 발생: {}", e.getMessage());
+	        // 예외 무시하고 정상 응답만 리턴
+	    }
+	}
 
-	
 	
 	
 }

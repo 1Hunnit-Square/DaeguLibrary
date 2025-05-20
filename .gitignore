@@ -6,6 +6,7 @@ target/
 !**/src/test/**/target/
 *.log
 *.tmp
+upload/
 
 # STS/Eclipse
 .apt_generated

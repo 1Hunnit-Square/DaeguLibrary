@@ -23,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
+		log.info("FILETERING...");
 		String authHeader = request.getHeader("Authorization");
 		String accessToken = authHeader.substring(7);
 		
@@ -56,20 +57,17 @@ public class JwtFilter extends OncePerRequestFilter {
 	    throws ServletException {
 	    
 	    String path = request.getRequestURI();
+	    log.info("FILTER CHECK "+path);
 	    
-	    //멤버 로그인 경로의 호출은 체크하지 않음
-	    if(path.startsWith("/api/member/")) {
+	    if (path.equals("/favicon.ico")) {
 	        return true;
 	    }
 	    
+	    //멤버 로그인 경로의 호출은 체크하지 않음
 	    if(path.startsWith("/api/")) {
 	        return true;
 	    }
-	    
-	    //이미지 조회 경로는 체크하지 않음
-	    if(path.startsWith("/api/view/")) {
-	        return true;
-	    }
+
 
 	    return false;
 	    }

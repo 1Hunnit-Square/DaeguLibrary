@@ -35,7 +35,7 @@ public class FileController {
 		 return ResponseEntity.ok(fileList);
 	 }
 	 
-	 @DeleteMapping("/delete/test")
+	 @PostMapping("/delete/test")
 	 public ResponseEntity<String> deleteFile(@RequestParam List<String> fileNames){
 		 fileUtil.deleteFiles(fileNames);
 		 return ResponseEntity.ok().build();

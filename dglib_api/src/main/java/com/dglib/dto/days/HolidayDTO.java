@@ -4,19 +4,17 @@ import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ClosedDayDTO {
+public class HolidayDTO {
 	
-	private LocalDate closedDate;
-	private String reason;
-	private Boolean isClosed;
+	private LocalDate date;
+	private String name;
+	private String isHoliday;
 
 }

@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
-import Button from "../../components/common/Button";
+import { usePagination } from "../../hooks/usePagination";
+import SearchSelectComponent from "../../components/common/SearchSelectComponent";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -17,58 +20,120 @@ const StatusBadge = ({ status }) => {
         fontWeight: "bold",
         backgroundColor: status === "완료" ? "#f1b300" : "#999999",
     };
-    return <span style={badgeStyle}>{status}</span>
-}
+    return <span style={badgeStyle}>{status}</span>;
+};
 
 const QnaList = () => {
     const [qnaItems, setQnaItems] = useState([]);
-    const [page, setPage] = useState(0);
-    const [size, setSize] = useState(10);
+    const [pageable, setPageable] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const Navigate = useNavigate();
 
-    useEffect(() => {
-        fetchData();
-    }, [page, size]);
+    <td
+        onClick={() => navigate(`/community/qna/${item.qno}`)}
+        className="text-left px-2 py-3 pl-5 cursor-pointer hover:underline"
+    >
+        {item.title}
+    </td>
+    
+    const queryParams = useMemo(() => ({
+        query: searchParams.get("query") || "",
+        option: searchParams.get("option") || "제목",
+        page: parseInt(searchParams.get("page") || "1", 10)
+    }), [searchParams]);
+
+    const isSearched = !!queryParams.query;
 
     const fetchData = async () => {
+        setIsLoading(true);
         try {
             const response = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.qna}`, {
                 params: {
-                    page,
-                    size,
-                    requesterMid: "user1",
+                    page: queryParams.page - 1,
+                    size: 10,
+                    searchType: queryParams.option,
+                    keyword: queryParams.query,
+                    requesterMid: "user1"
                 },
             });
 
-            console.log("받은 데이터", response.data);
-
-            const contentArray = Array.isArray(response.data?.content)
-                ? response.data.content
-                : [];
-
-            setQnaItems(contentArray);
+            const data = response.data;
+            console.log("QnA 리스트 응답 데이터: ", data);
+            setQnaItems(Array.isArray(data.content) ? data.content : []);
+            setPageable(data);
         } catch (error) {
             console.error("질문 목록 불러오기 실패", error);
             setQnaItems([]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    useEffect(() => {
+        fetchData();
+    }, [queryParams]);
+
+    const handleSearch = (newQuery, newOption) => {
+        const params = new URLSearchParams();
+        params.set("query", newQuery);
+        params.set("option", newOption);
+        params.set("page", "1");
+        setSearchParams(params);
+    };
+
+    const handlePageChange = (newPage) => {
+        const params = new URLSearchParams(searchParams);
+        params.set("page", newPage.toString());
+        setSearchParams(params);
+    };
+
+    const { renderPagination } = usePagination(pageable, handlePageChange, isLoading);
+
+    const renderSearchResultCount = useMemo(() => {
+        if (isSearched && pageable?.totalElements !== undefined) {
+            return (
+                <div className="mb-4 text-sm text-gray-600">
+                    "{queryParams.query}"에 대한 검색 결과 {pageable.totalElements}건이 있습니다.
+                </div>
+            );
+        }
+        return null;
+    }, [isSearched, pageable, queryParams.query]);
+
     return (
         <div style={{ padding: "20px" }}>
+            <div className="mb-4 flex justify-end">
+                <SearchSelectComponent
+                    options={["제목", "내용", "작성자"]}
+                    handleSearch={handleSearch}
+                    input={queryParams.query}
+                    defaultCategory={queryParams.option}
+                    selectClassName="w-20 md:w-28"
+                    dropdownClassName="w-24 md:w-28"
+                    className="w-full md:w-[50%] mx-end"
+                    inputClassName="w-full"
+                    buttonClassName="right-2"
+                />
+
+            </div>
+
+            {renderSearchResultCount}
 
             <table style={{
                 width: "100%",
                 borderCollapse: "collapse",
                 marginTop: "20px",
-                tableLayout: "fixed"  // 열 비율 균등 분배
+                tableLayout: "fixed"
             }}>
                 <colgroup>
-                    <col style={{ width: "5%" }} />    {/* 번호 */}
-                    <col style={{ width: "10%" }} />   {/* 처리상황 */}
-                    <col style={{ width: "35%" }} />   {/* 제목 */}
-                    <col style={{ width: "10%" }} />    {/* 공개여부 */}
-                    <col style={{ width: "8%" }} />   {/* 작성자 */}
-                    <col style={{ width: "8%" }} />   {/* 작성일 */}
-                    <col style={{ width: "8%" }} />    {/* 조회수 */}
+                    <col style={{ width: "5%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "35%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "8%" }} />
                 </colgroup>
                 <thead>
                     <tr style={{ borderBottom: "2px solid #00893B", borderTop: "2px solid #00893B" }}>
@@ -91,7 +156,7 @@ const QnaList = () => {
                     ) : (
                         qnaItems.map((item) => (
                             <tr key={item.qno} style={{ borderBottom: "1px solid #ddd", textAlign: "center" }}>
-                                <td >{item.qno}</td>
+                                <td>{item.qno}</td>
                                 <td><StatusBadge status={item.status} /></td>
                                 <td style={{ textAlign: "left", padding: "12px 8px", paddingLeft: "20px" }}>{item.title}</td>
                                 <td>{item.checkPublic ? "" : <LockIcon />}</td>
@@ -104,27 +169,7 @@ const QnaList = () => {
                 </tbody>
             </table>
 
-
-            <div>
-                <Button
-                    onClick={() => setPage(prev => Math.max(prev - 1, 0))}
-                    disabled={page === 0}
-                    className="mr-2"
-                >
-                   {'<'}
-                </Button>
-
-                <span className="mx-2">{page + 1}</span>
-
-                <Button
-                    onClick={() => setPage(prev => Math.max(prev + 1, 0))}
-                    disabled={qnaItems.length < size}
-                    className="mr-2"
-                >
-                    {'>'}
-                </Button>
-            </div>
-
+            {renderPagination()}
         </div>
     );
 };

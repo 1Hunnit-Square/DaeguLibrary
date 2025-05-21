@@ -26,7 +26,7 @@ const communityRouter = () => ([
 
     },
     {
-        path : "qna",
+        path : "qna/*",
         element: <Suspense fallback={<Loading />}><QnA /></Suspense>
 
     },

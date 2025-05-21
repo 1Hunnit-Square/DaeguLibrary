@@ -24,7 +24,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
 
     return (
       <div className="flex justify-center mt-4">
-        {pageable.pageable.pageNumber > 10 && (
+        {startPage > 10 && (
           <button
             key="prev"
             onClick={() => !isLoading && onPageChange(startPage - 1)}

@@ -34,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	    String mno = (String) claims.get("mno");
 	    String roleName = (String) claims.get("roleName");
 		
-		MemberDTO memberDTO = new MemberDTO(mid, null, name, mno, roleName);
+		MemberDTO memberDTO = new MemberDTO(mid, "", name, mno, roleName);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 		
@@ -57,6 +57,9 @@ public class JwtFilter extends OncePerRequestFilter {
 	    throws ServletException {
 	    
 	    String path = request.getRequestURI();
+	    String loginState = request.getHeader("loginState");
+	    log.info("loginState : " + loginState);
+
 	    log.info("FILTER CHECK "+path);
 	    
 	    if (path.equals("/favicon.ico")) {
@@ -65,8 +68,12 @@ public class JwtFilter extends OncePerRequestFilter {
 	    
 	    //멤버 로그인 경로의 호출은 체크하지 않음
 	    if(path.startsWith("/api/")) {
-	        return true;
-	    }
+	          if("true".equals(loginState)) {
+	             return false;
+	          }
+	           return true;
+	       }
+
 
 
 	    return false;

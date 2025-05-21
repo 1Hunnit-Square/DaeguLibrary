@@ -12,7 +12,6 @@ const { data, error, isLoading, refetch } = useQuery({
     
     queryKey : ['card'],
     queryFn: () => cardPost(mid),
-    staleTime : Infinity,
     enabled: !!mid,
     });
 

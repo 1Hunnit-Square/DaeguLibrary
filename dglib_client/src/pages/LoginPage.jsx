@@ -1,21 +1,20 @@
 import Layout from "../layouts/Layout"
-import { useRecoilState } from "recoil";
-import RecoilLoginState from '../atoms/loginState';
+import { useRecoilValue } from "recoil";
 import LoginComponent from "../components/member/LoginComponent";
 import { useMoveTo } from "../hooks/useMoveTo";
 import { useEffect } from "react";
 import SubHeader from "../layouts/SubHeader";
-
+import { memberIdSelector } from "../atoms/loginState";
 
 
 
 
 const LoginPage = () => {
-    const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
+    const mid = useRecoilValue(memberIdSelector);
     const { moveToPath } = useMoveTo();
 
     useEffect(()=>{
-    if (loginState.mid){
+    if (mid){
         moveToPath("/");
     }
     },[]);

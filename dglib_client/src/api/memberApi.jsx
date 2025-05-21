@@ -30,3 +30,8 @@ export const idExist = async (param) => {
     const res = await axios.get(`${prefix}/existId`, { params : param });
     return res.data;
 }
+
+export const getMemberList = async (paramsData) => {
+    const res = await axios.get(`${prefix}/listMember`, { params : paramsData });
+    return res.data;
+}

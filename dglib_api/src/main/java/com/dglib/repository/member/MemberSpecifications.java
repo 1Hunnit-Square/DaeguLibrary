@@ -21,11 +21,14 @@ public class MemberSpecifications {
         	}
         	
             switch(option) {
-            case "mid":
+            case "회원ID":
         	return cb.like(root.get("mid"), "%" + queryStr + "%");
         	
-            case "name":
+            case "이름":
             return cb.like(root.get("name"), "%" + queryStr + "%");
+            
+            case "회원번호":
+            return cb.like(root.get("mno"), "%" + queryStr + "%");
             
             default:
             return null;
@@ -36,7 +39,7 @@ public class MemberSpecifications {
 	
 	public static Specification<Member> searchState(String state) {
         return (root, query, cb) -> {         
-            if(state != null)
+            if(state != null && !state.equals("ALL"))
         	return cb.equal(root.get("state"), state);
             
             return null;    	
@@ -45,7 +48,7 @@ public class MemberSpecifications {
 	
 	public static Specification<Member> searchRole(String role) {
         return (root, query, cb) -> {         
-            if(role != null)
+            if(role != null && !role.equals("ALL"))
         	return cb.equal(root.get("role"), role);
             
             return null;    	

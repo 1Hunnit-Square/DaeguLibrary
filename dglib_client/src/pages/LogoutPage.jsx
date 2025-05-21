@@ -1,22 +1,21 @@
 import Layout from "../layouts/Layout"
-import { useRecoilState } from "recoil";
-import RecoilLoginState from '../atoms/loginState';
+import { useRecoilValue } from "recoil";
 import { useLogin } from "../hooks/useLogin";
 import { useMoveTo } from "../hooks/useMoveTo";
 import { useEffect } from "react";
-
+import { memberIdSelector } from "../atoms/loginState";
 
 
 
 
 
 const LogoutPage = () => {
-    const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
+    const mid = useRecoilValue(memberIdSelector);
     const { doLogout } = useLogin();
     const { moveToPath } = useMoveTo();
 
     useEffect(()=> {
-        if (!loginState.mid){
+        if (!mid){
         moveToPath("/");
         } else {
         doLogout();

@@ -5,10 +5,12 @@ import interactionPlugin from '@fullcalendar/interaction';
 import koLocale from '@fullcalendar/core/locales/ko';
 import CheckBox from '../common/CheckBox';
 import SelectComponent from '../common/SelectComponent';
+import Button from '../common/Button';
 import {
     getClosedDays,
     createClosedDay,
     deleteClosedDay,
+    updateClosedDay,
     registerAutoAllEvents
 } from '../../api/closedDayApi';
 
@@ -53,6 +55,9 @@ const EventManagementComponent = () => {
             if (e.key === 'Escape') {
                 setIsModalOpen(false);
             }
+            if (e.key === 'Enter') {
+                handleSaveSchedule();
+            }
         };
         if (isModalOpen) {
             window.addEventListener('keydown', handleKeyDown);
@@ -60,7 +65,7 @@ const EventManagementComponent = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isModalOpen]);
+    }, [isModalOpen, title, isClosed, selectedDate, isEditMode]);
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -109,11 +114,11 @@ const EventManagementComponent = () => {
             calendarApi.gotoDate(newDate);
         }
 
-        try{
+        try {
             await registerAutoAllEvents(newYear);
         } catch (error) {
             console.warn('자동 등록 실패(이미 등록된 연도인지 확인 필요)', error);
-        }
+        }        
         
     };
 
@@ -155,7 +160,7 @@ const EventManagementComponent = () => {
 
     const handleSaveSchedule = () => {
         if (!title.trim()) {
-            alert("일정 이름을 입력해주세요.");
+            alert("일정을 입력해주세요.");
             return;
         }
 
@@ -165,17 +170,18 @@ const EventManagementComponent = () => {
             reason: title,
         };
 
-        createClosedDay(dto).then(() => {
+        const saveFn = isEditMode ? updateClosedDay : createClosedDay;
+
+        saveFn(dto).then(() => {
             setIsModalOpen(false);
             setIsClosed(false);
             setSelectedType('기념일');
             setTitle('');
             setIsEditMode(false);
             refreshEvents();
-        })
-        .catch((err) => {
-            console.error('등록 실패:', err.response?.data || err.message);
-            alert('등록 중 오류가 발생했습니다.');
+        }).catch((err) => {
+            console.error(isEditMode ? '수정 실패: ' : '등록 실패: ', err.response?.data || err.message);
+            alert((isEditMode ? '수정' : '등록') + ' 중 오류가 발생했습니다.');
         });
     };
 
@@ -202,12 +208,7 @@ const EventManagementComponent = () => {
                         <option key={year} value={year}>{year}년</option>
                     ))}
                 </select>
-                <button
-                    onClick={handleGoToday}
-                    className="h-10 px-4 py-2 bg-[#00893B] text-white rounded hover:bg-[#006C2D]"
-                >
-                    오늘
-                </button>
+                <Button onClick={handleGoToday}>오늘</Button>
             </div>
 
             <FullCalendar
@@ -243,6 +244,8 @@ const EventManagementComponent = () => {
                     return <div className={`text-sm font-semibold ${color}`}>{dateNum}</div>;
                 }}
             />
+
+            <div className="mt-2 text-sm text-gray-600 italic">✔ 날짜를 클릭하면 일정을 편집할 수 있습니다.</div>
 
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -289,12 +292,12 @@ const EventManagementComponent = () => {
                                     삭제
                                 </button>
                             )}
-                            <button
+                            <Button
                                 onClick={handleSaveSchedule}
-                                className="w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D]"
+                                className="w-full"
                             >
                                 {isEditMode ? '수정' : '등록'}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

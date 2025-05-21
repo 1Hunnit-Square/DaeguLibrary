@@ -30,6 +30,6 @@ public class ClosedDay {
     private String reason; // 휴관 사유	
 	
 	@Column(nullable = false)
-	private boolean isClosed;	//휴관일 여부
+	private Boolean isClosed;	//휴관일 여부
 	
 }

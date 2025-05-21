@@ -3,7 +3,7 @@ import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.calendar}`;
 
-// 월별 휴관일 조회: GET /api/closed?year=YYYY&month=MM
+// 월별 휴관일 조회
 export const getClosedDays = async (year, month) => {
     const res = await axios.get(`${prefix}`, {
         params: { year, month },
@@ -11,7 +11,7 @@ export const getClosedDays = async (year, month) => {
     return res.data;
 };
 
-// 휴관일 등록: POST /api/closed
+// 휴관일 등록
 export const createClosedDay = async (dto) => {
     const res = await axios.post(`${prefix}/register`, dto, {
         headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,17 @@ export const createClosedDay = async (dto) => {
     return res.data;
 };
 
-// 삭제: DELETE /api/closed/{date}
+// 수정
+export const updateClosedDay = async (dto) => {
+    const res = await axios.put(`${prefix}/modify`, dto, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return res.data;
+};
+
+
+
+// 삭제
 export const deleteClosedDay = async (date) => {
     const res = await axios.delete(`${prefix}/${date}`);
     return res.data;

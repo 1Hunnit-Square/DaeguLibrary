@@ -63,6 +63,19 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	            .collect(Collectors.toList());
 	}
 	
+	
+	// 수정
+	@Override
+	public void update(ClosedDayDTO dto) {
+	    ClosedDay entity = closedDayRepository.findById(dto.getClosedDate())
+	        .orElseThrow(() -> new IllegalArgumentException("해당 날짜의 일정이 없습니다."));
+
+	    entity.setReason(dto.getReason());
+	    entity.setIsClosed(dto.getIsClosed());
+
+	    closedDayRepository.save(entity);
+	}
+	
 	// 삭제
 	@Override
 	public void delete(LocalDate date) {

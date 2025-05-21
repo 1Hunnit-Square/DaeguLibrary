@@ -13,6 +13,8 @@ public interface ClosedDayService {
 	
 	List<ClosedDayDTO> getMonthlyList(int year, int month); // 특정 연월 전체 조회
 	
+	void update(ClosedDayDTO dto); // 수정
+	
 	void delete(LocalDate date); // 삭제
 	
 	// 자동 등록 메서드

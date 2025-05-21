@@ -30,8 +30,7 @@ const ReservationBookListComponent = () => {
     const [selectedAction, setSelectedAction] = useState("");
     const [selectedState, setSelectedState] = useState(searchURLParams.get("state") === "RESERVED");
 
-    const [localStartDate, setLocalStartDate] = useState(queryParams.startDate);
-    const [localEndDate, setLocalEndDate] = useState(queryParams.endDate);
+    const [dateRange, setDateRange] = useState({startDate: queryParams.startDate, endDate: queryParams.endDate});
     const [selectedFilter, setSelectedFilter] = useState("전체");
     const queryClient = useQueryClient();
 
@@ -211,8 +210,8 @@ const ReservationBookListComponent = () => {
             newParams.set("tab", "reservation");
             newParams.set("page", "1");
             newParams.set("check", selectedFilter);
-            newParams.set("startDate", localStartDate);
-            newParams.set("endDate", localEndDate);
+            newParams.set("startDate", dateRange.startDate);
+            newParams.set("endDate", dateRange.endDate);
             if (selectedState) {
                 newParams.set("state", "RESERVED");
             } else {
@@ -220,7 +219,7 @@ const ReservationBookListComponent = () => {
             }
             setSelectedItems(new Set());
             setSearchURLParams(newParams);
-        }, [setSearchURLParams, localStartDate, localEndDate, selectedFilter, selectedState]);
+        }, [setSearchURLParams, dateRange, selectedFilter, selectedState]);
 
 
     const handleCheckChange = useCallback((checkValue) => {
@@ -234,12 +233,12 @@ const ReservationBookListComponent = () => {
     setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams, selectedFilter]);
 
-    const handleStartDateChange = useCallback((e) => {
-        setLocalStartDate(e.target.value);
-    }, []);
-
-    const handleEndDateChange = useCallback((e) => {
-        setLocalEndDate(e.target.value);
+    const handleDateChange = useCallback((e) => {
+        const { name, value } = e.target;
+        setDateRange(prev => ({
+            ...prev,
+            [name]: value
+        }));
     }, []);
     const handleSortByChange = useCallback((value) => {
         const newParams = new URLSearchParams(searchURLParams);
@@ -250,7 +249,7 @@ const ReservationBookListComponent = () => {
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
-    const handleStateChange = useCallback((e) => {
+    const handleStateChange = useCallback(() => {
         const newParams = new URLSearchParams(searchURLParams);
         if (selectedState) {
         newParams.delete("state");
@@ -305,9 +304,9 @@ console.log(reserveList);
                                 <div className="flex flex-col">
                                     <div className="flex items-center">
                                         <span className="w-50">대출일</span>
-                                        <input type="date" value={localStartDate} onChange={handleStartDateChange} className="w-full border bg-white rounded-md p-2" />
+                                        <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                                         <span className="mx-4">-</span>
-                                        <input type="date" value={localEndDate} onChange={handleEndDateChange} className="w-full border bg-white rounded-md p-2" />
+                                        <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                                     </div>
                                     <div className="flex gap-5 mt-5 ">
                                          <CheckBoxNonLabel label="전체"

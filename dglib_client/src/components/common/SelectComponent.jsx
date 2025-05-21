@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { FiChevronDown } from 'react-icons/fi';
-import { FiSearch } from 'react-icons/fi';
+
 
 const SelectComponent = ({
   options = [],
@@ -13,6 +13,7 @@ const SelectComponent = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const objIsArray = Array.isArray(options);
 
   const handleSelectOption = (option) => {
     setIsOpen(false);
@@ -42,13 +43,14 @@ const SelectComponent = ({
           className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B]  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span>{value}</span>
+          {objIsArray &&<span>{value}</span>}
+          {!objIsArray && <span>{Object.keys(options).filter(key => options[key] === value)[0]}</span>}
           <FiChevronDown className={`ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
           <div className={`absolute z-10 -mt-4 bg-white border dropdownClassName border-[#00893B] rounded-lg shadow-lg w-full ${dropdownClassName}`}>
-            {options.map((option, index) => (
+            {objIsArray && options.map((option, index) => (
               <div
                 key={index}
                 className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
@@ -56,6 +58,17 @@ const SelectComponent = ({
                 name={name}
               >
                 {option}
+              </div>
+            ))}
+
+            {!objIsArray && Object.keys(options).map((key, index) => (
+              <div
+                key={index}
+                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
+                onClick={() => handleSelectOption(options[key])}
+                name={key}
+              >
+                {key}
               </div>
             ))}
           </div>

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
@@ -14,10 +15,12 @@ import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
+import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
@@ -27,6 +30,7 @@ public interface BookService {
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
 	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
 	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
+	Page<BookSummaryDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto, String mid);
 	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
 	Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void reserveBook(Long libraryBookId, String id);
@@ -41,8 +45,9 @@ public interface BookService {
 	void deleteLibraryBook(Long libraryBookId, String isbn);
 	Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto);
 	void unMannedReserveBook(Long libraryBookId, String mid);
-	void addInterestedBook(String mid, Long libraryBookId);
+	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
 	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
+	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
 	
 	
 	

@@ -15,16 +15,18 @@ const AboutPage = () => {
         { id: "location", label: "오시는길", path: "/about/location" },
     ], []);
 
-    useEffect(() => {
-        const currentPath = location.pathname;
-
-        const currentMenuItem = LSideMenu.find(menu => currentPath.includes(menu.path));
-        if (currentMenuItem) {
-          setActiveMenuItem(currentMenuItem);
-        } else {
-          setActiveMenuItem(LSideMenu[0]);
-        }
-      }, [location.pathname, LSideMenu]);
+     useEffect(() => {
+      const currentPath = location.pathname;
+      const currentMenuItem = LSideMenu.find(menu => {
+        const menuBasePath = menu.path.split('?')[0];
+        return currentPath.includes(menuBasePath);
+      });
+      if (currentMenuItem) {
+        setActiveMenuItem(currentMenuItem);
+      } else {
+        setActiveMenuItem(LSideMenu[0]);
+      }
+    }, [location.pathname, LSideMenu]);
 
 
 

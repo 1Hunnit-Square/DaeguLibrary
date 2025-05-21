@@ -28,8 +28,7 @@ const BorrowBookListComponent = () => {
 
     }), [searchURLParams]);
 
-    const [localStartDate, setLocalStartDate] = useState(queryParams.startDate);
-    const [localEndDate, setLocalEndDate] = useState(queryParams.endDate);
+    const [dateRange, setDateRange] = useState({startDate: queryParams.startDate, endDate: queryParams.endDate});
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [isAllSelected, setIsAllSelected] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState("전체");
@@ -127,12 +126,6 @@ const BorrowBookListComponent = () => {
         returnMutation.mutate(Array.from(selectedItems));
     }
 
-    const pageClick = useCallback((page) => {
-            if (isLoading) return;
-            const newParams = new URLSearchParams(searchURLParams);
-            newParams.set("page", page.toString());
-            setSearchURLParams(newParams);
-        }, [ searchURLParams, isLoading, setSearchURLParams]);
 
     const handleSearch = useCallback((searchQuery, selectedOption) => {
             const newParams = new URLSearchParams();
@@ -141,11 +134,11 @@ const BorrowBookListComponent = () => {
             newParams.set("tab", "borrowlist");
             newParams.set("page", "1");
             newParams.set("check", selectedFilter);
-            newParams.set("startDate", localStartDate);
-            newParams.set("endDate", localEndDate);
+            newParams.set("startDate", dateRange.startDate);
+            newParams.set("endDate", dateRange.endDate);
             setSelectedItems(new Set());
             setSearchURLParams(newParams);
-        }, [setSearchURLParams, localStartDate, localEndDate, selectedFilter]);
+        }, [setSearchURLParams, dateRange, selectedFilter]);
 
     const handleCheckChange = useCallback((checkValue) => {
         if (checkValue === selectedFilter) {
@@ -156,16 +149,16 @@ const BorrowBookListComponent = () => {
     newParams.set("check", checkValue);
     newParams.set("page", "1");
     setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
+    }, [searchURLParams, setSearchURLParams, selectedFilter]);
 
-    const handleStartDateChange = useCallback((e) => {
-        setLocalStartDate(e.target.value);
-
+    const handleDateChange = useCallback((e) => {
+        const { name, value } = e.target;
+        setDateRange(prev => ({
+            ...prev,
+            [name]: value
+        }));
     }, []);
 
-    const handleEndDateChange = useCallback((e) => {
-        setLocalEndDate(e.target.value);
-    }, []);
     const handleSortByChange = useCallback((value) => {
         const newParams = new URLSearchParams(searchURLParams);
         const sortFieldMap = {
@@ -198,6 +191,13 @@ const BorrowBookListComponent = () => {
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
+    const pageClick = useCallback((page) => {
+            if (isLoading) return;
+            const newParams = new URLSearchParams(searchURLParams);
+            newParams.set("page", page.toString());
+            setSearchURLParams(newParams);
+        }, [ searchURLParams, isLoading, setSearchURLParams]);
+
 
     const { renderPagination } = usePagination(rentalData, pageClick, isLoading);
 
@@ -220,9 +220,9 @@ const BorrowBookListComponent = () => {
                     <div className="flex flex-col">
                         <div className="flex items-center">
                             <span className="w-50">대출일</span>
-                            <input type="date" value={localStartDate} onChange={handleStartDateChange} className="w-full border bg-white rounded-md p-2" />
+                            <input type="date" value={dateRange.startDate} onChange={handleDateChange} name="startDate" className="w-full border bg-white rounded-md p-2" />
                             <span className="mx-4">-</span>
-                            <input type="date" value={localEndDate} onChange={handleEndDateChange} className="w-full border bg-white rounded-md p-2" />
+                            <input type="date" value={dateRange.endDate} onChange={handleDateChange} name="endDate" className="w-full border bg-white rounded-md p-2" />
                         </div>
                         <div className="flex gap-5 mt-5 ">
                              <CheckBoxNonLabel label="전체"

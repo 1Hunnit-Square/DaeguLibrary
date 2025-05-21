@@ -14,16 +14,18 @@ const UsagePage = () => {
         { id: "borrowreturn", label: "도서 대출 및 반납", path: "/usage/borrowreturn" },], [])
 
 
-    useEffect(() => {
-        const currentPath = location.pathname;
-
-        const currentMenuItem = LSideMenu.find(menu => currentPath.includes(menu.path));
-        if (currentMenuItem) {
-          setActiveMenuItem(currentMenuItem);
-        } else {
-          setActiveMenuItem(LSideMenu[0]);
-        }
-      }, [location.pathname]);
+     useEffect(() => {
+      const currentPath = location.pathname;
+      const currentMenuItem = LSideMenu.find(menu => {
+        const menuBasePath = menu.path.split('?')[0];
+        return currentPath.includes(menuBasePath);
+      });
+      if (currentMenuItem) {
+        setActiveMenuItem(currentMenuItem);
+      } else {
+        setActiveMenuItem(LSideMenu[0]);
+      }
+    }, [location.pathname, LSideMenu]);
 
 
     return (

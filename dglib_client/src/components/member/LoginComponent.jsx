@@ -8,7 +8,7 @@ import { useMoveTo } from "../../hooks/useMoveTo";
 
 const LoginComponent = () =>{
     const [ loginState, setLoginState ] = useRecoilState(RecoilLoginState);
-    const [ loginParam, setLoginParam ] = useState({});
+    const [ loginParam, setLoginParam ] = useState({id : "", pw : ""});
     const [ savedId, setSavedId ] = useState(false);
     const { doLogin } = useLogin();
     const { moveToPath, moveToSaved } = useMoveTo();
@@ -40,9 +40,9 @@ const LoginComponent = () =>{
             }
         },[loginParam, savedId])
 
-        
+
         });
-    
+
     const handleChange = (e) => {
         setLoginParam(prev => ({
         ...prev,

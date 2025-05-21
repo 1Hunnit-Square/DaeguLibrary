@@ -43,7 +43,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		
 		} catch(Exception e){
 		    log.error(e.getMessage());
-
 		    Gson gson = new Gson();
 		    String json = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
 
@@ -58,13 +57,21 @@ public class JwtFilter extends OncePerRequestFilter {
 	    throws ServletException {
 	    
 	    String path = request.getRequestURI();
+	    String loginState = request.getHeader("loginState");
+	    log.info("loginState : " + loginState);
 	    
 	    //멤버 로그인 경로의 호출은 체크하지 않음
-	    if(path.startsWith("/api/member/")) {
+	    if(path.startsWith("/api/")) {
+	    	if("true".equals(loginState)) {
+	    		return false;
+	    	}
 	        return true;
 	    }
 	    
 	    if(path.startsWith("/api/")) {
+	    	if("true".equals(loginState)) {
+	    		return false;
+	    	}
 	        return true;
 	    }
 	    

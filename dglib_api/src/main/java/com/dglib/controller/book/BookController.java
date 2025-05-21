@@ -15,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +36,7 @@ import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
+import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.RentBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
@@ -107,7 +110,6 @@ public class BookController {
 	
 	@GetMapping("/nslibrarybooklist")
 	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
-		@RequestHeader(value = "Authorization", required = false) String authHeader,
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
 	    @RequestParam(required = false) String query,
@@ -115,12 +117,8 @@ public class BookController {
 	    @RequestParam(required = false) List<String> previousQueries,
 	    @RequestParam(defaultValue = "전체") List<String> previousOptions
 	    ) {
-		String mid = null;
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-	        String token = authHeader.substring(7);
-	        mid = JwtProvider.getMid(token);     
-	    }
-		LOGGER.info("mid: {}", mid);
+		String mid = JwtProvider.getMid();
+		LOGGER.info("mid: " + mid);
 	    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("libraryBookId").descending());
 	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions, mid);	        
 	    return ResponseEntity.ok(bookList);
@@ -130,18 +128,30 @@ public class BookController {
 	public ResponseEntity<Page<BookSummaryDTO>> getFsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
-	    LibraryBookFsDTO libraryBookFsDto,
-	    @RequestHeader(value = "Authorization", required = false) String mid ) {
-		LOGGER.info("mid: {}", mid);
-		LOGGER.info("libraryBookFsDto: {}", libraryBookFsDto);
+	    LibraryBookFsDTO libraryBookFsDto) {
+		String mid = JwtProvider.getMid();
+		LOGGER.info(libraryBookFsDto.toString());
 		libraryBookFsDto.processYearDates();
 		Pageable pageable = PageRequest.of(page - 1, size );
 		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto, mid);
 	    return ResponseEntity.ok(bookList);
 	}
 	
+	@GetMapping("/newlibrarybooklist")
+	public ResponseEntity<Page<BookSummaryDTO>> getNewLibraryBookList(
+	    @RequestParam(defaultValue = "1") int page, 
+	    @RequestParam(defaultValue = "10") int size,
+	    NewLibrarayBookRequestDTO newLibrarayBookRequestDto) {
+		String mid = JwtProvider.getMid();
+		LOGGER.info("mid: {}", mid);
+		Pageable pageable = PageRequest.of(page - 1, size );
+		Page<BookSummaryDTO> bookList = bookService.getNewBookList(pageable, newLibrarayBookRequestDto, mid);
+	    return ResponseEntity.ok(bookList);
+	}
+	
 	@GetMapping("/librarybookdetail/{librarybookid}")
-	public ResponseEntity<BookDetailDTO> getLibraryBookDetail(@PathVariable("librarybookid") Long libraryBookId, @RequestHeader(value = "Authorization", required = false) String mid ) {
+	public ResponseEntity<BookDetailDTO> getLibraryBookDetail(@PathVariable("librarybookid") Long libraryBookId) {
+		String mid = JwtProvider.getMid();
 		LOGGER.info("librarybookid: {}", libraryBookId);
 		LOGGER.info("mid: {}", mid);
 		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid);

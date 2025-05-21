@@ -23,7 +23,7 @@ public class BookSummaryDTO {
     private boolean alreadyReservedByMember;
     private boolean alreadyBorrowedByMember;
     private boolean alreadyUnmannedByMember;;
-    private boolean isunmanned;
+    private boolean isUnmanned;
     private int reserveCount; 
 
 }

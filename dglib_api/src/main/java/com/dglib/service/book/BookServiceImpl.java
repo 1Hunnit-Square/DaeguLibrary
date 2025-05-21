@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.BookDTO;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
@@ -32,11 +34,13 @@ import com.dglib.dto.book.LibraryBookResponseDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
+import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
@@ -211,6 +215,9 @@ public class BookServiceImpl implements BookService {
             boolean isBorrowed = libraryBook.getRentals().stream()
                     .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
             dto.setBorrowed(isBorrowed);
+			boolean isUnmanned = libraryBook.getReserves().stream()
+					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+			dto.setUnmanned(isUnmanned);
             
             boolean alreadyReservedByMember = false;
             if (mid != null) {
@@ -245,6 +252,9 @@ public class BookServiceImpl implements BookService {
 			boolean isBorrowed = libraryBook.getRentals().stream()
 	                    .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
 	        dto.setBorrowed(isBorrowed);
+	        boolean isUnmanned = libraryBook.getReserves().stream()
+					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+			dto.setUnmanned(isUnmanned);
 	        
 	        boolean alreadyReservedByMember = false;
             if (mid != null) {
@@ -266,6 +276,41 @@ public class BookServiceImpl implements BookService {
             dto.setReserveCount(reserveCount);
 			return dto;
 		});
+	}
+	
+	@Override
+    @Transactional(readOnly = true)
+	public Page<BookSummaryDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto, String mid) {
+		Page<LibraryBook> books = libraryBookRepository.findByRegLibraryBookDateBetween(newLibrarayBookRequesdto.getStartDate(), newLibrarayBookRequesdto.getEndDate(), pageable);
+		return books.map(libraryBook -> {
+			BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
+			modelMapper.map(libraryBook, dto);
+			boolean isBorrowed = libraryBook.getRentals().stream()
+					.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
+			dto.setBorrowed(isBorrowed);
+			boolean isUnmanned = libraryBook.getReserves().stream()
+					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+			dto.setUnmanned(isUnmanned);
+
+			boolean alreadyReservedByMember = false;
+			if (mid != null) {
+				alreadyReservedByMember = libraryBook.getReserves().stream()
+						.anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
+								&& reserve.getState() == ReserveState.RESERVED);
+			}
+			dto.setAlreadyReservedByMember(alreadyReservedByMember);
+			boolean alreadeyBorrowedByMember = false;
+			if (mid != null) {
+				alreadeyBorrowedByMember = libraryBook.getRentals().stream().anyMatch(
+						rental -> rental.getMember().getMid().equals(mid) && rental.getState() == RentalState.BORROWED);
+			}
+			dto.setAlreadyBorrowedByMember(alreadeyBorrowedByMember);
+			int reserveCount = (int) libraryBook.getReserves().stream()
+					.filter(reserve -> reserve.getState() == ReserveState.RESERVED).count();
+			dto.setReserveCount(reserveCount);
+			return dto;
+		});
+		
 	}
 
 	
@@ -808,23 +853,27 @@ public class BookServiceImpl implements BookService {
 	}
 	
     @Override
-    public void addInterestedBook(String mid, Long libraryBookId) {
-		LibraryBook libraryBook = libraryBookRepository.findById(libraryBookId)
-				.orElseThrow(() -> new EntityNotFoundException("도서를 찾을 수 없습니다."));
-		Member member = memberRepository.findById(mid)
-				.orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
-		List<InterestedBook> interestedBooks = interestedBookRepository.findAllByMemberMid(mid);
-		boolean alreadyInterested = interestedBooks.stream()
-				.anyMatch(interestedBook -> interestedBook.getLibraryBook().getLibraryBookId().equals(libraryBookId));
-		if (alreadyInterested) {
-			throw new IllegalStateException("이미 관심 도서로 등록된 도서입니다.");
-		}
-
-		InterestedBook interestedBook = new InterestedBook();
-		interestedBook.setLibraryBook(libraryBook);
-		interestedBook.setMember(member);
-
-		interestedBookRepository.save(interestedBook);
+    public void addInterestedBook(String mid, AddInterestedBookDTO addInterestedBookDto) {
+    	List<Long> libraryBookIds = addInterestedBookDto.getLibraryBookIds();
+    	List<LibraryBook> libraryBooks = libraryBookRepository.findByLibraryBookIdIn(libraryBookIds);
+    	Member member = memberRepository.findById(mid)
+    		    .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+    	List<InterestedBook> existingInterestedBooks = interestedBookRepository.findByLibraryBookInAndMemberMid(libraryBooks, mid);
+    	if (!existingInterestedBooks.isEmpty()) {
+    	    String duplicatedTitles = existingInterestedBooks.stream()
+    	        .map(ib -> ib.getLibraryBook().getBook().getBookTitle())  
+    	        .collect(Collectors.joining(", "));
+    	    throw new IllegalStateException("이미 관심 도서로 등록된 책이 포함되어 있습니다: " + duplicatedTitles);
+    	}
+    	List<InterestedBook> interestedBooks = libraryBooks.stream()
+    			.map(libraryBook -> {
+    				InterestedBook ib = new InterestedBook();
+    				ib.setLibraryBook(libraryBook);
+    				ib.setMember(member);
+    				return ib;
+    			}).collect(Collectors.toList());
+    	
+    	interestedBookRepository.saveAll(interestedBooks);
     }
     
     @Override
@@ -854,6 +903,26 @@ public class BookServiceImpl implements BookService {
 		});
     	
     }
+    
+    @Override
+	public void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid) {
+    	
+		List<Long> interestedBookIds = interesdtedBookDeleteDto.getIbIds();
+		List<InterestedBook> interestedBooks = interestedBookRepository.findByIbIdIn(interestedBookIds);
+		Map<Long, InterestedBook> interestedBookMap = interestedBooks.stream()
+				.collect(Collectors.toMap(InterestedBook::getIbId, interestedBook -> interestedBook));
+		for (Long ibId : interestedBookIds) {
+			InterestedBook interestedBook = interestedBookMap.get(ibId);
+			if (interestedBook == null) {
+				throw new IllegalStateException("해당 관심 도서 정보를 찾을 수 없습니다.");
+			}
+			if (!interestedBook.getMember().getMid().equals(mid)) {
+				throw new IllegalStateException("해당 관심 도서를 삭제할 권한이 없습니다.");
+			}
+		}
+		interestedBookRepository.deleteAll(interestedBooks);
+		
+	}
 	
 	
 }

@@ -1,6 +1,26 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 
-export const usePagination = (pageable, onPageChange, isLoading) => {
+export const usePagination = (
+  pageable,
+  searchURLParams,
+  setSearchURLParams,
+  isLoading,
+  onPageReset = () => {}
+) => {
+  const pageClick = useCallback((page) => {
+    const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
+
+    if (page === currentPageFromUrl || isLoading) return;
+
+    const newParams = new URLSearchParams(searchURLParams);
+    newParams.set("page", page.toString());
+    setSearchURLParams(newParams);
+
+    if (onPageReset) {
+      onPageReset();
+    }
+  }, [searchURLParams, isLoading, setSearchURLParams, onPageReset]);
+
   const renderPagination = () => {
     if (!pageable || !pageable.pageable) return null;
     const totalPages = pageable.totalPages;
@@ -13,7 +33,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
         <button
           key={i}
           className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200'}`}
-          onClick={() => !isLoading && onPageChange(i)}
+          onClick={() => !isLoading && pageClick(i)}
           disabled={isLoading}
         >
           {i}
@@ -26,7 +46,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
         {startPage > 10 && (
           <button
             key="prev"
-            onClick={() => !isLoading && onPageChange(startPage - 1)}
+            onClick={() => !isLoading && pageClick(startPage - 1)}
             disabled={isLoading}
             className={`mx-1 px-3 py-1 rounded bg-gray-200`}
           >
@@ -37,7 +57,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
         {endPage < totalPages && (
           <button
             key="next"
-            onClick={() => !isLoading && onPageChange(endPage + 1)}
+            onClick={() => !isLoading && pageClick(endPage + 1)}
             disabled={isLoading}
             className={`mx-1 px-3 py-1 rounded bg-gray-200`}
           >
@@ -48,6 +68,5 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
     );
   };
 
-
-  return { renderPagination };
+  return { renderPagination, pageClick };
 };

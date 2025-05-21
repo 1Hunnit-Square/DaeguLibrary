@@ -14,3 +14,8 @@ export const getCookie = (name) => {
 export const removeCookie = (name, path="/") => {
     cookies.remove(name, {path});
 }
+
+export const getAuthHeader = () => {
+  const memberCookie = getCookie("auth")
+  return memberCookie ? { 'Authorization': `Bearer ${memberCookie.accessToken}` } : {};
+}

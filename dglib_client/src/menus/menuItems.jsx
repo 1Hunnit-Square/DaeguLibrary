@@ -1,5 +1,19 @@
 import { selector } from 'recoil';
 
+const getDateParams = () => {
+  const today = new Date();
+  const aMonthAgo = new Date(today);
+  aMonthAgo.setDate(today.getDate() - 30);
+
+  const endDateStr = today.toLocaleDateString('fr-CA');
+  const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
+
+  return `startDate=${startDateStr}&endDate=${endDateStr}`;
+};
+const dateParams = getDateParams();
+
+
+
 const defaultMenuItems = [
     {
       id: 1,
@@ -18,7 +32,7 @@ const defaultMenuItems = [
       link: '/books/search?tab=info&page=1',
       subMenus: [
         { name: '통합검색', link: '/books/search?tab=info&page=1' },
-        { name: '신착도서', link: '/books/new' },
+        { name: '신착도서', link: `/books/new?page=1&${dateParams}` },
         { name: '추천도서', link: '/books/recommend' },
         { name: '대출베스트도서', link: '/books/top' }
       ]
@@ -72,19 +86,10 @@ const defaultMenuItems = [
     }
   ];
 
-  const getDateParams = () => {
-  const today = new Date();
-  const aMonthAgo = new Date(today);
-  aMonthAgo.setDate(today.getDate() - 30);
 
-  const endDateStr = today.toLocaleDateString('fr-CA');
-  const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
-
-  return `startDate=${startDateStr}&endDate=${endDateStr}`;
-};
 
   const getAdminMenuItem = () => {
-  const dateParams = getDateParams();
+
 
   return {
     id: 6,
@@ -101,7 +106,7 @@ const defaultMenuItems = [
     key: 'menuItemsSelector',
     get: ({get}) => {
       const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'admin' // 나중에 바꾸셈
+      const userRole = 'user' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
         menuItems[5] = getAdminMenuItem();

@@ -1,5 +1,6 @@
 package com.dglib.repository.book;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -77,6 +78,10 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@Query("SELECT lb.callSign FROM LibraryBook lb WHERE lb.callSign IN :callSigns AND lb.libraryBookId NOT IN :excludeIds")
     List<String> findExistingCallSignsExcludeIds(@Param("callSigns") List<String> callSigns, @Param("excludeIds") List<Long> excludeIds);
 	
+	List<LibraryBook> findByLibraryBookIdIn(List<Long> libraryBookIds);
+	
+	@EntityGraph(attributePaths = {"book"})
+	Page<LibraryBook> findByRegLibraryBookDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 	
 	
 	

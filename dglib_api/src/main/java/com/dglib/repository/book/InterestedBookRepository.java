@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dglib.entity.book.InterestedBook;
+import com.dglib.entity.book.LibraryBook;
+import com.dglib.entity.member.Member;
 
 public interface InterestedBookRepository extends JpaRepository<InterestedBook, Long> {
 	
@@ -18,5 +20,9 @@ public interface InterestedBookRepository extends JpaRepository<InterestedBook, 
 	@EntityGraph(attributePaths = {"member", "libraryBook", "libraryBook.book", "libraryBook.reserves", "libraryBook.rentals"})
 	Page<InterestedBook> findAll(Specification<InterestedBook> spec, Pageable pageable);
 	
+	List<InterestedBook> findByIbIdIn(List<Long> ibIds);
+	
+	@EntityGraph(attributePaths = {"member", "libraryBook", "libraryBook.book"})
+	List<InterestedBook> findByLibraryBookInAndMemberMid(List<LibraryBook> libraryBooks, String mid);
 
 }

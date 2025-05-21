@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,11 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.RegMemberDTO;
+import com.dglib.security.jwt.JwtProvider;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberCardService;
 import com.dglib.service.member.MemberService;
@@ -69,7 +72,8 @@ public class MemberController {
 	}
 	
 	@GetMapping("/interestedbook")
-	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto, @RequestHeader(value = "Authorization") String mid) {
+	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto, @RequestHeader(value = "Authorization", required = true) String authHeader ) {
+		String mid = JwtProvider.getMid();
 		LOGGER.info("관심도서 요청: {}, 회원 id : {}", interestedBookRequestDto, mid);
 		int page = Optional.ofNullable(interestedBookRequestDto.getPage()).orElse(1);
 		Pageable pageable = PageRequest.of(page - 1, 10);
@@ -80,24 +84,38 @@ public class MemberController {
 	
 	@PostMapping("/reservebook")
 	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
-		LOGGER.info("도서 예약 요청: {}", reserveDto);
-		bookService.reserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
+		String mid = JwtProvider.getMid();
+		bookService.reserveBook(reserveDto.getLibraryBookId(), mid);
 		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/unmannedreserve")
 	public ResponseEntity<String> unmannedReserveBook(@RequestBody ReserveBookDTO reserveDto) {
 		LOGGER.info("무인 예약 요청: {}", reserveDto);
-		bookService.unMannedReserveBook(reserveDto.getLibraryBookId(), reserveDto.getMid());
+		String mid = JwtProvider.getMid();
+		bookService.unMannedReserveBook(reserveDto.getLibraryBookId(), mid);
 		return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("addinterestedbook")
+	@PostMapping("/addinterestedbook")
 	public ResponseEntity<String> addInterestedBook(@RequestBody AddInterestedBookDTO addInteredtedBookDto) {
+		String mid = JwtProvider.getMid();
+		LOGGER.info(mid);
 		LOGGER.info("관심도서 추가 요청: {}", addInteredtedBookDto);
-		bookService.addInterestedBook(addInteredtedBookDto.getMid(), addInteredtedBookDto.getLibraryBookId());
+		bookService.addInterestedBook(mid, addInteredtedBookDto);
 		return ResponseEntity.ok().build();
 	}
+	
+	@DeleteMapping("/deleteinterestedbook")
+	public ResponseEntity<String> deleteInterestedBook(@RequestBody InteresdtedBookDeleteDTO interesdtedBookDeleteDto) {
+		LOGGER.info("관심도서 삭제 요청: {}", interesdtedBookDeleteDto);
+		String mid = JwtProvider.getMid();
+		LOGGER.info("관심도서 삭제 요청: {}", mid);
+		bookService.deleteInterestedBook(interesdtedBookDeleteDto, mid);
+		
+		return ResponseEntity.ok().build();
+	}
+	
 
 
 }

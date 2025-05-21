@@ -5,8 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class AddInterestedBookDTO {
-
-	private List<Long> LibraryBookIds;
+public class InteresdtedBookDeleteDTO {
+	List<Long> ibIds;
 
 }

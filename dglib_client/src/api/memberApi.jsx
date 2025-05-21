@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
+import { getAuthHeader } from '../util/cookieUtil';
+import axiosAuth from '../util/axiosClient';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;
 
@@ -31,34 +33,58 @@ export const idExist = async (param) => {
     return res.data;
 }
 
-export const getInterestedBook = async (param, mid) => { //변경
-    const res = await axios.get(`${prefix}/interestedbook`, { params : param, headers: { 'Authorization': mid } });
+export const getInterestedBook = async (param) => {
+    const loginState = getAuthHeader();
+    const headers = {
+        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosAuth.get(`${prefix}/interestedbook`, { params : param, headers });
     return res.data;
 }
 
-export const reserveBook = async (reservationData) => { //변경
-    console.log("예약 데이터", reservationData);
-    const res = await axios.post(`${prefix}/reservebook`, reservationData, { headers: { 'Content-Type': 'application/json' } });
+export const reserveBook = async (reservationData) => {
+    const loginState = getAuthHeader();
+    const headers = {
+        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosAuth.post(`${prefix}/reservebook`, reservationData, { headers });
     return res.data;
 
 }
 
-export const unMannedReserve = async (reservationData) => { //변경
-    console.log("무인 예약 데이터", reservationData);
-    const res = await axios.post(`${prefix}/unmannedreserve`, reservationData, { headers: { 'Content-Type': 'application/json' } });
+export const unMannedReserve = async (reservationData) => {
+    const loginState = getAuthHeader();
+    const headers = {
+        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosAuth.post(`${prefix}/unmannedreserve`, reservationData, { headers });
     return res.data;
 
 }
 
-export const addInterestedBook = async (bookData) => { //변경
-    const res = await axios.post(`${prefix}/addinterestedbook`, bookData, { headers: { 'Content-Type': 'application/json' } });
+export const addInterestedBook = async (id) => {
+    const loginState = getAuthHeader();
+    console.log(id);
+    const headers = {
+        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosAuth.post(`${prefix}/addinterestedbook`, { libraryBookIds: id }, { headers });
     return res.data;
 }
 
-export const deleteInterestedBook = async (ibIds, mid) => { //변경
-    const res = await axios.delete(`${prefix}/deleteinterestedbook`, {
+export const deleteInterestedBook = async (ibIds) => {
+    const loginState = getAuthHeader();
+    const headers = {
+        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosAuth.delete(`${prefix}/deleteinterestedbook`, {
         data: { ibIds },
-        headers: { 'Authorization': mid }
+        headers,
     });
     return res.data;
 }

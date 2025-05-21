@@ -8,18 +8,18 @@ const refreshToken = async (accessToken, refreshToken) => {
     const header = {
         headers: {
             "Authorization": `Bearer ${accessToken}`,
-             "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded",
         }
     };
     const params = new URLSearchParams();
     params.append("refreshToken", refreshToken);
-    
+
     const res = await axios.post(
-        `${host}/refresh`, 
-        params, 
+        `${host}/refresh`,
+        params,
         header
     );
-    
+
     return res.data;
 };
 

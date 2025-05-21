@@ -30,14 +30,7 @@ const LibraryBookListComponent = () => {
 
     }), [searchURLParams]);
 
-    const [localStartDate, setLocalStartDate] = useState(queryParams.startDate);
-    const [localEndDate, setLocalEndDate] = useState(queryParams.endDate);
-
-
-    const queryClient = useQueryClient();
-
-
-
+    const [dateRange, setDateRange] = useState({startDate: queryParams.startDate, endDate: queryParams.endDate});
 
     const { data: bookData = { content: [], totalElements: 0 }, isLoading } = useQuery({
         queryKey: ['bookList', searchURLParams.toString()],
@@ -81,20 +74,20 @@ const LibraryBookListComponent = () => {
             newParams.set("option", selectedOption);
             newParams.set("tab", "booklist");
             newParams.set("page", "1");
-            newParams.set("startDate", localStartDate);
-            newParams.set("endDate", localEndDate);
+            newParams.set("startDate", dateRange.startDate);
+            newParams.set("endDate", dateRange.endDate);
 
             setSearchURLParams(newParams);
-        }, [setSearchURLParams, localStartDate, localEndDate]);
+        }, [setSearchURLParams, dateRange]);
 
 
 
-    const handleStartDateChange = useCallback((e) => {
-        setLocalStartDate(e.target.value);
-    }, []);
-
-    const handleEndDateChange = useCallback((e) => {
-        setLocalEndDate(e.target.value);
+    const handleDateChange = useCallback((e) => {
+        const { name, value } = e.target;
+        setDateRange(prev => ({
+            ...prev,
+            [name]: value
+        }));
     }, []);
     const handleSortByChange = useCallback((value) => {
         const newParams = new URLSearchParams(searchURLParams);
@@ -150,9 +143,9 @@ const LibraryBookListComponent = () => {
                     <div className="flex flex-col">
                         <div className="flex items-center">
                             <span className="w-50">입고일</span>
-                            <input type="date" value={localStartDate} onChange={handleStartDateChange} className="w-full border bg-white rounded-md p-2" />
+                            <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                             <span className="mx-4">-</span>
-                            <input type="date" value={localEndDate} onChange={handleEndDateChange} className="w-full border bg-white rounded-md p-2" />
+                            <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                         </div>
                     </div>
             </div>

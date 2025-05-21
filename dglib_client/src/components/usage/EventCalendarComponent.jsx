@@ -4,22 +4,35 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import koLocale from '@fullcalendar/core/locales/ko';
 import Button from '../common/Button';
 import SelectComponent from '../common/SelectComponent';
+import { useQuery } from '@tanstack/react-query';
 import { getClosedDays, registerAutoAllEvents } from '../../api/closedDayApi';
 
 const EventCalendarComponent = () => {
   const calendarRef = useRef(null);
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [events, setEvents] = useState([]);
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+  const autoRegisteredYears = useRef(new Set());
 
+  // 일정 데이터 가져오기
+  const { data: events = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['closedDays', selectedYear, selectedMonth],
+    queryFn: () => getClosedDays(selectedYear, selectedMonth),
+    enabled: !!selectedYear && !!selectedMonth
+  });
+
+  // 오늘 날짜로 이동
   const handleGoToday = () => {
     const calendarApi = calendarRef.current?.getApi();
     if (calendarApi) {
       calendarApi.today();
-      setSelectedYear(new Date().getFullYear());
+      const today = new Date();
+      setSelectedYear(today.getFullYear());
+      setSelectedMonth(today.getMonth() + 1);
     }
   };
 
+  // 연도 변경 시 자동 등록 후 날짜 이동
   const handleYearChange = async (yearLabel) => {
     const newYear = parseInt(yearLabel.replace('년', ''), 10);
     setSelectedYear(newYear);
@@ -30,41 +43,41 @@ const EventCalendarComponent = () => {
       calendarApi.gotoDate(newDate);
     }
 
-    try {
-      await registerAutoAllEvents(newYear);
-    } catch (error) {
-      console.warn('자동 등록 실패', error);
+    if (!autoRegisteredYears.current.has(newYear)) {
+      try {
+        await registerAutoAllEvents(newYear);
+        autoRegisteredYears.current.add(newYear);
+        refetch(); // 자동 등록 후 다시 불러오기
+      } catch (error) {
+        console.warn('자동 등록 실패', error);
+      }
     }
   };
 
+  // 월 변경 감지
   const handleDatesSet = () => {
     const calendarApi = calendarRef.current?.getApi();
     if (!calendarApi) return;
     const currentDate = calendarApi.getDate();
-    getClosedDays(currentDate.getFullYear(), currentDate.getMonth() + 1).then(setEvents);
+    setSelectedYear(currentDate.getFullYear());
+    setSelectedMonth(currentDate.getMonth() + 1);
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      const calendarApi = calendarRef.current?.getApi();
-      if (!calendarApi) return;
-      const currentDate = calendarApi.getDate();
-      getClosedDays(currentDate.getFullYear(), currentDate.getMonth() + 1).then(setEvents);
-    }, 100);
-  }, []);
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12">
-        <div className="mb-4 flex justify-end items-center gap-2">
-            <SelectComponent
-                options={Array.from({ length: 10 }, (_, i) => `${currentYear - 5 + i}년`)}
-                value={`${selectedYear}년`}
-                onChange={handleYearChange}
-                selectClassName="w-28 text-sm"
-                dropdownClassName="w-28"
-            />
-            <Button onClick={handleGoToday}>오늘</Button>
-        </div>
+      <div className="mb-4 flex justify-end items-center gap-2">
+        <SelectComponent
+          options={Array.from({ length: 10 }, (_, i) => `${now.getFullYear() - 5 + i}년`)}
+          value={`${selectedYear}년`}
+          onChange={handleYearChange}
+          selectClassName="w-28 text-sm"
+          dropdownClassName="w-28"
+        />
+        <Button onClick={handleGoToday}>오늘</Button>
+      </div>
+
+      {isLoading && <div className="text-center text-sm">일정 불러오는 중...</div>}
+      {isError && <div className="text-center text-sm text-red-500">일정 불러오기 오류</div>}
 
       <FullCalendar
         ref={calendarRef}

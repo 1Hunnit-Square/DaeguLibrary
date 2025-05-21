@@ -18,5 +18,7 @@ public class ClosedDayDTO {
 	private LocalDate closedDate;
 	private String reason;
 	private Boolean isClosed;
+	private String originalDate;
+
 
 }

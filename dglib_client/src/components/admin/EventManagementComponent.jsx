@@ -26,6 +26,7 @@ const EventManagementComponent = () => {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
+    const [originalDate, setOriginalDate] = useState(null);
     const [isClosed, setIsClosed] = useState(false);
     const [selectedType, setSelectedType] = useState('기념일');
     const [title, setTitle] = useState('');
@@ -38,36 +39,34 @@ const EventManagementComponent = () => {
     const offset = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
+
         setTimeout(() => {
             const calendarApi = calendarRef.current?.getApi();
             if (!calendarApi) return;
-
             const currentDate = calendarApi.getDate();
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth() + 1;
-
             getClosedDays(year, month).then(setEvents);
         }, 100);
     }, []);
 
     useEffect(() => {
+
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                setIsModalOpen(false);
-            }
-            if (e.key === 'Enter') {
-                handleSaveSchedule();
-            }
+            if (e.key === 'Escape') setIsModalOpen(false);
+            if (e.key === 'Enter') handleSaveSchedule();
         };
+
         if (isModalOpen) {
             window.addEventListener('keydown', handleKeyDown);
         }
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isModalOpen, title, isClosed, selectedDate, isEditMode]);
+    }, [isModalOpen, title, isClosed, selectedDate]);
 
     useEffect(() => {
+
         const handleMouseMove = (e) => {
             if (!isDragging.current) return;
             setModalPos({
@@ -75,11 +74,14 @@ const EventManagementComponent = () => {
                 y: e.clientY - offset.current.y,
             });
         };
+
         const handleMouseUp = () => {
             isDragging.current = false;
         };
+
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
+
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
@@ -98,13 +100,12 @@ const EventManagementComponent = () => {
         const calendarApi = calendarRef.current?.getApi();
         if (calendarApi) {
             calendarApi.today();
-            const today = new Date();
-            setSelectedYear(today.getFullYear());
+            setSelectedYear(new Date().getFullYear());
         }
     };
 
-    const handleYearChange = async (e) => {
-        const newYear = parseInt(e.target.value, 10);
+    const handleYearChange = async (label) => {
+        const newYear = parseInt(label.replace('년', ''), 10);
         setSelectedYear(newYear);
 
         const calendarApi = calendarRef.current?.getApi();
@@ -118,20 +119,22 @@ const EventManagementComponent = () => {
             await registerAutoAllEvents(newYear);
         } catch (error) {
             console.warn('자동 등록 실패(이미 등록된 연도인지 확인 필요)', error);
-        }        
-        
+        }
     };
 
     const handleDateClick = (arg) => {
         const target = events.find(e => e.closedDate === arg.dateStr);
+
         if (target) {
             setIsEditMode(true);
             setIsClosed(target.isClosed);
             setTitle(target.reason);
+            setOriginalDate(arg.dateStr);
         } else {
             setIsEditMode(false);
             setIsClosed(false);
             setTitle('');
+            setOriginalDate(null);
         }
         setSelectedDate(arg.dateStr);
         setIsModalOpen(true);
@@ -140,16 +143,13 @@ const EventManagementComponent = () => {
     const handleDatesSet = () => {
         const calendarApi = calendarRef.current?.getApi();
         if (!calendarApi) return;
-
         const currentDate = calendarApi.getDate();
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth() + 1;
-
-        getClosedDays(year, month).then(setEvents);
+        getClosedDays(currentDate.getFullYear(), currentDate.getMonth() + 1).then(setEvents);
     };
 
     const refreshEvents = () => {
         const calendarApi = calendarRef.current?.getApi();
+
         if (calendarApi) {
             const viewStart = calendarApi.view.currentStart;
             const year = viewStart.getFullYear();
@@ -168,6 +168,7 @@ const EventManagementComponent = () => {
             closedDate: selectedDate,
             isClosed,
             reason: title,
+            ...(isEditMode ? { originalDate } : {})
         };
 
         const saveFn = isEditMode ? updateClosedDay : createClosedDay;
@@ -199,15 +200,13 @@ const EventManagementComponent = () => {
     return (
         <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12">
             <div className="mb-4 flex justify-end items-center gap-2">
-                <select
-                    value={selectedYear}
+                <SelectComponent
+                    options={Array.from({ length: 10 }, (_, i) => `${currentYear - 5 + i}년`)}
+                    value={`${selectedYear}년`}
                     onChange={handleYearChange}
-                    className="h-10 px-3 py-2 border border-[#A8D5BA] rounded text-sm text-gray-800"
-                >
-                    {Array.from({ length: 10 }, (_, i) => currentYear - 5 + i).map((year) => (
-                        <option key={year} value={year}>{year}년</option>
-                    ))}
-                </select>
+                    selectClassName="w-28 text-sm"
+                    dropdownClassName="w-28"
+                />
                 <Button onClick={handleGoToday}>오늘</Button>
             </div>
 
@@ -217,7 +216,7 @@ const EventManagementComponent = () => {
                 initialView="dayGridMonth"
                 locale={koLocale}
                 contentHeight="auto"
-                headerToolbar={{ left: 'prev,next', center: 'title', right: '' }}
+                headerToolbar={{ left: 'prev', center: 'title', right: 'next' }}
                 buttonText={{ today: '오늘' }}
                 titleFormat={{ year: 'numeric', month: 'long' }}
                 dateClick={handleDateClick}
@@ -284,20 +283,22 @@ const EventManagementComponent = () => {
                                 className="w-full border rounded px-3 py-2"
                                 placeholder="일정 이름을 입력하세요"
                             />
+
+                            <button
+                                onClick={handleSaveSchedule}
+                                className='w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D]'
+                            >
+                                {isEditMode ? '수정' : '등록'}
+                            </button>
+
                             {isEditMode && (
                                 <button
                                     onClick={handleDeleteSchedule}
-                                    className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e]"
+                                    className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e] cursor-pointer"
                                 >
                                     삭제
                                 </button>
                             )}
-                            <Button
-                                onClick={handleSaveSchedule}
-                                className="w-full"
-                            >
-                                {isEditMode ? '수정' : '등록'}
-                            </Button>
                         </div>
                     </div>
                 </div>

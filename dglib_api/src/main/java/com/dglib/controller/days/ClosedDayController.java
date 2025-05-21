@@ -55,9 +55,13 @@ import lombok.extern.slf4j.Slf4j;
 	    // 수정
 	    @PutMapping("/modify")
 	    public ResponseEntity<?> updateClosedDay(@RequestBody ClosedDayDTO dto) {
-	        closedDayService.update(dto);
+	        if (dto.getOriginalDate() == null) {
+	            throw new IllegalArgumentException("기존 날짜 정보가 필요합니다.");
+	        }
+	        closedDayService.update(dto.getOriginalDate(), dto);
 	        return ResponseEntity.ok().build();
 	    }
+
 
 
 	    // 삭제

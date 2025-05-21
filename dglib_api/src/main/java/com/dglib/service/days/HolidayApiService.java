@@ -49,7 +49,7 @@ public class HolidayApiService {
 
 	    ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
 	    
-	    log.error("API 응답 본문 확인: {}", response.getBody());
+	    log.info("API 응답 본문 확인: {}", response.getBody());
 	    
 	    if (!response.getHeaders().getContentType().includes(MediaType.APPLICATION_JSON)) {
 	        throw new RuntimeException("API 응답이 JSON이 아님 → 인증키 또는 파라미터 오류일 수 있음");

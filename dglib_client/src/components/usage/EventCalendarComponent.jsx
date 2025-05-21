@@ -24,17 +24,17 @@ const EventCalendarComponent = () => {
         const newYear = parseInt(e.target.value, 10);
         setSelectedYear(newYear);
 
-        try {
-            await registerAutoAllEvents(newYear);
-        } catch (error) {
-            console.warn('자동 등록 실패 (이미 등록 되었는지 확인)', error);
-        }
-
         const calendarApi = calendarRef.current?.getApi();
         if (calendarApi) {
             const currentDate = calendarApi.getDate();
             const newDate = new Date(newYear, currentDate.getMonth(), 1);
             calendarApi.gotoDate(newDate);
+        }
+
+        try {
+            await registerAutoAllEvents(newYear);
+        } catch (error) {
+            console.warn('자동 등록 실패 (이미 등록 되었는지 확인)', error);
         }
     };
 

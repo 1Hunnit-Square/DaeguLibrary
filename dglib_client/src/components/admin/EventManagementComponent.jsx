@@ -5,15 +5,12 @@ import interactionPlugin from '@fullcalendar/interaction';
 import koLocale from '@fullcalendar/core/locales/ko';
 import CheckBox from '../common/CheckBox';
 import SelectComponent from '../common/SelectComponent';
-import Draggable from 'react-draggable';
 import {
     getClosedDays,
     createClosedDay,
     deleteClosedDay,
-    registerAutoEvents,
     registerAutoAllEvents
 } from '../../api/closedDayApi';
-import axios from 'axios';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -33,6 +30,10 @@ const EventManagementComponent = () => {
     const [events, setEvents] = useState([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const autoRegisteredYears = useRef(new Set());
+
+    const [modalPos, setModalPos] = useState({ x: 0, y: 0 });
+    const isDragging = useRef(false);
+    const offset = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
         setTimeout(() => {
@@ -60,6 +61,33 @@ const EventManagementComponent = () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [isModalOpen]);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isDragging.current) return;
+            setModalPos({
+                x: e.clientX - offset.current.x,
+                y: e.clientY - offset.current.y,
+            });
+        };
+        const handleMouseUp = () => {
+            isDragging.current = false;
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, []);
+
+    const handleMouseDown = (e) => {
+        isDragging.current = true;
+        offset.current = {
+            x: e.clientX - modalPos.x,
+            y: e.clientY - modalPos.y,
+        };
+    };
 
     const handleGoToday = () => {
         const calendarApi = calendarRef.current?.getApi();
@@ -111,9 +139,7 @@ const EventManagementComponent = () => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth() + 1;
 
-        getClosedDays(year, month).then(data => {
-            setEvents(data);
-        });
+        getClosedDays(year, month).then(setEvents);
     };
 
     const refreshEvents = () => {
@@ -219,56 +245,57 @@ const EventManagementComponent = () => {
 
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <Draggable handle=".modal-header">
-                        <div className="bg-white p-6 rounded-lg w-full max-w-md border border-gray-300 shadow-md pointer-events-auto">
-                            <div className="modal-header flex justify-between items-center mb-4 cursor-move">
-                                <h2 className="text-lg font-semibold">
-                                    {selectedDate ? `${formatDate(selectedDate)} 일정 ${isEditMode ? '수정' : '등록'}` : '일정 등록'}
-                                </h2>
-                                <button onClick={() => setIsModalOpen(false)}>✕</button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <input
-                                    type="date"
-                                    value={selectedDate || ''}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                                <CheckBox
-                                    label="휴관일로 지정"
-                                    checked={isClosed}
-                                    onChange={(e) => setIsClosed(e.target.checked)}
-                                />
-                                <SelectComponent
-                                    options={['기념일', '공휴일']}
-                                    value={selectedType}
-                                    onChange={setSelectedType}
-                                />
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="일정 이름을 입력하세요"
-                                />
-                                {isEditMode && (
-                                    <button
-                                        onClick={handleDeleteSchedule}
-                                        className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e]"
-                                    >
-                                        삭제
-                                    </button>
-                                )}
-                                <button
-                                    onClick={handleSaveSchedule}
-                                    className="w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D]"
-                                >
-                                    {isEditMode ? '수정' : '등록'}
-                                </button>
-                            </div>
+                    <div
+                        className="bg-white p-6 rounded-lg w-full max-w-md border border-gray-300 shadow-md pointer-events-auto absolute"
+                        style={{ top: modalPos.y, left: modalPos.x }}
+                    >
+                        <div className="modal-header flex justify-between items-center mb-4 cursor-move" onMouseDown={handleMouseDown}>
+                            <h2 className="text-lg font-semibold">
+                                {selectedDate ? `${formatDate(selectedDate)} 일정 ${isEditMode ? '수정' : '등록'}` : '일정 등록'}
+                            </h2>
+                            <button onClick={() => setIsModalOpen(false)}>✕</button>
                         </div>
-                    </Draggable>
+
+                        <div className="space-y-4">
+                            <input
+                                type="date"
+                                value={selectedDate || ''}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="w-full border rounded px-3 py-2"
+                            />
+                            <CheckBox
+                                label="휴관일로 지정"
+                                checked={isClosed}
+                                onChange={(e) => setIsClosed(e.target.checked)}
+                            />
+                            <SelectComponent
+                                options={['기념일', '공휴일']}
+                                value={selectedType}
+                                onChange={setSelectedType}
+                            />
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="w-full border rounded px-3 py-2"
+                                placeholder="일정 이름을 입력하세요"
+                            />
+                            {isEditMode && (
+                                <button
+                                    onClick={handleDeleteSchedule}
+                                    className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e]"
+                                >
+                                    삭제
+                                </button>
+                            )}
+                            <button
+                                onClick={handleSaveSchedule}
+                                className="w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D]"
+                            >
+                                {isEditMode ? '수정' : '등록'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -155,7 +155,7 @@ const EventManagementComponent = () => {
 
     const handleSaveSchedule = () => {
         if (!title.trim()) {
-            alert("일정을 입력해주세요.");
+            alert("일정 이름을 입력해주세요.");
             return;
         }
 

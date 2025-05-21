@@ -102,18 +102,19 @@ const EventManagementComponent = () => {
         const newYear = parseInt(e.target.value, 10);
         setSelectedYear(newYear);
 
-        try{
-            await registerAutoAllEvents(newYear);
-        } catch (error) {
-            console.warn('자동 등록 실패(이미 등록된 연도인지 확인 필요)', error);
-        }
-
         const calendarApi = calendarRef.current?.getApi();
         if (calendarApi) {
             const currentDate = calendarApi.getDate();
             const newDate = new Date(newYear, currentDate.getMonth(), 1);
             calendarApi.gotoDate(newDate);
         }
+
+        try{
+            await registerAutoAllEvents(newYear);
+        } catch (error) {
+            console.warn('자동 등록 실패(이미 등록된 연도인지 확인 필요)', error);
+        }
+        
     };
 
     const handleDateClick = (arg) => {
@@ -195,7 +196,7 @@ const EventManagementComponent = () => {
                 <select
                     value={selectedYear}
                     onChange={handleYearChange}
-                    className="border border-[#A8D5BA] rounded px-3 py-1 text-sm text-gray-800"
+                    className="h-10 px-3 py-2 border border-[#A8D5BA] rounded text-sm text-gray-800"
                 >
                     {Array.from({ length: 10 }, (_, i) => currentYear - 5 + i).map((year) => (
                         <option key={year} value={year}>{year}년</option>
@@ -203,7 +204,7 @@ const EventManagementComponent = () => {
                 </select>
                 <button
                     onClick={handleGoToday}
-                    className="px-4 py-2 bg-[#00893B] text-white rounded hover:bg-[#006C2D]"
+                    className="h-10 px-4 py-2 bg-[#00893B] text-white rounded hover:bg-[#006C2D]"
                 >
                     오늘
                 </button>

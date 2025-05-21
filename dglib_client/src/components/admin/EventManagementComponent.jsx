@@ -7,6 +7,7 @@ import CheckBox from '../common/CheckBox';
 import SelectComponent from '../common/SelectComponent';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
+import Loading from '../../routers/Loading';
 
 import { getClosedDays, createClosedDay, updateClosedDay, deleteClosedDay, registerAutoAllEvents} from '../../api/closedDayApi';
 
@@ -179,7 +180,7 @@ const EventManagementComponent = () => {
         <Button onClick={handleGoToday}>오늘</Button>
       </div>
 
-      {isLoading && <div className="text-center text-sm">일정 불러오는 중...</div>}
+      {isLoading && <Loading />}
       {isError && <div className="text-center text-sm text-red-500">일정 불러오기 오류</div>}
 
       <FullCalendar

@@ -5,7 +5,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
 import { getFsLibraryBookList } from "../../api/bookApi";
 import Loading from "../../routers/Loading";
-import CheckBoxNonLabel from "../common/CheckNonLabel";
+import CheckNonLabel from "../common/CheckNonLabel";
 import { reserveBook, unMannedReserve, addInterestedBook } from '../../api/memberApi';
 import { usePagination } from "../../hooks/usePage";
 import { useItemSelection } from "../../hooks/useItemSelection";
@@ -39,7 +39,7 @@ const FilterSearchBookComponent = () => {
     const books = useMemo(() => data.content, [data.content]);
 
     const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection } = useItemSelection(books, 'libraryBookId');
-        const resetSelectedBooks = () => resetSelection(new Set());
+    const resetSelectedBooks = () => resetSelection(new Set());
 
     const reserveMutation = useBookMutation(async (book) => await reserveBook(book), { successMessage: "도서를 예약했습니다.", onReset: resetSelectedBooks, queryKeyToInvalidate: 'fslibrarybooklist'} );
 
@@ -166,7 +166,7 @@ const FilterSearchBookComponent = () => {
                             {Array.isArray(books) && books.length > 0 ? (
                                 <>
                                 <div className="flex mx-3 gap-3">
-                                <CheckBoxNonLabel
+                                <CheckNonLabel
                                     checked={isAllSelected}
                                     onChange={handleSelectAll}
                                     inputClassName="hover:cursor-pointer w-4 h-4"
@@ -185,7 +185,7 @@ const FilterSearchBookComponent = () => {
                                         >
 
                                             <div className="w-full md:w-48 flex justify-center">
-                                                <CheckBoxNonLabel checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"} />
+                                                <CheckNonLabel checked={selectedBooks.has(book.libraryBookId)} onChange={(e) => handleSelectBooks(e, book)} inputClassName={"hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"} />
                                                 <img
                                                     src={book.cover || '/placeholder-image.png'}
                                                     alt={book.bookTitle || '표지 없음'}

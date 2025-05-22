@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.BookDTO;
 import com.dglib.dto.book.BookDetailDTO;
+import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookStatusCountDto;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookResponseDTO;
@@ -209,108 +212,73 @@ public class BookServiceImpl implements BookService {
 		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);    
         Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
         
-        return libraryBooks.map(libraryBook -> {
-            BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
-            modelMapper.map(libraryBook, dto);
-            boolean isBorrowed = libraryBook.getRentals().stream()
-                    .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-            dto.setBorrowed(isBorrowed);
-			boolean isUnmanned = libraryBook.getReserves().stream()
-					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-			dto.setUnmanned(isUnmanned);
-            
-            boolean alreadyReservedByMember = false;
-            if (mid != null) {
-            	alreadyReservedByMember = libraryBook.getReserves().stream()
-						.anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
-								&& reserve.getState() == ReserveState.RESERVED);
-            }
-            dto.setAlreadyReservedByMember(alreadyReservedByMember);
-            boolean alreadeyBorrowedByMember = false;
-            if (mid != null) {
-            	alreadeyBorrowedByMember = libraryBook.getRentals().stream()
-						.anyMatch(rental -> rental.getMember().getMid().equals(mid)
-								&& rental.getState() == RentalState.BORROWED);
-            }
-            dto.setAlreadyBorrowedByMember(alreadeyBorrowedByMember);
-            int reserveCount = (int) libraryBook.getReserves().stream()
-                    .filter(reserve -> reserve.getState() == ReserveState.RESERVED)
-                    .count();
-            dto.setReserveCount(reserveCount);
-            return dto;
-        });
+        return libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
 	}
+        
 	@Override
 	@Transactional(readOnly = true)
 	public Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid) {
 		Specification<LibraryBook> spec = LibraryBookSpecifications.fsFilter(libraryBookFsDTO);
 		Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
 
-		return libraryBooks.map(libraryBook -> {
-			BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
-			modelMapper.map(libraryBook, dto);
-			boolean isBorrowed = libraryBook.getRentals().stream()
-	                    .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-	        dto.setBorrowed(isBorrowed);
-	        boolean isUnmanned = libraryBook.getReserves().stream()
-					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-			dto.setUnmanned(isUnmanned);
-	        
-	        boolean alreadyReservedByMember = false;
-            if (mid != null) {
-            	alreadyReservedByMember = libraryBook.getReserves().stream()
-						.anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
-								&& reserve.getState() == ReserveState.RESERVED);
-            }
-            dto.setAlreadyReservedByMember(alreadyReservedByMember);
-            boolean alreadeyBorrowedByMember = false;
-            if (mid != null) {
-            	alreadeyBorrowedByMember = libraryBook.getRentals().stream()
-						.anyMatch(rental -> rental.getMember().getMid().equals(mid)
-								&& rental.getState() == RentalState.BORROWED);
-            }
-            dto.setAlreadyBorrowedByMember(alreadeyBorrowedByMember);
-            int reserveCount = (int) libraryBook.getReserves().stream()
-                    .filter(reserve -> reserve.getState() == ReserveState.RESERVED)
-                    .count();
-            dto.setReserveCount(reserveCount);
-			return dto;
-		});
+		return libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
 	}
 	
 	@Override
     @Transactional(readOnly = true)
-	public Page<BookSummaryDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto, String mid) {
-		Page<LibraryBook> books = libraryBookRepository.findByRegLibraryBookDateBetween(newLibrarayBookRequesdto.getStartDate(), newLibrarayBookRequesdto.getEndDate(), pageable);
-		return books.map(libraryBook -> {
-			BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
-			modelMapper.map(libraryBook, dto);
-			boolean isBorrowed = libraryBook.getRentals().stream()
-					.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-			dto.setBorrowed(isBorrowed);
-			boolean isUnmanned = libraryBook.getReserves().stream()
-					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-			dto.setUnmanned(isUnmanned);
-
-			boolean alreadyReservedByMember = false;
-			if (mid != null) {
-				alreadyReservedByMember = libraryBook.getReserves().stream()
-						.anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
-								&& reserve.getState() == ReserveState.RESERVED);
-			}
-			dto.setAlreadyReservedByMember(alreadyReservedByMember);
-			boolean alreadeyBorrowedByMember = false;
-			if (mid != null) {
-				alreadeyBorrowedByMember = libraryBook.getRentals().stream().anyMatch(
-						rental -> rental.getMember().getMid().equals(mid) && rental.getState() == RentalState.BORROWED);
-			}
-			dto.setAlreadyBorrowedByMember(alreadeyBorrowedByMember);
-			int reserveCount = (int) libraryBook.getReserves().stream()
-					.filter(reserve -> reserve.getState() == ReserveState.RESERVED).count();
-			dto.setReserveCount(reserveCount);
-			return dto;
-		});
+	public Page<BookNewSumDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto) {
+		Page<LibraryBook> libraryBooks = libraryBookRepository.findFirstRegisteredBooksByDateBetween(newLibrarayBookRequesdto.getStartDate(), newLibrarayBookRequesdto.getEndDate(), pageable);
+		return libraryBooks.map(libraryBook -> {
+		BookNewSumDTO dto = modelMapper.map(libraryBook.getBook(), BookNewSumDTO.class);
+		dto.setLibraryBookId(libraryBook.getLibraryBookId());
+        return dto;});
 		
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pageable, String check) {
+		LocalDate startDate;
+		LocalDate endDate = LocalDate.now();
+		switch (check) {
+		 case "오늘":
+			 startDate = LocalDate.now();
+			 break;
+		 case "일주일":
+			 startDate = LocalDate.now().minusWeeks(1);
+			 break;
+		 case "한달":
+			 startDate = LocalDate.now().minusMonths(1);
+			 break;
+		 default:
+			 startDate = LocalDate.now();
+		}
+		
+		List<LibraryBook> allBooks = libraryBookRepository.findTop100MostRentedBooksByDateRange(startDate, endDate);
+	    List<LibraryBook> top100Books = allBooks.stream()
+	    		.sorted((b1, b2) -> Integer.compare(b2.getRentals().size(), b1.getRentals().size()))
+	    	    .limit(100)
+	    	    .collect(Collectors.toList());
+	    
+	    int start = (int) pageable.getOffset();
+	    int end = Math.min(start + pageable.getPageSize(), top100Books.size());
+	    
+	    List<LibraryBook> pagedBooks = top100Books.subList(start, end);
+	    
+	    LOGGER.info(pagedBooks.toString());
+
+	    
+	    List<BookTopSumDTO> dtoList = pagedBooks.stream()
+	            .map(libraryBook -> {
+	                BookTopSumDTO dto = modelMapper.map(libraryBook.getBook(), BookTopSumDTO.class);
+	                dto.setLibraryBookId(libraryBook.getLibraryBookId());
+	                long borrowCount = libraryBook.getRentals().size();
+	                dto.setBorrowCount(borrowCount);
+	                return dto;
+	            })
+	            .collect(Collectors.toList());
+		
+	    return new PageImpl<>(dtoList, pageable, top100Books.size());
 	}
 
 	
@@ -381,117 +349,12 @@ public class BookServiceImpl implements BookService {
 	
 	@Override
 	public void reserveBook(Long libraryBookId, String mid) {
-		LibraryBook libraryBook = libraryBookRepository.findWithDetailsByLibraryBookId(libraryBookId).orElse(null);
-		Member member = memberRepository.findById(mid).orElse(null);
-		BookStatusCountDto countDto = libraryBookRepository.countReserveAndBorrowDto(member.getMno(), ReserveState.RESERVED, RentalState.BORROWED);
-		LOGGER.info("대출예약현황" + countDto);
-		List<Rental> rentals = rentalRepository.findByMemberMid(mid);
-		
-		boolean isBorrowed = libraryBook.getRentals().stream()
-				.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-		boolean isUnmanned = libraryBook.getReserves().stream()
-				.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-		
-        boolean alreadyBorrowedByMember = libraryBook.getRentals().stream()
-					.anyMatch(rental -> rental.getMember().getMid().equals(mid)
-							&& rental.getState() == RentalState.BORROWED);
-        boolean alreadyUnmannedByMember = libraryBook.getReserves().stream()
-        		     .anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
-        		            && reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-        
-		boolean alreadyReservedByMember = mid != null && libraryBook.getReserves().stream()
-	            .anyMatch(reserve -> reserve.getMember().getMid().equals(mid) 
-	                    && reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
-		
-		boolean isMemberOverdue = rentals.stream().anyMatch(
-				rental -> rental.getMember().getMid().equals(mid) && rental.getState() == RentalState.BORROWED && LocalDate.now().isAfter(rental.getDueDate()));
-		
-		
-		
-		if (!isBorrowed && !isUnmanned) {
-			throw new IllegalStateException("대출 가능한 도서를 예약할 수 없습니다.");
-		}
-		if (alreadyUnmannedByMember) {
-			throw new IllegalStateException("이미 무인예약한 도서입니다.");
-		}
-		
-		if (isMemberOverdue) {
-			throw new IllegalStateException("연체된 도서가 있어 예약할 수 없습니다.");
-		}
-		if (alreadyBorrowedByMember) {
-			throw new IllegalStateException("이미 대출한 도서입니다.");
-		}
-		if (alreadyReservedByMember) {
-			throw new IllegalStateException("이미 예약된 도서입니다.");
-		}
-		if (reserveRepository.countByReserveState(libraryBookId, ReserveState.RESERVED) >= 2) {
-			throw new IllegalStateException("해당 도서의 예약가능 횟수가 초과되었습니다.");
-		}
-		if (countDto.getReserveCount() >= 3) {
-			throw new IllegalStateException("예약 한도를 초과했습니다. 예약중인 도서 : " + countDto.getReserveCount());
-		}
-		if (countDto.getReserveCount() + countDto.getBorrowCount() + countDto.getUnmannedCount() >= 5) {
-			throw new IllegalStateException("대출 및 예약 가능 횟수를 초과했습니다. 대출중인 도서 : " + countDto.getBorrowCount() + ", 예약중인 도서 : " + countDto.getReserveCount() + ", 무인예약중인 도서 : " + countDto.getUnmannedCount());
-		}
-		Reserve reserve = new Reserve();
-	    reserve.setLibraryBook(libraryBook);
-	    reserve.setMember(member);
-	    reserve.setReserveDate(LocalDateTime.now());
-	    reserve.setState(ReserveState.RESERVED);
-	    reserve.setUnmanned(false);
-	    reserveRepository.save(reserve);	
+	    reserveBookCommon(libraryBookId, mid, false);
 	}
-	
+
 	@Override
 	public void unMannedReserveBook(Long libraryBookId, String mid) {
-		LibraryBook libraryBook = libraryBookRepository.findByLibraryBookId(libraryBookId).orElse(null);
-		Member member = memberRepository.findById(mid).orElse(null);
-		LOGGER.info(member + "님이 무인예약을 시도합니다.");
-		List<Rental> rentals = rentalRepository.findByMemberMid(mid);
-		BookStatusCountDto countDto = libraryBookRepository.countReserveAndBorrowDto(member.getMno(), ReserveState.RESERVED, RentalState.BORROWED);
-		boolean alreadyUnmannedByMember = libraryBook.getReserves().stream()
-				.anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
-						&& reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-		boolean isUnmanned = libraryBook.getReserves().stream()
-				.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-		boolean isBorrowed = libraryBook.getRentals().stream()
-				.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-		boolean isMemberOverdue = rentals.stream().anyMatch(
-				rental -> rental.getMember().getMid().equals(mid) && rental.getState() == RentalState.BORROWED && LocalDate.now().isAfter(rental.getDueDate()));
-		boolean alreadyBorrowedByMember = libraryBook.getRentals().stream().anyMatch(
-				rental -> rental.getMember().getMid().equals(mid) && rental.getState() == RentalState.BORROWED);
-		boolean isReserved = libraryBook.getReserves().stream()
-				.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
-		
-		
-		if (alreadyUnmannedByMember) {
-			throw new IllegalStateException("이미 무인예약한 도서입니다.");
-		}
-		
-		if (alreadyBorrowedByMember) {
-			throw new IllegalStateException("이미 대출한 도서입니다.");
-		}
-		
-		if (isBorrowed || isUnmanned) {
-			throw new IllegalStateException("대출중인 도서입니다.");
-		}
-		if (isMemberOverdue) {
-			throw new IllegalStateException("연체된 도서가 있어 예약할 수 없습니다.");
-		}
-		if (countDto.getReserveCount() + countDto.getBorrowCount() + countDto.getUnmannedCount() >= 5) {
-			throw new IllegalStateException("대출 및 예약 가능 횟수를 초과했습니다. 대출중인 도서 : " + countDto.getBorrowCount() + ", 예약중인 도서 : " + countDto.getReserveCount() + ", 무인예약중인 도서 : " + countDto.getUnmannedCount());
-		}
-		if (isReserved) {
-			throw new IllegalStateException("대출 예약중인 도서입니다.");
-		}
-		
-		Reserve reserve = new Reserve();
-		reserve.setLibraryBook(libraryBook);
-		reserve.setMember(member);
-		reserve.setReserveDate(LocalDateTime.now());
-		reserve.setState(ReserveState.RESERVED);
-		reserve.setUnmanned(true);
-		reserveRepository.save(reserve);
+	    reserveBookCommon(libraryBookId, mid, true);
 	}
 	
 	@Override
@@ -541,7 +404,7 @@ public class BookServiceImpl implements BookService {
 	    List<Long> reserveIds = reserveStateChangeDtos.stream()
 	            .map(ReserveStateChangeDTO::getReserveId)
 	            .collect(Collectors.toList());
-	    List<Reserve> reserves = reserveRepository.findAllByIdInWithDetails(reserveIds);    
+	    List<Reserve> reserves = reserveRepository.findAllById(reserveIds);    
 	    Map<Long, Reserve> reserveMap = reserves.stream()
 	            .collect(Collectors.toMap(Reserve::getReserveId, reserve -> reserve));
 	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
@@ -552,145 +415,23 @@ public class BookServiceImpl implements BookService {
 	        if (reserve.getState() == ReserveState.BORROWED) {
 	            throw new IllegalStateException("이미 대출 완료된 예약입니다.");
 	        }
-	    }
-	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-	        Long reserveId = dto.getReserveId();
-	        Reserve reserve = reserveMap.get(reserveId);
 	        reserve.changeState(ReserveState.CANCELED);
+	        
 	    }
 	}
 	
+	
 	@Override
-	public void reReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos) {
+	public void completeBorrowing(List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 	    List<Long> reserveIds = reserveStateChangeDtos.stream()
-	        .map(ReserveStateChangeDTO::getReserveId)
-	        .collect(Collectors.toList());
+	            .map(ReserveStateChangeDTO::getReserveId)
+	            .collect(Collectors.toList());
 	    
 	    List<Reserve> reserves = reserveRepository.findAllByIdInWithDetails(reserveIds);
 	    Map<Long, Reserve> reserveMap = reserves.stream()
-	        .collect(Collectors.toMap(Reserve::getReserveId, reserve -> reserve));
+	            .collect(Collectors.toMap(Reserve::getReserveId, reserve -> reserve));
 	    
 	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-	        Reserve reserve = reserveMap.get(dto.getReserveId());
-	        if (reserve == null) {
-	            throw new IllegalStateException("해당 예약 정보를 찾을 수 없습니다.");
-	        }
-	        if (reserve.getState() == ReserveState.BORROWED) {
-	            throw new IllegalStateException("이미 대출 완료된 예약입니다.");
-	        }
-	        if (reserve.getState() == ReserveState.RESERVED) {
-	            throw new IllegalStateException("이미 예약중인 도서입니다.");
-	        }
-	        if (reserve.getState() == ReserveState.CANCELED) {
-	            throw new IllegalStateException("취소된 예약은 다시 예약중으로 변경할 수 없습니다.");
-	        }
-	    }
-	    
-	    Set<String> memberIds = reserveStateChangeDtos.stream()
-	        .map(ReserveStateChangeDTO::getMid)
-	        .collect(Collectors.toSet());
-	    
-	    Map<String, Long> currentDbReservedCounts = new HashMap<>();
-        Map<String, Long> currentDbBorrowedCounts = new HashMap<>();
-        
-        List<Reserve> currentMemberReservations = reserveRepository.findByMemberMidInAndState(
-                new ArrayList<>(memberIds), ReserveState.RESERVED
-            );
-        currentDbReservedCounts = currentMemberReservations.stream()
-                .collect(Collectors.groupingBy(r -> r.getMember().getMid(), Collectors.counting()));
-        
-        List<Rental> currentMemberRentals = rentalRepository.findByMemberMidInAndState(
-                new ArrayList<>(memberIds), RentalState.BORROWED
-            );
-        
-        currentDbBorrowedCounts = currentMemberRentals.stream()
-                .collect(Collectors.groupingBy(rt -> rt.getMember().getMid(), Collectors.counting()));
-        
-        Map<String, Long> newReservationsPerMember = reserveStateChangeDtos.stream()
-                .collect(Collectors.groupingBy(ReserveStateChangeDTO::getMid, Collectors.counting()));
-        
-        for (String memberId : memberIds) {
-            long reservedCount = currentDbReservedCounts.getOrDefault(memberId, 0L);
-            long borrowedCount = currentDbBorrowedCounts.getOrDefault(memberId, 0L);
-            long toBeAddedCount = newReservationsPerMember.get(memberId); 
-
-            if (reservedCount + borrowedCount + toBeAddedCount > 5) {
-                throw new IllegalStateException("대출 및 예약 가능 횟수를 초과했습니다. 회원 ID: " + memberId + ", 현재 대출: " + borrowedCount +
-						", 현재 예약: " + reservedCount + ", 추가 예약: " + toBeAddedCount + ", 초과 권수: "
-						+ ((reservedCount + borrowedCount + toBeAddedCount) - 5));
-            }
-            if (reservedCount + toBeAddedCount > 3) {
-                throw new IllegalStateException("예약 한도를 초과했습니다. 회원 ID: " + memberId + ", 현재 예약: " + reservedCount + ", 추가 예약: " + toBeAddedCount + ", 초과 권수: "
-                		                        + ((reservedCount + toBeAddedCount) - 3));
-            }
-        }
-
-	    
-	    Map<Long, List<ReserveStateChangeDTO>> bookReservations = reserveStateChangeDtos.stream()
-	        .collect(Collectors.groupingBy(ReserveStateChangeDTO::getLibraryBookId));
-	    Set<Long> libraryBookIds = bookReservations.keySet();
-	    List<Reserve> existingReservations = reserveRepository.findByMemberMidInAndStateAndLibraryBookLibraryBookIdIn(
-	        memberIds, ReserveState.RESERVED, libraryBookIds);
-	    Map<String, Set<Long>> memberReservedBooks = new HashMap<>();
-	    
-	    for (Reserve reserve : existingReservations) {
-	        String memberId = reserve.getMember().getMid();
-	        Long libraryBookId = reserve.getLibraryBook().getLibraryBookId();
-
-	        memberReservedBooks.computeIfAbsent(memberId, k -> new HashSet<>())
-	            .add(libraryBookId);
-	    }
-	    
-	    
-	    Map<String, Set<Long>> requestedMemberBooks = new HashMap<>();
-	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-	        String memberId = dto.getMid();
-	        Long libraryBookId = dto.getLibraryBookId();
-	        
-	        if (requestedMemberBooks.containsKey(memberId) && 
-	            requestedMemberBooks.get(memberId).contains(libraryBookId)) {
-	            throw new IllegalStateException("동일한 요청 내에서 같은 도서를 중복 예약할 수 없습니다.");
-	        }
-	        
-	        if (memberReservedBooks.containsKey(memberId) &&
-	            memberReservedBooks.get(memberId).contains(libraryBookId)) {
-	            throw new IllegalStateException("회원이 이미 예약 중인 도서입니다.");
-	        }
-	        
-	        requestedMemberBooks.computeIfAbsent(memberId, k -> new HashSet<>())
-	            .add(libraryBookId);
-	    }
-	    List<ReservationCountDTO> reservationCounts =
-	        reserveRepository.findReservationCounts(libraryBookIds, ReserveState.RESERVED);
-	    Map<Long, Long> currentReservationCounts = new HashMap<>();
-	    for (ReservationCountDTO dto : reservationCounts) {
-	        currentReservationCounts.put(dto.getLibraryBookId(), dto.getCount());
-	    }
-	    for (Map.Entry<Long, List<ReserveStateChangeDTO>> entry : bookReservations.entrySet()) {
-	        Long libraryBookId = entry.getKey();
-	        int reservationsForThisBook = entry.getValue().size();
-
-	        Long currentReservations = currentReservationCounts.getOrDefault(libraryBookId, 0L);
-	        if (currentReservations + reservationsForThisBook > 2) {
-	            throw new IllegalStateException("도서의 예약가능 횟수가 초과되었습니다. 선택된 도서 수: " + reservationsForThisBook + ", 현재 예약 수: " + currentReservations);
-	        }
-	    }
-	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-	        Long reserveId = dto.getReserveId();
-	        Reserve reserve = reserveMap.get(reserveId);
-	        reserve.changeState(ReserveState.RESERVED);
-	    }
-	}
-	@Override
-	public void completeBorrowing(List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("proccess 1");
-        List<Long> reserveIds = reserveStateChangeDtos.stream()
-                .map(ReserveStateChangeDTO::getReserveId)
-                .collect(Collectors.toList());
-        List<Reserve> reserves = reserveRepository.findAllByIdInWithDetails(reserveIds);
-        Map<Long, Reserve> reserveMap = reserves.stream()
-    	        .collect(Collectors.toMap(Reserve::getReserveId, reserve -> reserve));
-        for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
 	        Reserve reserve = reserveMap.get(dto.getReserveId());
 	        if (reserve == null) {
 	            throw new IllegalStateException("해당 예약 정보를 찾을 수 없습니다.");
@@ -699,52 +440,79 @@ public class BookServiceImpl implements BookService {
 	            throw new IllegalStateException("취소된 예약은 대출 완료로 변경할 수 없습니다.");
 	        }
 	    }
-        LOGGER.info("proccess 2");
-        List<Long> libraryBookIds = new ArrayList<>();
-        for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-            Long reserveId = dto.getReserveId();
-            Reserve reserve = reserveMap.get(reserveId);
-            Integer rank = dto.getReservationRank();
-            if (rank != null && rank > 1) {
-                throw new IllegalStateException("예약 우선 순위가 충족되지 않아 대출을 완료할 수 없습니다.");
-            }
-            libraryBookIds.add(reserve.getLibraryBook().getLibraryBookId());
-        }
-        List<Long> distinctLibraryBookIds = libraryBookIds.stream().collect(Collectors.toList());
-        List<Long> borrowedLibraryBookIds = rentalRepository.findBorrowedLibraryBookIdsIn(distinctLibraryBookIds);
-        
-        List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
-        
-        LOGGER.info("proccess 3");
-            
-      
-        List<Rental> rentalsToCreate = new ArrayList<>();
-        for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
-            Reserve reserve = reserveMap.get(dto.getReserveId());            
-            if (borrowedLibraryBookIds.contains(reserve.getLibraryBook().getLibraryBookId())) {
-                throw new IllegalStateException("이미 대출 중인 도서입니다.");
-            }
-            String mid = dto.getMid();
-            boolean isMemberOverdue = overdueRentals.stream()
-            	    .anyMatch(rental -> rental.getMember().getMid().equals(mid));
-            if (isMemberOverdue) {
-            	throw new IllegalStateException("연체된 도서가 있어 대출할 수 없습니다. 연체중인 회원 ID: " + mid);
-            }
-            
-            reserve.changeState(ReserveState.BORROWED);
-            Rental rental = new Rental();
-            rental.setLibraryBook(reserve.getLibraryBook());
-            rental.setMember(reserve.getMember());
-            rental.setRentStartDate(LocalDate.now());
-            rental.setDueDate(LocalDate.now().plusDays(7));
-            rental.setState(RentalState.BORROWED);
+	    
+	
+	    Set<Long> libraryBookIds = reserves.stream()
+	            .map(reserve -> reserve.getLibraryBook().getLibraryBookId())
+	            .collect(Collectors.toSet());
+	    
 
-            rentalsToCreate.add(rental);
-        }
-        LOGGER.info("proccess 4");
-        rentalRepository.saveAll(rentalsToCreate);
-        
-    }
+	    Map<Long, List<Reserve>> reservesByLibraryBook = reserveRepository
+	    		.findByLibraryBookLibraryBookIdInAndStateOrderByReserveDateAsc(libraryBookIds, ReserveState.RESERVED)
+	            .stream()
+	            .collect(Collectors.groupingBy(reserve -> reserve.getLibraryBook().getLibraryBookId()));
+	    
+	
+	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
+	        Reserve reserve = reserveMap.get(dto.getReserveId());
+	        Long libraryBookId = reserve.getLibraryBook().getLibraryBookId();
+	        
+
+	        List<Reserve> bookReserves = reservesByLibraryBook.get(libraryBookId);
+	        int reservationRank = 1;
+	        for (Reserve bookReserve : bookReserves) {
+	            if (!bookReserve.isUnmanned()) {
+	                if (bookReserve.getReserveId().equals(dto.getReserveId())) {
+	                    break;
+	                }
+	                reservationRank++;
+	            }
+	        }
+	        
+	        if (reservationRank > 1) {
+	            throw new IllegalStateException("예약 우선 순위가 충족되지 않아 대출을 완료할 수 없습니다.");
+	        }
+	    }
+	    
+	    List<Long> distinctLibraryBookIds = new ArrayList<>(libraryBookIds);
+	    List<Long> borrowedLibraryBookIds = rentalRepository.findBorrowedLibraryBookIdsIn(distinctLibraryBookIds);
+	    
+
+	    List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
+	    Set<String> overdueMemberIds = overdueRentals.stream()
+	            .map(rental -> rental.getMember().getMid())
+	            .collect(Collectors.toSet());
+	    
+	    List<Rental> rentalsToCreate = new ArrayList<>();
+	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
+	        Reserve reserve = reserveMap.get(dto.getReserveId());
+	        
+
+	        if (borrowedLibraryBookIds.contains(reserve.getLibraryBook().getLibraryBookId())) {
+	            throw new IllegalStateException("이미 대출 중인 도서입니다.");
+	        }
+	        
+
+	        String mid = reserve.getMember().getMid();
+	        if (overdueMemberIds.contains(mid)) {
+	            throw new IllegalStateException("연체된 도서가 있어 대출할 수 없습니다. 연체중인 회원 ID: " + mid);
+	        }
+
+	        reserve.changeState(ReserveState.BORROWED);
+	        
+
+	        Rental rental = new Rental();
+	        rental.setLibraryBook(reserve.getLibraryBook());
+	        rental.setMember(reserve.getMember());
+	        rental.setRentStartDate(LocalDate.now());
+	        rental.setDueDate(LocalDate.now().plusDays(7));
+	        rental.setState(RentalState.BORROWED);
+	        
+	        rentalsToCreate.add(rental);
+	    }
+	    
+	    rentalRepository.saveAll(rentalsToCreate);
+	}
 	
 	
 	@Override
@@ -752,7 +520,7 @@ public class BookServiceImpl implements BookService {
 		List<Long> rentIds = rentalStateChangeDtos.stream()
                 .map(RentalStateChangeDTO::getRentId)
                 .collect(Collectors.toList());
-		List<Rental> rentals = rentalRepository.findAllByIdInWithDetails(rentIds);
+		List<Rental> rentals = rentalRepository.findAllById(rentIds);
 		Map<Long, Rental> rentMap = rentals.stream()
 			       .collect(Collectors.toMap(Rental::getRentId, reserve -> reserve));
 		for (RentalStateChangeDTO dto : rentalStateChangeDtos) {
@@ -923,6 +691,132 @@ public class BookServiceImpl implements BookService {
 		interestedBookRepository.deleteAll(interestedBooks);
 		
 	}
-	
+    
+    
+    /////////////////////////////////////////////////////////////////////////////////////
+    
+    private BookSummaryDTO toBookSummaryDTO(LibraryBook libraryBook, String mid) {
+        BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
+        modelMapper.map(libraryBook, dto);
+
+        boolean isBorrowed = libraryBook.getRentals().stream()
+                .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
+        dto.setBorrowed(isBorrowed);
+
+        boolean isUnmanned = libraryBook.getReserves().stream()
+                .anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned());
+        dto.setUnmanned(isUnmanned);
+
+        boolean alreadyReservedByMember = false;
+        if (mid != null) {
+            alreadyReservedByMember = libraryBook.getReserves().stream()
+                    .anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
+                            && reserve.getState() == ReserveState.RESERVED);
+        }
+        dto.setAlreadyReservedByMember(alreadyReservedByMember);
+
+        boolean alreadyBorrowedByMember = false;
+        if (mid != null) {
+            alreadyBorrowedByMember = libraryBook.getRentals().stream()
+                    .anyMatch(rental -> rental.getMember().getMid().equals(mid)
+                            && rental.getState() == RentalState.BORROWED);
+        }
+        dto.setAlreadyBorrowedByMember(alreadyBorrowedByMember);
+
+        int reserveCount = (int) libraryBook.getReserves().stream()
+                .filter(reserve -> reserve.getState() == ReserveState.RESERVED)
+                .count();
+        dto.setReserveCount(reserveCount);
+
+        return dto;
+    }
+    
+    public void reserveBookCommon(Long libraryBookId, String mid, boolean isUnmanned) {
+        LibraryBook libraryBook = libraryBookRepository.findWithDetailsByLibraryBookId(libraryBookId).orElse(null);
+        Member member = memberRepository.findById(mid).orElse(null);
+        if (libraryBook == null || member == null) {
+            throw new IllegalArgumentException("도서 혹은 회원 정보를 찾을 수 없습니다.");
+        }
+        List<Rental> rentals = rentalRepository.findByMemberMid(mid);
+        BookStatusCountDto countDto = libraryBookRepository.countReserveAndBorrowDto(member.getMno(), ReserveState.RESERVED, RentalState.BORROWED);
+
+        boolean isBorrowed = libraryBook.getRentals().stream()
+                .anyMatch(rental -> rental.getState() == RentalState.BORROWED);
+        boolean isAlreadyUnmannedByMember = libraryBook.getReserves().stream()
+                .anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
+                        && reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+        boolean isAlreadyReservedByMember = libraryBook.getReserves().stream()
+                .anyMatch(reserve -> reserve.getMember().getMid().equals(mid)
+                        && reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
+        boolean isReserved = libraryBook.getReserves().stream()
+                .anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
+        boolean isUnmannedExists = libraryBook.getReserves().stream()
+                .anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+
+        boolean alreadyBorrowedByMember = libraryBook.getRentals().stream()
+                .anyMatch(rental -> rental.getMember().getMid().equals(mid)
+                        && rental.getState() == RentalState.BORROWED);
+        boolean isMemberOverdue = rentals.stream()
+                .anyMatch(rental -> rental.getMember().getMid().equals(mid)
+                        && rental.getState() == RentalState.BORROWED && LocalDate.now().isAfter(rental.getDueDate()));
+
+
+        if (isUnmanned) {
+    
+            if (isAlreadyUnmannedByMember) {
+                throw new IllegalStateException("이미 무인예약한 도서입니다.");
+            }
+            if (alreadyBorrowedByMember) {
+                throw new IllegalStateException("이미 대출한 도서입니다.");
+            }
+            if (isBorrowed || isUnmannedExists) {
+                throw new IllegalStateException("대출중인 도서입니다.");
+            }
+            if (isMemberOverdue) {
+                throw new IllegalStateException("연체된 도서가 있어 예약할 수 없습니다.");
+            }
+            if (countDto.getReserveCount() + countDto.getBorrowCount() + countDto.getUnmannedCount() >= 5) {
+                throw new IllegalStateException("대출 및 예약 가능 횟수를 초과했습니다. 대출중인 도서 : " + countDto.getBorrowCount() + ", 예약중인 도서 : " + countDto.getReserveCount() + ", 무인예약중인 도서 : " + countDto.getUnmannedCount());
+            }
+            if (isReserved) {
+                throw new IllegalStateException("대출 예약중인 도서입니다.");
+            }
+        } else {
+       
+            if (!isBorrowed && !isUnmannedExists) {
+                throw new IllegalStateException("대출 가능한 도서를 예약할 수 없습니다.");
+            }
+            if (isAlreadyUnmannedByMember) {
+                throw new IllegalStateException("이미 무인예약한 도서입니다.");
+            }
+            if (isMemberOverdue) {
+                throw new IllegalStateException("연체된 도서가 있어 예약할 수 없습니다.");
+            }
+            if (alreadyBorrowedByMember) {
+                throw new IllegalStateException("이미 대출한 도서입니다.");
+            }
+            if (isAlreadyReservedByMember) {
+                throw new IllegalStateException("이미 예약된 도서입니다.");
+            }
+            if (reserveRepository.countByReserveState(libraryBookId, ReserveState.RESERVED) >= 2) {
+                throw new IllegalStateException("해당 도서의 예약가능 횟수가 초과되었습니다.");
+            }
+            if (countDto.getReserveCount() >= 3) {
+                throw new IllegalStateException("예약 한도를 초과했습니다. 예약중인 도서 : " + countDto.getReserveCount());
+            }
+            if (countDto.getReserveCount() + countDto.getBorrowCount() + countDto.getUnmannedCount() >= 5) {
+                throw new IllegalStateException("대출 및 예약 가능 횟수를 초과했습니다. 대출중인 도서 : " + countDto.getBorrowCount() + ", 예약중인 도서 : " + countDto.getReserveCount() + ", 무인예약중인 도서 : " + countDto.getUnmannedCount());
+            }
+        }
+
+        Reserve reserve = new Reserve();
+        reserve.setLibraryBook(libraryBook);
+        reserve.setMember(member);
+        reserve.setReserveDate(LocalDateTime.now());
+        reserve.setState(ReserveState.RESERVED);
+        reserve.setUnmanned(isUnmanned);
+        reserveRepository.save(reserve);
+    }
+
 	
 }

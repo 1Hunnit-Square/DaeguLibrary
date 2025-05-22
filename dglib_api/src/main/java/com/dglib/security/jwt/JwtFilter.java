@@ -24,6 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 		String authHeader = request.getHeader("Authorization");
+		
 		String accessToken = authHeader.substring(7);
 		
 		Map<String, Object> claims = JwtProvider.validateToken(accessToken);
@@ -57,23 +58,16 @@ public class JwtFilter extends OncePerRequestFilter {
 	    throws ServletException {
 	    
 	    String path = request.getRequestURI();
-	    String loginState = request.getHeader("loginState");
-	    log.info("loginState : " + loginState);
+	    String authHeader = request.getHeader("Authorization");
 	    
 	    //멤버 로그인 경로의 호출은 체크하지 않음
 	    if(path.startsWith("/api/")) {
-	    	if("true".equals(loginState)) {
+	    	if(!(authHeader == null)) {
 	    		return false;
 	    	}
 	        return true;
 	    }
 	    
-	    if(path.startsWith("/api/")) {
-	    	if("true".equals(loginState)) {
-	    		return false;
-	    	}
-	        return true;
-	    }
 	    
 	    //이미지 조회 경로는 체크하지 않음
 	    if(path.startsWith("/api/view/")) {

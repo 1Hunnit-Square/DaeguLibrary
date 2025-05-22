@@ -25,6 +25,8 @@ const BorrowComponent = () => {
         if (tabId === 'reservation' || tabId === 'borrowlist') {
             newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
             newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+            newParams.set("option", "회원ID");
+            newParams.set("check", "전체");
         }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);

@@ -8,7 +8,6 @@ import Loading from "../../routers/Loading";
 const LibraryBookSearchComponent = () => {
 
     const [librarybookId, setLibrarybookId] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState(null);
 
      const searchMutation = useMutation({
@@ -78,7 +77,7 @@ const LibraryBookSearchComponent = () => {
                             className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#00893B]"
                             value={librarybookId}
                             onChange={handleSearch}
-                            onKeyDown={(e) => {if (e.key === 'Enter' && !isLoading) {e.preventDefault(); ClickSearch();}}}
+                            onKeyDown={(e) => {if (e.key === 'Enter' && !searchMutation.isPending) {e.preventDefault(); ClickSearch();}}}
                         />
                         <Button
                             onClick={!searchMutation.isPending ? ClickSearch : undefined}

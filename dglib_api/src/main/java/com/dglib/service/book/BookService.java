@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.BookDetailDTO;
+import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
@@ -30,13 +32,12 @@ public interface BookService {
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
 	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
 	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
-	Page<BookSummaryDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto, String mid);
+	Page<BookNewSumDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto);
 	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
 	Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void reserveBook(Long libraryBookId, String id);
 	Page<ReserveBookListDTO> getReserveList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void cancelReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos);
-	void reReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos);
 	void completeBorrowing(List<ReserveStateChangeDTO> reserveStateChangeDtos);
 	void completeBookReturn(List<RentalStateChangeDTO> rentalBookListDtos);
 	Page<LibraryBookSearchByBookIdDTO> searchByLibraryBookBookId(Long libraryBookId, Pageable pageable);
@@ -48,6 +49,7 @@ public interface BookService {
 	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
 	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
 	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
+	Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pagebale, String check);
 	
 	
 	

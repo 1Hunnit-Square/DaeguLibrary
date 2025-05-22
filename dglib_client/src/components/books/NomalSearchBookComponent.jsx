@@ -7,7 +7,7 @@ import { getNsLibraryBookList } from "../../api/bookApi";
 import { usePagination } from "../../hooks/usePage";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import CheckBoxNonLabel from "../common/CheckNonLabel";
+import CheckNonLabel from "../common/CheckNonLabel";
 import { useBookMutation } from '../../hooks/useBookMutation';
 import { useBookActions } from '../../hooks/useBookActions';
 import { useItemSelection } from '../../hooks/useItemSelection';
@@ -46,7 +46,7 @@ const NomalSearchBookComponent = () => {
     });
 
     const books = useMemo(() => data.content, [data.content]);
-
+    
     const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection } = useItemSelection(books, 'libraryBookId');
     const resetSelectedBooks = () => resetSelection(new Set());
 
@@ -133,7 +133,7 @@ const NomalSearchBookComponent = () => {
                 buttonClassName="right-2"
             />
             {isSearched && books.length > 1 &&
-                <CheckBoxNonLabel
+                <CheckNonLabel
                     checked={isChecked}
                     onChange={onChangeRe}
                     label="결과 내 재검색"
@@ -170,7 +170,7 @@ const NomalSearchBookComponent = () => {
                 {books && books.length > 0 ? (
                     <>
                         <div className="flex mx-3 gap-3">
-                            <CheckBoxNonLabel
+                            <CheckNonLabel
                                 checked={isAllSelected}
                                 onChange={handleSelectAll}
                                 inputClassName="hover:cursor-pointer w-4 h-4"
@@ -189,7 +189,7 @@ const NomalSearchBookComponent = () => {
                                     className="flex flex-row bg-white rounded-lg -mt-1 shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-6 p-6"
                                 >
                                     <div className="w-full md:w-48 flex justify-center">
-                                        <CheckBoxNonLabel
+                                        <CheckNonLabel
                                             checked={selectedBooks.has(book.libraryBookId)}
                                             onChange={(e) => handleSelectBooks(e, book.libraryBookId)}
                                             inputClassName="hover:cursor-pointer relative bottom-30 right-1 w-4 h-4"

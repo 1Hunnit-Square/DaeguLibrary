@@ -50,4 +50,7 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book"})
 	Page<Reserve> findAll(Specification<Reserve> spec, Pageable pageable);
 	
+	@EntityGraph(attributePaths = {"member", "libraryBook"})
+	List<Reserve> findByLibraryBookLibraryBookIdInAndStateOrderByReserveDateAsc(Set<Long> libraryBookIds, ReserveState state);
+	
 }

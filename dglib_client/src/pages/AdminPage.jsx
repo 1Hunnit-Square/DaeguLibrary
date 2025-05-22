@@ -21,7 +21,7 @@ const AdminPage = () => {
     }, [currentDate]);
 
     const LSideMenu = useMemo(() => [
-        { id: "regBook", label: "도서관리", path: `/admin/bookmanagement?tab=booklist&page=1&${getDateParams}` },
+        { id: "regBook", label: "도서관리", path: `/admin/bookmanagement?tab=booklist&page=1&option=도서명&${getDateParams}` },
         { id: "borrow", label: "대출예약관리", path: "/admin/borrow?tab=borrow&page=1" },], [getDateParams])
 
     useEffect(() => {

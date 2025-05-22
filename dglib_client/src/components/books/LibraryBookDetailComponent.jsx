@@ -19,6 +19,8 @@ const LibraryBookDetailComponent = () => {
         queryFn: () => getLibraryBookDetail(librarybookid),
     });
 
+    console.log(libraryBookDetail)
+
 
     const reserveMutation = useBookMutation(async (book) => await reserveBook(book), { successMessage: "도서를 예약했습니다."} );
 
@@ -127,8 +129,8 @@ const LibraryBookDetailComponent = () => {
                                                 <td className="py-3 px-6">{libraryBook.libraryBookId}</td>
                                                 <td className="py-3 px-6">{libraryBook.location}</td>
                                                 <td className="py-3 px-6">{libraryBook.callSign}</td>
-                                                <td className="py-3 px-6">{(libraryBook.borrowed || libraryBook.unmanned) ? `대출중(${libraryBook.reserveCount}명)` : libraryBook.reserved ? `예약대기중(${libraryBook.reserveCount}명)` : "대출가능"}</td>
-                                                <td className="py-3 px-6">{libraryBook.dueDate || "-"}</td>
+                                                <td className="py-3 px-6">{libraryBook.overdue ? `연체중(${libraryBook.reserveCount}명)` : (libraryBook.borrowed || libraryBook.unmanned) ? `대출중(${libraryBook.reserveCount}명)` :  libraryBook.reserved ? `예약대기중(${libraryBook.reserveCount}명)` : "대출가능"}</td>
+                                                <td className={`py-3 px-6 ${libraryBook.overdue && 'text-red-600'}`}>{libraryBook.dueDate || "-"}</td>
                                                 <td className="py-3 px-6">
                                                     <Button children="아이콘" onClick={() => window.print()} />
                                                 </td>

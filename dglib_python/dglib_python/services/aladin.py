@@ -27,9 +27,14 @@ async def get_aladin_book_info(isbn: str) -> dict:
         book_item = data.get('item')[0]
 
         return {
-            'title': book_item.get('title'),
-            'author': book_item.get('author'),
-            'cover_url': book_item.get('cover').replace('coversum/', 'cover500/')
+            'title': html.unescape(book_item.get('title')),
+            'author': html.unescape(book_item.get('author')),
+            'cover_url': book_item.get('cover').replace('coversum/', 'cover500/'),
+            'description': html.unescape(book_item.get('description', '')),
+            'publisher': html.unescape(book_item.get('publisher')),
+            'pubdate': book_item.get('pubdate'),
+
+
         }
     except (KeyError, IndexError) as e:
         logger.error(f"알라딘 API 응답 처리 오류: {e}, ISBN: {isbn}")
@@ -94,6 +99,10 @@ async def get_books_by_page(query, page=1, items_per_page=10):
                 cover_url = book.get('cover')
                 book['cover'] = cover_url.replace('coversum/', 'cover500/')
                 book['description'] = html.unescape(book.get('description', ''))
+                book['author'] = html.unescape(book.get('author', ''))
+                book['title'] = html.unescape(book.get('title', ''))
+                book['publisher'] = html.unescape(book.get('publisher', ''))
+
 
 
 

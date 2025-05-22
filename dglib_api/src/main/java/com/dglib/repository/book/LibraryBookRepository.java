@@ -52,7 +52,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 		    
 		    )
 		""")
-		BookStatusCountDto countReserveAndBorrowDto(String mno, @Param("reserveState") ReserveState reserveState, @Param("rentalState") RentalState rentalState);
+	BookStatusCountDto countReserveAndBorrowDto(String mno, @Param("reserveState") ReserveState reserveState, @Param("rentalState") RentalState rentalState);
 	
 	
 	@Query("SELECT lb.callSign FROM LibraryBook lb WHERE lb.callSign IN :callSigns")
@@ -82,6 +82,40 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@EntityGraph(attributePaths = {"book"})
 	Page<LibraryBook> findByRegLibraryBookDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+	
+	
+
+	
+	@Query("""
+		    SELECT lb FROM LibraryBook lb
+		    WHERE lb.regLibraryBookDate BETWEEN :startDate AND :endDate
+		    AND lb.regLibraryBookDate = (
+		        SELECT MIN(lb2.regLibraryBookDate) 
+		        FROM LibraryBook lb2 
+		        WHERE lb2.book.id = lb.book.id
+		    )
+		    """)
+		@EntityGraph(attributePaths = {"book"})
+		Page<LibraryBook> findFirstRegisteredBooksByDateBetween(
+		    @Param("startDate") LocalDate startDate, 
+		    @Param("endDate") LocalDate endDate, 
+		    Pageable pageable
+		);
+	
+	
+	@Query("""
+		    SELECT lb FROM LibraryBook lb 
+		    LEFT JOIN lb.rentals r 
+		    WHERE r.rentStartDate BETWEEN :startDate AND :endDate 
+		    GROUP BY lb.libraryBookId 
+		    ORDER BY COUNT(r.id) DESC
+		    """)
+	@EntityGraph(attributePaths = {"book"})
+	List<LibraryBook> findTop100MostRentedBooksByDateRange(
+	    @Param("startDate") LocalDate startDate, 
+	    @Param("endDate") LocalDate endDate
+	);
+
 	
 	
 	

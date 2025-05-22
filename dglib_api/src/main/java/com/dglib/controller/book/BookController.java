@@ -31,8 +31,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.dglib.dto.book.BookDTO;
 import com.dglib.dto.book.BookDetailDTO;
+import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
@@ -85,16 +87,51 @@ public class BookController {
 					return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
 				});
 	}
+	
+	@GetMapping("/bookrecolist/{genre}")
+	public Mono<ResponseEntity<Map<String, String>>> bookrecoList(@PathVariable String genre) {
+		LOGGER.info("genre: {}", genre);
+		String path = "/bookrecolist/" + genre;
+		return webClient.get()
+				.uri(path).retrieve().bodyToMono(String.class).map(result -> {
+					LOGGER.info("result: {}", result);
+					Map<String, String> responseMap = new HashMap<>();
+					responseMap.put("result", result);
+					return ResponseEntity.ok(responseMap);
+					}).onErrorResume(e -> {
+						LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
+                        Map<String, String> responseMap = new HashMap<>();
+                        responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
+                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
+                    });
+		
+//		Map<String, Object> convertedResponse = new HashMap<>();
+//        
+//        // items를 content로 변환
+//        List<Map<String, Object>> items = (List<Map<String, Object>>) result.get("items");
+//        convertedResponse.put("content", items);
+//        
+//        // total_items를 totalElements로 변환
+//        convertedResponse.put("totalElements", result.get("total_items"));
+//        
+//        // 추가 정보도 포함 가능
+//        convertedResponse.put("totalPages", result.get("total_pages"));
+//        convertedResponse.put("page", result.get("page"));
+//        convertedResponse.put("size", result.get("size"));
+//        
+//        return ResponseEntity.ok(convertedResponse);
+				
+	}
 	@GetMapping("/search/{searchTerm}")
 	public Mono<ResponseEntity<String>> searchBookApi(@PathVariable String searchTerm,
 										@RequestParam(defaultValue = "1") int page,
-										@RequestParam(defaultValue = "10") int itemsPerPage) {
-		LOGGER.info("검색어: {}, 페이지: {}, 페이지당 항목 수: {}", searchTerm, page, itemsPerPage);
+										@RequestParam(defaultValue = "10") int size) {
+		LOGGER.info("검색어: {}, 페이지: {}, 페이지당 항목 수: {}", searchTerm, page, size);
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
                         .path("/search/{search_term}")
                         .queryParam("page", page)
-                        .queryParam("items_per_page", itemsPerPage)
+                        .queryParam("items_per_page", size)
                         .build(searchTerm))
 				.retrieve()
 				.bodyToMono(String.class)
@@ -138,14 +175,14 @@ public class BookController {
 	}
 	
 	@GetMapping("/newlibrarybooklist")
-	public ResponseEntity<Page<BookSummaryDTO>> getNewLibraryBookList(
+	public ResponseEntity<Page<BookNewSumDTO>> getNewLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
 	    NewLibrarayBookRequestDTO newLibrarayBookRequestDto) {
 		String mid = JwtProvider.getMid();
 		LOGGER.info("mid: {}", mid);
-		Pageable pageable = PageRequest.of(page - 1, size );
-		Page<BookSummaryDTO> bookList = bookService.getNewBookList(pageable, newLibrarayBookRequestDto, mid);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("libraryBookId").descending() );
+		Page<BookNewSumDTO> bookList = bookService.getNewBookList(pageable, newLibrarayBookRequestDto);
 	    return ResponseEntity.ok(bookList);
 	}
 	
@@ -156,6 +193,19 @@ public class BookController {
 		LOGGER.info("mid: {}", mid);
 		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid);
 		return ResponseEntity.ok(bookDetailDto);
+	}
+	
+	@GetMapping("/topborrowedbooklist")
+	public ResponseEntity<Page<BookTopSumDTO>> getTopBorrowedBookList(@RequestParam(defaultValue = "1") int page, 
+		    @RequestParam(defaultValue = "10") int size,
+		    @RequestParam(defaultValue = "오늘") String check) {
+		String mid = JwtProvider.getMid();
+		LOGGER.info("대출베스트 도서 요청 " + check);
+		LOGGER.info("mid: {}", mid);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("borrowCount").descending());
+		Page<BookTopSumDTO> bookList = bookService.getTopBorrowedBookList(pageable, check);
+		return ResponseEntity.ok(bookList);
+		
 	}
 	
 

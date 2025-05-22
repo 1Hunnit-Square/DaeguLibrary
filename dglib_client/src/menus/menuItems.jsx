@@ -33,8 +33,8 @@ const defaultMenuItems = [
       subMenus: [
         { name: '통합검색', link: '/books/search?tab=info&page=1' },
         { name: '신착도서', link: `/books/new?page=1&${dateParams}` },
-        { name: '추천도서', link: '/books/recommend' },
-        { name: '대출베스트도서', link: '/books/top' }
+        { name: '추천도서', link: '/books/recommend?genre=literature' },
+        { name: '대출베스트도서', link: '/books/top?check=오늘' }
       ]
     },
     {
@@ -96,7 +96,7 @@ const defaultMenuItems = [
     title: '관리자',
     link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
     subMenus: [
-      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}` },
+      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
       { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
     ]
   };

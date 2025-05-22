@@ -9,7 +9,6 @@ export const useBookMutation = (
   }
 ) => {
   const queryClient = useQueryClient();
-    console.log(queryKeyToInvalidate);
   return useMutation({
     mutationFn,
     onSuccess: (data, variables) => {

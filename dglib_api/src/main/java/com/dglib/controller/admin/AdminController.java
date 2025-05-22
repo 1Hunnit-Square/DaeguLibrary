@@ -127,7 +127,7 @@ public class AdminController {
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
 		int size = Optional.ofNullable(borrowedBookSearchDto.getSize())
                 .orElse(10);
-		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("rentId");
+		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("reserveId");
 		String orderBy = Optional.ofNullable(borrowedBookSearchDto.getOrderBy()).orElse("desc");
 		
 		Sort sort = "asc".equalsIgnoreCase(orderBy) 
@@ -147,12 +147,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("/rereservebook")
-	public ResponseEntity<String> reReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 재예약 요청: {}", reserveStateChangeDtos);
-		bookService.reReserveBook(reserveStateChangeDtos);
-		return ResponseEntity.ok().build();
-	}
 	
 	@PostMapping("/completeborrowing")
 	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {

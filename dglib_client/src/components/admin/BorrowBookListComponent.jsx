@@ -1,122 +1,61 @@
 import { getRentalList, returnBook } from "../../api/adminApi";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { usePagination } from "../../hooks/usePagination";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { usePagination } from "../../hooks/usePage";
+import { useQuery } from "@tanstack/react-query";
 import Button from "../common/Button";
 import { useSearchParams } from "react-router-dom";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
-import CheckBoxNonLabel from "../common/CheckNonLabel";
+import CheckNonLabel from "../common/CheckNonLabel";
+import { useSearchHandler } from "../../hooks/useSearchHandler";
+import { useDateRangeHandler } from "../../hooks/useDateRangeHandler";
+import { useSelectHandler } from "../../hooks/useSelectHandler";
+import { useItemSelection } from "../../hooks/useItemSelection";
+import { useCheckboxFilter } from "../../hooks/useCheckboxFilter";
+import { useBookMutation } from "../../hooks/useBookMutation";
 
 
 
 const BorrowBookListComponent = () => {
-
+    const sortByOption = useMemo(() => ({"대출일순": "rentId"}), []);
+    const orderByOption = useMemo(() => ({"오름차순": "asc", "내림차순": "desc"}), []);
+    const sizeOption = useMemo(() => ({"10개씩": "10", "50개씩": "50", "100개씩": "100"}), []);
+    const options = ["회원ID", "도서번호"]
     const [searchURLParams, setSearchURLParams] = useSearchParams();
-
-    const queryParams = useMemo(() => ({
-        query: searchURLParams.get("query") || "",
-        option: searchURLParams.get("option") || "회원ID",
-        page: searchURLParams.get("page") || "1",
-        size: searchURLParams.get("size") || "10",
-        check: searchURLParams.get("check") || "전체",
-        startDate: searchURLParams.get("startDate"),
-        endDate: searchURLParams.get("endDate"),
-        sortBy: searchURLParams.get("sortBy") || "rentStartDate",
-        orderBy: searchURLParams.get("orderBy") || "desc",
-
-    }), [searchURLParams]);
-
-    const [dateRange, setDateRange] = useState({startDate: queryParams.startDate, endDate: queryParams.endDate});
-    const [selectedItems, setSelectedItems] = useState(new Set());
-    const [isAllSelected, setIsAllSelected] = useState(false);
-    const [selectedFilter, setSelectedFilter] = useState("전체");
-    const queryClient = useQueryClient();
-
-
+    const { dateRange, handleDateChange } = useDateRangeHandler();
+    const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
+    const { selectedValue: selectedCheck, handleValueChange: handleCheckChange } = useCheckboxFilter(searchURLParams, setSearchURLParams, "check", "전체");
+        useEffect(() => {
+        resetSelection(new Set());
+    }, [searchURLParams]);
 
 
     const { data: rentalData = { content: [], totalElements: 0 }, isLoading } = useQuery({
         queryKey: ['rentalList', searchURLParams.toString()],
         queryFn: () => {
                     const params = {
-                        page: parseInt(queryParams.page, 10),
-                        size: parseInt(queryParams.size, 10),
-                        check: queryParams.check,
-                        startDate: queryParams.startDate,
-                        endDate: queryParams.endDate,
-                        sortBy: queryParams.sortBy,
-                        orderBy: queryParams.orderBy,
+                        page: parseInt(searchURLParams.get("page") || "1"),
+                        size: parseInt(searchURLParams.get("size") || "10"),
+                        startDate: searchURLParams.get("startDate"),
+                        endDate: searchURLParams.get("endDate"),
+                        check: searchURLParams.get("check") || "전체",
+                        sortBy: searchURLParams.get("sortBy") || "rentId",
+                        orderBy: searchURLParams.get("orderBy") || "desc",
                     };
 
-                    if (queryParams.query) {
-                        params.query = queryParams.query;
-                        params.option = queryParams.option;
+                    if (searchURLParams.get("query")) {
+                        params.query = searchURLParams.get("query");
+                        params.option = searchURLParams.get("option");
                     }
-                    setSelectedFilter(queryParams.check);
                     return getRentalList(params);
                 },
     });
 
     const rentalList = useMemo(() => rentalData.content, [rentalData.content]);
+    console.log(rentalList)
 
-    const returnMutation = useMutation({
-        mutationFn: async (rentIds) => {
-            return await returnBook(rentIds);
-        },
-        onSuccess: () => {
-            alert("도서 반납이 완료되었습니다.");
-            setSelectedItems(new Set());
-            setIsAllSelected(false);
-            queryClient.invalidateQueries(['rentalList', searchURLParams]);
-        },
-        onError: (error) => {
-            console.log("도서 반납 오류:", error);
-            alert("도서 반납에 실패했습니다. " + error.response?.data?.message);
-        }
-    });
-
-    useEffect(() => {
-        if (rentalList.length > 0 && selectedItems.size === rentalList.length) {
-            setIsAllSelected(true);
-        } else {
-            setIsAllSelected(false);
-        }
-
-    }, [rentalList, selectedItems])
-
-    useEffect(() => {
-        setSelectedItems(new Set());
-        setIsAllSelected(false);
-    }, [searchURLParams]);
-
-
-    const handleSelectAll = (e) => {
-        const isChecked = e.target.checked;
-        setIsAllSelected(isChecked);
-        if (isChecked) {
-            const newSelectedItems = new Set();
-            rentalList.forEach(item => {
-            newSelectedItems.add(item.rentId);
-        });
-        setSelectedItems(newSelectedItems);
-        } else {
-        setSelectedItems(new Set());
-        }
-    }
-    const handleSelectItem = (e, item) => {
-        const isChecked = e.target.checked;
-        setSelectedItems(prev => {
-            const newSelectedItems = new Set(prev);
-            if (isChecked) {
-                newSelectedItems.add(item.rentId);
-            } else {
-                newSelectedItems.delete(item.rentId);
-            }
-            return newSelectedItems;
-        });
-    }
+    const returnMutation = useBookMutation(async (book) => await returnBook(book), { successMessage: "도서가 반납되었습니다."} );
 
     const buttonClick = async () => {
         if (selectedItems.size === 0) {
@@ -127,81 +66,15 @@ const BorrowBookListComponent = () => {
     }
 
 
-    const handleSearch = useCallback((searchQuery, selectedOption) => {
-            const newParams = new URLSearchParams();
-            newParams.set("query", searchQuery);
-            newParams.set("option", selectedOption);
-            newParams.set("tab", "borrowlist");
-            newParams.set("page", "1");
-            newParams.set("check", selectedFilter);
-            newParams.set("startDate", dateRange.startDate);
-            newParams.set("endDate", dateRange.endDate);
-            setSelectedItems(new Set());
-            setSearchURLParams(newParams);
-        }, [setSearchURLParams, dateRange, selectedFilter]);
 
-    const handleCheckChange = useCallback((checkValue) => {
-        if (checkValue === selectedFilter) {
-            return;
-        }
-    setSelectedFilter(checkValue);
-    const newParams = new URLSearchParams(searchURLParams);
-    newParams.set("check", checkValue);
-    newParams.set("page", "1");
-    setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams, selectedFilter]);
-
-    const handleDateChange = useCallback((e) => {
-        const { name, value } = e.target;
-        setDateRange(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    }, []);
-
-    const handleSortByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        const sortFieldMap = {
-            "대출일순": "rentStartDate",
-        };
-        newParams.set("sortBy", sortFieldMap[value] || "rentStartDate");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
+    const { selectedItems, isAllSelected, handleSelectItem, handleSelectAll, resetSelection } = useItemSelection(rentalList, 'rentId');
 
 
-    const handleOrderByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        const orderDirectionMap = {
-            "오름차순": "asc",
-            "내림차순": "desc"
-        };
-        newParams.set("orderBy", orderDirectionMap[value] || "desc");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
+    const { handleSearch } = useSearchHandler( {tab: 'borrowlist', dateRange, selectedCheck , onPageReset: () => {
+        resetSelection(new Set());}});
 
 
-    const handleSizeChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        const sizeMap = {
-            "10개씩": "10",
-            "50개씩": "50",
-            "100개씩": "100"
-        };
-        newParams.set("size", sizeMap[value] || "10");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-    const pageClick = useCallback((page) => {
-            if (isLoading) return;
-            const newParams = new URLSearchParams(searchURLParams);
-            newParams.set("page", page.toString());
-            setSearchURLParams(newParams);
-        }, [ searchURLParams, isLoading, setSearchURLParams]);
-
-
-    const { renderPagination } = usePagination(rentalData, pageClick, isLoading);
-
-    const options = ["회원ID", "도서번호"]
+    const { renderPagination } = usePagination(rentalData, searchURLParams, setSearchURLParams, isLoading);
 
     return (
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -209,13 +82,14 @@ const BorrowBookListComponent = () => {
                 <Loading text="목록 갱신중.."/>
             )}
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">대출 목록</h1>
-            <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
-                    <SearchSelectComponent options={options} defaultCategory={queryParams.option} selectClassName="mr-2 md:mr-5"
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-4 min-h-30">
+                    <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
-                        input={queryParams.query}
+                        value={searchURLParams.get("query")}
+                        input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
                         <div className="flex items-center">
@@ -225,30 +99,30 @@ const BorrowBookListComponent = () => {
                             <input type="date" value={dateRange.endDate} onChange={handleDateChange} name="endDate" className="w-full border bg-white rounded-md p-2" />
                         </div>
                         <div className="flex gap-5 mt-5 ">
-                             <CheckBoxNonLabel label="전체"
-                             checked={selectedFilter === "전체"}
+                             <CheckNonLabel label="전체"
+                             checked={selectedCheck === "전체"}
                              onChange={() => handleCheckChange("전체")} />
-                             <CheckBoxNonLabel label="대출중"
-                             checked={selectedFilter === "대출중"}
+                             <CheckNonLabel label="대출중"
+                             checked={selectedCheck === "대출중"}
                              onChange={() => handleCheckChange("대출중")} />
-                             <CheckBoxNonLabel label="연체"
-                             checked={selectedFilter === "연체"}
+                             <CheckNonLabel label="연체"
+                             checked={selectedCheck === "연체"}
                              onChange={() => handleCheckChange("연체")} />
                         </div>
 
                     </div>
             </div>
             <div className="flex justify-end item-center mb-5">
-                <SelectComponent onChange={handleSortByChange} value={queryParams.sortBy === "rentStartDate" ? "대출일순" : "대출일순"}  options={["대출일순"]} />
-                <SelectComponent onChange={handleOrderByChange} value={queryParams.orderBy === "asc" ? "오름차순" : "내림차순"}  options={["내림차순", "오름차순"]}/>
-                <SelectComponent onChange={handleSizeChange} value={`${queryParams.size}개씩`}  options={["10개씩", "50개씩", "100개씩"]} />
+                <SelectComponent onChange={(value) => handleSelectChange('sortBy', value)}  value={searchURLParams.get("sortBy") || "rentId"}  options={sortByOption} />
+                <SelectComponent onChange={(value) => handleSelectChange('orderBy', value)}  value={searchURLParams.get("orderBy") || "desc"}  options={orderByOption}/>
+                <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />
             </div>
             <div className="shadow-md rounded-lg overflow-x-auto">
                 <table className="min-w-full bg-white">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
                             <th className="py-3 px-4 text-left">
-                                <CheckBoxNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
+                                <CheckNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
                             </th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원ID</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서명</th>
@@ -281,7 +155,7 @@ const BorrowBookListComponent = () => {
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 ${isOverdue ? 'bg-red-50' : ''}`}>
                                         <td className="py-4 px-4">
-                                            <CheckBoxNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.rentId)} onChange={(e) => handleSelectItem(e, item)} />
+                                            <CheckNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.rentId)} onChange={(e) => handleSelectItem(e, item.rentId)} />
                                         </td>
                                         <td className="py-4 px-6">{item.mid}</td>
                                         <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>

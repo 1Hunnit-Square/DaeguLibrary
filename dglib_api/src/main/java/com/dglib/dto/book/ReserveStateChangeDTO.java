@@ -9,10 +9,5 @@ import lombok.Data;
 @Data
 public class ReserveStateChangeDTO {
 	private Long reserveId;
-	private Integer reservationRank;
-	private ReserveState state;
-	private Long libraryBookId;
-	private String mid;
-
 
 }

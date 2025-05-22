@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
-import { getAuthHeader } from '../util/cookieUtil';
-import axiosAuth from '../util/axiosClient';
+import axiosClient from '../util/axiosClient';
+
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;
 
@@ -34,55 +34,55 @@ export const idExist = async (param) => {
 }
 
 export const getInterestedBook = async (param) => {
-    const loginState = getAuthHeader();
+
     const headers = {
-        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+
         'Content-Type': 'application/json'
     };
-    const res = await axiosAuth.get(`${prefix}/interestedbook`, { params : param, headers });
+    const res = await axiosClient.get(`${prefix}/interestedbook`, { params : param, headers });
     return res.data;
 }
 
 export const reserveBook = async (reservationData) => {
-    const loginState = getAuthHeader();
+
     const headers = {
-        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+
         'Content-Type': 'application/json'
     };
-    const res = await axiosAuth.post(`${prefix}/reservebook`, reservationData, { headers });
+    const res = await axiosClient.post(`${prefix}/reservebook`, reservationData, { headers });
     return res.data;
 
 }
 
 export const unMannedReserve = async (reservationData) => {
-    const loginState = getAuthHeader();
+
     const headers = {
-        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+
         'Content-Type': 'application/json'
     };
-    const res = await axiosAuth.post(`${prefix}/unmannedreserve`, reservationData, { headers });
+    const res = await axiosClient.post(`${prefix}/unmannedreserve`, reservationData, { headers });
     return res.data;
 
 }
 
 export const addInterestedBook = async (id) => {
-    const loginState = getAuthHeader();
+
     console.log(id);
     const headers = {
-        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+
         'Content-Type': 'application/json'
     };
-    const res = await axiosAuth.post(`${prefix}/addinterestedbook`, { libraryBookIds: id }, { headers });
+    const res = await axiosClient.post(`${prefix}/addinterestedbook`, { libraryBookIds: id }, { headers });
     return res.data;
 }
 
 export const deleteInterestedBook = async (ibIds) => {
-    const loginState = getAuthHeader();
+
     const headers = {
-        'loginState': loginState && loginState.Authorization ? 'true' : 'false',
+
         'Content-Type': 'application/json'
     };
-    const res = await axiosAuth.delete(`${prefix}/deleteinterestedbook`, {
+    const res = await axiosClient.delete(`${prefix}/deleteinterestedbook`, {
         data: { ibIds },
         headers,
     });

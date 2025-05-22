@@ -6,20 +6,20 @@ import { useSearchParams } from 'react-router-dom';
  * @param {Object} options - 훅 옵션
  * @param {string} options.tab - 탭 이름 (예: 'borrowlist', 'booklist', 'reservation')
  * @param {Object} options.dateRange - 날짜 범위 객체 ({startDate, endDate})
- * @param {string} [options.selectedFilter] - 선택된 필터 (예: '전체', '일반', '무인')
- * @param {boolean} [options.selectedState] - 상태 필터 (예: true - 'RESERVED', false - 전체)
+ * @param {string} [options.selectedCheck] - 선택된 필터 (예: '전체', '일반', '무인')
+ * @param {boolean} [options.selectedState] - 상태 필터 (예: true - '체크', false - 체크해제)
  * @param {string} [options.stateValue] - 선택된 상태의 값 (기본값: 'RESERVED')
- * @param {function} [options.onSearch] - 검색 이후 실행할 콜백 함수
+ * @param {function} [options.onPageReset] - 검색 이후 실행할 콜백 함수
  * @param {Object} [options.additionalParams] - 추가적으로 설정할 파라미터 객체
  * @returns {function} handleSearch 함수
  */
 export const useSearchHandler = ({
   tab,
   dateRange,
-  selectedFilter,
+  selectedCheck,
   selectedState,
   stateValue = 'RESERVED',
-  onSearch,
+  onPageReset,
   additionalParams = {}
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,8 +40,8 @@ export const useSearchHandler = ({
     }
 
 
-    if (selectedFilter) {
-      newParams.set("check", selectedFilter);
+    if (selectedCheck) {
+      newParams.set("check", selectedCheck);
     }
 
 
@@ -59,12 +59,12 @@ export const useSearchHandler = ({
     });
 
 
-    if (onSearch) {
-      onSearch();
+    if (onPageReset) {
+      onPageReset();
     }
 
     setSearchParams(newParams);
-  }, [tab, dateRange, selectedFilter, selectedState, stateValue, additionalParams, onSearch, setSearchParams]);
+  }, [tab, dateRange, selectedCheck, selectedState, stateValue, additionalParams, onPageReset, setSearchParams]);
 
-  return handleSearch;
+  return { handleSearch };
 };

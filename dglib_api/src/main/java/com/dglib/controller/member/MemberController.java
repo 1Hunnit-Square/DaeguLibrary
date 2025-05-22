@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.member.MemberListDTO;
+import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.RegMemberDTO;
@@ -66,6 +67,12 @@ public class MemberController {
 		return ResponseEntity.ok(memberList);
 	}
 	
+	@PostMapping("/manageMember")
+	public ResponseEntity<String> manageMember(@ModelAttribute MemberManageDTO memberManageDTO){
+		memberService.manageMember(memberManageDTO);
+		return ResponseEntity.ok().build();
+	}
+	
 	@PostMapping("/register")
 	public ResponseEntity<String> regMember (@RequestBody RegMemberDTO regMemberDTO){
 		memberService.registerMember(regMemberDTO);
@@ -81,6 +88,8 @@ public class MemberController {
 	public ResponseEntity<Boolean> existById(@RequestParam String mid){
 		return ResponseEntity.ok(memberService.existById(mid));
 	}
+	
+	
 
 
 }

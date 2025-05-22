@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
+import axiosClient from '../util/AxiosClient';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;
 
@@ -22,7 +23,7 @@ export const cardPost = async (param) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const form = new FormData();
     form.append('mid', param);
-    const res = await axios.post(`${prefix}/cardinfo`, form, header);
+    const res = await axiosClient.post(`${prefix}/cardinfo`, form, header);
     return res.data;
 }
 
@@ -32,6 +33,12 @@ export const idExist = async (param) => {
 }
 
 export const getMemberList = async (paramsData) => {
-    const res = await axios.get(`${prefix}/listMember`, { params : paramsData });
+    const res = await axiosClient.get(`${prefix}/listMember`, { params : paramsData });
+    return res.data;
+}
+
+export const PostMemberManage = async (params) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    const res = await axios.post(`${prefix}/manageMember`, params, header);
     return res.data;
 }

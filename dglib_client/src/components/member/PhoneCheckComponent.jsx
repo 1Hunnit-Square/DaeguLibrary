@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { checkAuthCode, sendAuthCode } from "../../api/smsApi";
 
-const AuthCodeComponent = ({phoneNum, handleNext}) => {
+const PhoneCheckComponent = ({phoneNum, handleNext}) => {
     const [ code, setCode ] = useState("");
     const [ retry, setRetry ] = useState(false);
     const navigate  = useNavigate();
@@ -90,4 +90,4 @@ const AuthCodeComponent = ({phoneNum, handleNext}) => {
     </>);
 }
 
-export default AuthCodeComponent;
+export default PhoneCheckComponent;

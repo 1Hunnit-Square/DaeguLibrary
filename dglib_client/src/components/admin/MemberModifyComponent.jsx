@@ -1,17 +1,31 @@
 import { useMemo, useState } from "react";
 import Button from "../common/Button";
 import SelectComponent from "../common/SelectComponent";
+import { PostMemberManage } from "../../api/memberApi";
+import { useNavigate } from "react-router-dom";
 
-const MemberModifyComponent = ({data}) => {
-    const [modData, setModData] = useState({role: data.role, state : data.state, penalty : data.penaltyDays});
+const MemberModifyComponent = ({data, refetch}) => {
+    
 
     const penaltyDate = useMemo(()=>{
-        if(modData.penalty == 0)
+        if(data.penaltyDays == 0)
             return "";
         const today = new Date();
-        today.setDate(today.getDate()+modData.penalty-1);
+        today.setDate(today.getDate()+data.penaltyDays-1);
         return today.toISOString().slice(0, 10);
-    },[modData])
+    },[data])
+
+    const { zoneCode, addr, addrDetail } = useMemo(()=>{
+        const addrResult = {};
+        addrResult.zoneCode = data.addr.split("(")[1]?.split(")")[0];
+        addrResult.addr = data.addr.split(")")[1]?.split("(상세주소")[0] ?? data.addr
+        addrResult.addrDetail = data.addr?.split("(상세주소)")[1];
+        return addrResult;
+    },[data])
+
+    const [modData, setModData] = useState({role: data.role, state : data.state, penaltyDate : penaltyDate});
+
+    
 
     const roleMap = {
             "정회원": "USER",
@@ -44,34 +58,80 @@ const MemberModifyComponent = ({data}) => {
             alert("날짜가 현재 날짜보다 이후여야 합니다.");
             return;
         }
-        const inputDate = new Date(e.target.value).setHours(0, 0, 0, 0);
-        const today = new Date().setHours(0, 0, 0, 0);
-        const diffDays = Math.floor((inputDate - today) / (1000 * 60 * 60 * 24));
+        // const inputDate = new Date(e.target.value).setHours(0, 0, 0, 0);
+        // const today = new Date().setHours(0, 0, 0, 0);
+        // const diffDays = Math.floor((inputDate - today) / (1000 * 60 * 60 * 24));
         setModData(prev => ({
             ...prev,
-            ["penalty"] : diffDays + 1
+            ["penaltyDate"] : e.target.value
         }))
-        console.log(diffDays + 1);
     }
 
-    return (<div className="ml-5">
+    const handleUpdate = () => {
+        if(modData.state == "OVERDUE" && modData.penaltyDate == ""){
+            alert("기한 설정을 해야합니다.");
+            return;
+        }
+
+        const paramData = new FormData();
+        paramData.append("mid", data.mid);
+        paramData.append("role", modData.role);
+        paramData.append("state", modData.state);
+        
+        if(modData.state == "OVERDUE"){
+        paramData.append("penaltyDate", modData.penaltyDate);
+        }
+
+        PostMemberManage(paramData).then(data => {
+            alert("적용되었습니다.");
+            refetch();
+        }).catch(e => {
+            alert("오류가 발생하였습니다.");
+            console.error(e);
+        })
+        
+    }
+
+   
+
+    return (<div className="ml-4">
     <div className = "font-bold mt-3 mb-8 text-xl">{`회원ID : ${data.mid} (${data.name})`} </div>
-    <div className="flex items-center mb-5 z-50 relative">
-    <span className="mr-3 font-bold">권한</span>
+    <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
+    <span className="mr-5 font-bold">회원번호</span>
+    {data.mno}
+    </div>
+    <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
+    <span className="mr-5 font-bold">생년월일 / 성별</span>
+    {data.birthDate} / {data.gender}
+    </div>
+    <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
+    <span className="mr-5 font-bold">전화번호</span>
+    <span className="mr-2">{data.phone}</span>
+    {data.checkSms ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
+    </div>
+    <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
+    <span className="mr-5 font-bold">이메일</span>
+    <span className="mr-2">{data.email}</span>
+    {data.checkEmail ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
+    </div>
+    <div className="flex items-center pb-3 mb-4 border-b border-b-gray-300">
+    <span className="mr-5 font-bold">주소</span>
+    {zoneCode && <>({zoneCode})<br /></>}  {addrDetail ? <>{addr},<br /></>: <>{addr}</>}{addrDetail}
+    </div>
+    <div className="flex items-center mb-4 z-40 relative">
+    <span className="mr-5 font-bold">권한</span>
     <SelectComponent name="role" onChange={handleRole} value={modData.role}  options={roleMap} />
     </div>
-    <div className="flex items-center mb-5 z-30 relative">
-    <span className="mr-3 font-bold">상태</span>
+    <div className="flex items-center z-30 relative">
+    <span className="mr-5 font-bold">상태</span>
     <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} />
-    {(modData.state == "OVERDUE" || modData.state =="PUNISH") ? <><input type="date" value={penaltyDate} onChange={handlePenalty}
+    {(modData.state == "OVERDUE") ? <><input type="date" value={modData.penaltyDate} onChange={handlePenalty}
     className ="w-37 px-4 py-2 rounded-2xl bg-white border border-[#00893B] mr-3" /> 까지</>
     : <><input type="date" value={""}
     className ="w-37 px-4 py-2 rounded-2xl bg-gray-200 border border-gray-300 mr-3" disabled={true} /> 까지</>}
     </div>
-    <div className="flex mt-10 gap-2 mr-4 justify-end">
-
-        <Button className="bg-red-500 hover:bg-red-600">회원삭제</Button>
-        <Button>변경</Button>
+    <div className="flex mt-10 mr-6 justify-center">
+        <Button onClick={handleUpdate}>적용</Button>
     </div>
     
     </div>);

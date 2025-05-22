@@ -4,7 +4,7 @@ import SubHeader from "../../layouts/SubHeader";
 import Modal from "../../components/common/Modal";
 import { useState, useCallback } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
-import AuthCodeComponent from "../../components/member/AuthCodeComponent";
+import PhoneCheckComponent from "../../components/member/PhoneCheckComponent";
 
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +36,7 @@ return (
     </div>
 <Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
     {authStep == "phoneAuth" && <PhoneAuthComponent handleNext={handleNext} />}
-    {authStep == "authCode" && <AuthCodeComponent phoneNum={phoneNum} handleNext={handleNext}/>}
+    {authStep == "authCode" && <PhoneCheckComponent phoneNum={phoneNum} handleNext={handleNext}/>}
 </Modal>
 </Layout>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 );

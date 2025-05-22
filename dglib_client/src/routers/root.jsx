@@ -28,6 +28,7 @@ const Community = lazy(()=> import ("../pages/CommunityPage"));
 const MyLibrary = lazy(()=> import ("../pages/MyLibraryPage"));
 const MemberSearch = lazy(()=> import ("../components/admin/MemberSearchComponent"));
 const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSearchComponent"));
+const FindId = lazy(()=> import ("../pages/FindIdPage"));
 
 const root = createBrowserRouter([
 
@@ -103,6 +104,14 @@ const root = createBrowserRouter([
     {
         path : "librarybooksearch",
         element: <Suspense fallback={<Loading />}><LibraryBookSearch /></Suspense>
+    },
+    {
+        path : "findid",
+        element: <Suspense fallback={<Loading />}><FindId /></Suspense>
+    },
+    {
+        path : "findpw",
+        element: <Suspense fallback={<Loading />}><None /></Suspense>
     }
 
 

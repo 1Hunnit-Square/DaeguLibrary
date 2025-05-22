@@ -2,7 +2,7 @@ import Button from "../common/Button";
 import { memo, useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 
-const PwVerifyComponent = ({pw1, pw2, handleForm, check}) => {
+const PwEqualComponent = ({pw1, pw2, handleForm, check}) => {
 
 
 useEffect(()=>{
@@ -19,4 +19,4 @@ return(<>
 );
 }
 
-export default memo(PwVerifyComponent);
+export default memo(PwEqualComponent);

@@ -15,6 +15,10 @@ public class MemberListDTO {
 	private String name;
 	private String gender;
 	private String phone;
+	private String email;
+	private String addr;
+	private String checkSms;
+	private String checkEmail;
 	private LocalDate birthDate;
 	private MemberRole role;
 	private MemberState state;

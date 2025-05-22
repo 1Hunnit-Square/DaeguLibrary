@@ -7,7 +7,7 @@ import Button from "../../components/common/Button";
 import CheckBox from "../../components/common/CheckBox";
 import IdCheckComponent from "../../components/member/IdCheckComponent";
 import PwCheckComponent from "../../components/member/PwCheckComponent";
-import PwVerifyComponent from "../../components/member/PwVerifyComponent";
+import PwEqualComponent from "../../components/member/PwEqualComponent";
 import Modal from '../../components/common/Modal';
 import { regPost } from '../../api/memberApi';
 
@@ -187,7 +187,7 @@ return(
       </div>
       <div className="flex px-4 py-2 items-center gap-2">
         <input name="pw2" type="password" placeholder="비밀번호 확인" className="flex border px-3 py-2 rounded" onChange={handleChange}/>
-        <PwVerifyComponent pw1={joinForm.pw1} pw2={joinForm.pw2} handleForm={handleForm} check={pwVerify}/>
+        <PwEqualComponent pw1={joinForm.pw1} pw2={joinForm.pw2} handleForm={handleForm} check={pwVerify}/>
       </div>
     </div>
 

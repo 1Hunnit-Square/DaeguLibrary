@@ -29,7 +29,7 @@ const MemberManagementComponent = () => {
 
     }), [searchURLParams]);
 
-    const { data: memberData = { content: [], totalElements: 0 }, isLoading } = useQuery({
+    const { data: memberData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
         queryKey: ['memberList', searchURLParams.toString()],
         queryFn: () => {
                             const params = {
@@ -130,14 +130,15 @@ const handleByRole = useCallback((value) => {
     }, [searchURLParams, setSearchURLParams]);
 
     const filterValue = (value) => {
+        const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full"; 
        const data = {
-        "USER" : "정회원",
-        "MANAGER" : "사서",
-        "ADMIN" : "관리자",
-        "NORMAL" : "일반",
-        "OVERDUE" : "연체",
-        "PUNISH" : "제재",
-        "LEAVE" : "탈퇴"
+        "USER" : <span className={`text-black bg-amber-100 ${roundStyle}`}>정회원</span>,
+        "MANAGER" : <span className={`text-blue-500 bg-amber-100 ${roundStyle}`}>사서</span>,
+        "ADMIN" : <span className={`text-green-500 bg-amber-100 ${roundStyle}`}>관리자</span>,
+        "NORMAL" : <span className={`text-black bg-blue-100 ${roundStyle}`}>일반</span>,
+        "OVERDUE" : <span className={`text-purple-500 bg-blue-100 ${roundStyle}`}>연체</span>,
+        "PUNISH" : <span className={`text-orange-800 bg-blue-100 ${roundStyle}`}>제재</span>,
+        "LEAVE" : <span className={`text-red-500 bg-blue-100 ${roundStyle}`}>탈퇴</span>
        }
 
        return data[value];
@@ -153,11 +154,13 @@ const handleByRole = useCallback((value) => {
         setIsOpen(false);
         setModData({});
     }
+    
 
     return (  <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
              {isLoading && (
                 <Loading text="목록 갱신중.."/>
             )}
+            
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
             <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
                     <SearchSelectComponent options={options} defaultCategory={queryParams.option} selectClassName="mr-2 md:mr-5"
@@ -168,7 +171,7 @@ const handleByRole = useCallback((value) => {
                         input={queryParams.query}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-3 z-50">
+                        <div className="flex items-center gap-3 z-40">
                             <SelectComponent onChange={handleByRole} value={queryParams.role}  options={roleMap} />
                             <SelectComponent onChange={handleByState} value={queryParams.state}  options={stateMap} />
                         </div>
@@ -201,7 +204,7 @@ const handleByRole = useCallback((value) => {
                         {!isLoading && memberList.length == 0? (
                             <tr>
                                 <td colSpan="10" className="py-10 px-6 text-center text-gray-500 text-xl">
-                                    대여한 도서가 없습니다.
+                                    회원 정보를 불러올 수 없습니다.
                                 </td>
                             </tr>
                         ) : (
@@ -231,7 +234,7 @@ const handleByRole = useCallback((value) => {
             </div>
 
             {renderPagination()}
-             <Modal isOpen={isOpen} title={"회원 설정"} onClose={handleClose}> <MemberModifyComponent data={modData} /> </Modal>
+             <Modal isOpen={isOpen} title={"회원 설정"} onClose={handleClose}> <MemberModifyComponent data={modData} refetch={refetch} /> </Modal>
         </div>);
 }
 

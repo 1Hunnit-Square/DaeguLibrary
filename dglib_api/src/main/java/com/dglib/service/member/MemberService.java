@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.dglib.dto.member.MemberListDTO;
+import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.RegMemberDTO;
@@ -23,5 +24,7 @@ public interface MemberService {
 	Page<MemberListDTO> findAll(MemberSearchDTO searchDTO, Pageable pageable);
 	
 	boolean penaltyCheck (String mid);
+	
+	void manageMember(MemberManageDTO memberManageDTO);
 
 }

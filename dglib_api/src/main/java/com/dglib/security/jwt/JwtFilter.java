@@ -57,21 +57,22 @@ public class JwtFilter extends OncePerRequestFilter {
 	    throws ServletException {
 	    
 	    String path = request.getRequestURI();
-	    String loginState = request.getHeader("loginState");
-	    log.info("loginState : " + loginState);
+	    String authHeader = request.getHeader("Authorization");
+	    log.info("authHeader : " + authHeader);
 
 	    log.info("FILTER CHECK "+path);
 	    
 	    if (path.equals("/favicon.ico")) {
 	        return true;
 	    }
+	   
 	    
-	    //멤버 로그인 경로의 호출은 체크하지 않음
+	    //회원 + 비회원
 	    if(path.startsWith("/api/")) {
-	          if("true".equals(loginState)) {
-	             return false;
+	          if(authHeader != null) {
+	             return false; //회원의 경우
 	          }
-	           return true;
+	           return true; //비회원의 경우
 	       }
 
 

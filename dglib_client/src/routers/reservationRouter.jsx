@@ -5,6 +5,7 @@ import Loading from "./Loading";
 
 const BookRequest = lazy(() => import("../components/reservation/BookRequestComponent"));
 const Program = lazy(() => import("../components/reservation/ProgramComponent"));
+const Facility = lazy(() => import("../components/reservation/FacilityComponent"));
 
 
 const reservationRouter = () => ([
@@ -23,7 +24,7 @@ const reservationRouter = () => ([
     },
     {
         path : "facility",
-        element: <Suspense fallback={<Loading />}><Program /></Suspense>
+        element: <Suspense fallback={<Loading />}><Facility /></Suspense>
     }
 
 

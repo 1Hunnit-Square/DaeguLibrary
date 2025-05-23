@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { searchBookApi } from "../../api/bookApi";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import { usePagination } from "../../hooks/usePagination";
+import { usePagination } from "../../hooks/usePage";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from "react-router-dom";
 
@@ -25,6 +25,7 @@ const SearchBookApi = () => {
             },
             onSuccess: (data) => {
                 setBookList(data);
+                console.log(data);
                 queryClient.setQueryData(['bookSearch', currentQuery, currentPage], data);
             },
             onError: (error) => {
@@ -32,6 +33,7 @@ const SearchBookApi = () => {
                 alert("검색 중 오류가 발생했습니다. 다시 시도해 주세요.");
             }
         });
+
 
     useEffect(() => {
     const queryParam = searchURLParams.get('query');
@@ -62,19 +64,9 @@ const SearchBookApi = () => {
 
     }
 
-    const pageable = BookList ? {
-        content: BookList.items,
-        totalPages: Math.min(BookList.total_pages, 20),
-        pageable: {
-            pageNumber: currentPage - 1
-        }
-    } : null;
 
-    const handlePageChange = (page) => {
-        pageClick(page);
-    };
 
-    const { renderPagination } = usePagination(pageable, handlePageChange, searchMutation.isPending);
+
 
     const handleBookSelect = (book) => {
         if (window.opener) {
@@ -94,19 +86,8 @@ const SearchBookApi = () => {
         }
     };
 
-    const pageClick = (page) => {
-        if (page === currentPage) return;
 
-        setCurrentPage(page);
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set('page', page);
-        setSearchURLParams(newParams);
-        searchMutation.mutate({ query: currentQuery, page });
-
-    }
-
-
-
+    const { renderPagination } = usePagination(BookList, searchURLParams, setSearchURLParams, searchMutation.isPending);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -142,12 +123,12 @@ const SearchBookApi = () => {
                     {BookList && (
                         <div>
                             <div className="mb-4">
-                            <p>"{currentQuery}"에 대한 검색 결과, 총 {BookList.total_items}권의 도서를 찾았습니다.</p>
-                                {BookList.total_pages > 20 && <p className="text-xs mt-1 mx-1 text-gray-600">검색 결과는 최대 20페이지로 제한됩니다.</p>}
+                            <p>"{query}"에 대한 검색 결과, 총 {BookList.totalElements}권의 도서를 찾았습니다.</p>
+                                {BookList.totalPages > 20 && <p className="text-xs mt-1 mx-1 text-gray-600">검색 결과는 최대 20페이지로 제한됩니다.</p>}
                             </div>
 
                             <div className="space-y-6">
-                                {BookList.items.map((book, index) => (
+                                {BookList.content.map((book, index) => (
                                     <div
                                         key={index}
                                         onClick={() => handleBookSelect(book)}
@@ -176,7 +157,7 @@ const SearchBookApi = () => {
                                 ))}
                             </div>
 
-                            {BookList.items.length === 0 && (
+                            {BookList.content.length === 0 && (
                                 <div className="flex justify-center items-center py-10">
                                     <p className="text-gray-500">검색 결과가 없습니다.</p>
                                 </div>

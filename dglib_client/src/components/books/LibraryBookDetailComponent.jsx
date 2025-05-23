@@ -143,7 +143,7 @@ const LibraryBookDetailComponent = () => {
                     </div>
                     <div className="mt-8 flex justify-center gap-8">
                         <Button children="대출예약" onClick={() => handleReserveClick(selectedBook)}
-                        disabled={isLoading || !selectedBook || !(selectedBook.borrowed || selectedBook.unmanned) || selectedBook.alreadyBorrowedByMember || selectedBook.alreadyReservedByMember || selectedBook.alreadyUnmannedByMember || selectedBook.reserveCount >= 2 }
+                        disabled={isLoading || !selectedBook || !(selectedBook.borrowed || selectedBook.unmanned) || selectedBook.reserveCount >= 2 }
                         className={`px-6 py-2 rounded text-white transition
                             ${!selectedBook
                                 ? 'bg-gray-400 cursor-not-allowed'

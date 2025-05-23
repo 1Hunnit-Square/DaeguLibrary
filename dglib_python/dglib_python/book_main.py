@@ -64,16 +64,17 @@ async def bookrecolist(genre: str, page: int = Query(default=1, ge=1), size: int
     end_idx = min(start_idx + size, total_books)
 
     paged_books = all_books[start_idx:end_idx]
+    flattened_books = [item.get("doc", item) for item in paged_books]
 
     return {
         "genre": genre,
-        "page": page,
+        "pageable": {"pageNumber" : page - 1},
         "size": size,
-        "total_items": total_books,
-        "total_pages": total_pages,
-        "has_next": page < total_pages,
-        "has_prev": page > 1,
-        "items": paged_books
+        "totalElements": total_books,
+        "totalPages": total_pages,
+        "hasNext": page < total_pages,
+        "hasPrev": page > 1,
+        "content": flattened_books
     }
 
 
@@ -97,13 +98,13 @@ async def book_search(
 
         return {
             "query": search_term,
-            "page": page,
+            "pageable": {"pageNumber" : page - 1},
             "size": size,
-            "total_items": total_results,
-            "total_pages": total_pages,
-            "has_next": page < total_pages,
-            "has_prev": page > 1,
-            "items": books
+            "totalElements": total_results,
+            "totalPages": total_pages,
+            "hasNext": page < total_pages,
+            "hasPrev": page > 1,
+            "content": books
         }
     except Exception as e:
         logger.error(f"검색 오류: {str(e)}")

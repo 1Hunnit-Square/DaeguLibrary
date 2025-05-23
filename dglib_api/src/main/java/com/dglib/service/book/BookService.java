@@ -50,6 +50,7 @@ public interface BookService {
 	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
 	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
 	Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pagebale, String check);
+	void checkOverdue();
 	
 	
 	

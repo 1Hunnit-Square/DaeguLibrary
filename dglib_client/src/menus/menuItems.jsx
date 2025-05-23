@@ -33,7 +33,7 @@ const defaultMenuItems = [
       subMenus: [
         { name: '통합검색', link: '/books/search?tab=info&page=1' },
         { name: '신착도서', link: `/books/new?page=1&${dateParams}` },
-        { name: '추천도서', link: '/books/recommend?genre=literature' },
+        { name: '추천도서', link: '/books/recommend?genre=literature&page=1' },
         { name: '대출베스트도서', link: '/books/top?check=오늘' }
       ]
     },

@@ -17,35 +17,49 @@ import com.dglib.entity.book.ReserveState;
 
 
 public class LibraryBookSpecifications {
+	
+	public static Specification<LibraryBook> notDeleted() {
+	    return (root, query, cb) -> cb.isFalse(root.get("isDeleted"));
+	}
 
 	public static Specification<LibraryBook> nsFilter(String query, String option) {
 	    return (root, criteriaQuery, criteriaBuilder) -> {
+	    	Predicate basePredicate = criteriaBuilder.isFalse(root.get("isDeleted"));
 	        if (query == null || query.isEmpty()) {
-	            return criteriaBuilder.conjunction(); 
+	            return basePredicate; 
 	        }
 
+	        Predicate searchPredicate;
 	        
 	        switch (option) {
-	            case "제목":
-	                return criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + query + "%");
-	            case "저자":
-	                return criteriaBuilder.like(root.get("book").get("author"), "%" + query + "%");
-	            case "출판사":
-	                return criteriaBuilder.like(root.get("book").get("publisher"), "%" + query + "%");
-	            case "전체":
-	                return criteriaBuilder.or(
-	                    criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + query + "%"),
-	                    criteriaBuilder.like(root.get("book").get("author"), "%" + query + "%"),
-	                    criteriaBuilder.like(root.get("book").get("publisher"), "%" + query + "%")
-	                );
-	            default:
-	                return criteriaBuilder.conjunction(); 
-	        }
+            case "제목":
+                searchPredicate = criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + query + "%");
+                break;
+            case "저자":
+                searchPredicate = criteriaBuilder.like(root.get("book").get("author"), "%" + query + "%");
+                break;
+            case "출판사":
+                searchPredicate = criteriaBuilder.like(root.get("book").get("publisher"), "%" + query + "%");
+                break;
+            case "전체":
+                searchPredicate = criteriaBuilder.or(
+                    criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + query + "%"),
+                    criteriaBuilder.like(root.get("book").get("author"), "%" + query + "%"),
+                    criteriaBuilder.like(root.get("book").get("publisher"), "%" + query + "%")
+                );
+                break;
+            default:
+                searchPredicate = criteriaBuilder.conjunction();
+        }
+
+        return criteriaBuilder.and(basePredicate, searchPredicate);
+	        
 	    };
 	}
 	
 	public static Specification<LibraryBook> fsFilter(LibraryBookFsDTO dto) {
 		return (root, criteriaQuery, criteriaBuilder) -> {
+			Predicate basePredicate = criteriaBuilder.isFalse(root.get("isDeleted"));
 			List<Predicate> predicates = new ArrayList<>(); 
 			if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
 				predicates.add(criteriaBuilder.like(root.get("book").get("bookTitle"), "%" + dto.getTitle() + "%"));
@@ -80,6 +94,7 @@ public class LibraryBookSpecifications {
 	                   criteriaQuery.orderBy(criteriaBuilder.asc(root.get("book").get(dto.getSortBy())));
 	               }
 	        }
+			predicates.add(basePredicate); 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		};
             
@@ -107,7 +122,7 @@ public class LibraryBookSpecifications {
 	public static Specification<LibraryBook> lsFilter(LibraryBookSearchDTO dto) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            
+
   
             if (dto.getQuery() != null && !dto.getQuery().isEmpty()) {
                 String option = dto.getOption();
@@ -140,6 +155,8 @@ public class LibraryBookSpecifications {
             if (dto.getEndDate() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("regLibraryBookDate"), dto.getEndDate()));
             }
+            
+
             
             
   

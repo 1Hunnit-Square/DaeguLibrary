@@ -3,11 +3,13 @@ package com.dglib.controller.book;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,55 +74,52 @@ public class BookController {
 	
 	@GetMapping("/bookreco/{genre}")
 	public Mono<ResponseEntity<Map<String, String>>> bookReco(@PathVariable String genre) {
-		LOGGER.info("genre: {}", genre);
-		String path = "/bookreco/" + genre;
-		return webClient.get()
-				.uri(path).retrieve().bodyToMono(String.class).map(result -> {
-					LOGGER.info("result: {}", result);
-					Map<String, String> responseMap = new HashMap<>();
-					responseMap.put("result", result);
-					return ResponseEntity.ok(responseMap);
-				}).onErrorResume(e -> {
-					LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
-					Map<String, String> responseMap = new HashMap<>();
-					responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
-					return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
-				});
+	    LOGGER.info("genre: {}", genre);
+
+	    return webClient.get()
+	            .uri(uriBuilder -> uriBuilder
+	                    .path("/bookreco/{genre}")
+	                    .build(genre))
+	            .retrieve()
+	            .bodyToMono(String.class)
+	            .map(result -> {
+	                LOGGER.info("result: {}", result);
+	                Map<String, String> responseMap = new HashMap<>();
+	                responseMap.put("result", result);
+	                return ResponseEntity.ok(responseMap);
+	            })
+	            .onErrorResume(e -> {
+	                LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
+	                Map<String, String> responseMap = new HashMap<>();
+	                responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
+	                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
+	            });
 	}
 	
 	@GetMapping("/bookrecolist/{genre}")
-	public Mono<ResponseEntity<Map<String, String>>> bookrecoList(@PathVariable String genre) {
-		LOGGER.info("genre: {}", genre);
-		String path = "/bookrecolist/" + genre;
-		return webClient.get()
-				.uri(path).retrieve().bodyToMono(String.class).map(result -> {
-					LOGGER.info("result: {}", result);
-					Map<String, String> responseMap = new HashMap<>();
-					responseMap.put("result", result);
-					return ResponseEntity.ok(responseMap);
-					}).onErrorResume(e -> {
-						LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
-                        Map<String, String> responseMap = new HashMap<>();
-                        responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
-                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
-                    });
-		
-//		Map<String, Object> convertedResponse = new HashMap<>();
-//        
-//        // items를 content로 변환
-//        List<Map<String, Object>> items = (List<Map<String, Object>>) result.get("items");
-//        convertedResponse.put("content", items);
-//        
-//        // total_items를 totalElements로 변환
-//        convertedResponse.put("totalElements", result.get("total_items"));
-//        
-//        // 추가 정보도 포함 가능
-//        convertedResponse.put("totalPages", result.get("total_pages"));
-//        convertedResponse.put("page", result.get("page"));
-//        convertedResponse.put("size", result.get("size"));
-//        
-//        return ResponseEntity.ok(convertedResponse);
-				
+	public Mono<ResponseEntity<String>> bookrecoList(
+	        @PathVariable String genre,
+	        @RequestParam(defaultValue = "1") int page,
+	        @RequestParam(defaultValue = "10") int size) {
+	    LOGGER.info("genre: {}", genre);
+
+	    return webClient.get()
+	            .uri(uriBuilder -> uriBuilder
+	                    .path("/bookrecolist/{genre}")
+	                    .queryParam("page", page)
+	                    .queryParam("size", size)
+	                    .build(genre))
+	            .retrieve()
+	            .bodyToMono(String.class)
+	            .map(result -> {
+	                LOGGER.info("result: {}", result);
+	                return ResponseEntity.ok(result);
+	            })
+	            .onErrorResume(e -> {
+	                LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
+	                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                        .body("백엔드 서버와 통신 중 오류가 발생했습니다."));
+	            });
 	}
 	@GetMapping("/search/{searchTerm}")
 	public Mono<ResponseEntity<String>> searchBookApi(@PathVariable String searchTerm,

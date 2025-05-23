@@ -46,7 +46,7 @@ const NomalSearchBookComponent = () => {
     });
 
     const books = useMemo(() => data.content, [data.content]);
-    
+
     const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection } = useItemSelection(books, 'libraryBookId');
     const resetSelectedBooks = () => resetSelection(new Set());
 
@@ -222,7 +222,7 @@ const NomalSearchBookComponent = () => {
                                     </div>
                                     <div className="flex flex-col justify-center items-center gap-3">
                                         <Button
-                                            disabled={isLoading || !book || !(book.borrowed || book.unmanned) || book.alreadyBorrowedByMember || book.alreadyReservedByMember || book.alreadyUnmannedByMember || book.reserveCount >= 2 }
+                                            disabled={isLoading || !book || !(book.borrowed || book.unmanned) || book.reserveCount >= 2 }
                                             className={`px-6 py-2 rounded text-white transition
                                             ${!book
                                                 ? 'bg-gray-400 cursor-not-allowed'

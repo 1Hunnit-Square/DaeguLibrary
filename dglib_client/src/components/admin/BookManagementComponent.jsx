@@ -24,6 +24,7 @@ const BookManagementComponent = () => {
         if (tabId === 'booklist') {
             newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
             newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+            newParams.set("option", "도서명")
         }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);

@@ -1,5 +1,6 @@
 package com.dglib.repository.member;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +31,10 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	@Query("SELECT COUNT(m) > 0 FROM Member m WHERE REPLACE(m.phone, '-', '') = :phone")
 	boolean existsByPhone(String phone);
+	
+	@EntityGraph(attributePaths = {"rentals"})
+	@Query("SELECT m FROM Member m WHERE m.penaltyDate IS NOT NULL AND NOT EXISTS ( SELECT r FROM Rental r WHERE r MEMBER OF m.rentals AND r.dueDate < CURRENT_DATE AND r.state = com.dglib.entity.book.RentalState.BORROWED ) AND m.penaltyDate < CURRENT_DATE")
+	List<Member> findMembersWithPenaltyDateButNotOverdue();
 
 
 }

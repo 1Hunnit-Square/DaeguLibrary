@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
 
-
+//수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 const initialBookFormData = {
   bookTitle: "",
   author: "",
@@ -20,7 +20,7 @@ const initialLibraryBooks = [{ id: 0, location: "", callSign: "", libraryBookId:
 
 const RegBookComponent = () => {
   const [bookFormData, setBookFormData] = useState(initialBookFormData);
-  const [libraryBooks, setLibraryBooks] = useState(initialLibraryBooks);
+  const [libraryBooks, setLibraryBooks] = useState([]);
   const Location = ["자료실1", "자료실2", "자료실3"];
 
   const regBookMutation = useMutation({
@@ -30,8 +30,8 @@ const RegBookComponent = () => {
     },
     onSuccess: (data) => {
       alert("도서 등록이 완료되었습니다.");
-      setBookFormData(initialBookFormData);
-      setLibraryBooks(initialLibraryBooks);
+      getRegBookCheckMutation.mutate(bookFormData.isbn);
+
     },
     onError: (error) => {
       alert(error.response.data.message);
@@ -79,14 +79,17 @@ const RegBookComponent = () => {
       return response;
     },
     onSuccess: (data) => {
-      console.log(data);
       alert("도서 삭제가 완료되었습니다.");
+      setLibraryBooks(
+      libraryBooks.filter((libraryBook) => libraryBook.libraryBookId !== data)
+    );
       if (libraryBooks.length === 0) {
       resetBookInfo();
     }
     },
     onError: (error) => {
       alert(error.response.data.message);
+
     },
   })
 
@@ -131,14 +134,16 @@ const RegBookComponent = () => {
       bookFormData.pubDate &&
       bookFormData.isbn &&
       bookFormData.description;
-    if (bookFormData.description === "" || bookFormData.description.trim() === "") {
-      alert("도서 설명을 입력해주세요.");
-      return;
-    }
+
 
 
     if (!isBookDataValid || !isHoldingValid) {
       alert("도서정보를 모두 입력해주세요.");
+      return;
+    }
+
+    if (bookFormData.description === "" || bookFormData.description.trim() === "") {
+      alert("도서 설명을 입력해주세요.");
       return;
     }
 
@@ -159,7 +164,7 @@ const RegBookComponent = () => {
 
   const resetBookInfo = () => {
     setBookFormData(initialBookFormData);
-    setLibraryBooks(initialLibraryBooks);
+    setLibraryBooks([]);
   };
 
   const addHolding = () => {
@@ -184,10 +189,12 @@ const RegBookComponent = () => {
     } else {
       return;
     }
-    };
-     setLibraryBooks(
+    }else {
+      setLibraryBooks(
       libraryBooks.filter((libraryBook) => libraryBook.id !== id)
     );
+    }
+
   }
 
   const updateHolding = (id, field, value) => {
@@ -305,7 +312,7 @@ const RegBookComponent = () => {
                 <label className="font-medium text-gray-700 block mb-2">도서 설명</label>
                   <textarea className={`w-full h-96 p-4 border border-gray-300 rounded-md ${
                     !bookFormData.bookTitle ? 'bg-gray-50' : 'bg-white'} focus:outline-none focus:ring-1 focus:ring-[#00893B]`}
-                    placeholder={bookFormData.bookTitle && !bookFormData.description && "도서 설명이 없습니다."}
+                    placeholder={bookFormData.description ? undefined : "도서 설명을 입력하세요"}
                     value={bookFormData.bookTitle ? bookFormData.description : ""}
                     readOnly={!bookFormData.bookTitle}
                     onChange={(e) => { if (bookFormData.bookTitle) {
@@ -337,7 +344,9 @@ const RegBookComponent = () => {
       <div className="bg-white p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-[#00893B]">소장정보</h3>
-          <Button onClick={addHolding} children="+" className="bg-blue-500 hover:bg-blue-600" />
+          {bookFormData.bookTitle && (
+              <Button onClick={addHolding} children="+" className="bg-blue-500 hover:bg-blue-600" />
+            )}
         </div>
 
         <div className="space-y-3">

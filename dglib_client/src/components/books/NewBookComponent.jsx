@@ -85,7 +85,7 @@ const NewBookComponent = () => {
                                             <div className="w-full md:w-48 flex justify-center">
 
                                                 <img
-                                                    src={book.cover || '/placeholder-image.png'}
+                                                    src={book.cover}
                                                     alt={book.bookTitle || '표지 없음'}
                                                     className="h-64 object-contain"
                                                     onError={(e) => e.currentTarget.src = '/placeholder-image.png'}

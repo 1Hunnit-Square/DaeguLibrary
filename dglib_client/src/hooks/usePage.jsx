@@ -10,6 +10,7 @@ export const usePagination = (
   const pageClick = useCallback((page) => {
     const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
 
+
     if (page === currentPageFromUrl || isLoading) return;
 
     const newParams = new URLSearchParams(searchURLParams);

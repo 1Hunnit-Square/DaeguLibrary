@@ -55,7 +55,7 @@ const BorrowBookListComponent = () => {
     const rentalList = useMemo(() => rentalData.content, [rentalData.content]);
     console.log(rentalList)
 
-    const returnMutation = useBookMutation(async (book) => await returnBook(book), { successMessage: "도서가 반납되었습니다."} );
+    const returnMutation = useBookMutation(async (book) => await returnBook(book), { successMessage: "도서가 반납되었습니다.", onReset: () => {resetSelection(new Set());}});
 
     const buttonClick = async () => {
         if (selectedItems.size === 0) {

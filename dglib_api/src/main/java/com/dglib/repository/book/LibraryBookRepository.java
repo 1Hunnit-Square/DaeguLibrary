@@ -39,7 +39,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	Page<LibraryBookSearchByBookIdDTO> findBookByLibraryBookId(Long libraryBookId, Pageable pageable);
 	
 	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
-	Optional<LibraryBook> findWithDetailsByLibraryBookId(Long libraryBookId);
+	Optional<LibraryBook> findByLibraryBookIdAndIsDeletedFalse(Long libraryBookId);
 	
 	
 	
@@ -94,6 +94,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 		        FROM LibraryBook lb2 
 		        WHERE lb2.book.id = lb.book.id
 		    )
+		    AND lb.isDeleted = false
 		    """)
 		@EntityGraph(attributePaths = {"book"})
 		Page<LibraryBook> findFirstRegisteredBooksByDateBetween(
@@ -105,8 +106,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@Query("""
 		    SELECT lb FROM LibraryBook lb 
-		    LEFT JOIN lb.rentals r 
-		    WHERE r.rentStartDate BETWEEN :startDate AND :endDate 
+		    JOIN lb.rentals r 
+		    WHERE r.rentStartDate BETWEEN :startDate AND :endDate
+		    And lb.isDeleted = false 
 		    GROUP BY lb.libraryBookId 
 		    ORDER BY COUNT(r.id) DESC
 		    """)

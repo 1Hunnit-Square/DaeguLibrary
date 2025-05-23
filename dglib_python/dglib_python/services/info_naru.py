@@ -24,7 +24,7 @@ async def fetch_popular_books(genre: str):
         'addCode': '0;2;9',
         'kdc': kdc,
         'pageNo': 1,
-        'pageSize': 100,
+        'pageSize': 20,
         'format': 'json'
     }
 
@@ -59,7 +59,7 @@ async def fetch_popular_books(genre: str):
                 book['bookImageURL'] = aladin_info['cover_url']
                 book['description'] = aladin_info['description']
                 book['publisher'] = aladin_info['publisher']
-                book['pubdate'] = aladin_info['pubdate']
+                book['publication_year'] = aladin_info['pubDate']
 
 
                 result["response"]["docs"].append({"doc": book})

@@ -24,7 +24,7 @@ const TopBorrowedBookComponent = () => {
         },
     });
     const topBooks = useMemo(() => topBookData.content, [topBookData.content]);
-    console.log(topBooks)
+    console.log(topBookData)
 
     const { renderPagination } = usePagination(topBookData, searchURLParams, setSearchURLParams, isLoading);
 

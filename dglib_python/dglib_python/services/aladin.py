@@ -27,12 +27,12 @@ async def get_aladin_book_info(isbn: str) -> dict:
         book_item = data.get('item')[0]
 
         return {
-            'title': html.unescape(book_item.get('title')),
-            'author': html.unescape(book_item.get('author')),
-            'cover_url': book_item.get('cover').replace('coversum/', 'cover500/'),
+            'title': html.unescape(book_item.get('title', '')),
+            'author': html.unescape(book_item.get('author', '')),
+            'cover_url': book_item.get('cover', '').replace('coversum/', 'cover500/'),
             'description': html.unescape(book_item.get('description', '')),
-            'publisher': html.unescape(book_item.get('publisher')),
-            'pubdate': book_item.get('pubdate'),
+            'publisher': html.unescape(book_item.get('publisher', '')),
+            'pubDate': book_item.get('pubDate', ''),
 
 
         }

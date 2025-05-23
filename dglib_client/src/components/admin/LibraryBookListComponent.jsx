@@ -40,6 +40,7 @@ const LibraryBookListComponent = () => {
                 },
     });
     const bookList = useMemo(() => bookData.content, [bookData.content]);
+    console.log(bookList);
     const { handleSearch } = useSearchHandler({tab: 'booklist', dateRange});
 
     const { renderPagination } = usePagination(bookData, searchURLParams, setSearchURLParams, isLoading);
@@ -88,12 +89,13 @@ const LibraryBookListComponent = () => {
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">입고일</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">상태</th>
                             <th className="py-3 px-6 text-left text-sm font-semibold uppercase">예약수</th>
+                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">소장상태</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
                         {!isLoading && bookList.length === 0  ? (
                             <tr>
-                                <td colSpan="10" className="py-10 px-6 text-center text-gray-500 text-xl">
+                                <td colSpan="12" className="py-10 px-6 text-center text-gray-500 text-xl">
                                     도서가 없습니다.
                                 </td>
                             </tr>
@@ -110,19 +112,20 @@ const LibraryBookListComponent = () => {
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 ${isOverdue ? 'bg-red-50' : ''}`}>
                                         <td className="py-4 px-6">{item.libraryBookId}</td>
                                         <td className="py-4 px-6 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
-                                        <td className="py-4 px-6 max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
-                                        <td className="py-4 px-6 max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">{item.publisher}</td>
+                                        <td className="py-4 px-6 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
+                                        <td className="py-4 px-6 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.publisher}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.isbn}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.pubDate}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.location}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.callSign}</td>
+                                        <td className="py-4 px-6 max-w-[80px] whitespace-nowrap">{item.location}</td>
+                                        <td className="py-4 px-6 max-w-[10px] whitespace-nowrap">{item.callSign}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{item.regLibraryBookDate}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">
                                             <span className="px-2 py-1 text-xs font-semibold rounded-full">
-                                                {item.rented || item.unmanned ?  "대출중" : "-"}
+                                                {item.rented ?  "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : "" }
                                             </span>
                                         </td>
-                                       <td className="py-4 px-6 whitespace-nowrap">{item.reserveCount}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap">{item.reserveCount}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap">{item.deleted === false ? "소장중" : "부재"}</td>
                                     </tr>
                                 );
                             })

@@ -64,10 +64,10 @@ public class AdminController {
 	}
 	
 	@DeleteMapping("/deletelibrarybook/{libraryBookId}/{isbn}")
-	public ResponseEntity<String> deleteLibraryBook(@PathVariable Long libraryBookId, @PathVariable String isbn) {
+	public ResponseEntity<Long> deleteLibraryBook(@PathVariable Long libraryBookId, @PathVariable String isbn) {
 		LOGGER.info("도서 삭제 요청: {}", libraryBookId + ", " + isbn);
 		bookService.deleteLibraryBook(libraryBookId, isbn);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(libraryBookId);
 	}
 	
 	@PostMapping("/borrowbook")

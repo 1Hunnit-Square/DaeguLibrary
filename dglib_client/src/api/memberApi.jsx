@@ -44,3 +44,8 @@ export const phoneExist = async (param) => {
     const res = await axios.get(`${prefix}/existPhone`, { params : param });
     return res.data;
 }
+
+export const idFind = async (params) => {
+    const res = await axios.get(`${prefix}/findId`, { params : params });
+    return res.data;
+}

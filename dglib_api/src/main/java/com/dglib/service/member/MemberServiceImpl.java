@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
@@ -80,14 +81,6 @@ public class MemberServiceImpl implements MemberService {
 		return result;
 	}
 	
-	@Override
-	public boolean penaltyCheck (String mid) {
-		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
-		if(((calcPenaltyDays(member.getPenaltyDate()) > 0) && member.getState().name().equals("OVERDUE")) || member.getState().name().equals("PUNISH"))
-			return true;
-		else
-			return false;
-	} // 값이 True가 나오면 연체계정 또는 제재 계정임
 	
 	@Override
 	public void manageMember(MemberManageDTO memberManageDTO) {
@@ -96,6 +89,13 @@ public class MemberServiceImpl implements MemberService {
 		member.setState(memberManageDTO.getState());
 		member.setPenaltyDate(memberManageDTO.getPenaltyDate());
 		memberRepository.save(member);
+	}
+	
+	@Override
+	public String findId(MemberFindIdDTO memberFindIdDTO) {
+		Member member = memberRepository.findByNameAndBirthDateAndPhone(memberFindIdDTO.getName(), memberFindIdDTO.getBirthDate(), memberFindIdDTO.getPhone())
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		return member.getMid();
 	}
 	
 	

@@ -1,5 +1,6 @@
 package com.dglib.repository.member;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 		       "(SELECT COUNT(rs2) FROM Reserve rs2 WHERE rs2.member = m AND rs2.state = com.dglib.entity.book.ReserveState.RESERVED)) " +
 		       "FROM Member m " +
 		       "WHERE m.mno LIKE %:mno% ")
-		Page<MemberSeaerchByMnoDTO> findByMno(String mno, Pageable pageable);
+	Page<MemberSeaerchByMnoDTO> findByMno(String mno, Pageable pageable);
 	
 	Optional<Member> findByMno(String mno);
 	
@@ -32,5 +33,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	boolean existsByPhone(String phone);
 	
 	Page<Member> findAll (Specification<Member> spec, Pageable pageable);
+	
+	Optional<Member> findByNameAndBirthDateAndPhone (String name, LocalDate birthDate, String phone);
 
 }

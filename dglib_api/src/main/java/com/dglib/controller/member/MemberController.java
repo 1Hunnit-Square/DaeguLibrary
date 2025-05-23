@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
@@ -94,7 +95,9 @@ public class MemberController {
 		return ResponseEntity.ok(memberService.existByPhone(phone));
 	}
 	
-	
-
+	@GetMapping("/findId")
+	public ResponseEntity<String> findId(@ModelAttribute MemberFindIdDTO memberFindIdDTO){
+		return ResponseEntity.ok(memberService.findId(memberFindIdDTO));
+	}
 
 }

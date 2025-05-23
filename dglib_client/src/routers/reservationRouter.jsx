@@ -6,6 +6,10 @@ import Loading from "./Loading";
 const BookRequest = lazy(() => import("../components/reservation/BookRequestComponent"));
 const Program = lazy(() => import("../components/reservation/ProgramComponent"));
 const Facility = lazy(() => import("../components/reservation/FacilityComponent"));
+const ApplyFacility = lazy(() => import("../components/reservation/ApplyFacilityComponent"));
+const ApplyFacilityForm = lazy(() => import("../components/reservation/ApplyFacilityFormComponent"));
+
+
 
 
 const reservationRouter = () => ([
@@ -25,11 +29,15 @@ const reservationRouter = () => ([
     {
         path : "facility",
         element: <Suspense fallback={<Loading />}><Facility /></Suspense>
+    },
+    {
+        path: "facility/apply",
+        element: <Suspense fallback={<Loading />}><ApplyFacility /></Suspense>
+    },
+    {
+        path: "facility/apply/form",
+        element: <Suspense fallback={<Loading />}><ApplyFacilityForm /></Suspense>
     }
-
-
-
-
 ])
 
 export default reservationRouter;

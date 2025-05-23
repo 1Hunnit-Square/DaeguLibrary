@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Modal from "./Modal";
 
 const PageModal = ({isOpen, title, onClose, PageMap, defaultPage, dragOn}) => {
@@ -10,13 +10,17 @@ setPage(step);
 setData(states);
 }
 
+useEffect(() =>{
+    setPage(defaultPage);
+},[isOpen]);
+
 const { component : Component, props } = useMemo(() => PageMap[page], [page]);
 
 
 
 return (
     <Modal isOpen ={isOpen} title = {title}  onClose = {onClose} dragOn ={dragOn}>
-    <Component { ...props } handlePage={handlePage} data={data} />
+    <Component { ...props } handlePage={handlePage} pageData={data} />
     </Modal>
 )
 }

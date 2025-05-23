@@ -1,7 +1,7 @@
 import Button from "../../components/common/Button";
 import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
-import Modal from "../../components/common/Modal";
+import PageModal from "../../components/common/PageModal";
 import { useState, useCallback } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
 import PhoneCheckComponent from "../../components/member/PhoneCheckComponent";
@@ -9,8 +9,6 @@ import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
-const [ authStep, setAuthStep ] = useState("phoneAuth");
-const [ phoneNum, setPhoneNum ] = useState("");
 const navigate  = useNavigate();
 
 const handleAuth = useCallback(() => {
@@ -19,16 +17,17 @@ setIsOpen(true);
 
 const handleClose = useCallback(() => {
 setIsOpen(false);
-setAuthStep("phoneAuth");
 },[]);
 
-const handlePage = useCallback((step, phone = "") => {
-setAuthStep(step);
-setPhoneNum(phone);
-},[]);
 
-const handleSuccess = () => {
-navigate("/signup/join", { state: { phone : phoneNum }});
+
+const handleSuccess = (pageData) => {
+navigate("/signup/join", { state: pageData });
+}
+
+const pageMap = {
+    phoneAuth : { component : PhoneAuthComponent },
+    phoneCheck : { component : PhoneCheckComponent, props : { handleSuccess, phoneCheck : false } }
 }
 
 return (
@@ -40,10 +39,7 @@ return (
         <Button onClick={handleAuth}>인증하기</Button>
         </div>
     </div>
-<Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
-    {authStep == "phoneAuth" && <PhoneAuthComponent handlePage={handlePage} />}
-    {authStep == "phoneCheck" && <PhoneCheckComponent phoneNum={phoneNum} handlePage={handlePage} phoneCheck ={false} handleSuccess = {handleSuccess} />}
-</Modal>
+<PageModal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose} PageMap={pageMap} defaultPage={"phoneAuth"}  />
 </Layout>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 );
 }

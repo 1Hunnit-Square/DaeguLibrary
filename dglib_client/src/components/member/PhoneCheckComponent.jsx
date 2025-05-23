@@ -1,11 +1,10 @@
 import Button from "../common/Button";
 import { useState, useEffect, memo, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { checkAuthCode, sendAuthCode } from "../../api/smsApi";
 import { phoneExist } from "../../api/memberApi";
 
-const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess }) => {
+const PhoneCheckComponent = ({ pageData , handlePage, phoneCheck, handleSuccess }) => {
     const [ code, setCode ] = useState("");
     const [ retry, setRetry ] = useState(false);
 
@@ -23,25 +22,12 @@ const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess })
     mutationFn: (params) => checkAuthCode(params),
     onSuccess: (data) => {
         console.log(data);
-        if(data)
-        handleSuccess();
-            },
-    onError: (error) => {
-    console.error("error :", error);
-    }
-   });
-
-   useEffect(()=>{
-    if(!phoneNum){
-        alert("잘못된 접근입니다. 다시 시도해주세요.");
-        handlePage("phoneAuth");
-    }
-
-    phoneExist({phone : phoneNum}).then(data => {
+        // 인증 후 휴대폰 중복 체크
+        data && phoneExist({phone : pageData.phoneNum}).then(data => {
         if(data == phoneCheck){
-            smsSendMutation.mutate(phoneNum.replace(/-/g,""));
+            handleSuccess({phone : pageData.phoneNum});
         } else {
-            const message = data ? "중복된 번호입니다. 다시 시도해주세요." : "없는 번호입니다. 다시 시도해주세요.";
+            const message = data ? "이미 등록된 번호입니다. 다시 시도해주세요." : "등록되지 않은 번호입니다. 다시 시도해주세요.";
             alert(message);
             handlePage("phoneAuth");
         }
@@ -50,6 +36,19 @@ const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess })
         alert("휴대폰 번호 확인에 오류가 발생했습니다. 다시 시도해주세요.")
          handlePage("phoneAuth");
     })
+            },
+    onError: (error) => {
+    console.error("error :", error);
+    }
+   });
+
+   useEffect(()=>{
+    if(!pageData.phoneNum){
+        alert("잘못된 접근입니다. 다시 시도해주세요.");
+        handlePage("phoneAuth");
+    }
+
+    smsSendMutation.mutate(pageData.phoneNum.replace(/-/g,""));
   
 
    },[])
@@ -60,7 +59,7 @@ const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess })
     setCode(e.target.value);
     if(e.target.value.length == 6){
         const params = {
-            phoneNum : phoneNum.replace(/-/g,""),
+            phoneNum : pageData.phoneNum.replace(/-/g,""),
             authCode : e.target.value
         }
         smsCheckMutation.mutate(params);
@@ -69,10 +68,10 @@ const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess })
 
    const handleClick= () => {
     if(!retry){
-    const onConfirm = confirm(`${phoneNum}로 문자를 재전송 하겠습니까?`);
+    const onConfirm = confirm(`${pageData.phoneNum}로 문자를 재전송 하겠습니까?`);
     
     if(onConfirm){
-    smsSendMutation.mutate(phoneNum.replace(/-/g,""));
+    smsSendMutation.mutate(pageData.phoneNum.replace(/-/g,""));
     setRetry(true);
     setTimeout(()=>{
     setRetry(false);

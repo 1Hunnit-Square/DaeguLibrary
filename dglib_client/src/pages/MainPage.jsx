@@ -2,6 +2,7 @@ import Layout from "../layouts/Layout"
 import QMenuComponent from "../components/main/QMenuComponent";
 import GenreMenu from "../menus/GenreMenu";
 import GenreComponent from "../components/main/GenreComponent";
+import ClosedInfoComponent from "../components/main/ClosedInfoComponent";
 
 const MainPage = () => {
     return (
@@ -26,7 +27,7 @@ const MainPage = () => {
                                     독서 마라톤 대회
                                 </div>
                                 <div className="bg-white rounded-lg shadow-sm h-[120px]">
-                                    도서관 휴관일 및 이용시간
+                                    <ClosedInfoComponent />
                                 </div>
                             </div>
                         </div>

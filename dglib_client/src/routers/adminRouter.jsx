@@ -7,6 +7,7 @@ const BorrowBook = lazy(() => import("../components/admin/BorrowBookComponent"))
 const BorrowBookList = lazy(() => import("../components/admin/BorrowBookListComponent"));
 const Borrow = lazy(() => import("../components/admin/BorrowComponent"));
 const BookManagement = lazy(() => import("../components/admin/BookManagementComponent"));
+const EventManagement = lazy(() => import("../components/admin/EventManagementComponent"));
 
 
 
@@ -26,6 +27,10 @@ const adminRouter = () => ([
     {
         path: "borrow",
         element: <Suspense fallback={<Loading />}><Borrow /></Suspense>
+    },
+    {
+        path: "eventmanagement",
+        element: <Suspense fallback={<Loading />}><EventManagement /></Suspense>
     }
 
 ])

@@ -5,11 +5,13 @@ import Modal from "../../components/common/Modal";
 import { useState, useCallback } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
 import PhoneCheckComponent from "../../components/member/PhoneCheckComponent";
+import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
 const [ authStep, setAuthStep ] = useState("phoneAuth");
 const [ phoneNum, setPhoneNum ] = useState("");
+const navigate  = useNavigate();
 
 const handleAuth = useCallback(() => {
 setIsOpen(true);
@@ -20,10 +22,14 @@ setIsOpen(false);
 setAuthStep("phoneAuth");
 },[]);
 
-const handleNext = useCallback((step, phone = "") => {
+const handlePage = useCallback((step, phone = "") => {
 setAuthStep(step);
 setPhoneNum(phone);
 },[]);
+
+const handleSuccess = () => {
+navigate("/signup/join", { state: { phone : phoneNum }});
+}
 
 return (
 <Layout sideOn={false}>
@@ -35,8 +41,8 @@ return (
         </div>
     </div>
 <Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
-    {authStep == "phoneAuth" && <PhoneAuthComponent handleNext={handleNext} />}
-    {authStep == "authCode" && <PhoneCheckComponent phoneNum={phoneNum} handleNext={handleNext}/>}
+    {authStep == "phoneAuth" && <PhoneAuthComponent handlePage={handlePage} />}
+    {authStep == "phoneCheck" && <PhoneCheckComponent phoneNum={phoneNum} handlePage={handlePage} phoneCheck ={false} handleSuccess = {handleSuccess} />}
 </Modal>
 </Layout>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 );

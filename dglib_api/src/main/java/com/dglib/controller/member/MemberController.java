@@ -79,7 +79,7 @@ public class MemberController {
 		return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("/cardinfo")
+	@GetMapping("/cardinfo")
 	public ResponseEntity<Map<String, String>> getCardInfo (@RequestParam String mid){
 		return ResponseEntity.ok(cardService.setQRinfo(mid));
 	}
@@ -87,6 +87,11 @@ public class MemberController {
 	@GetMapping("/existId")
 	public ResponseEntity<Boolean> existById(@RequestParam String mid){
 		return ResponseEntity.ok(memberService.existById(mid));
+	}
+	
+	@GetMapping("/existPhone")
+	public ResponseEntity<Boolean> existByPhone(@RequestParam String phone){
+		return ResponseEntity.ok(memberService.existByPhone(phone));
 	}
 	
 	

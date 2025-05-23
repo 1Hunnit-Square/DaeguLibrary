@@ -4,6 +4,7 @@ package com.dglib.controller.sms;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +37,6 @@ public class SmsConroller {
 	
 	@PostMapping("/sendCode")
 	public ResponseEntity<String> sendCode(@RequestParam String phoneNum, @RequestParam String smsKey) {
-		if(memberService.existByPhone(phoneNum))
-			throw new RuntimeException("ALREADY_EXIST_NUMBER");
 		String code = authCodeService.saveAuthCode(phoneNum);
 		String smsResult = "인증코드 : "+code;
 		SmsRequestDTO requestDTO = new SmsRequestDTO(List.of(phoneNum), smsResult, smsKey);
@@ -45,7 +44,7 @@ public class SmsConroller {
 		return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("/checkCode")
+	@GetMapping("/checkCode")
 	public ResponseEntity<Boolean> checkCode(@RequestParam String phoneNum, @RequestParam String authCode){
 		Boolean authResult = authCodeService.verifyAuthCode(phoneNum, authCode);
 		return ResponseEntity.ok(authResult);

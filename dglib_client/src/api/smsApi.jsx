@@ -13,10 +13,6 @@ export const sendAuthCode = async (param) => {
 }
 
 export const checkAuthCode = async (params) => {
-    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
-    const form = new FormData();
-    form.append("phoneNum", params.phone)
-    form.append("authCode",params.code);
-    const res = await axios.post(`${prefix}/checkCode`, form, header);
+    const res = await axios.get(`${prefix}/checkCode`, { params : params });
     return res.data;
 }

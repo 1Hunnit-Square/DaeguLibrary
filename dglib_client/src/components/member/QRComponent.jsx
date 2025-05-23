@@ -1,6 +1,6 @@
 import { QRCodeCanvas } from 'qrcode.react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { cardPost } from '../../api/memberApi';
+import { getCard } from '../../api/memberApi';
 import { useQuery } from '@tanstack/react-query';
 
 const QRComponent = ({mid}) => {
@@ -11,7 +11,7 @@ const [ leftTime, setLeftTime] = useState(reloadTime/1000);
 const { data, error, isLoading, refetch } = useQuery({
     
     queryKey : ['card'],
-    queryFn: () => cardPost(mid),
+    queryFn: () => getCard({mid : mid}),
     enabled: !!mid,
     });
 

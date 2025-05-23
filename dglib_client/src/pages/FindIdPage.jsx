@@ -1,10 +1,21 @@
 import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
 import Button from "../components/common/Button";
+import Modal from "../components/common/Modal";
 
 
 const FindIdPage = () => {
 
+    const [ isOpen, setIsOpen ] = useState(false);
+
+
+    const handleClick = () => {
+        setIsOpen(true);
+    }
+
+    const handleClose = () => {
+        setIsOpen(false);
+    }
 
     return(
         <Layout sideOn={false}>
@@ -19,9 +30,12 @@ const FindIdPage = () => {
                 <input type="date" className = "col-span-2 border rounded w-30" />
                  </div>
                  <div className="flex justify-center">
-                <Button>아이디 찾기</Button></div>
+                <Button onClick ={handleClick}>아이디 찾기</Button></div>
                 
-            
+    <Modal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose}>
+    {authStep == "phoneAuth" && <PhoneAuthComponent handlePage={handlePage} />}
+    {authStep == "phoneCheck" && <PhoneCheckComponent phoneNum={phoneNum} handlePage={handlePage} phoneCheck ={false} handleSuccess = {handleSuccess} />}
+    </Modal>
            
         </Layout>
     )

@@ -19,11 +19,8 @@ export const regPost = async (params) => {
     return res.data;
 }
 
-export const cardPost = async (param) => {
-    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
-    const form = new FormData();
-    form.append('mid', param);
-    const res = await axiosClient.post(`${prefix}/cardinfo`, form, header);
+export const getCard = async (param) => {
+    const res = await axiosClient.get(`${prefix}/cardinfo`, { params : param });
     return res.data;
 }
 
@@ -32,13 +29,18 @@ export const idExist = async (param) => {
     return res.data;
 }
 
-export const getMemberList = async (paramsData) => {
-    const res = await axiosClient.get(`${prefix}/listMember`, { params : paramsData });
+export const getMemberList = async (params) => {
+    const res = await axiosClient.get(`${prefix}/listMember`, { params : params });
     return res.data;
 }
 
 export const PostMemberManage = async (params) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const res = await axios.post(`${prefix}/manageMember`, params, header);
+    return res.data;
+}
+
+export const phoneExist = async (param) => {
+    const res = await axios.get(`${prefix}/existPhone`, { params : param });
     return res.data;
 }

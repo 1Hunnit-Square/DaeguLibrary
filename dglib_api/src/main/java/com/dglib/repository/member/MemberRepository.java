@@ -28,8 +28,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	Optional<Member> findByMno(String mno);
 	
 	Long countByMnoLike(String mno);
-
-	@Query("SELECT COUNT(m) > 0 FROM Member m WHERE REPLACE(m.phone, '-', '') = :phone")
+	
 	boolean existsByPhone(String phone);
 	
 	Page<Member> findAll (Specification<Member> spec, Pageable pageable);

@@ -3,11 +3,11 @@ import { useState, useEffect, memo, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { checkAuthCode, sendAuthCode } from "../../api/smsApi";
+import { phoneExist } from "../../api/memberApi";
 
-const PhoneCheckComponent = ({phoneNum, handleNext}) => {
+const PhoneCheckComponent = ({phoneNum, handlePage, phoneCheck, handleSuccess }) => {
     const [ code, setCode ] = useState("");
     const [ retry, setRetry ] = useState(false);
-    const navigate  = useNavigate();
 
     const smsSendMutation = useMutation({
     mutationFn : (num) => sendAuthCode(num),
@@ -15,10 +15,6 @@ const PhoneCheckComponent = ({phoneNum, handleNext}) => {
     console.log("메세지 전송 성공");
     },
     onError: (error) => {
-        if(error.response.data.message == "ALREADY_EXIST_NUMBER"){
-            alert("이미 등록된 번호입니다. 다시 인증을 시도해주세요");
-            handleNext("phoneAuth");
-        }
     console.error("error :", error);
     }
    });
@@ -28,7 +24,7 @@ const PhoneCheckComponent = ({phoneNum, handleNext}) => {
     onSuccess: (data) => {
         console.log(data);
         if(data)
-        navigate("/signup/join", { state: { phone : phoneNum }});
+        handleSuccess();
             },
     onError: (error) => {
     console.error("error :", error);
@@ -38,9 +34,23 @@ const PhoneCheckComponent = ({phoneNum, handleNext}) => {
    useEffect(()=>{
     if(!phoneNum){
         alert("잘못된 접근입니다. 다시 시도해주세요.");
-        handleNext("phoneAuth");
+        handlePage("phoneAuth");
     }
-        smsSendMutation.mutate(phoneNum.replace(/-/g,""));
+
+    phoneExist({phone : phoneNum}).then(data => {
+        if(data == phoneCheck){
+            smsSendMutation.mutate(phoneNum.replace(/-/g,""));
+        } else {
+            const message = data ? "중복된 번호입니다. 다시 시도해주세요." : "없는 번호입니다. 다시 시도해주세요.";
+            alert(message);
+            handlePage("phoneAuth");
+        }
+    }).catch(e => {
+        console.error(e);
+        alert("휴대폰 번호 확인에 오류가 발생했습니다. 다시 시도해주세요.")
+         handlePage("phoneAuth");
+    })
+  
 
    },[])
 
@@ -50,8 +60,8 @@ const PhoneCheckComponent = ({phoneNum, handleNext}) => {
     setCode(e.target.value);
     if(e.target.value.length == 6){
         const params = {
-            phone : phoneNum.replace(/-/g,""),
-            code : e.target.value
+            phoneNum : phoneNum.replace(/-/g,""),
+            authCode : e.target.value
         }
         smsCheckMutation.mutate(params);
    }

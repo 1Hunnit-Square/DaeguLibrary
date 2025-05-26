@@ -1,7 +1,4 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import QnaDetailComponent from "./QnaDetailComponent";
-import QnaListComponent from "./QnaListComponent";
+
 import { Outlet } from "react-router-dom";
 
 

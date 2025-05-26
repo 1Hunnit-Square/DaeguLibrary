@@ -6,8 +6,7 @@ import { usePagination } from "../../hooks/usePagination";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
-
-
+import Button from "../common/Button";
 
 const LockIcon = () => <span style={{ color: 'gray' }}>🔒︎</span>;
 
@@ -30,6 +29,7 @@ const QnaListComponent = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
+    const mid = useRecoilValue(memberIdSelector);
 
     const queryParams = useMemo(() => ({
         query: searchParams.get("query") || "",
@@ -38,7 +38,6 @@ const QnaListComponent = () => {
     }), [searchParams]);
 
     const isSearched = !!queryParams.query;
-    const mid = useRecoilValue(memberIdSelector);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -52,9 +51,7 @@ const QnaListComponent = () => {
                     requesterMid: mid
                 },
             });
-
             const data = response.data;
-            console.log("QnA 리스트 응답 데이터: ", data);
             setQnaItems(Array.isArray(data.content) ? data.content : []);
             setPageable(data);
         } catch (error) {
@@ -173,6 +170,12 @@ const QnaListComponent = () => {
                     )}
                 </tbody>
             </table>
+
+
+            <div className="flex justify-end mt-4">
+                <Button onClick={() => navigate("/community/qna/create")}>글쓰기</Button>
+            </div>
+
 
             {renderPagination()}
         </div>

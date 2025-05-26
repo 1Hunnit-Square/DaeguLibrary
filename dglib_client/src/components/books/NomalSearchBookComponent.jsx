@@ -18,7 +18,8 @@ const NomalSearchBookComponent = () => {
     const isChecked = searchURLParams.has("isChecked");
     const isSearched = !!searchURLParams.get("query");
 
-    const { data = { content: [], totalElements: 0 }, isLoading, isError, error } = useQuery({
+
+    const { data = { books: { content: [], totalElements: 0 }, keywords: [] }, isLoading, isError, error } = useQuery({
         queryKey: ['nslibrarybooklist', searchURLParams.toString()],
         queryFn: () => {
             const params = {
@@ -45,7 +46,8 @@ const NomalSearchBookComponent = () => {
         refetchOnWindowFocus: false,
     });
 
-    const books = useMemo(() => data.content, [data.content]);
+    const books = useMemo(() => data.books.content, [data.books.content]);
+    console.log(data);
 
     const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection } = useItemSelection(books, 'libraryBookId');
     const resetSelectedBooks = () => resetSelection(new Set());
@@ -85,13 +87,18 @@ const NomalSearchBookComponent = () => {
             newParams.set("previousQuery", updatedQueries.join(","));
             newParams.set("previousOption", updatedOptions.join(","));
         }
+        if(isChecked && books && books.length === 0) {
+            newParams.delete("isChecked");
+            newParams.delete("previousQuery");
+            newParams.delete("previousOption");
+        }
 
         newParams.set("tab", "info");
         newParams.set("page", "1");
 
         resetSelection(new Set());
         setSearchURLParams(newParams);
-    }, [isChecked, setSearchURLParams, resetSelection, searchURLParams]);
+    }, [isChecked, setSearchURLParams, resetSelection]);
 
 
     const onChangeRe = useCallback((e) => {
@@ -102,14 +109,15 @@ const NomalSearchBookComponent = () => {
         } else {
             newParams.delete("isChecked");
         }
+        queryClient.setQueryData(['nslibrarybooklist', newParams.toString()], data);
         setSearchURLParams(newParams, { replace: true });
-        queryClient.setQueryData(['librarybooklist', newParams.toString()], data);
+
     }, [searchURLParams, setSearchURLParams, queryClient, data]);
 
 
     const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
 
-    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
+    const { renderPagination } = usePagination(data.books, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
 
 
 
@@ -132,6 +140,25 @@ const NomalSearchBookComponent = () => {
                 inputClassName="w-full"
                 buttonClassName="right-2"
             />
+            <div className="w-full md:w-[50%] mx-auto mt-3">
+            <div className="flex items-center gap-2 px-4">
+                <span className="text-sm font-medium text-gray-600">인기검색어:</span>
+                <div className="flex flex-wrap gap-2">
+
+                    {data.keywords ? data.keywords.map((keyword, index) => (
+                        <button
+                            key={index}
+                            onClick={() => handleSearch(keyword, "전체")}
+                            className="px-3 py-1 text-xs bg-gray-100 hover:bg-emerald-100 hover:text-green-700 rounded-full border transition-colors cursor-pointer"
+                        >
+                            {keyword}
+                        </button>
+                    )) : (
+                        <span className="text-gray-500">인기검색어가 없습니다.</span>
+                    )}
+                </div>
+            </div>
+        </div>
             {isSearched && books.length > 1 &&
                 <CheckNonLabel
                     checked={isChecked}
@@ -142,15 +169,15 @@ const NomalSearchBookComponent = () => {
             }
 
             <div className="container mx-auto px-4 py-8 w-full">
-                {!isSearched && data.totalElements !== undefined ? (
+                {!isSearched && data.books.totalElements !== undefined ? (
                             <div className="mb-4">
-                                <p className="">총 {data.totalElements}권의 도서를 찾았습니다.</p>
+                                <p className="">총 {data.books.totalElements}권의 도서를 찾았습니다.</p>
                             </div>
-                        ) : data.totalElements !== undefined ? (
+                        ) : data.books.totalElements !== undefined ? (
                             <div>
                                {searchURLParams.get("previousQuery") ?
-                                `"${searchURLParams.get("previousQuery")}, ${searchURLParams.get("query")}"에 대하여 ${data.totalElements}권의 도서를 찾았습니다.` :
-                                `"${searchURLParams.get("query") || ""}"에 대하여 ${data.totalElements}권의 도서를 찾았습니다.`
+                                `"${searchURLParams.get("previousQuery")}, ${searchURLParams.get("query")}"에 대하여 ${data.books.totalElements}권의 도서를 찾았습니다.` :
+                                `"${searchURLParams.get("query") || ""}"에 대하여 ${data.books.totalElements}권의 도서를 찾았습니다.`
                                 }
                             </div>
                         ) : null}

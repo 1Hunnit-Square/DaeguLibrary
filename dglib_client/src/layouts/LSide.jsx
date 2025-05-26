@@ -6,6 +6,15 @@ const LSide = ({ LMainMenu, LSideMenu }) => {
 
   const activeMenu = useMemo(() => {
     const currentPath = location.pathname;
+    const searchParams = new URLSearchParams(location.search);
+
+    if (currentPath.includes('/detail/')) {
+      const fromParam = searchParams.get('from');
+      if (fromParam) {
+        return fromParam;
+      }
+    }
+
     const currentMenuItem = LSideMenu.find(menu => {
       const menuBasePath = menu.path.split('?')[0];
       return currentPath === menuBasePath;
@@ -14,7 +23,7 @@ const LSide = ({ LMainMenu, LSideMenu }) => {
       return currentMenuItem.id;
     }
     return LSideMenu[0]?.id || null;
-  }, [location.pathname, LSideMenu]);
+  }, [location.pathname, location.search, LSideMenu]);
 
   return (
     <div className="w-72 p-5">

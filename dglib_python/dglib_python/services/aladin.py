@@ -19,8 +19,7 @@ async def get_aladin_book_info(isbn: str) -> dict:
         logger.error(f"알라딘 API 오류: {error}, ISBN: {isbn}")
         return {
             'title': "API 오류",
-            'author': "정보를 가져올 수 없음",
-            'cover_url': "https://placeholder.com/api-error"
+            'author': "정보를 가져올 수 없음"
         }
 
     try:
@@ -40,8 +39,7 @@ async def get_aladin_book_info(isbn: str) -> dict:
         logger.error(f"알라딘 API 응답 처리 오류: {e}, ISBN: {isbn}")
         return {
             'title': "데이터 처리 오류",
-            'author': "정보를 처리할 수 없음",
-            'cover_url': "https://placeholder.com/data-processing-error"
+            'author': "정보를 처리할 수 없음"
         }
 
 

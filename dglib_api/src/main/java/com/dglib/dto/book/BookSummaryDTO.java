@@ -1,6 +1,7 @@
 package com.dglib.dto.book;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class BookSummaryDTO {
     private boolean alreadyBorrowedByMember;
     private boolean alreadyUnmannedByMember;;
     private boolean isUnmanned;
-    private int reserveCount; 
+    private int reserveCount;
+    List<String> keywords;
 
 }

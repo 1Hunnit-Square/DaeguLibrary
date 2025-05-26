@@ -32,6 +32,19 @@ const BooksPage = () => {
 
   useEffect(() => {
       const currentPath = location.pathname;
+      const searchParams = new URLSearchParams(location.search);
+
+      if (currentPath.includes('/detail/')) {
+        const fromParam = searchParams.get('from');
+        if (fromParam) {
+          const menuItem = LSideMenu.find(menu => menu.id === fromParam);
+          if (menuItem) {
+            setActiveMenuItem(menuItem);
+            return;
+          }
+        }
+      }
+
       const currentMenuItem = LSideMenu.find(menu => {
         const menuBasePath = menu.path.split('?')[0];
         return currentPath.includes(menuBasePath);

@@ -115,11 +115,12 @@ const ReservationBookListComponent = () => {
 
     return (
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">예약 목록</h1>
+
             {isLoading && (
                 <Loading text="목록 갱신중.."/>
             )}
-            <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
+            <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">예약 목록</h1>
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-4 min-h-30">
                                 <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                                     dropdownClassName="w-24 md:w-32"
                                     className="w-full md:w-[50%]"
@@ -158,22 +159,22 @@ const ReservationBookListComponent = () => {
                             <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />
                         </div>
             <div className="shadow-md rounded-lg overflow-x-auto">
-                <table className="min-w-full bg-white">
+                <table className="w-full bg-white table-fixed">
                     <thead className="bg-[#00893B] text-white">
 
                         <tr>
                             <th className="py-3 px-4 text-left">
                                 <CheckNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
                             </th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원ID</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서명</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">저자</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서번호</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">ISBN</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">신청구분</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">신청일</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">우선순위</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">상태</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">회원ID</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서명</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">저자</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서번호</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">신청구분</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">신청일</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">우선순위</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">상태</th>
                              <th className="py-3 px-6 text-left text-sm font-semibold uppercase">연체여부</th>
                         </tr>
                     </thead>
@@ -188,18 +189,18 @@ const ReservationBookListComponent = () => {
                             reserveList.map((item) => {
                                 return (
                                     <tr key={item.reserveId} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200`}>
-                                        <td className="py-4 px-4">
+                                        <td className="py-4 px-4 text-xs">
                                             <CheckNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.reserveId)} onChange={(e) => handleSelectItem(e, item.reserveId)}  />
                                         </td>
-                                        <td className="py-4 px-6">{item.mid}</td>
-                                        <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
-                                        <td className="py-4 px-6 max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.libraryBookId}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.isbn}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.unmanned ? "무인" : "일반"}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.reserveDate}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.reservationRank !== null ? item.reservationRank + "순위" : "-"}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">
+                                        <td className="py-4 px-6 text-xs">{item.mid}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.libraryBookId}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.isbn}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.unmanned ? "무인" : "일반"}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.reserveDate}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.reservationRank !== null ? item.reservationRank + "순위" : "-"}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                                                 item.state === "RESERVED" ?  "bg-yellow-200 text-yellow-800" :
                                                 item.state === "BORROWED" ? "bg-green-200 text-green-800" : "bg-gray-200 text-gray-800"
@@ -207,7 +208,7 @@ const ReservationBookListComponent = () => {
                                                 {item.state === "RESERVED" ?  "예약중" : item.state === "BORROWED" ? "대출완료" : "예약취소"}
                                             </span>
                                         </td>
-                                        <td className={`py-4 px-6 ${item.overdue === true && item.state === "RESERVED" ? "text-red-600 font-semibold" : ""}`}>{item.overdue && item.state === "RESERVED" ? "연체중" : "-"}</td>
+                                        <td className={`py-4 px-6 text-xs ${item.overdue === true && item.state === "RESERVED" ? "text-red-600 font-semibold" : ""}`}>{item.overdue && item.state === "RESERVED" ? "연체중" : "-"}</td>
 
                                     </tr>
                                 );

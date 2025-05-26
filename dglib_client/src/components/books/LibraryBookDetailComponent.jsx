@@ -1,9 +1,9 @@
-import { useParams } from 'react-router-dom';
-import { getLibraryBookDetail} from '../../api/bookApi';
+import { useParams, useLocation } from 'react-router-dom';
+import { getLibraryBookDetail, getRecoLibraryBookDetail} from '../../api/bookApi';
 import { reserveBook, unMannedReserve, addInterestedBook } from '../../api/memberApi';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Button from "../common/Button";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import Loading from '../../routers/Loading';
 import CheckBoxNonLabel from '../common/CheckNonLabel';
 import { useBookActions } from '../../hooks/useBookActions';
@@ -11,16 +11,79 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 
 
 
+
 const LibraryBookDetailComponent = () => {
-    const { librarybookid } = useParams();
+    const { id } = useParams();
+    console.log("librarybookid", id);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const fromParam = searchParams.get('from');
     const [selectedBook, setSelectedBook] = useState(null);
+    const queryClient = useQueryClient();
+
+
+
     const { data: libraryBookDetail = {}, isLoading, isError, error } = useQuery({
-        queryKey: ['libraryBookDetail', librarybookid],
-        queryFn: () => getLibraryBookDetail(librarybookid),
+        queryKey: ['libraryBookDetail', id, fromParam],
+         queryFn: () => {
+            if (fromParam === 'reco') {
+                return getRecoLibraryBookDetail(id);
+                }
+                return getLibraryBookDetail(id);
+        },
     });
+    const isbnValue = fromParam === 'reco' ? id : libraryBookDetail?.isbn;
 
-    console.log(libraryBookDetail)
+    const findRecoBookData = () => {
+        const queries = queryClient.getQueryCache().getAll();
+        console.log(libraryBookDetail)
+        const recoQueries = queries.filter(query =>
+                query.queryKey[0] === 'recoBookList'
+            );
+            for (const query of recoQueries) {
+                const data = query.state.data;
+                if (data?.content) {
 
+                const matchingBook = data.content.find(book => book.isbn13 === isbnValue);
+                if (matchingBook) {
+                    return matchingBook;
+                }
+                }
+            }
+            return null;
+    };
+
+
+    const recoBookInfo = useMemo(() => {
+            if (!isbnValue) return null;
+            return findRecoBookData();
+        }, [isbnValue, queryClient]);
+
+    const bookDetails = useMemo(() => {
+
+        if (libraryBookDetail?.isbn) {
+            return libraryBookDetail;
+        }
+
+
+        if (recoBookInfo) {
+            return {
+                bookTitle: recoBookInfo.bookname,
+                cover: recoBookInfo.bookImageURL,
+                author: recoBookInfo.authors,
+                publisher: recoBookInfo.publisher,
+                pubDate: recoBookInfo.publication_year,
+                isbn: recoBookInfo.isbn13,
+                description: recoBookInfo.description,
+            };
+        }
+
+    }, [libraryBookDetail, recoBookInfo]);
+
+
+
+
+    console.log("recoBookInfo", recoBookInfo);
 
     const reserveMutation = useBookMutation(async (book) => await reserveBook(book), { successMessage: "도서를 예약했습니다."} );
 
@@ -49,19 +112,19 @@ const LibraryBookDetailComponent = () => {
             ) : isError ? (
                 <div className="flex justify-center items-center h-64">
                     <p className="text-red-500">
-                        오류가 발생했습니다: {error.message}
+                        {error.response?.data?.message}
                     </p>
                 </div>
             ) : (
                 <>
                     <div className="flex gap-8 items-center justify-center border border-b-0 border-[#00893B] w-full min-h-15">
-                        <h1 className="text-3xl font-bold">{libraryBookDetail.bookTitle}</h1>
+                        <h1 className="text-3xl font-bold">{bookDetails.bookTitle}</h1>
                     </div>
                     <div className="flex gap-8  border border-[#00893B] w-full h-[500px]">
                         <div className="w-1/5 mx-10 flex flex-col item-center justify-center">
                             <img
-                                src={libraryBookDetail.cover}
-                                alt={libraryBookDetail.bookTitle}
+                                src={bookDetails.cover}
+                                alt={bookDetails.bookTitle}
                                 className="w-full rounded-lg shadow-lg object-contain"
                             />
                             <div>위치 인쇄해야함 어디다 넣지</div>
@@ -70,22 +133,22 @@ const LibraryBookDetailComponent = () => {
                             <div className="space-y-4 mt-20">
                                 <div className="flex border-b border-gray-200 py-2">
                                     <span className="w-24 font-semibold text-gray-600">저자</span>
-                                    <span>{libraryBookDetail.author}</span>
+                                    <span>{bookDetails.author}</span>
                                 </div>
 
                                 <div className="flex border-b border-gray-200 py-2">
                                     <span className="w-24 font-semibold text-gray-600">출판사</span>
-                                    <span>{libraryBookDetail.publisher}</span>
+                                    <span>{bookDetails.publisher}</span>
                                 </div>
 
                                 <div className="flex border-b border-gray-200 py-2">
                                     <span className="w-24 font-semibold text-gray-600">출판일</span>
-                                    <span>{libraryBookDetail.pubDate}</span>
+                                    <span>{bookDetails.pubDate}</span>
                                 </div>
 
                                 <div className="flex border-b border-gray-200 py-2">
                                     <span className="w-24 font-semibold text-gray-600">ISBN</span>
-                                    <span>{libraryBookDetail.isbn}</span>
+                                    <span>{bookDetails.isbn}</span>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +157,7 @@ const LibraryBookDetailComponent = () => {
                         <h2 className="text-xl font-bold mb-4">도서 소개</h2>
                         <div className="border min-h-30 border-[#00893B]">
                             <p className="text-gray-700 my-8 mx-10 leading-relaxed whitespace-pre-line">
-                                {libraryBookDetail.description || "설명이 없습니다."}
+                                {bookDetails.description || "설명이 없습니다."}
                             </p>
                         </div>
                     </div>
@@ -114,14 +177,14 @@ const LibraryBookDetailComponent = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-700">
-                                    {!Array.isArray(libraryBookDetail.libraryBooks) || libraryBookDetail.libraryBooks.length === 0 ? (
+                                    {!Array.isArray(bookDetails.libraryBooks) || bookDetails.libraryBooks.length === 0 ? (
                                         <tr>
                                             <td colSpan="7" className="py-3 px-6 text-center">소장 정보가 없습니다.</td>
                                         </tr>
                                     ) : (
-                                        libraryBookDetail.libraryBooks.map((libraryBook, index) => (
+                                        bookDetails.libraryBooks.map((libraryBook, index) => (
                                             <tr key={index} className={`${
-                                                index === libraryBookDetail.libraryBooks.length - 1
+                                                index === bookDetails.libraryBooks.length - 1
                                                 ? "border-b border-[#00893B]"
                                                 : "border-b border-gray-200"
                                                 }`}>
@@ -129,7 +192,7 @@ const LibraryBookDetailComponent = () => {
                                                 <td className="py-3 px-6">{libraryBook.libraryBookId}</td>
                                                 <td className="py-3 px-6">{libraryBook.location}</td>
                                                 <td className="py-3 px-6">{libraryBook.callSign}</td>
-                                                <td className="py-3 px-6">{libraryBook.overdue ? `연체중(${libraryBook.reserveCount}명)` : (libraryBook.borrowed || libraryBook.unmanned) ? `대출중(${libraryBook.reserveCount}명)` :  libraryBook.reserved ? `예약대기중(${libraryBook.reserveCount}명)` : "대출가능"}</td>
+                                                <td className="py-3 px-6">{libraryBook.overdue ? `연체중(${libraryBook.reserveCount}명)` : libraryBook.borrowed ? `대출중(${libraryBook.reserveCount}명)` :  libraryBook.unmanned ? `무인예약중(${libraryBook.reserveCount}명)` :  libraryBook.reserved ? `예약대기중(${libraryBook.reserveCount}명)` : "대출가능"}</td>
                                                 <td className={`py-3 px-6 ${libraryBook.overdue && 'text-red-600'}`}>{libraryBook.dueDate || "-"}</td>
                                                 <td className="py-3 px-6">
                                                     <Button children="아이콘" onClick={() => window.print()} />

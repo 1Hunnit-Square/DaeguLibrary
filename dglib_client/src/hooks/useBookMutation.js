@@ -19,6 +19,7 @@ export const useBookMutation = (
     onError: (error) => {
       console.log("오류:", error);
       alert(`${error.response?.data?.message || ''}`);
+      window.location.reload();
     }
   });
 };

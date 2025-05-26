@@ -50,7 +50,7 @@ const NewBookComponent = () => {
             <div className="flex items-center justify-center mt-10">
                 <Button children="검색" onClick={handleSearch} />
             </div>
-                <div className="container mx-auto px-4 py-8 w-375">
+                <div className="container mx-auto px-4 py-8 w-full">
                {data.totalElements !== undefined ? (
                             <div className="mb-4">총 {data.totalElements}권의 도서를 찾았습니다. </div>
                         ) : (
@@ -92,7 +92,7 @@ const NewBookComponent = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <Link to={`/books/detail/${book.libraryBookId}`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
+                                                <Link to={`/books/detail/${book.libraryBookId}?from=newbook`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
                                                     {book.bookTitle}
                                                 </Link>
                                                 <div className="space-y-2 text-gray-600">

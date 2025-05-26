@@ -2,6 +2,7 @@ import qs from 'qs';
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 import axiosClient from '../util/axiosClient';
+import { getFingerprint } from '../util/fingerprint';
 
 
 
@@ -21,7 +22,7 @@ export const getBookrecoList = async (genre, page) => {
 export const getNsLibraryBookList = async (params = {}) => {
 
     const { page = 1, size = 10 } = params;
-    const finalParams = { page, size };
+    const finalParams = { page, size, fingerprint: await getFingerprint() };
     if (params.query) {
         finalParams.query = params.query;
         finalParams.option = params.option;
@@ -62,7 +63,6 @@ export const getNewLibraryBookList = async (params = {}) => {
         params: params,
         headers: {
             'Content-Type': 'application/json',
-
         },
     });
     return res.data;
@@ -70,13 +70,13 @@ export const getNewLibraryBookList = async (params = {}) => {
 
 export const getLibraryBookDetail = async (librarybookid) => {
 
-    const res = await axiosClient.get(`${prefix}/librarybookdetail/${librarybookid}`, {
-        headers: {
-            'Content-Type': 'application/json',
-
-        },
-    });
+    const res = await axiosClient.get(`${prefix}/librarybookdetail/${librarybookid}`);
     return res.data;
+};
+
+export const getRecoLibraryBookDetail = async (isbn) => {
+    const response = await axiosClient.get(`${prefix}/recoLibraryBookDetail/${isbn}`);
+    return response.data;
 };
 
 

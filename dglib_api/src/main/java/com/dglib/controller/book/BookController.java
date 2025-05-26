@@ -1,5 +1,6 @@
 package com.dglib.controller.book;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +49,7 @@ import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
+import com.dglib.dto.book.SearchBookDTO;
 import com.dglib.dto.member.MemberDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.repository.book.BookRepository;
@@ -58,6 +61,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -145,18 +149,24 @@ public class BookController {
 
 	
 	@GetMapping("/nslibrarybooklist")
-	public ResponseEntity<Page<BookSummaryDTO>> getNsLibraryBookList(
+	public ResponseEntity<SearchBookDTO> getNsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
 	    @RequestParam(required = false) String query,
 	    @RequestParam(defaultValue = "전체") String option,
 	    @RequestParam(required = false) List<String> previousQueries,
-	    @RequestParam(defaultValue = "전체") List<String> previousOptions
+	    @RequestParam(defaultValue = "전체") List<String> previousOptions,
+	    @RequestParam String fingerprint
 	    ) {
 		String mid = JwtProvider.getMid();
 		LOGGER.info("mid: " + mid);
+		LOGGER.info("fingerPrint: " + fingerprint);
 	    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("libraryBookId").descending());
-	    Page<BookSummaryDTO> bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions, mid);	        
+	    SearchBookDTO bookList = bookService.getNsBookList(pageable, query, option, previousQueries, previousOptions, mid);
+	    if (StringUtils.hasText(query)) {
+			LOGGER.info("검색어: {}", query);
+			bookService.recordSearch(query, fingerprint);
+		}
 	    return ResponseEntity.ok(bookList);
 	}
 	
@@ -164,12 +174,23 @@ public class BookController {
 	public ResponseEntity<Page<BookSummaryDTO>> getFsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
+	    HttpSession session,
 	    LibraryBookFsDTO libraryBookFsDto) {
 		String mid = JwtProvider.getMid();
+		String sessionId = session.getId();
 		LOGGER.info(libraryBookFsDto.toString());
 		libraryBookFsDto.processYearDates();
 		Pageable pageable = PageRequest.of(page - 1, size );
 		Page<BookSummaryDTO> bookList = bookService.getFsBookList(pageable, libraryBookFsDto, mid);
+		for (String word : Arrays.asList(
+		        libraryBookFsDto.getTitle(),
+		        libraryBookFsDto.getAuthor(),
+		        libraryBookFsDto.getPublisher(),
+		        libraryBookFsDto.getKeyword())) {
+		    if (StringUtils.hasText(word)) {
+		        bookService.recordSearch(word, sessionId);
+		    }
+		}
 	    return ResponseEntity.ok(bookList);
 	}
 	
@@ -190,7 +211,15 @@ public class BookController {
 		String mid = JwtProvider.getMid();
 		LOGGER.info("librarybookid: {}", libraryBookId);
 		LOGGER.info("mid: {}", mid);
-		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid);
+		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid, null);
+		return ResponseEntity.ok(bookDetailDto);
+	}
+	
+	@GetMapping("/recoLibraryBookDetail/{isbn}")
+	public ResponseEntity<BookDetailDTO> getRecoLibraryBookDetail(@PathVariable("isbn") String isbn) {
+		LOGGER.info("isbn: {}", isbn);
+		String mid = JwtProvider.getMid();
+		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(null , mid, isbn);
 		return ResponseEntity.ok(bookDetailDto);
 	}
 	

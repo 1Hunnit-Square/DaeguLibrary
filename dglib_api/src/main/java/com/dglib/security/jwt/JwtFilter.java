@@ -60,6 +60,10 @@ public class JwtFilter extends OncePerRequestFilter {
 	    String path = request.getRequestURI();
 	    String authHeader = request.getHeader("Authorization");
 	    
+		if (path.startsWith("/api/member/refresh")) {
+			return true;
+		}
+	    
 	    //멤버 로그인 경로의 호출은 체크하지 않음
 	    if(path.startsWith("/api/")) {
 	    	if(!(authHeader == null)) {

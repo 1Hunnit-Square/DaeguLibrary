@@ -33,7 +33,14 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	boolean existsByPhone(String phone);
 	
 	@EntityGraph(attributePaths = {"rentals"})
-	@Query("SELECT m FROM Member m WHERE m.penaltyDate IS NOT NULL AND NOT EXISTS ( SELECT r FROM Rental r WHERE r MEMBER OF m.rentals AND r.dueDate < CURRENT_DATE AND r.state = com.dglib.entity.book.RentalState.BORROWED ) AND m.penaltyDate < CURRENT_DATE")
+	@Query(""" 	
+			SELECT m FROM Member m 
+			WHERE NOT EXISTS ( SELECT r FROM Rental r WHERE r MEMBER OF m.rentals 
+			AND r.dueDate < CURRENT_DATE AND r.state = com.dglib.entity.book.RentalState.BORROWED ) 
+			AND (m.penaltyDate < CURRENT_DATE OR m.penaltyDate IS NULL) 
+			AND m.state != com.dglib.entity.member.MemberState.LEAVE 
+			AND m.state != com.dglib.entity.member.MemberState.PUNISH 
+			""")
 	List<Member> findMembersWithPenaltyDateButNotOverdue();
 
 

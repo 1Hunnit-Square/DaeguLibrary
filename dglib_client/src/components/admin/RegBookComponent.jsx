@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { regBook, regBookCheck, deleteLibraryBook } from "../../api/adminApi";
+import { regBook, regBookCheck, changeLibraryBook } from "../../api/adminApi";
 import Button from "../common/Button";
 import { useMutation } from "@tanstack/react-query";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
+import { useBookMutation } from "../../hooks/useBookMutation";
 
-//수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 const initialBookFormData = {
   bookTitle: "",
   author: "",
@@ -16,19 +17,19 @@ const initialBookFormData = {
   cover: "",
 };
 
-const initialLibraryBooks = [{ id: 0, location: "", callSign: "", libraryBookId: "" }];
 
 const RegBookComponent = () => {
   const [bookFormData, setBookFormData] = useState(initialBookFormData);
   const [libraryBooks, setLibraryBooks] = useState([]);
   const Location = ["자료실1", "자료실2", "자료실3"];
+  const option = ["소장중", "부재"]
 
   const regBookMutation = useMutation({
     mutationFn: async (bookData) => {
       const response = await regBook(bookData);
       return response;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       alert("도서 등록이 완료되었습니다.");
       getRegBookCheckMutation.mutate(bookFormData.isbn);
 
@@ -52,6 +53,7 @@ const RegBookComponent = () => {
             location: libraryBook.location,
             callSign: libraryBook.callSign,
             libraryBookId: libraryBook.libraryBookId,
+            deleted: libraryBook.deleted,
           }))
         )
       }
@@ -72,26 +74,7 @@ const RegBookComponent = () => {
     },
   })
 
-  const deleteLibraryBookMutation = useMutation({
-    mutationFn: async (params) => {
-      const { libraryBookId, isbn } = params;
-      const response = await deleteLibraryBook(libraryBookId, isbn);
-      return response;
-    },
-    onSuccess: (data) => {
-      alert("도서 삭제가 완료되었습니다.");
-      setLibraryBooks(
-      libraryBooks.filter((libraryBook) => libraryBook.libraryBookId !== data)
-    );
-      if (libraryBooks.length === 0) {
-      resetBookInfo();
-    }
-    },
-    onError: (error) => {
-      alert(error.response.data.message);
-
-    },
-  })
+  const changeLibraryBookMutation = useBookMutation(async (params) => await changeLibraryBook(params), {successMessage: "도서 상태가 변경되었습니다.", onReset: () => getRegBookCheckMutation.mutate(bookFormData.isbn), queryKeyToInvalidate: []});
 
 
   useEffect(() => {
@@ -177,23 +160,11 @@ const RegBookComponent = () => {
     ]);
   };
 
-  const removeHolding = (id, libraryBookId) => {
-    if (libraryBookId) {
-      if (confirm("소장중인 도서입니다 정말 삭제하시겠습니까??")) {
-        console.log(bookFormData.isbn);
-        deleteLibraryBookMutation.mutate({
-        libraryBookId,
-        isbn: bookFormData.isbn
-      })
-
-    } else {
-      return;
-    }
-    }else {
+  const removeHolding = (id) => {
       setLibraryBooks(
       libraryBooks.filter((libraryBook) => libraryBook.id !== id)
     );
-    }
+
 
   }
 
@@ -204,6 +175,29 @@ const RegBookComponent = () => {
       )
     );
   };
+
+  const handleSoftDeleteChange = (libraryBookId, value) => {
+    const currentBook = libraryBooks.find(book => book.libraryBookId === libraryBookId);
+    const currentState = currentBook?.deleted ? "부재" : "소장중";
+    if (currentState === value) {
+      alert(`이미 ${value} 상태입니다.`);
+      return;
+    }
+    const params = {
+        libraryBookId: libraryBookId,
+        state: value
+      }
+  if (value === "부재") {
+    if (confirm("정말로 이 도서를 부재 처리하시겠습니까? 도서가 반납완료 처리되고 모든 도서예약이 취소됩니다.")) {
+      changeLibraryBookMutation.mutate(params);
+
+    }
+  } else {
+    if (confirm("정말로 이 도서를 소장중으로 변경하시겠습니까?")) {
+      changeLibraryBookMutation.mutate(params);
+    }
+  }
+};
 
 
 
@@ -293,9 +287,13 @@ const RegBookComponent = () => {
                 </div>
               )}
               {bookFormData.isbn ? (
-                libraryBooks.some(book => book.libraryBookId) ? (
+                libraryBooks.some(book => book.libraryBookId && !book.deleted) ? (
                   <div className="text-sm text-green-600 font-medium">
-                      ✓ 소장중인 도서입니다.
+                      ✓ 소장중인 도서가 있습니다.
+                    </div>
+                  ) : libraryBooks.some(book => book.libraryBookId) ? (
+                    <div className="text-sm text-orange-600 font-medium">
+                      ✓ 소장중인 도서가 없습니다.
                     </div>
                   ) : (
                     <div className="text-sm text-red-600 font-medium">
@@ -350,7 +348,7 @@ const RegBookComponent = () => {
         </div>
 
         <div className="space-y-3">
-          {libraryBooks.map((libraryBook) => (
+          {libraryBooks.map((libraryBook, index) => (
             <div
               key={libraryBook.id}
               className="flex flex-wrap md:flex-nowrap items-center gap-4 p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 transition"
@@ -359,8 +357,10 @@ const RegBookComponent = () => {
                 <div className="flex flex-col w-full md:w-auto">
                   <label className="font-medium text-gray-700 mb-1">위치</label>
                   <SelectComponent
-                  selectClassName="bg-white border dropdownClassName rounded-lg shadow-lg"
+                  selectClassName="bg-white border rounded-lg shadow-lg"
                   dropdownClassName="border-[#666666]"
+                  selectStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 }}
+                  dropdownStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 - 1 }}
                   value={libraryBook.location || ""}
                   options={Location}
                   onChange={(value) => updateHolding(libraryBook.id, "location", value)} />
@@ -377,7 +377,15 @@ const RegBookComponent = () => {
                   />
                 </div>
               </div>
-              <Button onClick={() => removeHolding(libraryBook.id, libraryBook.libraryBookId)} children="삭제" className="bg-red-700 hover:bg-red-800" />
+              { libraryBook.libraryBookId ? <SelectComponent
+                  selectClassName="bg-white border rounded-lg shadow-lg"
+                  dropdownClassName="border-[#666666]"
+                  selectStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 }}
+                  dropdownStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 - 1 }}
+                  value={libraryBook.deleted ? "부재" : "소장중"}
+                  options={option}
+                  onChange={(value) => handleSoftDeleteChange(libraryBook.libraryBookId, value)} /> : <Button onClick={() => removeHolding(libraryBook.id)} children="삭제" className="bg-red-700 hover:bg-red-800" />}
+
             </div>
           ))}
         </div>

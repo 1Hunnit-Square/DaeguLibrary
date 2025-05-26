@@ -16,5 +16,9 @@ public interface MemberService {
 	
 	boolean existByPhone(String phone);
 	
+	void executeOverdueCheck();
+	
+	boolean isLastSuccessOverdueCheckDateToday();
+	
 
 }

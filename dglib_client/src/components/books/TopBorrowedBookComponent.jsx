@@ -45,7 +45,7 @@ const TopBorrowedBookComponent = () => {
                         onChange={() => handleCheckChange("한달")} />
                 </div>
             </div>
-             <div className="container mx-auto px-4 py-8 w-375">
+             <div className="container mx-auto px-4 py-8 w-full">
                {topBookData.totalElements !== undefined ? (
                             <div className="mb-4">총 {topBookData.totalElements}권의 도서를 찾았습니다. </div>
                         ) : (
@@ -87,7 +87,7 @@ const TopBorrowedBookComponent = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <Link to={`/books/detail/${book.libraryBookId}`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
+                                                <Link to={`/books/detail/${book.libraryBookId}?from=borrowbest`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
                                                     {book.bookTitle}
                                                 </Link>
                                                 <div className="space-y-2 text-gray-600">

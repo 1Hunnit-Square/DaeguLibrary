@@ -14,13 +14,17 @@ const refreshToken = async (accessToken, refreshToken) => {
     const params = new URLSearchParams();
     params.append("refreshToken", refreshToken);
 
-    const res = await axios.post(
+    const result = await axios.post(
         `${host}/refresh`,
         params,
         header
-    );
+    ).then(res => res.data)
+    .catch(error => {
+        console.error(error)
+        return null;
+    });
+    return result;
 
-    return res.data;
 };
 
 
@@ -52,9 +56,18 @@ const beforeRes = async (res) => {
     }
     const memberCookie = getCookie("auth");
     if (!memberCookie) {
+        if(res.data.error == "ERROR_ACCESS_TOKEN"){
+            return Promise.reject(new Error("NOT_EXIST_TOKEN"));
+        }
         return res;
     }
+
     const result = await refreshToken(memberCookie.accessToken, memberCookie.refreshToken);
+    if(!result){
+        alert("토큰이 만료되었습니다. 로그아웃 후 다시 로그인해주세요.");
+        return Promise.reject(new Error("REQUIRE_RELOGIN"));
+    }
+
     console.log("refreshJWT RESULT", result);
     memberCookie.accessToken = result.accessToken;
     memberCookie.refreshToken = result.refreshToken;

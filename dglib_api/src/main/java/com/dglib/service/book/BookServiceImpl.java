@@ -3,6 +3,7 @@ package com.dglib.service.book;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.BookDTO;
@@ -39,6 +42,7 @@ import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.RentalBookListDTO;
+import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
@@ -46,9 +50,13 @@ import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.KeywordDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
+import com.dglib.dto.book.SearchBookDTO;
 import com.dglib.entity.book.Book;
 import com.dglib.entity.book.InterestedBook;
+import com.dglib.entity.book.Keyword;
+import com.dglib.entity.book.KeywordFingerprint;
 import com.dglib.entity.book.LibraryBook;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
@@ -59,6 +67,8 @@ import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.InterestedBookRepository;
 import com.dglib.repository.book.InterestedBookSpecifications;
+import com.dglib.repository.book.KeywordRepository;
+import com.dglib.repository.book.KeywordFingerprintRepository;
 import com.dglib.repository.book.LibraryBookRepository;
 import com.dglib.repository.book.LibraryBookSpecifications;
 import com.dglib.repository.book.RentalRepository;
@@ -66,6 +76,7 @@ import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
 import com.dglib.repository.book.ReserveSpecifications;
 import com.dglib.repository.member.MemberRepository;
+import com.dglib.service.member.MemberService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
@@ -83,8 +94,18 @@ public class BookServiceImpl implements BookService {
 	private final ReserveRepository reserveRepository;
 	private final MemberRepository memberRepository;
 	private final InterestedBookRepository interestedBookRepository;
+	private final KeywordRepository keywordRepository;
+	private final KeywordFingerprintRepository keywordFingerprintRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(BookServiceImpl.class);
+	private final MemberService memberService;
 	
+	private final Map<String, List<BookTopSumDTO>> topBooksCache = new ConcurrentHashMap<>();
+	
+	private List<String> popularKeywordsCache = new ArrayList<>();
+	
+	
+	
+
 	
 	
 	
@@ -206,14 +227,38 @@ public class BookServiceImpl implements BookService {
 	    }
 	}
 	
+	public void updatePopularKeywordCache() {
+        List<String> keywords = keywordRepository.findTop5ByOrderBySearchCountDesc()
+            .stream()
+            .map(Keyword::getKeyword)
+            .collect(Collectors.toList());
+        
+        this.popularKeywordsCache = keywords;
+        LOGGER.info("인기 검색어 캐시 업데이트 완료: {}", keywords);
+    }
+	
+
 	@Override
 	@Transactional(readOnly = true)
-	public Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid) {
+	public SearchBookDTO getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid) {
 		Specification<LibraryBook> spec = null;
 		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);    
         Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
+        Page<BookSummaryDTO> bookSummaryPage = libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
         
-        return libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
+        List<String> keywords;
+        if (popularKeywordsCache.isEmpty()) {
+            LOGGER.info("인기 검색어 캐시가 비어있습니다.");
+            keywords = keywordRepository.findTop5ByOrderBySearchCountDesc()
+                    .stream()
+                    .map(Keyword::getKeyword)
+                    .collect(Collectors.toList());
+            this.popularKeywordsCache = keywords;
+        } else {
+            keywords = popularKeywordsCache;
+        }
+        
+        return new SearchBookDTO(bookSummaryPage, keywords);
 	}
         
 	@Override
@@ -221,7 +266,7 @@ public class BookServiceImpl implements BookService {
 	public Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid) {
 		Specification<LibraryBook> spec = LibraryBookSpecifications.fsFilter(libraryBookFsDTO);
 		Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
-
+		
 		return libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
 	}
 	
@@ -235,60 +280,52 @@ public class BookServiceImpl implements BookService {
         return dto;});
 	}
 	
+	
 	@Override
-	@Transactional(readOnly = true)
-	public Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pageable, String check) {
-		LocalDate startDate;
-		LocalDate endDate = LocalDate.now();
-		switch (check) {
-		 case "오늘":
-			 startDate = LocalDate.now();
-			 break;
-		 case "일주일":
-			 startDate = LocalDate.now().minusWeeks(1);
-			 break;
-		 case "한달":
-			 startDate = LocalDate.now().minusMonths(1);
-			 break;
-		 default:
-			 startDate = LocalDate.now();
-		}
-		
-		List<LibraryBook> allBooks = libraryBookRepository.findTop100MostRentedBooksByDateRange(startDate, endDate);
-	    List<LibraryBook> top100Books = allBooks.stream()
-	    		.sorted((b1, b2) -> Integer.compare(b2.getRentals().size(), b1.getRentals().size()))
-	    	    .limit(100)
-	    	    .collect(Collectors.toList());
-	    
-	    int start = (int) pageable.getOffset();
-	    int end = Math.min(start + pageable.getPageSize(), top100Books.size());
-	    
-	    List<LibraryBook> pagedBooks = top100Books.subList(start, end);
-	    
-	    LOGGER.info(pagedBooks.toString());
-
-	    
-	    List<BookTopSumDTO> dtoList = pagedBooks.stream()
-	            .map(libraryBook -> {
-	                BookTopSumDTO dto = modelMapper.map(libraryBook.getBook(), BookTopSumDTO.class);
-	                dto.setLibraryBookId(libraryBook.getLibraryBookId());
-	                long borrowCount = libraryBook.getRentals().size();
-	                dto.setBorrowCount(borrowCount);
-	                return dto;
-	            })
-	            .collect(Collectors.toList());
-		
-	    return new PageImpl<>(dtoList, pageable, top100Books.size());
-	}
+	public void updateTopBooksCache() {
+        Arrays.asList("오늘", "일주일", "한달").forEach(period -> {
+            List<BookTopSumDTO> topBooks = calculateTopBooksForPeriod(period);
+            topBooksCache.put(period, topBooks);
+        });
+    }
+	
+	
+	@Override
+    @Transactional(readOnly = true)
+    public Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pageable, String check) {
+        List<BookTopSumDTO> allBooks = topBooksCache.getOrDefault(check, new ArrayList<>());
+        
+        if (allBooks.isEmpty()) {
+            LOGGER.info("캐시가 비어있음");
+            allBooks = calculateTopBooksForPeriod(check);
+        }
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allBooks.size());
+        List<BookTopSumDTO> pagedBooks = allBooks.subList(start, end);
+        
+        return new PageImpl<>(pagedBooks, pageable, allBooks.size());
+    }
 
 	
 	@Override
 	@Transactional(readOnly = true)
-	public BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid) {
-	    LibraryBook libraryBook = libraryBookRepository.findByLibraryBookIdAndIsDeletedFalse(libraryBookId)
-	            .orElseThrow(() -> new EntityNotFoundException("도서를 찾을 수 없습니다."));
+	public BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid, String isbn) {
+		LibraryBook libraryBook;
+		if (libraryBookId != null) {
+			libraryBook = libraryBookRepository.findByLibraryBookIdAndIsDeletedFalse(libraryBookId)
+		            .orElseThrow(() -> new IllegalStateException("도서를 찾을 수 없습니다."));
+		}else {
+			libraryBook = libraryBookRepository.findFirstByBookIsbnAndIsDeletedFalse(isbn)
+					.orElse(null);
+		}
+		
+		if (libraryBook == null) {
+	        return new BookDetailDTO();
+	    }
 	    BookDetailDTO dto = new BookDetailDTO();
-	    List<LibraryBookResponseDTO> libraryBooks = libraryBook.getBook().getLibraryBooks().stream()
+	    
+	    
+	    List<LibraryBookResponseDTO> libraryBooks = libraryBook.getBook().getLibraryBooks().stream().filter(lb -> !lb.isDeleted())
 	    	    .map(lb -> {
 	    	        LibraryBookResponseDTO lbDto = new LibraryBookResponseDTO();
 	    	        modelMapper.map(lb, lbDto);
@@ -316,17 +353,15 @@ public class BookServiceImpl implements BookService {
 	    modelMapper.map(libraryBook.getBook(), dto);
 	    modelMapper.map(libraryBook, dto);
 	    dto.setLibraryBooks(libraryBooks);
-	    
-
 	    return dto;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto) {
+	public RentalPageDTO getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto) {
+		boolean isMemberOverdueUpdated = memberService.isLastSuccessOverdueCheckDateToday();
 		Specification<Rental> spec = RentalSpecifications.rsFilter(borrowedBookSearchDto);
-		Page<Rental> rentalList = rentalRepository.findAll(spec, pageable);
-		return rentalList.map(rental -> {
+		Page<RentalBookListDTO> rentalList = rentalRepository.findAll(spec, pageable).map(rental -> {
 			RentalBookListDTO dto = new RentalBookListDTO();
 			modelMapper.map(rental.getLibraryBook(), dto);
 			modelMapper.map(rental.getLibraryBook().getBook(), dto);
@@ -334,6 +369,7 @@ public class BookServiceImpl implements BookService {
 			modelMapper.map(rental, dto);
 			return dto;
 		});
+		return new RentalPageDTO(rentalList, isMemberOverdueUpdated);
 	}
 	
 	@Override
@@ -583,18 +619,24 @@ public class BookServiceImpl implements BookService {
 	}
 	
 	@Override
-	public void deleteLibraryBook(Long libraryBookId, String isbn) {
-		if (!libraryBookRepository.existsById(libraryBookId)) {
-			throw new IllegalStateException("해당 도서관 도서를 찾을 수 없습니다.");
+	public void changeLibraryBook(Long libraryBookId, String state) {
+		
+		LibraryBook libraryBook = libraryBookRepository.findByLibraryBookId(libraryBookId)
+				.orElseThrow(() -> new EntityNotFoundException("해당 도서관 도서를 찾을 수 없습니다."));
+		if (libraryBook.isDeleted() && state.equals("부재")) {
+			throw new IllegalStateException("이미 부재처리 된 도서입니다.");
 		}
-
-		libraryBookRepository.deleteById(libraryBookId);
+		if (!libraryBook.isDeleted() && state.equals("소장중")) {
+			throw new IllegalStateException("이미 소장중인 도서입니다.");
+		}
+		libraryBook.setDeleted(!(libraryBook.isDeleted()));
 		
-		boolean exists = libraryBookRepository.existsByBookIsbn(isbn);
 		
-		if (!exists) {
-			bookRepository.deleteById(isbn);
-		} 
+	}
+	
+	@Override
+	public void setLibraryBook(Long libraryBookId) {
+		
 	}
 	
 	@Override
@@ -705,11 +747,48 @@ public class BookServiceImpl implements BookService {
 		
     }
     
+    @Override
+    public void recordSearch(String keyword, String fingerprint) {
+    	LOGGER.info("Recording search for keyword: {}, sessionId: {}", keyword, fingerprint);
+    	boolean alreadySearched = keywordFingerprintRepository.existsByFingerprintAndKeywordAndSearchDateAfter(fingerprint, keyword, LocalDateTime.now().minusMinutes(5));
+		if (alreadySearched) {
+			return;
+		}
+    		              
+		Keyword searchKeyword = keywordRepository.findById(keyword).orElseGet(() -> {
+			Keyword newKeyword = new Keyword();
+			newKeyword.setKeyword(keyword);
+			newKeyword.setSearchCount(0L);
+			newKeyword.setLastSearchDate(LocalDate.now());
+			return keywordRepository.save(newKeyword);
+		});
+		searchKeyword.setSearchCount(searchKeyword.getSearchCount() + 1L);
+		searchKeyword.setLastSearchDate(LocalDate.now());
+		keywordFingerprintRepository.save(KeywordFingerprint.builder().keyword(keyword).fingerprint(fingerprint).searchDate(LocalDateTime.now()).build());
+		
+    }
+    
+    @Override
+    public void deleteKeyword() {
+ 
+    	keywordRepository.deleteByLastSearchDateBefore(LocalDate.now().minusWeeks(1));
+    }
+    
+    @Override
+	public void deleteKeywordFingerprint() {
+		keywordFingerprintRepository.deleteAll();
+	}
+    
+
+    
+
+    
     
     /////////////////////////////////////////////////////////////////////////////////////
     
     private BookSummaryDTO toBookSummaryDTO(LibraryBook libraryBook, String mid) {
         BookSummaryDTO dto = modelMapper.map(libraryBook.getBook(), BookSummaryDTO.class);
+       
         modelMapper.map(libraryBook, dto);
 
         boolean isBorrowed = libraryBook.getRentals().stream()
@@ -728,11 +807,14 @@ public class BookServiceImpl implements BookService {
         return dto;
     }
     
-    public void reserveBookCommon(Long libraryBookId, String mid, boolean isUnmanned) {
+    private void reserveBookCommon(Long libraryBookId, String mid, boolean isUnmanned) {
         LibraryBook libraryBook = libraryBookRepository.findByLibraryBookIdAndIsDeletedFalse(libraryBookId).orElse(null);
         Member member = memberRepository.findById(mid).orElse(null);
-        if (libraryBook == null || member == null) {
-            throw new IllegalArgumentException("도서 혹은 회원 정보를 찾을 수 없습니다.");
+        if (libraryBook == null) {
+            throw new IllegalArgumentException("도서 정보를 찾을 수 없습니다.");
+        }
+        if (member == null) {
+            throw new IllegalArgumentException("회원 정보를 찾을 수 없습니다.");
         }
         List<Rental> rentals = rentalRepository.findByMemberMid(mid);
         BookStatusCountDto countDto = libraryBookRepository.countReserveAndBorrowDto(member.getMno(), ReserveState.RESERVED, RentalState.BORROWED);
@@ -810,6 +892,49 @@ public class BookServiceImpl implements BookService {
         reserve.setUnmanned(isUnmanned);
         reserveRepository.save(reserve);
     }
+    
+    private List<BookTopSumDTO> calculateTopBooksForPeriod(String period) {
+        LocalDate startDate;
+        LocalDate endDate = LocalDate.now();
+        
+       
+        switch (period) {
+            case "오늘":
+                startDate = LocalDate.now();
+                break;
+            case "일주일":
+                startDate = LocalDate.now().minusWeeks(1);
+                break;
+            case "한달":
+                startDate = LocalDate.now().minusMonths(1);
+                break;
+            default:
+                startDate = LocalDate.now();
+        }
+        
+       
+        List<Object[]> allBooks = libraryBookRepository.findTop100BorrowedBooks(startDate, endDate);
+        
+        
+        List<BookTopSumDTO> dtoList = allBooks.stream()
+            .map(row -> {
+                BookTopSumDTO dto = new BookTopSumDTO();
+                dto.setBookTitle((String) row[0]);
+                dto.setAuthor((String) row[1]);
+                dto.setPublisher((String) row[2]);
+                java.sql.Date sqlDate = (java.sql.Date) row[3];
+                dto.setPubDate(sqlDate != null ? sqlDate.toLocalDate() : null);
+                dto.setCover((String) row[4]);
+                dto.setLibraryBookId((Long) row[5]);
+                dto.setBorrowCount(((Number) row[6]).longValue());
+                return dto;
+            })
+            .collect(Collectors.toList());
+            
+        return dtoList;
+    }
+    
+    
 
 	
 }

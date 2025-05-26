@@ -14,8 +14,9 @@ export const regBookCheck = async (isbn) =>{
 
 }
 
-export const deleteLibraryBook = async (librarybookid, isbn) => {
-    const res = await axios.delete(`${prefix}/deletelibrarybook/${librarybookid}/${isbn}`);
+export const changeLibraryBook = async (params) => {
+    console.log(params);
+    const res = await axios.post(`${prefix}/changelibrarybook`, params, { headers: { 'Content-Type': 'application/json' } });
     return res.data;
 }
 
@@ -81,6 +82,14 @@ export const cancelReserveBook = async (reserveUpdate) => {
 export const completeBorrowing = async (reserveUpdate) => {
     const payload = reserveUpdate.map(reserveId => ({reserveId}));
     const res = await axios.post(`${prefix}/completeborrowing`, payload, { headers: { 'Content-Type': 'application/json' } });
+    if (res.status !== 200) {
+        return res.data;
+    }
+    return res.data;
+}
+
+export const updateOverdueMember = async () => {
+    const res = await axios.post(`${prefix}/updateoverduemember`);
     if (res.status !== 200) {
         return res.data;
     }

@@ -41,6 +41,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Optional<LibraryBook> findByLibraryBookIdAndIsDeletedFalse(Long libraryBookId);
 	
+	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
+	Optional<LibraryBook> findFirstByBookIsbnAndIsDeletedFalse(String isbn);
+	
 	
 	
 	@EntityGraph(attributePaths = {"book"})
@@ -96,27 +99,30 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 		    )
 		    AND lb.isDeleted = false
 		    """)
-		@EntityGraph(attributePaths = {"book"})
-		Page<LibraryBook> findFirstRegisteredBooksByDateBetween(
-		    @Param("startDate") LocalDate startDate, 
-		    @Param("endDate") LocalDate endDate, 
-		    Pageable pageable
-		);
-	
-	
-	@Query("""
-		    SELECT lb FROM LibraryBook lb 
-		    JOIN lb.rentals r 
-		    WHERE r.rentStartDate BETWEEN :startDate AND :endDate
-		    And lb.isDeleted = false 
-		    GROUP BY lb.libraryBookId 
-		    ORDER BY COUNT(r.id) DESC
-		    """)
 	@EntityGraph(attributePaths = {"book"})
-	List<LibraryBook> findTop100MostRentedBooksByDateRange(
+	Page<LibraryBook> findFirstRegisteredBooksByDateBetween(
 	    @Param("startDate") LocalDate startDate, 
-	    @Param("endDate") LocalDate endDate
+	    @Param("endDate") LocalDate endDate, 
+	    Pageable pageable
 	);
+	
+	
+	@Query(value = """
+		    SELECT b.book_title, b.author, b.publisher, b.pub_date, b.cover,
+		           lb.library_book_id, COUNT(r.rent_id) as borrow_count
+		    FROM library_book lb
+		    JOIN book b ON lb.isbn = b.isbn
+		    JOIN rental r ON lb.library_book_id = r.library_book_id
+		    WHERE r.rent_start_date BETWEEN :startDate AND :endDate
+		    AND lb.is_deleted = false
+		    GROUP BY lb.library_book_id, b.book_title, b.author, b.publisher, b.pub_date, b.cover
+		    ORDER BY borrow_count DESC
+		    LIMIT 100
+		    """,
+		    nativeQuery = true)
+	List<Object[]> findTop100BorrowedBooks(
+	 @Param("startDate") LocalDate startDate,
+	 @Param("endDate") LocalDate endDate);
 
 	
 	

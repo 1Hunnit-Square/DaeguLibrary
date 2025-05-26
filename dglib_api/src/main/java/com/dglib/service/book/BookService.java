@@ -19,22 +19,26 @@ import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.RentalBookListDTO;
+import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.KeywordDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
+import com.dglib.dto.book.SearchBookDTO;
+import com.dglib.entity.book.Keyword;
 
 public interface BookService {
 	
 	void registerBook(BookRegistrationDTO bookRegistrationDto);
-	Page<BookSummaryDTO> getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
+	SearchBookDTO getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
 	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
 	Page<BookNewSumDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto);
-	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid);
-	Page<RentalBookListDTO> getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
+	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid, String isbn);
+	RentalPageDTO getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void reserveBook(Long libraryBookId, String id);
 	Page<ReserveBookListDTO> getReserveList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void cancelReserveBook(List<ReserveStateChangeDTO> reserveStateChangeDtos);
@@ -43,7 +47,7 @@ public interface BookService {
 	Page<LibraryBookSearchByBookIdDTO> searchByLibraryBookBookId(Long libraryBookId, Pageable pageable);
 	void rentBook(Long libraryBookId, String mno);
 	BookRegistrationDTO getLibraryBookList(String isbn);
-	void deleteLibraryBook(Long libraryBookId, String isbn);
+	void changeLibraryBook(Long libraryBookId, String state);
 	Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto);
 	void unMannedReserveBook(Long libraryBookId, String mid);
 	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
@@ -51,6 +55,14 @@ public interface BookService {
 	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
 	Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pagebale, String check);
 	void checkOverdue();
+	public void setLibraryBook(Long libraryBookId);
+	void recordSearch(String keyword, String fingerprint);
+	void updateTopBooksCache();
+	void updatePopularKeywordCache();
+	void deleteKeyword();
+	void deleteKeywordFingerprint();
+	
+	
 	
 	
 	

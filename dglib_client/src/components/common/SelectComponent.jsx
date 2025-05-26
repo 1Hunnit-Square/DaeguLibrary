@@ -6,6 +6,8 @@ const SelectComponent = ({
   options = [],
   dropdownClassName = "",
   selectClassName = "",
+  selectStyle = {},
+  dropdownStyle = {},
   onChange,
   value,
   name = "",
@@ -40,7 +42,8 @@ const SelectComponent = ({
       <div className="relative mr-2" ref={dropdownRef}>
         <button
           type="button"
-          className={`flex z-20 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B]  ${selectClassName}`}
+          style={selectStyle}
+          className={`flex z-101 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B]  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {objIsArray &&<span>{value}</span>}
@@ -49,7 +52,9 @@ const SelectComponent = ({
         </button>
 
         {isOpen && (
-          <div className={`absolute z-10 -mt-4 bg-white border dropdownClassName border-[#00893B] rounded-lg shadow-lg w-full ${dropdownClassName}`}>
+          <div
+          style={dropdownStyle}
+          className={`absolute z-100 -mt-4 bg-white border dropdownClassName border-[#00893B] rounded-lg shadow-lg w-full ${dropdownClassName}`}>
             {objIsArray && options.map((option, index) => (
               <div
                 key={index}

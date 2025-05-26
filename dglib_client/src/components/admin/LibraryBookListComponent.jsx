@@ -47,7 +47,7 @@ const LibraryBookListComponent = () => {
 
 
     return (
-        <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="container mx-auto px-4 py-8 w-full">
              {isLoading && (
                 <Loading text="목록 갱신중.."/>
             )}
@@ -75,21 +75,21 @@ const LibraryBookListComponent = () => {
                 <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />
             </div>
             <div className="shadow-md rounded-lg overflow-x-auto">
-                <table className="min-w-full bg-white">
+                <table className="w-full bg-white table-fixed">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">등록번호</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">도서명</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">저자</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">출판사</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">ISBN</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">출판일</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">위치</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">청구기호</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">입고일</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">상태</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">예약수</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">소장상태</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">등록번호</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서명</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">저자</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">출판사</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">출판일</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">위치</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">청구기호</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">입고일</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">상태</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">예약수</th>
+                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">소장상태</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
@@ -110,22 +110,20 @@ const LibraryBookListComponent = () => {
 
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 ${isOverdue ? 'bg-red-50' : ''}`}>
-                                        <td className="py-4 px-6">{item.libraryBookId}</td>
-                                        <td className="py-4 px-6 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
-                                        <td className="py-4 px-6 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
-                                        <td className="py-4 px-6 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.publisher}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.isbn}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.pubDate}</td>
-                                        <td className="py-4 px-6 max-w-[80px] whitespace-nowrap">{item.location}</td>
-                                        <td className="py-4 px-6 max-w-[10px] whitespace-nowrap">{item.callSign}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.regLibraryBookDate}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">
-                                            <span className="px-2 py-1 text-xs font-semibold rounded-full">
+                                        <td className="py-4 px-6 text-xs">{item.libraryBookId}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.publisher}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.isbn}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.pubDate}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[80px] whitespace-nowrap">{item.location}</td>
+                                        <td className="py-4 px-6 text-xs max-w-[10px] whitespace-nowrap">{item.callSign}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.regLibraryBookDate}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap font-semibold">
                                                 {item.rented ?  "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : "" }
-                                            </span>
                                         </td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.reserveCount}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.deleted === false ? "소장중" : "부재"}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.reserveCount}</td>
+                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.deleted === false ? "소장중" : "부재"}</td>
                                     </tr>
                                 );
                             })

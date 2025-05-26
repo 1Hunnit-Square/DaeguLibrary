@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.place.PlaceDTO;
+import com.dglib.dto.place.ReservationStatusDTO;
 import com.dglib.repository.place.PlaceRepository;
 import com.dglib.service.place.PlaceService;
 
@@ -24,64 +25,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/places")
 public class PlaceController {
-	
+
 	private final PlaceService placeService;
 	private final PlaceRepository placeRepository;
 
-	
 	// 등록
 	@PostMapping("/register")
-	public ResponseEntity<String> registerPlace(@RequestBody PlaceDTO dto){
+	public ResponseEntity<String> registerPlace(@RequestBody PlaceDTO dto) {
 		Long pno = placeService.registerPlace(dto);
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	// 조회
 	@GetMapping("/{pno}")
-	public ResponseEntity<PlaceDTO> get(@PathVariable Long pno){
+	public ResponseEntity<PlaceDTO> get(@PathVariable Long pno) {
 		PlaceDTO dto = placeService.get(pno);
-		
+
 		return ResponseEntity.ok(dto);
 	}
-	
+
 	// 회원별 신청 목록 조회
 	@GetMapping("/member/{mid}")
-    public ResponseEntity<List<PlaceDTO>> getListByMember(@PathVariable String mid) {
-        List<PlaceDTO> list = placeService.getListByMember(mid);
-        return ResponseEntity.ok(list);
-    }
-	
+	public ResponseEntity<List<PlaceDTO>> getListByMember(@PathVariable String mid) {
+		List<PlaceDTO> list = placeService.getListByMember(mid);
+		return ResponseEntity.ok(list);
+	}
+
 	// 신청 취소(삭제)
 	@DeleteMapping("/{pno}")
-	public ResponseEntity<String> delete(@PathVariable Long pno){
+	public ResponseEntity<String> delete(@PathVariable Long pno) {
 		placeService.delete(pno);
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	// 이미 예약된 시간대인지 확인(버튼 비활성화)
-	 @GetMapping("/check")
-	    public ResponseEntity<Boolean> checkSchedule(
-	            @RequestParam String room,
-	            @RequestParam String date,
-	            @RequestParam String time
-	    ) {
-	        boolean exists = placeRepository.existsBySchedule(
-	                room, LocalDate.parse(date), LocalTime.parse(time));
-	        return ResponseEntity.ok(exists);
-	    }
-	 
+	@GetMapping("/check")
+	public ResponseEntity<Boolean> checkSchedule(@RequestParam String room, @RequestParam String date,
+			@RequestParam String time) {
+		boolean exists = placeRepository.existsBySchedule(room, LocalDate.parse(date), LocalTime.parse(time));
+		return ResponseEntity.ok(exists);
+	}
+
 	// 동일 회원이 같은 날, 같은 시설 예약했는지 확인(버튼 비활성화)
-	    @GetMapping("/check-duplicate")
-	    public ResponseEntity<Boolean> checkDuplicate(
-	            @RequestParam String mid,
-	            @RequestParam String room,
-	            @RequestParam String date
-	    ) {
-	        boolean exists = placeRepository.existsByMember_MidAndRoomAndUseDate(
-	                mid, room, LocalDate.parse(date));
-	        return ResponseEntity.ok(exists);
-	    }	
+	@GetMapping("/check-duplicate")
+	public ResponseEntity<Boolean> checkDuplicate(@RequestParam String mid, @RequestParam String room,
+			@RequestParam String date) {
+		boolean exists = placeRepository.existsByMember_MidAndRoomAndUseDate(mid, room, LocalDate.parse(date));
+		return ResponseEntity.ok(exists);
+	}
+
+	// 날짜별 예약 상태 조회 (달력에 표시용)
+	@GetMapping("/status")
+	public ResponseEntity<List<ReservationStatusDTO>> getMonthlyRoomStatus(@RequestParam int year,
+			@RequestParam int month) {
+
+		List<ReservationStatusDTO> list = placeService.getMonthlyRoomStatus(year, month);
+		return ResponseEntity.ok(list);
+	}
 
 }

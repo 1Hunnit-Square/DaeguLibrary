@@ -3,8 +3,10 @@
 const UsedFacilityComponent = () => {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">신청 내역</h2>
-      <p className="text-sm text-gray-600">현재까지 신청한 시설 목록이 여기에 표시됩니다.</p>
+      <h2 className="text-xl font-bold mb-4">신청내역</h2>
+      <p className="text-sm text-gray-600">
+        현재까지 신청한 시설 목록이 여기에 표시됩니다.
+      </p>
     </div>
   );
 };

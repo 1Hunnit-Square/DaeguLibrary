@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import {memberIdSelector} from "../../atoms/loginState";
+import { memberIdSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 
 const FacilityComponent = () => {
@@ -8,13 +8,13 @@ const FacilityComponent = () => {
   const mid = useRecoilValue(memberIdSelector);
 
   const handleReserve = (roomName) => {
-    
+
     if (!mid) {
       alert("로그인 후 이용해주세요.");
       navigate("/login");
       return;
     }
-    navigate("/reservation/facility/apply", {state: { roomName }});
+    navigate("/reservation/facility/apply", { state: { roomName } });
   };
 
   return (
@@ -40,24 +40,24 @@ const FacilityComponent = () => {
 
       <section className="mb-12">
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
-            이용시간
+          이용시간
         </h3>
         <ul className="text-sm md:text-base text-gray-700 leading-relaxed tracking-wide space-y-2">
-            <li>
-                <span className="text-blue-200">●</span> 동아리실: 평일 및 주말 (09:00 ~ 17:00)
-            </li>
-            <li>
-                <span className="text-blue-200">●</span> 세미나실: 평일 및 주말 (09:00 ~ 17:00)
-            </li>
+          <li>
+            <span className="text-blue-200">●</span> 동아리실: 평일 및 주말 (09:00 ~ 17:00)
+          </li>
+          <li>
+            <span className="text-blue-200">●</span> 세미나실: 평일 및 주말 (09:00 ~ 17:00)
+          </li>
         </ul>
 
         <div className="mt-4 space-y-2 text-sm md:text-base">
-            <p className="text-gray-800">
-                <span className="text-green-600 font-bold mr-2">✔</span> 하루 최대 3시간 이용 가능합니다.
-            </p>
-            <p className="text-gray-800">
-                <span className="text-green-600 font-bold mr-2">✔</span> 독서토론 및 독서진흥 활동을 위한 목적외 정치, 종교, 영리, 개인 목적으로는 대관신청이 불가능합니다.
-            </p>
+          <p className="text-gray-800">
+            <span className="text-green-600 font-bold mr-2">✔</span> 하루 최대 3시간 이용 가능합니다.
+          </p>
+          <p className="text-gray-800">
+            <span className="text-green-600 font-bold mr-2">✔</span> 독서토론 및 독서진흥 활동을 위한 목적외 정치, 종교, 영리, 개인 목적으로는 대관신청이 불가능합니다.
+          </p>
         </div>
       </section>
 
@@ -168,7 +168,7 @@ const FacilityComponent = () => {
           </tbody>
         </table>
       </section>
-     <Outlet />
+      <Outlet />
     </div>
   );
 };

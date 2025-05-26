@@ -13,7 +13,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
       pages.push(
         <button
           key={i}
-          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200'}`}
+          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200 hover:bg-gray-400'}`}
           onClick={() => !isLoading && onPageChange(i)}
           disabled={isLoading}
         >
@@ -29,7 +29,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
             key="prev"
             onClick={() => !isLoading && onPageChange(startPage - 1)}
             disabled={isLoading}
-            className={`mx-1 px-3 py-1 rounded bg-gray-200`}
+            className={`mx-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-400`}
           >
             이전
           </button>
@@ -40,7 +40,7 @@ export const usePagination = (pageable, onPageChange, isLoading) => {
             key="next"
             onClick={() => !isLoading && onPageChange(endPage + 1)}
             disabled={isLoading}
-            className={`mx-1 px-3 py-1 rounded bg-gray-200`}
+            className={`mx-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-400`}
           >
             다음
           </button>

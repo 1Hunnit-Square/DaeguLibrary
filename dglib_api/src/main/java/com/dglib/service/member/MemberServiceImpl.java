@@ -13,7 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
+import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
@@ -98,7 +100,27 @@ public class MemberServiceImpl implements MemberService {
 		return member.getMid();
 	}
 	
+	@Override
+	public boolean existAccount(MemberFindAccountDTO memberFindAccountDTO) {
+		return memberRepository.existsByMidAndBirthDateAndPhone(memberFindAccountDTO.getMid(), memberFindAccountDTO.getBirthDate(), memberFindAccountDTO.getPhone());
+	}
 	
+	@Override
+	public void modPwMember(String mid, String pw) {
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		member.setPw(passwordEncoder.encode(pw));
+		memberRepository.save(member);
+	}
+	
+	@Override
+	public MemberInfoDTO findMemberInfo(String mid, String pw) {
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		boolean valid = passwordEncoder.matches(pw, member.getPw());
+		if(!valid) {
+			throw new IllegalArgumentException("Password Different");
+		}
+		return modelMapper.map(member, MemberInfoDTO.class);
+	}
 	
 	public String setMno () {
 		String result = null;

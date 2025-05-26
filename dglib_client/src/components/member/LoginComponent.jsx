@@ -8,7 +8,6 @@ import { useMoveTo } from "../../hooks/useMoveTo";
 import { Link } from "react-router-dom";
 
 const LoginComponent = () =>{
-    const [ loginState, setLoginState ] = useRecoilState(RecoilLoginState);
     const [ loginParam, setLoginParam ] = useState({id : "", pw: ""});
     const [ savedId, setSavedId ] = useState(false);
     const { doLogin } = useLogin();
@@ -36,7 +35,7 @@ const LoginComponent = () =>{
                 setLoginParam(prev => ({ ...prev, pw : ""}));
             }
             else {
-                alert(data.name+"님 ㅎㅇ");
+                alert("로그인 완료");
                 moveToSaved();
             }
         },[loginParam, savedId])
@@ -73,8 +72,8 @@ const LoginComponent = () =>{
            <div className="flex justify-start ml-3 mt-2 mb-5"><CheckBox label={"아이디저장"} checked={savedId} onChange={handleCheckBox} /></div>
            <Button onClick = {LoginClick} className="mx-auto mb-3 w-55">로그인</Button>
             <div className="flex justify-center mb-10 gap-3 text-xs">
-                <Link to="/findid" className="hover:text-green-800">아이디 찾기</Link>
-                <Link to="/" className="hover:text-green-800">비밀번호 찾기</Link>
+                <Link to="/find/account?tab=id" className="hover:text-green-800">아이디 찾기</Link>
+                <Link to="/find/account?tab=pw" className="hover:text-green-800">비밀번호 찾기</Link>
                 <Link to="/signup" className="hover:text-green-800">회원가입</Link>
                 </div>
      </div>

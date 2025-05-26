@@ -1,14 +1,12 @@
-import Layout from "../layouts/Layout";
-import SubHeader from "../layouts/SubHeader";
-import Button from "../components/common/Button";
-import PageModal from "../components/common/PageModal";
+import Button from "../common/Button";
+import PageModal from "../common/PageModal";
 import { useState, useCallback } from "react";
-import PhoneAuthComponent from "../components/member/PhoneAuthComponent";
-import PhoneCheckComponent from "../components/member/PhoneCheckComponent";
-import { idFind } from "../api/memberApi";
+import PhoneAuthComponent from "./PhoneAuthComponent";
+import PhoneCheckComponent from "./PhoneCheckComponent";
+import { idFind } from "../../api/memberApi";
 import { useMutation } from "@tanstack/react-query";
 
-const FindIdPage = () => {
+const FindIdComponent = () => {
 
     const [ isOpen, setIsOpen ] = useState(false);
     const [ findForm, setFindForm ] = useState({name : "", birthDate : ""});
@@ -47,7 +45,7 @@ const FindIdPage = () => {
 
 
     const PageMap = {
-    phoneAuth : { component : PhoneAuthComponent },
+    phoneAuth : { component : PhoneAuthComponent},
     phoneCheck : { component : PhoneCheckComponent, props : { handleSuccess, phoneCheck : true } }
     }
 
@@ -61,8 +59,7 @@ const FindIdPage = () => {
     }
 
     return(
-        <Layout sideOn={false}>
-            <SubHeader subTitle="아이디 찾기" mainTitle="기타" />
+        <>
             {idFindMutation.isIdle && <>
             <div className = "grid grid-cols-3 justify-center items-center my-10 w-60 mx-auto gap-1">
             <div className = "col-span-3 font-bold my-10 text-center">아이디 찾기</div>
@@ -83,11 +80,10 @@ const FindIdPage = () => {
             {idFindMutation.isError && <div className ="col-span-3 text-center">일치하는 정보가 없습니다.</div>}
                 </div>
                 </>}
-    <PageModal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose} PageMap={PageMap} defaultPage={"phoneAuth"} />
-           
-        </Layout>
+    <PageModal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose} PageMap={PageMap} defaultPage={"phoneAuth"} />      
+</>
     )
 
 }
 
-export default FindIdPage;
+export default FindIdComponent;

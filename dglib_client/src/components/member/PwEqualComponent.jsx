@@ -13,8 +13,8 @@ useEffect(()=>{
 },[pw1, pw2])
 
 return(<>
-    {(!check && pw2!="") && <div className = "text-red-500">비밀번호가 일치해야합니다.</div>}
-    {(check) && <div className = "text-blue-500">비밀번호가 일치합니다.</div>}
+    {(!check && pw2!="") && <div className = "w-70 text-red-500">비밀번호가 일치해야합니다.</div>}
+    {(check) && <div className = "w-70 text-blue-500">비밀번호가 일치합니다.</div>}
     </>
 );
 }

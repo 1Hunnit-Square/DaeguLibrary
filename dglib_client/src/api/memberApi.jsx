@@ -34,7 +34,7 @@ export const getMemberList = async (params) => {
     return res.data;
 }
 
-export const PostMemberManage = async (params) => {
+export const postMemberManage = async (params) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const res = await axios.post(`${prefix}/manageMember`, params, header);
     return res.data;
@@ -47,5 +47,21 @@ export const phoneExist = async (param) => {
 
 export const idFind = async (params) => {
     const res = await axios.get(`${prefix}/findId`, { params : params });
+    return res.data;
+}
+
+export const accountFind = async (params) => {
+    const res = await axios.get(`${prefix}/existAccount`, { params : params });
+    return res.data;
+}
+
+export const modMemberPw = async (params) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    const res = await axios.post(`${prefix}/modPwMember`, params, header);
+    return res.data; 
+}
+
+export const getMemberInfo = async (params) => {
+    const res = await axiosClient.get(`${prefix}/getMemberInfo`, { params : params });
     return res.data;
 }

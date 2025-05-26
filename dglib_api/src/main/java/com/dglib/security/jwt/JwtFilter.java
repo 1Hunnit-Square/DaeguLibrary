@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -62,7 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	    log.info("FILTER CHECK "+path);
 	    
-	    if (path.equals("/favicon.ico")) {
+	    if (path.equals("/favicon.ico") || path.startsWith("/api/member/refresh")) {
 	        return true;
 	    }
 	   
@@ -79,6 +80,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	    return false;
 	    }
+	 
+	   public static String getMid() {
+		      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		      Object principal = authentication.getPrincipal();
+		      if (principal == null || !(principal instanceof MemberDTO)) {
+		         return null;
+		      }
+		      return ((MemberDTO) principal).getUsername();
+		      
+		   }
 
 	
 }

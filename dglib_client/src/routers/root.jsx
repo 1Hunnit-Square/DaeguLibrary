@@ -28,7 +28,8 @@ const Community = lazy(()=> import ("../pages/CommunityPage"));
 const MyLibrary = lazy(()=> import ("../pages/MyLibraryPage"));
 const MemberSearch = lazy(()=> import ("../components/admin/MemberSearchComponent"));
 const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSearchComponent"));
-const FindId = lazy(()=> import ("../pages/FindIdPage"));
+const FindAccount = lazy(()=> import ("../pages/FindAccountPage"));
+const InfoMod = lazy(()=> import ("../pages/InfoModPage"));
 
 const root = createBrowserRouter([
 
@@ -106,12 +107,12 @@ const root = createBrowserRouter([
         element: <Suspense fallback={<Loading />}><LibraryBookSearch /></Suspense>
     },
     {
-        path : "findid",
-        element: <Suspense fallback={<Loading />}><FindId /></Suspense>
+        path : "find/account",
+        element: <Suspense fallback={<Loading />}><FindAccount /></Suspense>
     },
-    {
-        path : "findpw",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
+      {
+        path : "modinfo",
+        element: <Suspense fallback={<Loading />}><InfoMod /></Suspense>
     }
 
 

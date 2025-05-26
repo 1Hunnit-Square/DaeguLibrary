@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useRecoilValue } from "recoil"
-import { memberIdSelector } from '../atoms/loginState';
+import { memberIdSelector, memberNameSelector } from '../atoms/loginState';
 const LoginMenu = () => {
 
     const mid = useRecoilValue(memberIdSelector);
+    const name = useRecoilValue(memberNameSelector);
     const style = "hover:text-emerald-700 text-xs";
     
 
@@ -13,8 +14,9 @@ const LoginMenu = () => {
         {
         mid ? 
         <>
+        <li>{name}님</li>
         <li><NavLink to="/logout" className={style}>로그아웃</NavLink></li>
-        <li><NavLink to="/mypage" className={style}>마이페이지</NavLink></li>
+        <li><NavLink to="/modinfo" className={style}>정보수정</NavLink></li>
         </>
         :
         <>

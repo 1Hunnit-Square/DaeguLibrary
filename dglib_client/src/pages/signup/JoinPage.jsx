@@ -20,7 +20,7 @@ const [ isOpen, setIsOpen ] = useState(false);
 const [ joinForm, setJoinForm] = useState({id : "", pw1:"", pw2:"", name: "", phone : phone, checkEmail: false, checkSms: false});
 const [ idCheck, setIdCheck ] = useState(false);
 const [ pwCheck, setPwCheck ] = useState(false);
-const [ pwVerify, setPwVerify ] = useState(false);
+const [ pwEqual, setPwEqual ] = useState(false);
 
 
 useEffect(()=>{
@@ -62,21 +62,18 @@ switch(type){
   setPwCheck(value);
   return;
   case "pw2":
-  setPwVerify(value);
+  setPwEqual(value);
   return;
 }
 }
 
 const onAddrCode = (data) => {
-  setIsOpen(false);
+    onCloseAddr();
     setJoinForm(prev => (
     {...prev,
-        ["address"] : data.address
-    }
-  ));
-    setJoinForm(prev => (
-    {...prev,
-        ["zonecode"] : data.zonecode
+        ["address"] : data.address,
+        ["zonecode"] : data.zonecode,
+        ["emailAddr"] : ""
     }
   ));
   };
@@ -137,7 +134,7 @@ await regPost(toJsonParams(joinForm))
 const onClickJoin = () => {
   if(!(idCheck)){
   alert("아이디 중복 검사를 수행해주세요.");
-  } else if(!(pwCheck && pwVerify)){
+  } else if(!(pwCheck && pwEqual)){
   alert("비밀번호가 형식에 맞지 않거나 일치하지 않습니다.");
   } else if(!(joinForm.name && joinForm.birthDate && joinForm.gender && joinForm.address && joinForm.zonecode)){
   alert("필수 입력 정보를 확인해주세요.");
@@ -187,7 +184,7 @@ return(
       </div>
       <div className="flex px-4 py-2 items-center gap-2">
         <input name="pw2" type="password" placeholder="비밀번호 확인" className="flex border px-3 py-2 rounded" onChange={handleChange}/>
-        <PwEqualComponent pw1={joinForm.pw1} pw2={joinForm.pw2} handleForm={handleForm} check={pwVerify}/>
+        <PwEqualComponent pw1={joinForm.pw1} pw2={joinForm.pw2} handleForm={handleForm} check={pwEqual}/>
       </div>
     </div>
 
@@ -226,7 +223,7 @@ return(
       </div>
       <div className="flex-1 px-4 py-2 space-y-2">
         <input value={joinForm.phone} className="flex border px-3 py-2 rounded bg-blue-100" readOnly />
-        <CheckBox label="SMS 수신 여부" hecked={joinForm.checkSms} onChange={(e) => handleCheck(e, "checkSms")} />
+        <CheckBox label="SMS 수신 여부" checked={joinForm.checkSms} onChange={(e) => handleCheck(e, "checkSms")} />
       </div>
     </div>
 
@@ -269,7 +266,7 @@ return(
     {/* 버튼 */}
     <div className="flex justify-center gap-4 py-6">
       <Button onClick={onClickJoin}>회원가입</Button>
-      <Button className="bg-gray-400 hover:bg-gray-500">취소</Button>
+      <Button className="bg-gray-400 hover:bg-gray-500" onClick={()=>navigate("/")}>취소</Button>
     </div>
 
   </form>

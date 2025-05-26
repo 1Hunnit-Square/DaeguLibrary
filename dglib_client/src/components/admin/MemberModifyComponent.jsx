@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import Button from "../common/Button";
 import SelectComponent from "../common/SelectComponent";
-import { PostMemberManage } from "../../api/memberApi";
+import { postMemberManage } from "../../api/memberApi";
 import { useNavigate } from "react-router-dom";
 
 const MemberModifyComponent = ({data, refetch}) => {
@@ -82,7 +82,7 @@ const MemberModifyComponent = ({data, refetch}) => {
         paramData.append("penaltyDate", modData.penaltyDate);
         }
 
-        PostMemberManage(paramData).then(data => {
+        postMemberManage(paramData).then(data => {
             alert("적용되었습니다.");
             refetch();
         }).catch(e => {

@@ -14,6 +14,14 @@ export const memberIdSelector = selector({
     }
 });
 
+export const memberNameSelector = selector({
+    key: 'memberNameSelector',
+    get: ({get}) => {
+        const login = get(loginState);
+        return login?.name || null;
+    }
+});
+
 function loadCookie(){
     const memberInfo = getCookie("auth") ?? {};
     if(memberInfo){

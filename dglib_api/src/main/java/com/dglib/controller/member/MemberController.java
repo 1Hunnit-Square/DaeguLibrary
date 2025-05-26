@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,12 +22,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
+import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.RegMemberDTO;
+import com.dglib.security.jwt.JwtFilter;
 import com.dglib.service.member.MemberCardService;
 import com.dglib.service.member.MemberService;
 
@@ -98,6 +103,24 @@ public class MemberController {
 	@GetMapping("/findId")
 	public ResponseEntity<String> findId(@ModelAttribute MemberFindIdDTO memberFindIdDTO){
 		return ResponseEntity.ok(memberService.findId(memberFindIdDTO));
+	}
+	
+	@GetMapping("/existAccount")
+	public ResponseEntity<Boolean> existAccount(@ModelAttribute MemberFindAccountDTO memberFindAccountDTO){
+		return ResponseEntity.ok(memberService.existAccount(memberFindAccountDTO));
+	}
+	
+	@PostMapping("/modPwMember")
+	public ResponseEntity<String> findId(@RequestParam String mid, String pw){
+		memberService.modPwMember(mid, pw);
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/getMemberInfo")
+	public ResponseEntity<MemberInfoDTO> getMemberInfo(@RequestParam String pw){
+		String mid = JwtFilter.getMid();
+		System.out.println(mid);
+		return ResponseEntity.ok(memberService.findMemberInfo(mid, pw));
 	}
 
 }

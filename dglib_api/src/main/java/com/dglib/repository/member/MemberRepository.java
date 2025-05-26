@@ -35,5 +35,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	Page<Member> findAll (Specification<Member> spec, Pageable pageable);
 	
 	Optional<Member> findByNameAndBirthDateAndPhone (String name, LocalDate birthDate, String phone);
-
+	
+	boolean existsByMidAndBirthDateAndPhone (String mid, LocalDate birthDate, String phone);
+	
 }

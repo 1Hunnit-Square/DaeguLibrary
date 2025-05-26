@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
 import { usePagination } from "../../hooks/usePagination";
-import SearchSelectComponent from "../../components/common/SearchSelectComponent";
-import { useNavigate } from "react-router-dom";
+import SearchSelectComponent from "../common/SearchSelectComponent";
+import { memberIdSelector } from "../../atoms/loginState";
+import { useRecoilValue } from "recoil";
 
 
 
@@ -23,20 +24,13 @@ const StatusBadge = ({ status }) => {
     return <span style={badgeStyle}>{status}</span>;
 };
 
-const QnaList = () => {
+const QnaListComponent = () => {
     const [qnaItems, setQnaItems] = useState([]);
     const [pageable, setPageable] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
-    const Navigate = useNavigate();
+    const navigate = useNavigate();
 
-    <td
-        onClick={() => navigate(`/community/qna/${item.qno}`)}
-        className="text-left px-2 py-3 pl-5 cursor-pointer hover:underline"
-    >
-        {item.title}
-    </td>
-    
     const queryParams = useMemo(() => ({
         query: searchParams.get("query") || "",
         option: searchParams.get("option") || "제목",
@@ -44,6 +38,7 @@ const QnaList = () => {
     }), [searchParams]);
 
     const isSearched = !!queryParams.query;
+    const mid = useRecoilValue(memberIdSelector);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -54,7 +49,7 @@ const QnaList = () => {
                     size: 10,
                     searchType: queryParams.option,
                     keyword: queryParams.query,
-                    requesterMid: "user1"
+                    requesterMid: mid
                 },
             });
 
@@ -115,7 +110,6 @@ const QnaList = () => {
                     inputClassName="w-full"
                     buttonClassName="right-2"
                 />
-
             </div>
 
             {renderSearchResultCount}
@@ -158,9 +152,20 @@ const QnaList = () => {
                             <tr key={item.qno} style={{ borderBottom: "1px solid #ddd", textAlign: "center" }}>
                                 <td>{item.qno}</td>
                                 <td><StatusBadge status={item.status} /></td>
-                                <td style={{ textAlign: "left", padding: "12px 8px", paddingLeft: "20px" }}>{item.title}</td>
+                                <td
+                                    onClick={() => navigate(`/community/qna/${item.qno}`)}
+                                    style={{
+                                        textAlign: "left",
+                                        padding: "12px 8px",
+                                        paddingLeft: "20px",
+                                        cursor: "pointer"
+                                    }}
+                                    className="hover:underline"
+                                >
+                                    {item.title}
+                                </td>
                                 <td>{item.checkPublic ? "" : <LockIcon />}</td>
-                                <td>{item.memberMid}</td>
+                                <td>{item.writerName}</td>
                                 <td>{item.postedAt?.substring(0, 10)}</td>
                                 <td>{item.viewCount}</td>
                             </tr>
@@ -174,4 +179,4 @@ const QnaList = () => {
     );
 };
 
-export default QnaList;
+export default QnaListComponent;

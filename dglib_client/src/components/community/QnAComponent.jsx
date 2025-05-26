@@ -1,17 +1,20 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import QnaList from "../../pages/qna/QnaList";
-import QnaDetail from "../../pages/qna/QnaDetail";
+import QnaDetailComponent from "./QnaDetailComponent";
+import QnaListComponent from "./QnaListComponent";
+import { Outlet } from "react-router-dom";
 
-const QnAComponent = () => {
+
+const QnaComponent = () => {
     return (
         <div style={{ padding: '20px' }}>
-            <Routes>
-                <Route path="/" element={<QnaList />} />
-                <Route path=":qno" element={<QnaDetail />} />
-            </Routes>
+            {/* <Routes>
+                <Route index element={<QnaListComponent />} />
+                <Route path=":qno" element={<QnaDetailComponent />} />
+            </Routes> */}
+            <Outlet />
         </div>
     );
 };
 
-export default QnAComponent;
+export default QnaComponent;

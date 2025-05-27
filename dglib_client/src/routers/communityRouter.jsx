@@ -1,47 +1,65 @@
-import { Suspense, lazy } from "react";
+import { Children, Suspense, lazy } from "react";
 import { Navigate } from "react-router-dom";
 import Loading from "./Loading";
-
+import QnaListComponent from "../components/community/QnaListComponent";
+import { path } from "framer-motion/client";
+import QnaDetailComponent from "../components/community/QnaDetailComponent";
+import QnaNewComponent from "../components/community/QnaNewComponent";
 
 const Notice = lazy(() => import("../components/community/NoticeComponent"));
 const News = lazy(() => import("../components/community/NewsComponent"));
-const QnA = lazy(() => import("../components/community/QnAComponent"));
+const Qna = lazy(() => import("../components/community/QnaComponent"));
 const Gallery = lazy(() => import("../components/community/GalleryComponent"));
 const Press = lazy(() => import("../components/community/PressComponent"));
 const Donation = lazy(() => import("../components/community/DonationComponent"));
 
+
+
 const communityRouter = () => ([
 
     {
-        path : "",
+        path: "",
         element: <Navigate to="notice" replace />
     },
     {
-        path : "notice",
+        path: "notice",
         element: <Suspense fallback={<Loading />}><Notice /></Suspense>
     },
     {
-        path : "news",
+        path: "news",
         element: <Suspense fallback={<Loading />}><News /></Suspense>
 
     },
     {
-        path : "qna",
-        element: <Suspense fallback={<Loading />}><QnA /></Suspense>
-
+        path: "qna",
+        element: <Suspense fallback={<Loading />}><Qna /></Suspense>,
+        children:[
+            {
+                index: true, // 나중에  path: "" 이거와 비교하기
+                element: <Suspense fallback={<Loading />}><QnaListComponent /></Suspense>
+            },
+            {
+                path: ":qno",
+                element: <Suspense fallback={<Loading />}><QnaDetailComponent /></Suspense>
+            },
+            {
+                path: "new",
+                element: <Suspense fallback={<Loading />}><QnaNewComponent /></Suspense>
+            }
+        ]
     },
     {
-        path : "gallery",
+        path: "gallery",
         element: <Suspense fallback={<Loading />}><Gallery /></Suspense>
 
     },
     {
-        path : "press",
+        path: "press",
         element: <Suspense fallback={<Loading />}><Press /></Suspense>
 
     },
     {
-        path : "donation",
+        path: "donation",
         element: <Suspense fallback={<Loading />}><Donation /></Suspense>
     }
 

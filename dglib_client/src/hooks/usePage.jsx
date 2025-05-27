@@ -10,6 +10,7 @@ export const usePagination = (
   const pageClick = useCallback((page) => {
     const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
 
+
     if (page === currentPageFromUrl || isLoading) return;
 
     const newParams = new URLSearchParams(searchURLParams);
@@ -32,8 +33,8 @@ export const usePagination = (
       pages.push(
         <button
           key={i}
-          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200 hover:bg-gray-400'}`}
-          onClick={() => !isLoading && onPageChange(i)}
+          className={`mx-1 px-3 py-1 rounded ${pageable.pageable.pageNumber === i-1 ? 'bg-[#00893B] text-white' : 'bg-gray-200'}`}
+          onClick={() => !isLoading && pageClick(i)}
           disabled={isLoading}
         >
           {i}
@@ -48,7 +49,7 @@ export const usePagination = (
             key="prev"
             onClick={() => !isLoading && pageClick(startPage - 1)}
             disabled={isLoading}
-            className={`mx-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-400`}
+            className={`mx-1 px-3 py-1 rounded bg-gray-200`}
           >
             이전
           </button>
@@ -59,7 +60,7 @@ export const usePagination = (
             key="next"
             onClick={() => !isLoading && pageClick(endPage + 1)}
             disabled={isLoading}
-            className={`mx-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-400`}
+            className={`mx-1 px-3 py-1 rounded bg-gray-200`}
           >
             다음
           </button>

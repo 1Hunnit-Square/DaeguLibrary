@@ -8,7 +8,8 @@ export const API_ENDPOINTS = {
   admin: '/api/admin',
   sms: '/api/sms',
   calendar: '/api/closed',
-  place: '/api/places'
+  place: '/api/places',
+  qna: '/api/question'
 };
 
 export const SMS_KEY = "CREATION";

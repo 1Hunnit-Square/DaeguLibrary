@@ -48,12 +48,12 @@ public class QuestionController {
 	//조회 및 검색
 	@GetMapping
 	public ResponseEntity<Page<QuestionDTO>> getQuestions(
-			@RequestParam(required = false) String query,
-			@RequestParam(required = false) String option,
-			@RequestParam(required = false, defaultValue = "") String requesterMid,
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size
-	){
+	    @RequestParam(required = false, name = "keyword") String query,
+	    @RequestParam(required = false, name = "searchType") String option,
+	    @RequestParam(required = false, defaultValue = "") String requesterMid,
+	    @RequestParam(defaultValue = "0") int page,
+	    @RequestParam(defaultValue = "10") int size
+	) {
 		Pageable pageable = PageRequest.of(page, size);
 		
 		Page<QuestionDTO> result;

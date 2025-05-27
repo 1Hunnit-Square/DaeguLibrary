@@ -44,7 +44,7 @@ public class QnaDataInsertTest {
         List<Long> questionIds = new ArrayList<>();
 
         // user1 질문 7개
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= 60; i++) {
             Question q = Question.builder()
                     .title("user1 질문 제목 " + i)
                     .content("user1 질문 내용 " + i)
@@ -58,7 +58,7 @@ public class QnaDataInsertTest {
         }
 
         // user2 질문 7개
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= 60; i++) {
             Question q = Question.builder()
                     .title("user2 질문 제목 " + i)
                     .content("user2 질문 내용 " + i)
@@ -73,7 +73,7 @@ public class QnaDataInsertTest {
 
         // 무작위 질문 7개에 대해 user2가 답변 작성
         Collections.shuffle(questionIds);
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 70; i++) {
             Long qno = questionIds.get(i);
             Question question = questionRepository.findById(qno)
                     .orElseThrow(() -> new RuntimeException("질문 없음: " + qno));

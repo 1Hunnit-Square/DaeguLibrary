@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, memo } from 'react';
 import { getCard } from '../../api/memberApi';
 import { useQuery } from '@tanstack/react-query';
 
-const QRComponent = ({mid}) => {
+const QrComponent = ({mid}) => {
 
 const reloadTime = 1000 * 30;
 const [ leftTime, setLeftTime] = useState(reloadTime/1000);
@@ -50,4 +50,4 @@ return(
 )
 }
 
-export default memo(QRComponent);
+export default memo(QrComponent);

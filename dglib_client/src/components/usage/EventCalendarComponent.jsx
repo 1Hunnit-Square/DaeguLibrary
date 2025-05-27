@@ -10,7 +10,8 @@ import { getClosedDays, registerAutoAllEvents } from '../../api/closedDayApi';
 
 const EventCalendarComponent = ({
   renderExtraCellContent = () => null,
-  onMonthChange = () => { }
+  onMonthChange = () => {},
+  showYearSelect = true
 }) => {
   const calendarRef = useRef(null);
   const now = new Date();
@@ -70,13 +71,15 @@ const EventCalendarComponent = ({
   return (
     <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12">
       <div className="mb-4 flex justify-end items-center gap-2">
-        <SelectComponent
-          options={Array.from({ length: 10 }, (_, i) => `${now.getFullYear() - 5 + i}년`)}
-          value={`${selectedYear}년`}
-          onChange={handleYearChange}
-          selectClassName="w-28 text-sm"
-          dropdownClassName="w-28"
-        />
+        {showYearSelect && (
+          <SelectComponent
+            options={Array.from({ length: 10 }, (_, i) => `${now.getFullYear() - 5 + i}년`)}
+            value={`${selectedYear}년`}
+            onChange={handleYearChange}
+            selectClassName="w-28 text-sm"
+            dropdownClassName="w-28"
+          />
+        )}
         <Button onClick={handleGoToday}>오늘</Button>
       </div>
 
@@ -99,7 +102,6 @@ const EventCalendarComponent = ({
           color: e.isClosed ? '#a52a2a' : '#00893B'
         }))}
 
-        // 요일 헤더 스타일
         dayHeaderContent={({ date, text }) => {
           const day = date.getDay();
           let color = 'text-gray-600';
@@ -108,27 +110,21 @@ const EventCalendarComponent = ({
           return <div className={`py-2 text-sm font-semibold ${color}`}>{text}</div>;
         }}
 
-        // 셀 높이 + 테두리 스타일
         dayCellClassNames={() => 'h-32 align-top p-2 border border-gray-200 text-sm'}
 
-        // 날짜 셀 커스터마이징 (날짜 + 추가 콘텐츠)
         dayCellContent={({ date }) => {
           const day = date.getDay();
-          const dateStr = date.toISOString().slice(0, 10);
           const dateNum = date.getDate();
           const color = day === 0 ? 'text-red-500' : day === 6 ? 'text-blue-500' : 'text-gray-800';
 
           return (
             <div className="relative h-full w-full flex flex-col items-start justify-start">
-              {/* 날짜 숫자: 오른쪽 상단 고정 */}
               <div
                 className={`absolute top-1 right-1 text-[13px] font-semibold ${color}`}
                 style={{ zIndex: 50, pointerEvents: 'none' }}
               >
                 {dateNum}
               </div>
-
-              {/* 나머지 셀 콘텐츠 */}
               <div className='w-full h-full mt-6 relative z-0'>
                 {renderExtraCellContent(date)}
               </div>

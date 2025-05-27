@@ -60,11 +60,11 @@ const ApplyFacilityComponent = () => {
       </section>
 
       <EventCalendarComponent
+        showYearSelect={false}
         onMonthChange={(year, month) => {
           setSelectedYear(year);
           setSelectedMonth(month);
         }}
-
         renderExtraCellContent={(date) => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -78,10 +78,7 @@ const ApplyFacilityComponent = () => {
 
           const roomList = ['동아리실', '세미나실'];
 
-          // 정기휴관일이면 아무것도 출력하지 않음
           if (isClosed) return null;
-
-          // 과거 날짜면 "종료" 텍스트만 출력
           if (isPast) {
             return (
               <div className="relative h-full w-full flex items-end justify-center pb-1 mt-1">
@@ -90,7 +87,6 @@ const ApplyFacilityComponent = () => {
             );
           }
 
-          // 미래 날짜면 예약 버튼 출력
           return (
             <div className="relative h-full flex flex-col justify-start items-start w-full pt-1">
               <div className="flex flex-col gap-[4px] w-full mt-6">
@@ -102,11 +98,11 @@ const ApplyFacilityComponent = () => {
                       onClick={() => !isAlreadyBooked && handleDateClick(date, room)}
                       disabled={isAlreadyBooked}
                       className={`
-                text-xs px-2 py-[2px] w-full rounded border
-                ${isAlreadyBooked
+                        text-xs px-2 py-[2px] w-full rounded border
+                        ${isAlreadyBooked
                           ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
                           : 'border-gray-400 text-gray-700 hover:bg-gray-100'}
-              `}
+                      `}
                     >
                       {room}
                     </button>
@@ -119,6 +115,6 @@ const ApplyFacilityComponent = () => {
       />
     </div>
   );
-}
+};
 
 export default ApplyFacilityComponent;

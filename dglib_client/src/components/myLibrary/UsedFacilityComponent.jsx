@@ -45,7 +45,7 @@ const UsedFacilityComponent = () => {
   if (!memberId) return null; // useEffect가 처리하므로 렌더링 방지
 
   return (
-    <div className="p-6">
+    <div className="p-6 mt-6">
       {/* 로딩 */}
       {isLoading && (
         <div className="text-center py-6">

@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { memberIdSelector } from '../../atoms/loginState';
 import { registerPlace } from '../../api/placeApi';
+import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
 import Button from '../common/Button';
 import CheckNonLabel from '../common/CheckNonLabel';
 
-// memberApi에 직접 손대기 어려워서 여기에 별도 정의(추후 수정 예정)
 const getMemberInfo = async (mid) => {
-    const res = await axios.get(`http://localhost:8090/api/member/info/${mid}`);
+    const res = await axios.get(`${API_SERVER_HOST}/api/member/${mid}`);
     return res.data;
 };
 
@@ -163,7 +163,14 @@ const ApplyFacilityFormComponent = () => {
                     <Button onClick={() => navigate(-1)} className="bg-gray-400 hover:bg-gray-500">취소</Button>
                 </div>
                 <p className='text-xs text-gray-500 text-center'>
-                    ※ 예약 확인은 <span className='text-green-700 font-medium'>내서재 &gt; 이용 신청 내역</span> 에서 확인 가능합니다.
+                    ※ 예약 확인은{' '}
+                    <button
+                        onClick={() => navigate('/mylibrary/usedfacility')}
+                        className="text-green-700 underline hover:text-green-900 cursor-pointer"
+                    >
+                        내서재 &gt; 이용 신청 내역
+                    </button>{' '}
+                    에서 확인 가능합니다.
                 </p>
             </div>
 

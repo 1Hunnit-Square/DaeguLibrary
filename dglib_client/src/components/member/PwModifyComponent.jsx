@@ -40,17 +40,24 @@ const PwModifyComponent = ({ handlePwMod }) => {
         }
 
     return (<>
-                    <div className = "grid grid-cols-5 justify-center items-center my-10 w-100 mx-auto gap-1">
-                    <div className = "col-span-5 font-bold my-10 text-center">비밀번호 재설정</div>
-                     <label className="col-span-2">비밀번호 설정</label>
-                        <input type="password" name={"pw1"} value={modPw.pw1} onChange={handleChangePw} className = "col-span-2 border rounded w-30" />
-                        <PwCheckComponent pw={modPw.pw1} handleForm={handleForm} check={pwCheck}/>
-                         <label className="col-span-2">비밀번호 확인</label>
-                        <input type="password" name={"pw2"} value={modPw.pw2} onChange={handleChangePw} className = "col-span-2 border rounded w-30" />
+                    <div className = "justify-center items-center my-1 w-100 mx-auto gap-1">
+                    <div className = "mt-3 mb-7 text-center font-bold">비밀번호 재설정</div>
+                        <div className="flex justify-center">
+                        <input type="password" name={"pw1"} value={modPw.pw1} onChange={handleChangePw} placeholder="비밀번호를 입력하세요."
+                        className = "border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-500 w-60" />
+                        </div>
+                        <div className="flex justify-center h-10 pl-10">
+                        <PwCheckComponent pw={modPw.pw1} handleForm={handleForm} check={pwCheck}/></div>
+                        <div className="flex justify-center mt-3">
+                        <input type="password" name={"pw2"} value={modPw.pw2} onChange={handleChangePw} placeholder="비밀번호를 다시 입력하세요."
+                        className = "border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-500 w-60" />
+                        </div>
+                        <div className="flex justify-center h-10 pl-10">
                         <PwEqualComponent pw1={modPw.pw1} pw2={modPw.pw2} handleForm={handleForm} check={pwEqual}/>
                         </div>
                         <div className="flex justify-center">
                         <Button onClick ={handleClickMod}>비밀번호 변경</Button></div>
+                        </div>
                         </>
     );
 

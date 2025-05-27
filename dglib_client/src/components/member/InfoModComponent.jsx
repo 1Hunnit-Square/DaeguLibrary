@@ -5,11 +5,14 @@ import DaumPostcode from "react-daum-postcode";
 import Modal from "../common/Modal";
 import { useNavigate } from "react-router-dom";
 import PwModifyComponent from "./PwModifyComponent";
+import PhoneAuthComponent from "./PhoneAuthComponent";
+import PhoneCheckComponent from "./PhoneCheckComponent";
+import PageModal from "../common/PageModal";
+import { modPost } from "../../api/memberApi";
 
-const InfoModComponent = ({data}) => {
+const InfoModComponent = ({data, handleSuccess}) => {
     const memberInfo = useMemo(()=>{
     return {
-        mid : data.mid,
         pw : data.pw,
         name : data.name,
         birthDate : data.birthDate,
@@ -107,6 +110,64 @@ const InfoModComponent = ({data}) => {
         onCloseModal("modPw")
     }
 
+    const handlePhoneMod = (value) => {
+      setForm(prev =>({
+            ...prev,
+            ["phone"] : value.phone
+        }))
+        onCloseModal("modPhone")
+    }
+
+    const PageMap = {
+    phoneAuth : { component : PhoneAuthComponent},
+    phoneCheck : { component : PhoneCheckComponent, props : { handleSuccess : handlePhoneMod, phoneCheck : false } }
+    }
+
+
+    const toJsonParams = (param) => {
+      const dataParams = {
+            mid : data.mid,
+            name : param.name,
+            gender : param.gender,
+            birthDate : param.birthDate,
+            phone : param.phone,
+            addr : `(${param.zonecode})${param.address}(상세주소)${param.addrDetail}`,
+            email : `${param.emailId}@${param.emailAddr}`,
+            checkSms : param.checkSms,
+            checkEmail : param.checkEmail
+            }
+        if(param.pw != data.pw){
+          dataParams.pw =param.pw;
+        }
+        return dataParams;
+        }
+    
+    const modMember = async(form) => {
+      const params = toJsonParams(form);
+    await modPost(params)
+    .then(res => {
+      handleSuccess(params.mid, params.pw);
+      
+      }).catch(e => {
+        if(e.response?.data.message == "ID Different"){
+          alert("접속 상태가 올바르지 않습니다. 다시 로그인해주세요.");
+          return;
+        }
+        console.error(e);  
+        alert("회원 수정에 실패했습니다. 다시 시도해주세요.");
+      });
+    }
+    
+    const onClickModify = () => {
+      if(!(form.name && form.birthDate && form.gender && form.address && form.zonecode)){
+      alert("필수 입력 정보를 확인해주세요.");
+      }
+      else{
+        console.log(form);
+        modMember(form);
+      }
+    }
+
     return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white border rounded-lg shadow">
       <h2 className="text-xl font-semibold border-b mb-6 pb-6">정보수정</h2>
@@ -119,7 +180,7 @@ const InfoModComponent = ({data}) => {
             아이디<span className="text-red-500 ml-1">*</span>
           </div>
           <div className="flex flex-1 items-center gap-2 px-4 py-2">
-            <input name="id" type="text" placeholder="아이디" value={form.mid} className="bg-blue-100 border px-3 py-2 rounded" onChange={""} readOnly />
+            <input name="id" type="text" placeholder="아이디" value={data.mid} className="bg-blue-100 border px-3 py-2 rounded" readOnly />
           </div>
         </div>
     
@@ -129,8 +190,9 @@ const InfoModComponent = ({data}) => {
             비밀번호<span className="text-red-500 ml-1">*</span>
           </div>
           <div className="flex px-4 py-2 items-center gap-2">
-            <input name="pw1" value={form.pw} type="password" placeholder="비밀번호" className="bg-blue-100 flex border px-3 py-2 rounded" onChange={""} readOnly />
-            <Button className="bg-slate-700 hover:bg-slate-800" onClick={()=>onClickModal("modPw")}>변경</Button>
+            <input name="pw1" value={form.pw} type="password" placeholder="비밀번호" className="bg-blue-100 flex border px-3 py-2 rounded" readOnly />
+             {data.pw == form.pw? <Button className="bg-slate-700 hover:bg-slate-800" onClick={()=>onClickModal("modPw")}>변경</Button>
+            : <Button className="bg-blue-400 hover:bg-blue-500" onClick={()=>onClickModal("modPw")}>변경됨</Button>}
           </div>
         </div>
     
@@ -170,7 +232,8 @@ const InfoModComponent = ({data}) => {
           <div className="flex-1 px-4 py-2 space-y-2">
             <div className="flex gap-2">
             <input value={form.phone} className="flex border px-3 py-2 rounded bg-blue-100" readOnly />
-            <Button className="bg-slate-700 hover:bg-slate-800" onClick={()=>onClickModal("modPhone")}>변경</Button></div>
+            {data.phone == form.phone? <Button className="bg-slate-700 hover:bg-slate-800" onClick={()=>onClickModal("modPhone")}>변경</Button>
+            : <Button className="bg-blue-400 hover:bg-blue-500" onClick={()=>onClickModal("modPhone")}>변경됨</Button>}</div>
             <CheckBox label="SMS 수신 여부" checked={form.checkSms} onChange={(e) => handleCheck(e, "checkSms")} />
           </div>
         </div>
@@ -213,14 +276,14 @@ const InfoModComponent = ({data}) => {
     
         {/* 버튼 */}
         <div className="flex justify-center gap-4 py-6">
-          <Button onClick={""}>정보수정</Button>
+          <Button onClick={onClickModify}>정보수정</Button>
           <Button className="bg-gray-400 hover:bg-gray-500" onClick={()=>navigate("/")}>취소</Button>
         </div>
     
       </form>
       <Modal isOpen={isOpen.addr} title={"주소찾기"} onClose={()=>onCloseModal("addr")}><DaumPostcode onComplete={onAddrCode} /></Modal>
       <Modal isOpen={isOpen.modPw} title={"비밀번호 변경"} onClose={()=>onCloseModal("modPw")}><PwModifyComponent handlePwMod={handlePwMod} /></Modal>
-      <Modal isOpen={isOpen.modPhone} title={"휴대폰 변경"} onClose={()=>onCloseModal("modPhone")}>aa</Modal>
+      <PageModal isOpen={isOpen.modPhone} title={"휴대폰 변경"} onClose={()=>onCloseModal("modPhone")} PageMap={PageMap} defaultPage={"phoneAuth"} />
       </div>
       
     );

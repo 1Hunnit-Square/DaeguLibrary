@@ -8,7 +8,6 @@ const LoginMenu = () => {
     const name = useRecoilValue(memberNameSelector);
     const style = "hover:text-emerald-700 text-xs";
     
-
     return(
         <ul className="flex items-center justify-center space-x-6">
         {

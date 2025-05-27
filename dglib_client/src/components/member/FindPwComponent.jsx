@@ -114,29 +114,34 @@ const FindPwComponent = () => {
             <>
             {!idFindMutation.data && <>
             <div className = "grid grid-cols-3 justify-center items-center my-10 w-60 mx-auto gap-1">
-            <div className = "col-span-3 font-bold my-10 text-center">비밀번호 찾기</div>
+            <div className = "col-span-3 font-bold mt-1 mb-10 text-center">비밀번호 찾기</div>
                
                 <label className="col-span-1">아이디</label>
-                <input name={"mid"} value={findForm.mid} onChange={handleChange} className = "col-span-2 border rounded w-30" />
+                <input name={"mid"} value={findForm.mid} onChange={handleChange} className = "col-span-2 w-40 mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500" />
                 
                 <label className="col-span-1">생년월일</label>
-                <input name={"birthDate"} value={findForm.birthDate} onChange={handleChange} type="date" className = "col-span-2 border rounded w-30" />
+                <input name={"birthDate"} value={findForm.birthDate} onChange={handleChange} type="date" className = "col-span-2 w-40 mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500" />
                  </div>
-                 <div className="flex justify-center">
+                 <div className="flex justify-center pt-6">
                 <Button onClick ={handleClick}>비밀번호 찾기</Button></div>
                 </>}
             {idFindMutation.isSuccess && idFindMutation.data && <>
-            <div className = "grid grid-cols-5 justify-center items-center my-10 w-90 mx-auto gap-1">
-            <div className = "col-span-5 font-bold my-10 text-center">비밀번호 재설정</div>
-             <label className="col-span-2">비밀번호 설정</label>
-                <input type="password" name={"pw1"} value={modPw.pw1} onChange={handleChangePw} className = "col-span-2 border rounded w-30" />
+             <div className = "justify-center items-center my-1 w-100 mx-auto gap-1">
+             <div className = "mt-10 mb-13 text-center font-bold">비밀번호 재설정</div>
+             <div className="flex justify-center">
+                <input type="password" name={"pw1"} value={modPw.pw1} onChange={handleChangePw} placeholder="비밀번호를 입력하세요."
+                className = "border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-500 w-60" /></div>
+                <div className="flex justify-center h-10 pl-10">
                 <PwCheckComponent pw={modPw.pw1} handleForm={handleForm} check={pwCheck}/>
-                 <label className="col-span-2">비밀번호 확인</label>
-                <input type="password" name={"pw2"} value={modPw.pw2} onChange={handleChangePw} className = "col-span-2 border rounded w-30" />
+                </div>
+                <div className="flex justify-center mt-3">
+                <input type="password" name={"pw2"} value={modPw.pw2} onChange={handleChangePw} placeholder="비밀번호를 다시 입력하세요."
+                className = "border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-500 w-60" /></div>
+                <div className="flex justify-center h-10 pl-10">
                 <PwEqualComponent pw1={modPw.pw1} pw2={modPw.pw2} handleForm={handleForm} check={pwEqual}/>
                 </div>
-                <div className="flex justify-center">
-                <Button onClick ={handleClickMod}>비밀번호 변경</Button></div>
+                <div className="flex justify-center mt-3">
+                <Button onClick ={handleClickMod}>비밀번호 변경</Button></div></div>
             </>}
     <PageModal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose} PageMap={PageMap} defaultPage={"phoneAuth"} />      
     </>);

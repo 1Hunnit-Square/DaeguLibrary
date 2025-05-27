@@ -62,15 +62,15 @@ const FindIdComponent = () => {
         <>
             {idFindMutation.isIdle && <>
             <div className = "grid grid-cols-3 justify-center items-center my-10 w-60 mx-auto gap-1">
-            <div className = "col-span-3 font-bold my-10 text-center">아이디 찾기</div>
+            <div className = "col-span-3 font-bold mt-1 mb-10 text-center">아이디 찾기</div>
                
                 <label className="col-span-1">이름</label>
-                <input name={"name"} value={findForm.name} onChange={handleChange} className = "col-span-2 border rounded w-30" />
+                <input name={"name"} value={findForm.name} onChange={handleChange} className = "col-span-2 w-40 mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500" />
                 
                 <label className="col-span-1">생년월일</label>
-                <input name={"birthDate"} value={findForm.birthDate} onChange={handleChange} type="date" className = "col-span-2 border rounded w-30" />
+                <input name={"birthDate"} value={findForm.birthDate} onChange={handleChange} type="date" className = "col-span-2 w-40 mx-auto mt-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500" />
                  </div>
-                 <div className="flex justify-center">
+                 <div className="flex justify-center pt-6">
                 <Button onClick ={handleClick}>아이디 찾기</Button></div>
                 </>}
             {!idFindMutation.isIdle && <>

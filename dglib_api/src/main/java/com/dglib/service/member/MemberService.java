@@ -10,6 +10,7 @@ import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 
 public interface MemberService {
@@ -33,5 +34,7 @@ public interface MemberService {
 	void modPwMember(String mid, String pw);
 	
 	MemberInfoDTO findMemberInfo(String mid, String pw);
+	
+	void modifyMember(String mid, ModMemberDTO modMemberDTO);
 
 }

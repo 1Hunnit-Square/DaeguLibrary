@@ -26,7 +26,7 @@ const Modal = ({ isOpen, title, children, onClose, Confirm, onConfirm, dragOn=tr
             <button
             onClick={onClose}
             className="cursor-pointer mb-5 px-5 py-2 rounded text-black bg-gray-300 hover:bg-gray-400">
-            {onConfirm}
+            {Confirm}
           </button>)}
         </div>
         </Draggable>

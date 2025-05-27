@@ -65,3 +65,9 @@ export const getMemberInfo = async (params) => {
     const res = await axiosClient.get(`${prefix}/getMemberInfo`, { params : params });
     return res.data;
 }
+
+export const modPost = async (params) => {
+    const header = { headers: {'Content-Type': 'application/json'}};
+    const res = await axiosClient.post(`${prefix}/modify`, params, header);
+    return res.data;
+}

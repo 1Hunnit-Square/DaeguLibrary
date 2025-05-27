@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +27,7 @@ import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.security.jwt.JwtFilter;
 import com.dglib.service.member.MemberCardService;
@@ -121,6 +120,14 @@ public class MemberController {
 		String mid = JwtFilter.getMid();
 		System.out.println(mid);
 		return ResponseEntity.ok(memberService.findMemberInfo(mid, pw));
+	}
+	
+	@PostMapping("/modify")
+	public ResponseEntity<MemberInfoDTO> modMember(@RequestBody ModMemberDTO modMemberDTO){
+		String mid = JwtFilter.getMid();
+		System.out.println(mid);
+		memberService.modifyMember(mid, modMemberDTO);
+		return ResponseEntity.ok().build();
 	}
 
 }

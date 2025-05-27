@@ -20,6 +20,7 @@ import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberSeaerchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
@@ -120,6 +121,22 @@ public class MemberServiceImpl implements MemberService {
 			throw new IllegalArgumentException("Password Different");
 		}
 		return modelMapper.map(member, MemberInfoDTO.class);
+	}
+	
+	@Override
+	public void modifyMember(String mid, ModMemberDTO modMemberDTO) {
+		if(!mid.equals(modMemberDTO.getMid())) {
+			throw new IllegalArgumentException("ID Different");
+		}
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		String oldPw = member.getPw();
+		modelMapper.map(modMemberDTO, member);
+		if(modMemberDTO.getPw() != null) {
+			member.setPw(passwordEncoder.encode(modMemberDTO.getPw()));
+		} else {
+			member.setPw(oldPw);
+		}
+		memberRepository.save(member);
 	}
 	
 	public String setMno () {

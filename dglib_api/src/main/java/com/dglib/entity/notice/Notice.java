@@ -72,7 +72,7 @@ public class Notice {
 	
 	// FK: 회원 ID(작성자)
 	@ManyToOne
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;
 	
 	

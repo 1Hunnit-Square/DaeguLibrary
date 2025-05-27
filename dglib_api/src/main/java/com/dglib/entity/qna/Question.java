@@ -54,7 +54,7 @@ public class Question {
 	private int viewCount = 0;	//조회 횟수
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_mid", referencedColumnName = "mid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	//회원id
 	
 	@OneToOne(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

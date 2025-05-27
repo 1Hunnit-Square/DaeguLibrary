@@ -54,7 +54,7 @@ public class Gallery {
 	private boolean isHidden = false; // 숨김 여부
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	//회원아이디
 	
 	@OneToMany(mappedBy = "gallery", cascade = CascadeType.ALL, orphanRemoval = true)

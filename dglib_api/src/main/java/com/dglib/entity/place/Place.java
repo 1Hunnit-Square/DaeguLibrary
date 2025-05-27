@@ -55,7 +55,7 @@ public class Place {
 	private LocalDateTime appliedAt;	//신청날짜
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	//회원id
 	
 	//종료시간

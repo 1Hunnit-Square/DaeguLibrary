@@ -42,6 +42,6 @@ public class ProgramUse {
 	
 	//FK 회원id
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	
 }

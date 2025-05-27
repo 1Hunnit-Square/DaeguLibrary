@@ -47,7 +47,7 @@ public class Answer {
 	private String content;	//내용
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	//회원id
 	
 	

@@ -50,7 +50,7 @@ public class WishBook {
 	private LocalDateTime appliedAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberMid", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
 	private Member member;	//회원아이디
 	
 	

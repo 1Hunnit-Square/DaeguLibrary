@@ -21,12 +21,11 @@ const AdminPage = () => {
     }, [currentDate]);
 
     const LSideMenu = useMemo(() => [
-        { id: "regBook", label: "도서관리", path: `/admin/bookmanagement?tab=booklist&page=1&${getDateParams}` },
+        { id: "regBook", label: "도서관리", path: `/admin/bookmanagement?tab=booklist&page=1&option=도서명&${getDateParams}` },
         { id: "borrow", label: "대출예약관리", path: "/admin/borrow?tab=borrow&page=1" },
         { id: "member", label: "회원관리", path: "/admin/membermanagement?page=1" },
         { id: "eventcalendar", label: "이달의 행사 관리", path: "/admin/eventmanagement" },
-        { id: "regBook", label: "도서관리", path: `/admin/bookmanagement?tab=booklist&page=1&option=도서명&${getDateParams}` },
-        { id: "borrow", label: "대출예약관리", path: "/admin/borrow?tab=borrow&page=1" },], [getDateParams])
+        ], [getDateParams])
 
     useEffect(() => {
       const currentPath = location.pathname;

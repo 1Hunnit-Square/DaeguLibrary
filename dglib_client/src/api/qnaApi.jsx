@@ -38,8 +38,10 @@ export const updateQna = async (qno, updateData) => {
 };
 
 //삭제
-export const deleteQna = async (qno) => {
-  const response = await axios.delete(`${prefix}/${qno}`);
+export const deleteQna = async (qno, requesterMid) => {
+  const response = await axios.delete(`${prefix}/${qno}`, {
+    params: requesterMid ? { requesterMid } : {}
+  });
   return response.data;
 };
 

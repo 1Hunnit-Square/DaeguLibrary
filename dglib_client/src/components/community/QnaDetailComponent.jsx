@@ -1,66 +1,53 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { use, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 import Button from "../common/Button";
 import Loading from "../../routers/Loading";
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 9f0e5de (qna 비공개글 조회, 질문 작성 수정)
+const fetchQnaDetail = async (qno, mid) => {
+    const response = await axios.get(
+        `${API_SERVER_HOST}${API_ENDPOINTS.qna}/${qno}`,
+        {
+            params: mid ? { requesterMid: mid } : {},
+        }
+    );
+    return response.data;
+};
+
 
 const QnaDetailComponent = () => {
     const { qno } = useParams();
-    const [question, setQuestion] = useState(null);
     const mid = useRecoilValue(memberIdSelector);
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [errorCode, setErrorCode] = useState(null);
 
-    const isWriter = question && mid === question.writerId;
-    const hasAnswer = !!question?.answer;
-
-   useEffect(() => {
-    const fetchQuestion = async () => {
-        setLoading(true);
-        setErrorCode(null);
-        try {
-            const response = await axios.get(
-                `${API_SERVER_HOST}${API_ENDPOINTS.qna}/${qno}`,
-                {
-                    params: mid ? { requesterMid: mid } : {},
-                }
-            );
-            setQuestion(response.data);
-        } catch (error) {
-            console.error("QnA 상세 조회 실패:", error);
-            setErrorCode(error.response?.status || 500);  // 핵심 수정
-        } finally {
-            setLoading(false);  // 핵심 수정
+    const {
+        data: question,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ["qnaDetail", qno, mid],
+        queryFn: () => fetchQnaDetail(qno, mid),
+        retry: false,
+        onError: (err) => {
+            const message = err.response?.data?.message;
+            if (message) {
+                alert(message);
+            } else {
+                alert("Qna 조회하지 못했습니다.");
+            }
         }
-    };
+    });
 
-    fetchQuestion();
-}, [qno, mid]);
-    if (loading) {
-    return <Loading text="QnA 정보를 불러오는 중입니다..." />;
-}
+    if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
+    if (isError || !question) return null;
 
-
-
-<<<<<<< HEAD
-    if (!question) return <Loading />;
-    if (!isVisible)
-        return (
-            <div className="text-center mt-10">
-                🔒︎ 비공개 글입니다. 작성자만 열람할 수 있습니다.
-            </div>
-        );
-=======
->>>>>>> 9f0e5de (qna 비공개글 조회, 질문 작성 수정)
+    const isWriter = mid === question.writerId;
+    const hasAnswer = !!question?.answer;
 
     return (
         <div className="max-w-4xl mx-auto text-sm">

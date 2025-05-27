@@ -36,14 +36,14 @@ public class QnaDataInsertTest {
     @DisplayName("무작위 공개/비공개 질문 14개 + 무작위 답변 7개 입력")
     public void insertQuestionsAndAnswers() {
 
-        Member user1 = memberRepository.findById("user1")
-                .orElseThrow(() -> new RuntimeException("user1 없음"));
-        Member user2 = memberRepository.findById("user2")
-                .orElseThrow(() -> new RuntimeException("user2 없음"));
+        Member user1 = memberRepository.findById("jimin123")
+                .orElseThrow(() -> new RuntimeException("지민 없음"));
+        Member user2 = memberRepository.findById("jin0303")
+                .orElseThrow(() -> new RuntimeException("효진 없음"));
 
         List<Long> questionIds = new ArrayList<>();
 
-        // user1 질문 7개
+        // user1 질문 60개
         for (int i = 1; i <= 60; i++) {
             Question q = Question.builder()
                     .title("user1 질문 제목 " + i)
@@ -57,7 +57,7 @@ public class QnaDataInsertTest {
             questionIds.add(q.getQno());
         }
 
-        // user2 질문 7개
+        // user2 질문 60개
         for (int i = 1; i <= 60; i++) {
             Question q = Question.builder()
                     .title("user2 질문 제목 " + i)

@@ -183,7 +183,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
         if (!question.getMember().getMid().equals(requesterMid)) {
-            throw new IllegalAccessError("작성자만 삭제 가능합니다.");
+            throw new AccessDeniedException("작성자만 삭제 가능합니다.");
         }
 
         questionRepository.delete(question);

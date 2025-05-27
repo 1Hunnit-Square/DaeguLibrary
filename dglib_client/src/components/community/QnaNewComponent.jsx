@@ -6,8 +6,11 @@ import { memberIdSelector } from "../../atoms/loginState";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
+import Modal from "../common/Modal";
 
-const QnaCreateComponent = () => {
+
+
+const QnaNewComponent = () => {
   const mid = useRecoilValue(memberIdSelector);
   const navigate = useNavigate();
 
@@ -29,12 +32,14 @@ const QnaCreateComponent = () => {
     } catch (error) {
       console.error("등록 실패", error);
       alert("등록에 실패했습니다.");
+    } finally {
+      setShowConfirm(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-4">
-      <h2 className="text-xl font-bold mb-6">도서관 Q&A 글쓰기</h2>
+    <div className="max-w-3xl mx-auto p-4">
+      <h2 className="text-xl font-bold mb-6">문의하기</h2>
 
       <div className="mb-4">
         <label className="font-semibold">제목</label>
@@ -91,29 +96,17 @@ const QnaCreateComponent = () => {
         </button>
       </div>
 
-      {showConfirm && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-md text-center">
-            <p className="mb-4">문의 내용을 등록하시겠습니까?</p>
-            <div className="flex justify-center gap-4">
-              <button
-                className="px-4 py-2 bg-[#00893B] text-white rounded"
-                onClick={handleSubmit}
-              >
-                예
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={() => setShowConfirm(false)}
-              >
-                아니오
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showConfirm}
+        title={"등록확인"}
+        onClose={() => setShowConfirm(false)}
+        Confirm={"확인"}
+        onConfirm={handleSubmit}
+      >
+        문의를 등록하시겠습니까?
+      </Modal>
     </div>
   );
 };
 
-export default QnaCreateComponent;
+export default QnaNewComponent;

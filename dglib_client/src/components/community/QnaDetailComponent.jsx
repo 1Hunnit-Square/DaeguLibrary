@@ -10,7 +10,6 @@ const QnaDetailComponent = () => {
     const { qno } = useParams();
     const [question, setQuestion] = useState(null);
     const mid = useRecoilValue(memberIdSelector);
-    // const mid = "user1";
     const navigate = useNavigate();
 
     const isWriter = question && mid === question.writerId;

@@ -8,6 +8,7 @@ const QnaComponent = () => {
             {/* <Routes>
                 <Route index element={<QnaListComponent />} />
                 <Route path=":qno" element={<QnaDetailComponent />} />
+                <Route path="new" element={<QnaNewComponent />} />
             </Routes> */}
             <Outlet />
         </div>

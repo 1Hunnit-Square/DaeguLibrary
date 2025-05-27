@@ -1,67 +1,33 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import { useCallback, useMemo, useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import CheckNonLabel from "../common/CheckNonLabel";
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getInterestedBook, deleteInterestedBook } from "../../api/memberApi";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
 import { usePagination } from "../../hooks/usePagination";
-
-
+import { useItemSelection } from "../../hooks/useItemSelection";
+import { useBookMutation } from '../../hooks/useBookMutation';
 
 const InterestedComponent = () => {
 
     const [searchURLParams, setSearchURLParams] = useSearchParams();
-    const queryParams = useMemo(() => ({
-        query: searchURLParams.get("query") || "",
-        option: searchURLParams.get("option") || "전체",
-        page: searchURLParams.get("page") || "1",
-    }), [searchURLParams]);
-    const [selectedBooks, setSelectedBooks] = useState(new Set());
-    const [isAllSelected, setIsAllSelected] = useState(false);
-    const queryClient = useQueryClient();
 
     const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ["interestedBooks", searchURLParams.toString()],
         queryFn: () => {
             const params = new URLSearchParams();
-            params.set("query", queryParams.query);
-            params.set("option", queryParams.option);
-            params.set("page", queryParams.page);
+            params.set("query", searchURLParams.get("query") || "");
+            params.set("option", searchURLParams.get("option") || "");
+            params.set("page", searchURLParams.get("page") || "");
 
             return getInterestedBook(params);
         }
 
     })
 
-    const deleteMutation = useMutation({
-        mutationFn: (ibIds) => {
-            return deleteInterestedBook(ibIds);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(["interestedBooks", searchURLParams.toString()]);
-            alert("삭제되었습니다.");
-        },
-        onError: (error) => {
-            console.error("Error deleting book:", error);
-            alert("삭제에 실패했습니다." + error.message);
-        },
-    });
-
-
     const interestedBooks = useMemo(() => data.content, [data.content]);
-    console.log("interestedBooks", interestedBooks);
-
-    useEffect(() => {
-        if (interestedBooks.length > 0 && selectedBooks.size === interestedBooks.length) {
-            setIsAllSelected(true);
-        } else {
-            setIsAllSelected(false);
-        }
-    }, [selectedBooks, interestedBooks]);
-
-
 
     const handleSearch = useCallback((searchQuery, selectedOption) => {
             const newParams = new URLSearchParams();
@@ -71,32 +37,18 @@ const InterestedComponent = () => {
             setSearchURLParams(newParams);
         }, []);
 
-    const handleSelectBooks = useCallback((e, itemId) => {
-        const isSelected = e.target.checked;
-        setSelectedBooks(prev => {
-            const newSelectedBooks = new Set(prev);
+    const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection: resetSelectedBooks } = useItemSelection(interestedBooks, 'ibId');
 
-            if (isSelected) {
-                newSelectedBooks.add(itemId);
-            } else {
-                newSelectedBooks.delete(itemId);
-            }
+    const deleteMutation = useBookMutation(async (ibIds) => await deleteInterestedBook(ibIds), { successMessage: "관심도서를 삭제했습니다", onReset: resetSelectedBooks, queryKeyToInvalidate: 'interestedBooks'} );
 
-            return newSelectedBooks;
-        });
-    }, []);
-
-
-
-    const handleSelectAll = useCallback(() => {
-        if (isAllSelected) {
-            setSelectedBooks(new Set());
-        } else {
-            const allBookIds = new Set(interestedBooks.map(book => book.ibId));
-            setSelectedBooks(allBookIds);
+    const handleSelectAllClick = useCallback(() => {
+    const event = {
+        target: {
+        checked: !isAllSelected
         }
-        setIsAllSelected(!isAllSelected);
-    }, [isAllSelected, interestedBooks]);
+    };
+    handleSelectAll(event);
+    }, [handleSelectAll, isAllSelected]);
 
     const handleDeleteButton = useCallback((ibid) => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
@@ -114,15 +66,10 @@ const InterestedComponent = () => {
         }
     }, [deleteMutation, selectedBooks]);
 
-    const pageClick = useCallback((page) => {
-                if (isLoading) return;
-                const newParams = new URLSearchParams(searchURLParams);
-                newParams.set("page", page.toString());
-                setSearchURLParams(newParams);
-            }, [ searchURLParams, isLoading, setSearchURLParams]);
 
 
-        const { renderPagination } = usePagination(data, pageClick, isLoading);
+
+    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
 
 
 
@@ -137,8 +84,8 @@ const InterestedComponent = () => {
             <SearchSelectComponent
                             options={searchOption}
                             handleSearch={handleSearch}
-                            input={queryParams.query}
-                            defaultCategory={queryParams.option}
+                            input={searchURLParams.get("query")}
+                            defaultCategory={searchURLParams.get("option")}
                             selectClassName="mr-2 md:mr-5"
                             dropdownClassName="w-24 md:w-32"
                             className="w-full md:w-[50%] mx-auto mt-10 mb-25"
@@ -146,7 +93,7 @@ const InterestedComponent = () => {
                             buttonClassName="right-2"
                         />
                     <div className="flex items-center mx-20 gap-5">
-                        <Button children="전체선택" className="text-white text-sm w-22 h-9" onClick={handleSelectAll} />
+                        <Button children="전체선택" className="text-white text-sm w-22 h-9" onClick={handleSelectAllClick} />
                         <Button children="선택삭제" className="bg-red-500 hover:bg-red-600 text-white text-sm w-22 h-9" onClick={handleDeleteAll}/>
                     </div>
                     <div className="mt-5 border border-green-700 rounded-lg overflow-hidden max-w-[90%] mx-auto min-h-[100px]">
@@ -166,7 +113,7 @@ const InterestedComponent = () => {
                                     <CheckNonLabel onChange={(e) => handleSelectBooks(e, book.ibId)} checked={selectedBooks.has(book.ibId)} />
                                 </div>
 
-                                <div className="flex-grow mx-5">
+                                <div className={`flex-grow mx-5 ${book.deleted ? "opacity-50" : ""}`}>
                                     <div className={
                                             (book.borrowed || book.unmanned)
                                             ? "text-red-500"
@@ -176,25 +123,35 @@ const InterestedComponent = () => {
                                         }>
                                         <span>{(book.borrowed || book.unmanned) ? `대출중(예약 ${book.reserveCount}명)`  : book.reserved ? `예약대기중(예약 ${book.reserveCount}명)` : "대출가능" }</span>
                                     </div>
-                                    <div className="text-1xl mb-1 mt-2 hover:text-green-700 hover:underline">
-                                        <span>{book.bookTitle}</span>
+                                    <div className="text-1xl mb-1 mt-2">
+                                        {book.deleted ?  <>
+                                        <div className="block text-xl font-semibold mb-4">
+                                            <span className="line-through hover:cursor-default">{book.bookTitle}</span>
+                                            {book.deleted && <span className="text-red-500 no-underline hover:text-red-500 hover:no-underline "> (분실 및 훼손된 도서입니다)</span>}
+                                        </div>
+                                        </> :  <>
+                                        <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="block text-xl font-semibold mb-4">
+                                            <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
+                                        </Link>
+                                        </>}
+
                                     </div>
-                                    <div className="grid grid-cols-4 items-center text-xs mt-5 text-gray-500">
-                                        <div className="flex gap-2">
-                                            <span className="border px-2 py-1 w-20 text-center mb-1">저자</span>
-                                            <span className="truncate my-auto" title={book.author}>{book.author}</span>
+                                    <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">
+                                        <div className="flex gap-2 items-center ">
+                                            <span className="border px-2 py-1 w-20 text-center">저자</span>
+                                            <span className="truncate" title={book.author}>{book.author}</span>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <span className="border px-2 py-1 w-20 text-center mb-1">출판사</span>
-                                            <span className="truncate my-auto" title={book.publisher}>{book.publisher}</span>
+                                        <div className="flex gap-2 items-center ">
+                                            <span className="border px-2 py-1 w-20 text-center">출판사</span>
+                                            <span className="truncate" title={book.publisher}>{book.publisher}</span>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <span className="border px-2 py-1 w-20 text-center mb-1">위치</span>
-                                            <span className="truncate my-auto" title={book.location}>{book.location}</span>
+                                        <div className="flex gap-2 items-center ">
+                                            <span className="border px-2 py-1 w-20 text-center">위치</span>
+                                            <span className="truncate" title={book.location}>{book.location}</span>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <span className="border px-2 py-1 w-20 text-center mb-1">청구기호</span>
-                                            <span className="truncate my-auto" title={book.callSign}>{book.callSign}</span>
+                                        <div className="flex gap-2 items-center ">
+                                            <span className="border px-2 py-1 w-20 text-center">청구기호</span>
+                                            <span className="truncate" title={book.callSign}>{book.callSign}</span>
                                         </div>
                                     </div>
                                 </div>

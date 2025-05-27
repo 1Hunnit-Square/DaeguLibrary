@@ -12,5 +12,6 @@ public class BookNewSumDTO {
     private LocalDate pubDate;
     private String cover;
     private Long libraryBookId;
+    private String isbn;
 
 }

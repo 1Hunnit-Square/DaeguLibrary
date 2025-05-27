@@ -194,7 +194,7 @@ const FilterSearchBookComponent = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <Link to={`/books/detail/${book.libraryBookId}`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
+                                                <Link to={`/books/detail/${book.isbn}`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
                                                     {book.bookTitle}
                                                 </Link>
                                                 <div className="space-y-2 text-gray-600">
@@ -203,8 +203,7 @@ const FilterSearchBookComponent = () => {
                                                     <p className="text-sm"><span className="font-medium">출판일:</span> {book.pubDate || '-'}</p>
                                                     <p className="text-sm"><span className="font-medium">자료위치:</span> {book.location || '-'}</p>
                                                     <p className="text-sm"><span className="font-medium">청구기호:</span> {book.callSign || '-'}</p>
-                                                    <p className="text-sm"><span className="font-medium">도서상태:</span>
-                                                        {book.rented === undefined ? '-' : (book.rented ? "대출중" : "대출가능")}
+                                                    <p className="text-sm"><span className="font-medium">도서상태:</span> {book.overdue ? `연체중(${book.reserveCount}명)` : book.borrowed ? `대출중(${book.reserveCount}명)` :  book.unmanned ? `무인예약중(${book.reserveCount}명)` :  book.reserved ? `예약대기중(${book.reserveCount}명)` : "대출가능"}
                                                     </p>
                                                 </div>
                                             </div>

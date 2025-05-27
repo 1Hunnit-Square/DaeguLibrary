@@ -15,5 +15,7 @@ public class InterestedBookResponseDTO {
 	boolean isUnmanned;
 	Long reserveCount;
 	Long libraryBookId;
+	String isbn;
+	boolean isDeleted;
 	
 }

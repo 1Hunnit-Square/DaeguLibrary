@@ -1,5 +1,5 @@
 import { useParams, useLocation } from 'react-router-dom';
-import { getLibraryBookDetail, getRecoLibraryBookDetail} from '../../api/bookApi';
+import { getLibraryBookDetail} from '../../api/bookApi';
 import { reserveBook, unMannedReserve, addInterestedBook } from '../../api/memberApi';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Button from "../common/Button";
@@ -13,8 +13,8 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 
 
 const LibraryBookDetailComponent = () => {
-    const { id } = useParams();
-    console.log("librarybookid", id);
+    const { isbn } = useParams();
+    console.log("librarybookid", isbn);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const fromParam = searchParams.get('from');
@@ -24,15 +24,12 @@ const LibraryBookDetailComponent = () => {
 
 
     const { data: libraryBookDetail = {}, isLoading, isError, error } = useQuery({
-        queryKey: ['libraryBookDetail', id, fromParam],
+        queryKey: ['libraryBookDetail', isbn, fromParam],
          queryFn: () => {
-            if (fromParam === 'reco') {
-                return getRecoLibraryBookDetail(id);
-                }
-                return getLibraryBookDetail(id);
+                return getLibraryBookDetail(isbn);
         },
     });
-    const isbnValue = fromParam === 'reco' ? id : libraryBookDetail?.isbn;
+    const isbnValue = fromParam === 'reco' ? isbn : libraryBookDetail?.isbn;
 
     const findRecoBookData = () => {
         const queries = queryClient.getQueryCache().getAll();

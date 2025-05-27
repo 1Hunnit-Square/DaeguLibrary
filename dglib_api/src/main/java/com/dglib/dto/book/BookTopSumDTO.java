@@ -13,5 +13,6 @@ public class BookTopSumDTO {
     private String cover;
     private Long libraryBookId;
     private Long borrowCount;
+    private String isbn;
 
 }

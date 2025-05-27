@@ -22,7 +22,7 @@ const booksRouter = () => ([
         element: <Suspense fallback={<Loading />}><NewBook /></Suspense>
     },
     {
-        path: "detail/:id",
+        path: "detail/:isbn",
         element: <Suspense fallback={<Loading />}><Detail /></Suspense>
     },
     {

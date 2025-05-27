@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
-import RegBookComponent from './RegBookComponent';
 import { useSearchParams } from "react-router-dom";
-import LibraryBookListComponent from './LibraryBookListComponent';
+import BorrowMemberStateComponent from './BorrowMemberStateComponent';
 
-const BookManagementComponent = () => {
+
+const BorrowMemberComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const today = new Date();
     const aMonthAgo = new Date(today);
@@ -13,33 +13,33 @@ const BookManagementComponent = () => {
 
     const activeTab = useMemo(() => {
         const tabParam = searchURLParams.get("tab");
-        return (tabParam && (tabParam === 'booklist' || tabParam === 'regbook')) ? tabParam : 'booklist';
+        return (tabParam && (tabParam === 'borrownow' || tabParam === 'borrowpast')) ? tabParam : 'borrownow';
     }, [searchURLParams]);
 
 
     const handleTabChange = useCallback((tabId) => {
         const newParams = new URLSearchParams();
         newParams.set("tab", tabId);
-        newParams.set("page", "1");
-        if (tabId === 'booklist') {
-            newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
-            newParams.set("endDate", today.toLocaleDateString('fr-CA'));
-            newParams.set("option", "도서명")
+        if( tabId === 'borrowpast') {
+            newParams.set("page", "1");
+        }else {
+            newParams.delete("page", "1");
         }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
     const myTabs = useMemo(() => [
         {
-        id: 'booklist',
-        label: '도서목록',
-        content: <LibraryBookListComponent />
+            id: 'borrownow',
+            label: '대출현황',
+            content: <BorrowMemberStateComponent />
         },
         {
-        id: 'regbook',
-        label: '도서등록 및 수정',
-        content: <RegBookComponent />
+        id: 'borrowpast',
+        label: '대출이력',
+        content: <div>바이</div>
         },
+
     ], []);
 
     return (
@@ -52,4 +52,5 @@ const BookManagementComponent = () => {
         </div>
     );
     }
-export default BookManagementComponent;
+
+export default BorrowMemberComponent;

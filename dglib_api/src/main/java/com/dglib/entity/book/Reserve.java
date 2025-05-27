@@ -48,7 +48,7 @@ public class Reserve {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@ToString.Exclude
-	@JoinColumn(name = "memberId", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
     @EqualsAndHashCode.Exclude
 	private Member member;
 	

@@ -37,7 +37,7 @@ public interface BookService {
 	SearchBookDTO getNsBookList(Pageable pageable, String query, String option, List<String> previousQueries, List<String> previousOptions, String mid);
 	Page<BookSummaryDTO> getFsBookList(Pageable pageable, LibraryBookFsDTO libraryBookFsDTO, String mid);
 	Page<BookNewSumDTO> getNewBookList(Pageable pageable, NewLibrarayBookRequestDTO newLibrarayBookRequesdto);
-	BookDetailDTO getLibraryBookDetail(Long libraryBookId, String mid, String isbn);
+	BookDetailDTO getLibraryBookDetail(String mid, String isbn);
 	RentalPageDTO getRentalList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);
 	void reserveBook(Long libraryBookId, String id);
 	Page<ReserveBookListDTO> getReserveList(Pageable pageable, BorrowedBookSearchDTO borrowedBookSearchDto);

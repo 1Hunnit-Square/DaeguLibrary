@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -48,6 +49,13 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book"})
 	Page<Rental> findAll(Specification<Rental> spec, Pageable pageable);
+	
+	
+	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book", "libraryBook.reserves"})
+	List<Rental> findByMemberMidAndState(String mid, RentalState state, Sort sort);
+	
+	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.reserves"})
+	List<Rental> findWithDetailsByRentIdIn(List<Long> ids);
 	
 	
 

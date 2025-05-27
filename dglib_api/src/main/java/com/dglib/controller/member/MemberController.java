@@ -1,6 +1,7 @@
 package com.dglib.controller.member;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,7 +27,8 @@ import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveBookDTO;
-import com.dglib.dto.member.MemberSeaerchByMnoDTO;
+import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.security.jwt.JwtProvider;
 import com.dglib.service.book.BookService;
@@ -46,10 +48,10 @@ public class MemberController {
 	private final BookService bookService;
 	
 	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSeaerchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
 		Pageable pageable = PageRequest.of(page -1, size);
-		Page<MemberSeaerchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
+		Page<MemberSearchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
 		
 
 		return ResponseEntity.ok(memberList);
@@ -113,6 +115,22 @@ public class MemberController {
 		LOGGER.info("관심도서 삭제 요청: {}", mid);
 		bookService.deleteInterestedBook(interesdtedBookDeleteDto, mid);
 		
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/memberborrowlist")
+	public ResponseEntity<List<MemberBorrowNowListDTO>> getMemberBorrowNowList() {
+		String mid = JwtProvider.getMid();
+		LOGGER.info("회원 대출목록 요청: {}", mid);
+		List<MemberBorrowNowListDTO> dto = memberService.getMemberBorrowNowList(mid);
+		return ResponseEntity.ok(dto);
+	}
+	
+	@PostMapping("/extendborrow")
+	public ResponseEntity<String> extendBorrow(@RequestBody List<Long> rentIds) {
+		String mid = JwtProvider.getMid();
+		LOGGER.info("연장 요청: {}, 회원 id: {}", rentIds, mid);
+		memberService.extendMemberBorrow(rentIds);
 		return ResponseEntity.ok().build();
 	}
 	

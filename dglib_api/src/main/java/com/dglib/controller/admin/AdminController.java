@@ -35,7 +35,7 @@ import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.LibraryBookChangeDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
-import com.dglib.dto.member.MemberSeaerchByMnoDTO;
+import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
 
@@ -82,10 +82,10 @@ public class AdminController {
 	}
 	
 	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSeaerchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
 		Pageable pageable = PageRequest.of(page -1, size);
-		Page<MemberSeaerchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
+		Page<MemberSearchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
 		
 
 		return ResponseEntity.ok(memberList);

@@ -87,7 +87,7 @@ const TopBorrowedBookComponent = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <Link to={`/books/detail/${book.libraryBookId}?from=borrowbest`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
+                                                <Link to={`/books/detail/${book.isbn}?from=borrowbest`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
                                                     {book.bookTitle}
                                                 </Link>
                                                 <div className="space-y-2 text-gray-600">

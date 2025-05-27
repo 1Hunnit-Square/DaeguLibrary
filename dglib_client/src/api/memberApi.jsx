@@ -88,3 +88,17 @@ export const deleteInterestedBook = async (ibIds) => {
     });
     return res.data;
 }
+
+export const getMemberBorrowList = async () => {
+    const res = await axiosClient.get(`${prefix}/memberborrowlist`);
+    return res.data;
+}
+
+export const extendBorrow = async (rentIds) => {
+    console.log(rentIds);
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/extendborrow`, rentIds, { headers });
+    return res.data;
+}

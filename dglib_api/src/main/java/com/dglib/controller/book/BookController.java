@@ -51,7 +51,7 @@ import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.SearchBookDTO;
 import com.dglib.dto.member.MemberDTO;
-import com.dglib.dto.member.MemberSeaerchByMnoDTO;
+import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.LibraryBookRepository;
 import com.dglib.security.jwt.JwtProvider;
@@ -174,10 +174,8 @@ public class BookController {
 	public ResponseEntity<Page<BookSummaryDTO>> getFsLibraryBookList(
 	    @RequestParam(defaultValue = "1") int page, 
 	    @RequestParam(defaultValue = "10") int size,
-	    HttpSession session,
 	    LibraryBookFsDTO libraryBookFsDto) {
 		String mid = JwtProvider.getMid();
-		String sessionId = session.getId();
 		LOGGER.info(libraryBookFsDto.toString());
 		libraryBookFsDto.processYearDates();
 		Pageable pageable = PageRequest.of(page - 1, size );
@@ -188,7 +186,7 @@ public class BookController {
 		        libraryBookFsDto.getPublisher(),
 		        libraryBookFsDto.getKeyword())) {
 		    if (StringUtils.hasText(word)) {
-		        bookService.recordSearch(word, sessionId);
+		        bookService.recordSearch(word, libraryBookFsDto.getFingerprint());
 		    }
 		}
 	    return ResponseEntity.ok(bookList);
@@ -206,20 +204,12 @@ public class BookController {
 	    return ResponseEntity.ok(bookList);
 	}
 	
-	@GetMapping("/librarybookdetail/{librarybookid}")
-	public ResponseEntity<BookDetailDTO> getLibraryBookDetail(@PathVariable("librarybookid") Long libraryBookId) {
-		String mid = JwtProvider.getMid();
-		LOGGER.info("librarybookid: {}", libraryBookId);
-		LOGGER.info("mid: {}", mid);
-		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(libraryBookId, mid, null);
-		return ResponseEntity.ok(bookDetailDto);
-	}
 	
-	@GetMapping("/recoLibraryBookDetail/{isbn}")
+	@GetMapping("/librarybookdetail/{isbn}")
 	public ResponseEntity<BookDetailDTO> getRecoLibraryBookDetail(@PathVariable("isbn") String isbn) {
 		LOGGER.info("isbn: {}", isbn);
 		String mid = JwtProvider.getMid();
-		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(null , mid, isbn);
+		BookDetailDTO bookDetailDto = bookService.getLibraryBookDetail(mid, isbn);
 		return ResponseEntity.ok(bookDetailDto);
 	}
 	

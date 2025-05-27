@@ -26,6 +26,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = "book")
 	Optional<LibraryBook> findByLibraryBookId(Long id);
 	
+	@EntityGraph(attributePaths = {"rentals", "reserves"})
+	Optional<LibraryBook> findWithDetailsByLibraryBookId(Long id);
+	
 
 	
 	
@@ -109,7 +112,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@Query(value = """
 		    SELECT b.book_title, b.author, b.publisher, b.pub_date, b.cover,
-		           lb.library_book_id, COUNT(r.rent_id) as borrow_count
+		           lb.library_book_id, COUNT(r.rent_id) as borrow_count, b.isbn
 		    FROM library_book lb
 		    JOIN book b ON lb.isbn = b.isbn
 		    JOIN rental r ON lb.library_book_id = r.library_book_id

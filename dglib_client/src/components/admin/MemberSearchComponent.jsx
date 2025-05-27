@@ -40,6 +40,18 @@ const MemberSearchComponent = () => {
     }
 
     const memberClick = (e) => {
+      if (searchResults[e].state === "LEAVE") {
+            alert("탈퇴한 회원입니다.");
+            return;
+      }
+      if (searchResults[e].state === "PUNISH") {
+            alert("제재중인 회원입니다.");
+            return;
+      }
+      if (searchResults[e].state === "OVERDUE") {
+            alert("연체중인 회원입니다.");
+            return;
+      }
       if (searchResults[e].rentalCount + searchResults[e].reserveCount >= 5) {
             alert("대출 및 예약 한도가 초과되었습니다.");
             return;
@@ -84,17 +96,18 @@ const MemberSearchComponent = () => {
               <table className="min-w-full bg-white">
                 <thead className="bg-[#00893B] text-white">
                   <tr>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">회원번호</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">이름</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">아이디</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">생년월일</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">성별</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">연락처</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">주소</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">대여수</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">예약수</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">패널티</th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold uppercase">상태</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">회원번호</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">이름</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">아이디</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">생년월일</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">성별</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">연락처</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">주소</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">대여수</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">예약수</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">무인예약수</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">패널티</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold uppercase">상태</th>
                   </tr>
                 </thead>
                 <tbody className="text-gray-700">
@@ -104,21 +117,22 @@ const MemberSearchComponent = () => {
                       className="border-b border-gray-200 hover:bg-gray-100 hover:cursor-pointer transition-colors duration-200"
                       onClick={() => memberClick(index)}
                     >
-                      <td className="py-3 px-4">{member.mno}</td>
-                      <td className="py-3 px-4 font-medium">{member.name}</td>
-                      <td className="py-3 px-4">{member.mid}</td>
-                      <td className="py-3 px-4">{member.birthDate}</td>
-                      <td className="py-3 px-4">{member.gender}</td>
-                      <td className="py-3 px-4">{member.phone}</td>
-                      <td className="py-3 px-4 max-w-[150px] truncate">{member.addr}</td>
-                      <td className="py-3 px-4 text-center">{member.rentalCount}</td>
-                      <td className="py-3 px-4 text-center">{member.reserveCount}</td>
-                      <td className="py-3 px-4 text-center">{member.panalty}</td>
+                      <td className="py-3 px-4 text-xs">{member.mno}</td>
+                      <td className="py-3 px-4 text-xs font-medium">{member.name}</td>
+                      <td className="py-3 px-4 text-xs">{member.mid}</td>
+                      <td className="py-3 px-4 text-xs">{member.birthDate}</td>
+                      <td className="py-3 px-4 text-xs">{member.gender}</td>
+                      <td className="py-3 px-4 text-xs">{member.phone}</td>
+                      <td className="py-3 px-4 text-xs max-w-[150px] truncate">{member.addr}</td>
+                      <td className="py-3 px-4 text-xs text-center">{member.rentalCount}</td>
+                      <td className="py-3 px-4 text-xs text-center">{member.reserveCount}</td>
+                      <td className="py-3 px-4 text-xs text-center">{member.unmannedCount}</td>
+                      <td className="py-3 px-4 text-xs text-center">{member.panaltyDate}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           member.state === "NORMAL" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
                         }`}>
-                          {member.state === "NORMAL" ? "정상" : "비정상"}
+                          {member.state === "NORMAL" ? "정상" : member.state === "OVERDUE" ? "연체중" : member.state === "PUNISH" ? "제재중" : "탈퇴회원"}
                         </span>
                       </td>
                     </tr>

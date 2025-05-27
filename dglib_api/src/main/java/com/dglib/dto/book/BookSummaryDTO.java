@@ -21,10 +21,8 @@ public class BookSummaryDTO {
     private String isbn;
     private Long libraryBookId;
     private boolean isBorrowed;
-    private boolean alreadyReservedByMember;
-    private boolean alreadyBorrowedByMember;
-    private boolean alreadyUnmannedByMember;;
     private boolean isUnmanned;
+    private boolean isOverdue;
     private int reserveCount;
     List<String> keywords;
 

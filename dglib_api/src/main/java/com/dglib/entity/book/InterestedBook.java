@@ -34,7 +34,7 @@ public class InterestedBook {
 	
 	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "memberId", nullable = false)
+	@JoinColumn(name = "mid", nullable = false)
     @EqualsAndHashCode.Exclude
 	private Member member;
 	

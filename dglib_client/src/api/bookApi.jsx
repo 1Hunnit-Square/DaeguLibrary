@@ -3,6 +3,7 @@ import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 import axiosClient from '../util/axiosClient';
 import { getFingerprint } from '../util/fingerprint';
+import { SiAlteryx } from 'react-icons/si';
 
 
 
@@ -46,9 +47,15 @@ export const getNsLibraryBookList = async (params = {}) => {
 }
 
 export const getFsLibraryBookList = async (params = {}) => {
+    const objectParams = Object.fromEntries(params.entries())
+    console.log(objectParams)
+    const finalParams = {
+        ...objectParams,
+        fingerprint: await getFingerprint()
+    };
 
     const res = await axiosClient.get(`${prefix}/fslibrarybooklist`, {
-        params: params,
+        params: finalParams,
         headers: {
             'Content-Type': 'application/json',
 
@@ -68,14 +75,8 @@ export const getNewLibraryBookList = async (params = {}) => {
     return res.data;
 }
 
-export const getLibraryBookDetail = async (librarybookid) => {
-
-    const res = await axiosClient.get(`${prefix}/librarybookdetail/${librarybookid}`);
-    return res.data;
-};
-
-export const getRecoLibraryBookDetail = async (isbn) => {
-    const response = await axiosClient.get(`${prefix}/recoLibraryBookDetail/${isbn}`);
+export const getLibraryBookDetail = async (isbn) => {
+    const response = await axiosClient.get(`${prefix}/librarybookdetail/${isbn}`);
     return response.data;
 };
 

@@ -55,7 +55,7 @@ public class ClosedDayRepositoryTest {
 		
 		System.out.println("조회한 날짜: " + find.getClosedDate());
 		System.out.println("사유: " + find.getReason());
-		System.out.println("휴관여부: " + find.isClosed());
+		System.out.println("휴관여부: " + find.getIsClosed());
 	}
 	
 //	@Test
@@ -71,16 +71,16 @@ public class ClosedDayRepositoryTest {
 		ClosedDay find = closedDayRepository.findById(date)
 				.orElseThrow(() -> new RuntimeException("해당 날짜 없음"));
 		find.setReason("수정된 사유");
-		find.setClosed(false);
+		find.setIsClosed(false);
 
 		ClosedDay updated = closedDayRepository.save(find);
 
 		assertThat(updated.getReason()).isEqualTo("수정된 사유");
-		assertThat(updated.isClosed()).isFalse();
+		assertThat(updated.getIsClosed()).isFalse();
 
 		System.out.println("수정된 날짜: " + updated.getClosedDate());
 		System.out.println("변경된 사유: " + updated.getReason());
-		System.out.println("변경된 휴관 여부: " + updated.isClosed());
+		System.out.println("변경된 휴관 여부: " + updated.getIsClosed());
 	}
 	
 	@Test

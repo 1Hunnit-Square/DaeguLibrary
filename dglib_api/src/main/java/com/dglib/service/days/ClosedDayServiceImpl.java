@@ -16,7 +16,9 @@ import com.dglib.entity.days.ClosedDay;
 import com.dglib.repository.days.ClosedDayRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -60,6 +62,26 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	            .map(day -> modelMapper.map(day, ClosedDayDTO.class))
 	            .collect(Collectors.toList());
 	}
+	
+	
+	@Override
+	public void update(String originalDate, ClosedDayDTO dto) {
+	    LocalDate targetDate = LocalDate.parse(originalDate); // 기존 날짜로 조회
+	    ClosedDay existing = closedDayRepository.findById(targetDate)
+	        .orElseThrow(() -> new IllegalArgumentException("해당 날짜의 일정이 없습니다."));
+
+	    // 날짜가 변경된 경우 삭제 후 재등록 처리 또는 업데이트 처리
+	    if (!dto.getClosedDate().equals(targetDate)) {
+	        closedDayRepository.delete(existing); // 기존 삭제
+	        ClosedDay newEntity = modelMapper.map(dto, ClosedDay.class);
+	        closedDayRepository.save(newEntity); // 새로 등록
+	    } else {
+	        existing.setReason(dto.getReason());
+	        existing.setIsClosed(dto.getIsClosed());
+	        closedDayRepository.save(existing);
+	    }
+	}
+
 	
 	// 삭제
 	@Override
@@ -145,12 +167,18 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	    }
 	}
 	
-	
-	
-	
-	
+	@Override
+	public void registerAllAutoEventsForYear(int year) {
+	    try {
+	        registerMondays(year);
+	        registerHolidays(year);
+	        registerLibraryAnniversary(year);
+	    } catch (Exception e) {
+	        log.warn("자동 등록 중 예외 발생: {}", e.getMessage());
+	        // 예외 무시하고 정상 응답만 리턴
+	    }
+	}
 
-	
 	
 	
 }

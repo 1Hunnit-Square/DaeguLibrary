@@ -13,6 +13,8 @@ public interface ClosedDayService {
 	
 	List<ClosedDayDTO> getMonthlyList(int year, int month); // 특정 연월 전체 조회
 	
+	void update(String originalDate, ClosedDayDTO dto); // 수정
+	
 	void delete(LocalDate date); // 삭제
 	
 	// 자동 등록 메서드
@@ -22,5 +24,7 @@ public interface ClosedDayService {
 	void registerHolidays(int year); // 공휴일 등록(설날, 추석은 당일만)
 	
 	void registerLibraryAnniversary(int year); // 개관일 등록(매년 7월 8일)	
+	
+	void registerAllAutoEventsForYear(int year); // 연도별 자동 등록
 
 }

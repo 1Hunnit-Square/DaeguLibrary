@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +18,9 @@ import com.dglib.dto.days.ClosedDayDTO;
 import com.dglib.service.days.ClosedDayService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+	@Slf4j
 	@RestController
 	@RequestMapping("/api/closed")
 	@RequiredArgsConstructor
@@ -48,6 +51,18 @@ import lombok.RequiredArgsConstructor;
 	        List<ClosedDayDTO> list = closedDayService.getMonthlyList(year, month);
 	        return ResponseEntity.ok(list);
 	    }
+	    
+	    // 수정
+	    @PutMapping("/modify")
+	    public ResponseEntity<?> updateClosedDay(@RequestBody ClosedDayDTO dto) {
+	        if (dto.getOriginalDate() == null) {
+	            throw new IllegalArgumentException("기존 날짜 정보가 필요합니다.");
+	        }
+	        closedDayService.update(dto.getOriginalDate(), dto);
+	        return ResponseEntity.ok().build();
+	    }
+
+
 
 	    // 삭제
 	    @DeleteMapping("/{date}")
@@ -77,5 +92,29 @@ import lombok.RequiredArgsConstructor;
 	        closedDayService.registerLibraryAnniversary(year);
 	        return ResponseEntity.ok().build();
 	    }
+	    
+	    // 연도별 자동 등록
+	    @PostMapping("/auto")
+	    public ResponseEntity<Void> registerAuto(@RequestParam int year) {
+	        try {
+	            closedDayService.registerAllAutoEventsForYear(year);
+	        } catch (Exception e) {
+	            log.warn("자동 등록 중 예외 발생 (이미 등록된 연도일 수 있음): {}", e.getMessage());
+	        }
+	        return ResponseEntity.ok().build();
+	    }
+
+
+	    // 연도 범위 자동 등록
+	    @PostMapping("/auto/range")
+	    public ResponseEntity<Void> registerAutoRange(@RequestParam int start, @RequestParam int end) {
+	        for (int y = start; y <= end; y++) {
+	            closedDayService.registerAllAutoEventsForYear(y);
+	        }
+	        return ResponseEntity.ok().build();
+	    }
+
+
+
 	}
 

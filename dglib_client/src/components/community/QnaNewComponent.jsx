@@ -6,9 +6,6 @@ import { memberIdSelector } from "../../atoms/loginState";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import Modal from "../common/Modal";
-
-
 
 const QnaNewComponent = () => {
   const mid = useRecoilValue(memberIdSelector);
@@ -17,9 +14,11 @@ const QnaNewComponent = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [checkPublic, setCheckPublic] = useState(true);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async () => {
+    const confirmed = window.confirm("문의를 등록하시겠습니까?");
+    if (!confirmed) return;
+
     try {
       await axios.post(`${API_SERVER_HOST}${API_ENDPOINTS.qna}`, {
         title,
@@ -32,8 +31,6 @@ const QnaNewComponent = () => {
     } catch (error) {
       console.error("등록 실패", error);
       alert("등록에 실패했습니다.");
-    } finally {
-      setShowConfirm(false);
     }
   };
 
@@ -90,21 +87,11 @@ const QnaNewComponent = () => {
         </button>
         <button
           className="px-4 py-2 bg-[#00893B] text-white rounded"
-          onClick={() => setShowConfirm(true)}
+          onClick={handleSubmit}
         >
           등록하기
         </button>
       </div>
-
-      <Modal
-        isOpen={showConfirm}
-        title={"등록확인"}
-        onClose={() => setShowConfirm(false)}
-        Confirm={"확인"}
-        onConfirm={handleSubmit}
-      >
-        문의를 등록하시겠습니까?
-      </Modal>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -53,7 +54,8 @@ public class QuestionServiceImpl implements QuestionService {
         boolean isPublic = question.isCheckPublic();
 
         if (!isWriter && !isPublic) {
-            throw new IllegalAccessError("비공개 글은 작성자만 볼 수 있습니다.");
+        	System.out.println("질문을 가져올 수 없음");
+            throw new AccessDeniedException("비공개 글은 작성자만 볼 수 있습니다.");
         }
 
         question.setViewCount(question.getViewCount() + 1);

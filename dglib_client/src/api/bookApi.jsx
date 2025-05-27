@@ -21,7 +21,6 @@ export const getBookrecoList = async (genre, page) => {
     return res.data;
 }
 export const getNsLibraryBookList = async (params = {}) => {
-
     const { page = 1, size = 10 } = params;
     const finalParams = { page, size, fingerprint: await getFingerprint() };
     if (params.query) {

@@ -74,7 +74,7 @@ const BorrowBookListComponent = () => {
         resetSelection(new Set());}});
 
 
-    const { renderPagination } = usePagination(rentalData, searchURLParams, setSearchURLParams, isLoading);
+    const { renderPagination } = usePagination(rentalData.dto, searchURLParams, setSearchURLParams, isLoading);
 
     return (
         <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -113,7 +113,7 @@ const BorrowBookListComponent = () => {
 
                     </div>
             </div>
-            <div className="flex justify-between item-center mb-5">
+            <div className="flex items-center mb-5">
                  {!rentalData.update && (
                         <div className="flex-1 flex gap-3 items-center">
                             <div className="text-red-600 font-medium">오늘의 연체 회원 정보가 아직 업데이트 되지 않았습니다.</div>
@@ -124,9 +124,11 @@ const BorrowBookListComponent = () => {
                             />
                         </div>
                     )}
-                <SelectComponent onChange={(value) => handleSelectChange('sortBy', value)}  value={searchURLParams.get("sortBy") || "rentId"}  options={sortByOption} />
-                <SelectComponent onChange={(value) => handleSelectChange('orderBy', value)}  value={searchURLParams.get("orderBy") || "desc"}  options={orderByOption}/>
-                <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />
+                    <div className="flex-1 flex justify-end gap-3">
+                        <SelectComponent onChange={(value) => handleSelectChange('sortBy', value)}  value={searchURLParams.get("sortBy") || "rentId"}  options={sortByOption} />
+                        <SelectComponent onChange={(value) => handleSelectChange('orderBy', value)}  value={searchURLParams.get("orderBy") || "desc"}  options={orderByOption}/>
+                        <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />
+                    </div>
             </div>
             <div className="shadow-md rounded-lg overflow-x-auto">
                 <table className="w-full bg-white table-fixed">

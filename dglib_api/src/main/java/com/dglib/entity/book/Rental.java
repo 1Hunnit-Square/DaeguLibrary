@@ -48,9 +48,6 @@ public class Rental {
 	@Column(nullable = true)
 	private LocalDate returnDate;
 	
-	@Column(nullable = true, columnDefinition = "boolean default false")
-	private boolean isUnmanned;
-	
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private RentalState state;

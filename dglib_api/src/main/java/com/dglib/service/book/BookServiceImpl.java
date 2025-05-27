@@ -102,12 +102,7 @@ public class BookServiceImpl implements BookService {
 	private final Map<String, List<BookTopSumDTO>> topBooksCache = new ConcurrentHashMap<>();
 	
 	private List<String> popularKeywordsCache = new ArrayList<>();
-	
-	
-	
 
-	
-	
 	
 	@Override
 	public void registerBook(BookRegistrationDTO bookRegistrationDto) {
@@ -247,7 +242,6 @@ public class BookServiceImpl implements BookService {
 		spec = LibraryBookSpecifications.research(query, option, previousQueries, previousOptions);    
         Page<LibraryBook> libraryBooks = libraryBookRepository.findAll(spec, pageable);
         Page<BookSummaryDTO> bookSummaryPage = libraryBooks.map(libraryBook -> toBookSummaryDTO(libraryBook, mid));
-        
         List<String> keywords;
         if (popularKeywordsCache.isEmpty()) {
             LOGGER.info("인기 검색어 캐시가 비어있습니다.");

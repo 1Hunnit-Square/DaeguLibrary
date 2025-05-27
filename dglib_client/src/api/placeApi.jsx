@@ -7,3 +7,11 @@ export const getReservationStatus = async (year, month) => {
   });
   return Array.isArray(res.data) ? res.data : [];
 };
+
+export const registerPlace = async (dto) => {
+  const res = await axios.post(`${API_SERVER_HOST}/api/places/register`, dto, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.data;
+};
+

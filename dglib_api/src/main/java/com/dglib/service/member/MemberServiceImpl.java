@@ -19,22 +19,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
+import com.dglib.entity.book.Reserve;
+import com.dglib.entity.book.ReserveState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.RentalRepository;
+import com.dglib.repository.book.RentalSpecifications;
+import com.dglib.repository.book.ReserveRepository;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
 
@@ -49,6 +56,7 @@ public class MemberServiceImpl implements MemberService {
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final RentalRepository rentalRepository;
+	private final ReserveRepository reserveRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
 	
@@ -252,6 +260,47 @@ public class MemberServiceImpl implements MemberService {
 			rental.setDueDate(rental.getDueDate().plusDays(7));
 		});
 		
+	}
+	
+	@Override
+	public Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable, BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
+		Specification<Rental> spec = RentalSpecifications.mrsFilter(borrowHistoryRequestDTO, mid);
+		Page<Rental> rentalPage = rentalRepository.findAll(spec, pageable);
+		return rentalPage.map(rental -> {
+			MemberBorrowHistoryDTO dto = modelMapper.map(rental, MemberBorrowHistoryDTO.class);
+			dto.setBookTitle(rental.getLibraryBook().getBook().getBookTitle());
+			dto.setAuthor(rental.getLibraryBook().getBook().getAuthor());
+			dto.setIsbn(rental.getLibraryBook().getBook().getIsbn());
+			dto.setRentStartDate(rental.getRentStartDate());
+			dto.setDueDate(rental.getDueDate());
+			dto.setReturnDate(rental.getReturnDate());
+			dto.setRentId(rental.getRentId());
+			dto.setMemberState(rental.getMember().getState());
+			dto.setRentalState(rental.getState());
+			return dto;
+		});
+	}
+	
+	@Override
+	public List<MemberReserveListDTO> getMemberReserveList(String mid) {
+		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED);
+		return reserves.stream().map(reserve -> {
+			MemberReserveListDTO dto = modelMapper.map(reserve, MemberReserveListDTO.class);
+			dto.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
+			dto.setAuthor(reserve.getLibraryBook().getBook().getAuthor());
+			dto.setIsbn(reserve.getLibraryBook().getBook().getIsbn());
+			dto.setReserveDate(reserve.getReserveDate());
+			dto.setUnmanned(reserve.isUnmanned());
+			dto.setReserveId(reserve.getReserveId());
+			dto.setDueDate(reserve.getLibraryBook().getRentals().stream()
+					.filter(rental -> rental.getState() == RentalState.BORROWED).map(Rental::getDueDate).findFirst()
+					.orElse(null));
+			dto.setReserveCount(reserve.getLibraryBook().getReserves().stream()
+					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned()).count());
+			dto.setReturned(reserve.getLibraryBook().getRentals().stream()
+					.anyMatch(r -> r.getState() == RentalState.RETURNED));
+			return dto;
+		}).collect(Collectors.toList());
 	}
 	
 	

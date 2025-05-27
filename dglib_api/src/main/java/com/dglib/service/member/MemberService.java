@@ -5,12 +5,15 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.ModMemberDTO;
@@ -48,6 +51,11 @@ public interface MemberService {
 	List<MemberBorrowNowListDTO> getMemberBorrowNowList(String mid);
 	
 	void extendMemberBorrow(List<Long> rentIds);
+	
+	Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable, BorrowHistoryRequestDTO borrowHistoryRequestDTO);
+	
+	List<MemberReserveListDTO> getMemberReserveList(String mid);
+	
 
 
 }

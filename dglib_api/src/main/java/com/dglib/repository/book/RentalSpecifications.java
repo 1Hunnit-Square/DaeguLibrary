@@ -7,10 +7,12 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -57,7 +59,28 @@ public class RentalSpecifications {
                 }
             }
             
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         };
     }
+    
+	public static Specification<Rental> mrsFilter(BorrowHistoryRequestDTO borrowHistoryRequestDTO, String mid) {
+		return (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
+			
+			if (!borrowHistoryRequestDTO.getMonth().equals("allmonth")) {
+				 Expression<Integer> monthExpression = criteriaBuilder.function("MONTH", Integer.class, root.get("rentStartDate"));
+		         Integer month = Integer.valueOf(borrowHistoryRequestDTO.getMonth()); 
+		         predicates.add(criteriaBuilder.equal(monthExpression, month));
+			}
+			
+			Expression<Integer> yearExpression = criteriaBuilder.function("YEAR", Integer.class, root.get("rentStartDate"));
+			Integer year = Integer.valueOf(borrowHistoryRequestDTO.getYear());
+			predicates.add(criteriaBuilder.equal(yearExpression, year));
+			predicates.add(criteriaBuilder.equal(root.get("member").get("mid"), mid));
+
+			
+
+			return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+		};
+	}
 }

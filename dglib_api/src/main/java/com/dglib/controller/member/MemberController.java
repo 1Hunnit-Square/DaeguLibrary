@@ -28,12 +28,15 @@ import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.ReserveBookDTO;
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.ModMemberDTO;
@@ -200,6 +203,26 @@ public class MemberController {
 		LOGGER.info("연장 요청: {}, 회원 id: {}", rentIds, mid);
 		memberService.extendMemberBorrow(rentIds);
 		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/memberborrowhistory")
+	public ResponseEntity<Page<MemberBorrowHistoryDTO>> getMemberBorrowHistory(
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
+			BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info(borrowHistoryRequestDTO + "");
+		LOGGER.info("회원 대출이력 요청: {}, 페이지: {}, 사이즈: {}", mid, page, size);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("rentStartDate").descending());
+		Page<MemberBorrowHistoryDTO> borrowHistory = memberService.getMemberBorrowHistory(mid, pageable, borrowHistoryRequestDTO);
+		return ResponseEntity.ok(borrowHistory);
+	}
+	
+	@GetMapping("/memberreservelist")
+	public ResponseEntity<List<MemberReserveListDTO>> getMemberReserveList() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 예약목록 요청: {}", mid);
+		List<MemberReserveListDTO> dto = memberService.getMemberReserveList(mid);
+		return ResponseEntity.ok(dto);
 	}
 	
 

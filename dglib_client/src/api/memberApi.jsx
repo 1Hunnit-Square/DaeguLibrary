@@ -58,7 +58,7 @@ export const accountFind = async (params) => {
 export const modMemberPw = async (params) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const res = await axios.post(`${prefix}/modPwMember`, params, header);
-    return res.data; 
+    return res.data;
 }
 
 export const getMemberInfo = async (params) => {
@@ -138,5 +138,17 @@ export const extendBorrow = async (rentIds) => {
         'Content-Type': 'application/json'
     };
     const res = await axiosClient.post(`${prefix}/extendborrow`, rentIds, { headers });
+    return res.data;
+}
+
+export const getMemberBorrowHistory = async (params = {}) => {
+    const res = await axiosClient.get(`${prefix}/memberborrowhistory`, {
+        params: params,
+    });
+    return res.data;
+}
+
+export const getMemberReserveList = async () => {
+    const res = await axiosClient.get(`${prefix}/memberreservelist`);
     return res.data;
 }

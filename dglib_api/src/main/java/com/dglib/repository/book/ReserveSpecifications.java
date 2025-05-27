@@ -66,5 +66,7 @@ public class ReserveSpecifications {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+    
+    
 
 }

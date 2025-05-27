@@ -2,11 +2,11 @@ import SearchSelectComponent from "../common/SearchSelectComponent";
 import { useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import CheckNonLabel from "../common/CheckNonLabel";
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getInterestedBook, deleteInterestedBook } from "../../api/memberApi";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import { usePagination } from "../../hooks/usePagination";
+import { usePagination } from "../../hooks/usePage";
 import { useItemSelection } from "../../hooks/useItemSelection";
 import { useBookMutation } from '../../hooks/useBookMutation';
 

@@ -2,12 +2,14 @@ import { useCallback, useMemo } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
 import { useSearchParams } from "react-router-dom";
 import BorrowMemberStateComponent from './BorrowMemberStateComponent';
+import BorrowMemberHistoryComponent from './BorrowMemberHistoryComponent';
 
 
 const BorrowMemberComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const today = new Date();
     const aMonthAgo = new Date(today);
+    const year = today.getFullYear();
     aMonthAgo.setDate(today.getDate() - 30);
 
 
@@ -22,6 +24,8 @@ const BorrowMemberComponent = () => {
         newParams.set("tab", tabId);
         if( tabId === 'borrowpast') {
             newParams.set("page", "1");
+            newParams.set("year", year.toString());
+            newParams.set("month", "allmonth");
         }else {
             newParams.delete("page", "1");
         }
@@ -37,7 +41,7 @@ const BorrowMemberComponent = () => {
         {
         id: 'borrowpast',
         label: '대출이력',
-        content: <div>바이</div>
+        content: <BorrowMemberHistoryComponent />
         },
 
     ], []);

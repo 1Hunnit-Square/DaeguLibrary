@@ -3,9 +3,14 @@ import { Navigate } from "react-router-dom";
 import Loading from "./Loading";
 
 
-const BorrowStatus = lazy(() => import("../components/myLibrary/BorrowStatusComponent"));
+const BorrowMember = lazy(() => import("../components/myLibrary/BorrowMemberComponent"));
+const InterestBook = lazy(() => import("../components/myLibrary/InterestedComponent"));
+const Detail = lazy(() => import("../components/books/LibraryBookDetailComponent"));
+const ReserveBookMember = lazy(() => import("../components/myLibrary/BookReservationComponent"));
+const BookRequest = lazy(() => import("../components/myLibrary/RequestComponent"));
+const UseProgram = lazy(() => import("../components/myLibrary/UseProgramComponent"));
 const UsedFacility = lazy(() => import("../components/myLibrary/UsedFacilityComponent"));
-
+const Personalized = lazy(() => import("../components/myLibrary/PersonalizedComponent"));
 
 const myLibraryRouter = () => ([
 
@@ -15,23 +20,23 @@ const myLibraryRouter = () => ([
     },
     {
         path : "borrowstatus",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        element: <Suspense fallback={<Loading />}><BorrowMember /></Suspense>
     },
     {
         path : "bookreservation",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        element: <Suspense fallback={<Loading />}><ReserveBookMember /></Suspense>
     },
     {
-        path : "wishlist",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        path : "interested",
+        element: <Suspense fallback={<Loading />}><InterestBook /></Suspense>
     },
     {
         path : "request",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        element: <Suspense fallback={<Loading />}><BookRequest /></Suspense>
     },
     {
         path : "useprogram",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
+        element: <Suspense fallback={<Loading />}><UseProgram /></Suspense>
     },
     {
         path : "usedfacility",
@@ -39,8 +44,12 @@ const myLibraryRouter = () => ([
     },
     {
         path : "personalized",
-        element: <Suspense fallback={<Loading />}><BorrowStatus /></Suspense>
-    }
+        element: <Suspense fallback={<Loading />}><Personalized /></Suspense>
+    },
+    {
+        path: "detail/:isbn",
+        element: <Suspense fallback={<Loading />}><Detail /></Suspense>
+    },
 
 
 

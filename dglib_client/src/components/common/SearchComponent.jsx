@@ -1,5 +1,6 @@
 import { useSearchInput } from "../../hooks/useSearchInput";
 import { FiSearch } from 'react-icons/fi';
+import { memo } from "react";
 
 const SearchComponent = ({
   onSearch,

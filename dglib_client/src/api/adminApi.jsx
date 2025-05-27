@@ -14,8 +14,9 @@ export const regBookCheck = async (isbn) =>{
 
 }
 
-export const deleteLibraryBook = async (librarybookid, isbn) => {
-    const res = await axios.delete(`${prefix}/deletelibrarybook/${librarybookid}/${isbn}`);
+export const changeLibraryBook = async (params) => {
+    console.log(params);
+    const res = await axios.post(`${prefix}/changelibrarybook`, params, { headers: { 'Content-Type': 'application/json' } });
     return res.data;
 }
 
@@ -68,13 +69,7 @@ export const getReserveBookList = async (params = {}) => {
 }
 
 export const cancelReserveBook = async (reserveUpdate) => {
-    const payload = reserveUpdate.map(item => ({
-        reserveId: item.reserveId,
-        state: item.state,
-        reservationRank: item.reservationRank,
-        libraryBookId: item.libraryBookId,
-        mid: item.mid,
-    }));
+    const payload = reserveUpdate.map(reserveId => ({reserveId}));
     const res = await axios.post(`${prefix}/cancelreservebook`, payload, { headers: { 'Content-Type': 'application/json' } });
     if (res.status !== 200) {
         return res.data;
@@ -83,31 +78,18 @@ export const cancelReserveBook = async (reserveUpdate) => {
 
 }
 
-export const reReserveBook = async (reserveUpdate) => {
-    const payload = reserveUpdate.map(item => ({
-        reserveId: item.reserveId,
-        state: item.state,
-        reservationRank: item.reservationRank,
-        libraryBookId: item.libraryBookId,
-        mid: item.mid,
-    }));
-    console.log("reReserveBook payload", payload);
-    const res = await axios.post(`${prefix}/rereservebook`, payload, { headers: { 'Content-Type': 'application/json' } });
+
+export const completeBorrowing = async (reserveUpdate) => {
+    const payload = reserveUpdate.map(reserveId => ({reserveId}));
+    const res = await axios.post(`${prefix}/completeborrowing`, payload, { headers: { 'Content-Type': 'application/json' } });
     if (res.status !== 200) {
         return res.data;
     }
     return res.data;
 }
 
-export const completeBorrowing = async (reserveUpdate) => {
-    const payload = reserveUpdate.map(item => ({
-        reserveId: item.reserveId,
-        state: item.state,
-        reservationRank: item.reservationRank,
-        libraryBookId: item.libraryBookId,
-        mid: item.mid,
-    }));
-    const res = await axios.post(`${prefix}/completeborrowing`, payload, { headers: { 'Content-Type': 'application/json' } });
+export const updateOverdueMember = async () => {
+    const res = await axios.post(`${prefix}/updateoverduemember`);
     if (res.status !== 200) {
         return res.data;
     }

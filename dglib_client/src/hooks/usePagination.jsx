@@ -68,5 +68,6 @@ export const usePagination = (
     );
   };
 
-  return { renderPagination, pageClick };
+
+  return { renderPagination };
 };

@@ -3,6 +3,7 @@ package com.dglib.entity.member;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.Reserve;
 
@@ -15,7 +16,9 @@ import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Builder
@@ -71,9 +74,19 @@ public class Member {
 	private String kakao;
 	
 	@OneToMany(mappedBy = "member")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
 	private List<Rental> rentals;
 	
 	@OneToMany(mappedBy = "member")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
 	private List<Reserve> reserves;
+	
+	@OneToMany(mappedBy = "member")
+	@ToString.Exclude
+    @EqualsAndHashCode.Exclude
+	private List<InterestedBook> interestedBooks;
+	
 	
 }

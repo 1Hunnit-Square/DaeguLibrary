@@ -29,11 +29,13 @@ import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.RentBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
+import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.LibraryBookChangeDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
-import com.dglib.dto.member.MemberSeaerchByMnoDTO;
+import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
 
@@ -46,7 +48,7 @@ public class AdminController {
 	
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
-	private final MemberService serviceMember;
+	private final MemberService memberService;
 	
 	@PostMapping("/regbook")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
@@ -63,12 +65,14 @@ public class AdminController {
 		return ResponseEntity.ok(regBookCheckDto);
 	}
 	
-	@DeleteMapping("/deletelibrarybook/{libraryBookId}/{isbn}")
-	public ResponseEntity<String> deleteLibraryBook(@PathVariable Long libraryBookId, @PathVariable String isbn) {
-		LOGGER.info("도서 삭제 요청: {}", libraryBookId + ", " + isbn);
-		bookService.deleteLibraryBook(libraryBookId, isbn);
+	@PostMapping("/changelibrarybook")
+	public ResponseEntity<String> deleteLibraryBook(@RequestBody LibraryBookChangeDTO libraryBookChangeDto) {
+		LOGGER.info("도서 삭제 요청: {}", libraryBookChangeDto);
+		bookService.changeLibraryBook(libraryBookChangeDto.getLibraryBookId(), libraryBookChangeDto.getState());
 		return ResponseEntity.ok().build();
 	}
+	
+	
 	
 	@PostMapping("/borrowbook")
 	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
@@ -78,10 +82,10 @@ public class AdminController {
 	}
 	
 	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSeaerchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
 		Pageable pageable = PageRequest.of(page -1, size);
-		Page<MemberSeaerchByMnoDTO> memberList = serviceMember.searchByMno(memberNumber, pageable);
+		Page<MemberSearchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
 		
 
 		return ResponseEntity.ok(memberList);
@@ -96,7 +100,7 @@ public class AdminController {
 	}
 	
 	@GetMapping("/rentallist")
-	public ResponseEntity<Page<RentalBookListDTO>> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto ) {
+	public ResponseEntity<RentalPageDTO> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto ) {
 		LOGGER.info(borrowedBookSearchDto + " ");
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
 		int size = Optional.ofNullable(borrowedBookSearchDto.getSize())
@@ -109,7 +113,7 @@ public class AdminController {
 			    : Sort.by(sortBy).descending();
 		
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		Page<RentalBookListDTO> rentalList = bookService.getRentalList(pageable, borrowedBookSearchDto);
+		RentalPageDTO rentalList = bookService.getRentalList(pageable, borrowedBookSearchDto);
 		LOGGER.info("rentalList: {}", rentalList);
 		return ResponseEntity.ok(rentalList);
 	}
@@ -127,7 +131,7 @@ public class AdminController {
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
 		int size = Optional.ofNullable(borrowedBookSearchDto.getSize())
                 .orElse(10);
-		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("rentId");
+		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("reserveId");
 		String orderBy = Optional.ofNullable(borrowedBookSearchDto.getOrderBy()).orElse("desc");
 		
 		Sort sort = "asc".equalsIgnoreCase(orderBy) 
@@ -147,12 +151,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("/rereservebook")
-	public ResponseEntity<String> reReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-		LOGGER.info("도서 재예약 요청: {}", reserveStateChangeDtos);
-		bookService.reReserveBook(reserveStateChangeDtos);
-		return ResponseEntity.ok().build();
-	}
 	
 	@PostMapping("/completeborrowing")
 	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
@@ -175,6 +173,13 @@ public class AdminController {
 		Page<LibraryBookSummaryDTO> libraryBookList = bookService.getLibraryBookList(pageable, libraryBookSearchDto);
 		return ResponseEntity.ok(libraryBookList);
 		
+	}
+	
+	@PostMapping("/updateoverduemember")
+	public ResponseEntity<String> updateOverdueMember() {
+		LOGGER.info("연체 회원 업데이트 요청");
+		memberService.executeOverdueCheck();
+		return ResponseEntity.ok().build();
 	}
 
 }

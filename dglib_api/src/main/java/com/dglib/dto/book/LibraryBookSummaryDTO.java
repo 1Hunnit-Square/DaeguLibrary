@@ -17,5 +17,7 @@ public class LibraryBookSummaryDTO {
     private Long libraryBookId;
     private boolean isRented;
     private int reserveCount; 
+    private boolean isUnmanned;
+    private boolean isDeleted;
 
 }

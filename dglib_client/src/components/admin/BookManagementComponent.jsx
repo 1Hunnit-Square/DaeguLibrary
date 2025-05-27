@@ -24,6 +24,7 @@ const BookManagementComponent = () => {
         if (tabId === 'booklist') {
             newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
             newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+            newParams.set("option", "도서명")
         }
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
@@ -36,7 +37,7 @@ const BookManagementComponent = () => {
         },
         {
         id: 'regbook',
-        label: '도서추가',
+        label: '도서등록 및 수정',
         content: <RegBookComponent />
         },
     ], []);

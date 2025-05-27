@@ -20,4 +20,5 @@ public class LibraryBookSearchByBookIdDTO {
     private Long libraryBookId;
     private boolean isRented;
     private boolean isReserved;
+    private boolean isUnmanned;
 }

@@ -21,6 +21,7 @@ const SearchSelectComponent = ({
   const [searchQuery, setSearchQuery] = useState(input);
   const dropdownRef = useRef(null);
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSearch(searchQuery, selectedOption);

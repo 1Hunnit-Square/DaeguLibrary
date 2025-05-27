@@ -12,16 +12,18 @@ const ReservationPage = () => {
         { id: "program", label: "프로그램 신청", path: "/reservation/program" },
         { id: "facility", label: "시설 이용 신청", path: "/reservation/facility" }], []);
 
-    useEffect(() => {
-        const currentPath = location.pathname;
-
-        const currentMenuItem = LSideMenu.find(menu => currentPath.includes(menu.path));
-        if (currentMenuItem) {
-          setActiveMenuItem(currentMenuItem);
-        } else {
-          setActiveMenuItem(LSideMenu[0]);
-        }
-      }, [location.pathname]);
+     useEffect(() => {
+      const currentPath = location.pathname;
+      const currentMenuItem = LSideMenu.find(menu => {
+        const menuBasePath = menu.path.split('?')[0];
+        return currentPath.includes(menuBasePath);
+      });
+      if (currentMenuItem) {
+        setActiveMenuItem(currentMenuItem);
+      } else {
+        setActiveMenuItem(LSideMenu[0]);
+      }
+    }, [location.pathname, LSideMenu]);
 
 
 

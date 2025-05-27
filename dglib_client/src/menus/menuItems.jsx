@@ -1,5 +1,19 @@
 import { selector } from 'recoil';
 
+const getDateParams = () => {
+  const today = new Date();
+  const aMonthAgo = new Date(today);
+  aMonthAgo.setDate(today.getDate() - 30);
+
+  const endDateStr = today.toLocaleDateString('fr-CA');
+  const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
+
+  return `startDate=${startDateStr}&endDate=${endDateStr}`;
+};
+const dateParams = getDateParams();
+
+
+
 const defaultMenuItems = [
     {
       id: 1,
@@ -18,9 +32,9 @@ const defaultMenuItems = [
       link: '/books/search?tab=info&page=1',
       subMenus: [
         { name: '통합검색', link: '/books/search?tab=info&page=1' },
-        { name: '신착도서', link: '/books/new' },
-        { name: '추천도서', link: '/books/recommend' },
-        { name: '대출베스트도서', link: '/books/top' }
+        { name: '신착도서', link: `/books/new?page=1&${dateParams}` },
+        { name: '추천도서', link: '/books/recommend?genre=literature&page=1' },
+        { name: '대출베스트도서', link: '/books/top?check=오늘' }
       ]
     },
     {
@@ -64,7 +78,7 @@ const defaultMenuItems = [
       subMenus: [
         { name: '대출현황', link: '/mylibrary/borrowstatus' },
         { name: '도서예약', link: '/mylibrary/bookreservation' },
-        { name: '관심도서', link: '/mylibrary/wishlist' },
+        { name: '관심도서', link: '/mylibrary/interested?page=1&option=전체' },
         { name: '희망도서', link: '/mylibrary/request' },
         { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
         { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
@@ -73,26 +87,17 @@ const defaultMenuItems = [
     }
   ];
 
-  const getDateParams = () => {
-  const today = new Date();
-  const aMonthAgo = new Date(today);
-  aMonthAgo.setDate(today.getDate() - 30);
 
-  const endDateStr = today.toLocaleDateString('fr-CA');
-  const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
-
-  return `startDate=${startDateStr}&endDate=${endDateStr}`;
-};
 
   const getAdminMenuItem = () => {
-  const dateParams = getDateParams();
+
 
   return {
     id: 6,
     title: '관리자',
     link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
     subMenus: [
-      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}` },
+      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
       { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
       { name: '이달의 행사 관리', link: '/admin/eventmanagement' }
     ]
@@ -103,7 +108,7 @@ const defaultMenuItems = [
     key: 'menuItemsSelector',
     get: ({get}) => {
       const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'admin' // 나중에 바꾸셈
+      const userRole = 'user' // 나중에 바꾸셈
       const menuItems = [...defaultMenuItems];
       if (isLoggedIn && userRole === 'admin') {
         menuItems[5] = getAdminMenuItem();

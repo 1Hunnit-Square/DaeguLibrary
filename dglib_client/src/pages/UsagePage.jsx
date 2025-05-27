@@ -15,16 +15,18 @@ const UsagePage = () => {
         { id: "eventcalendar", label: "이달의 행사 일정", path: "/usage/eventcalendar" },], [])
 
 
-    useEffect(() => {
-        const currentPath = location.pathname;
-
-        const currentMenuItem = LSideMenu.find(menu => currentPath.includes(menu.path));
-        if (currentMenuItem) {
-          setActiveMenuItem(currentMenuItem);
-        } else {
-          setActiveMenuItem(LSideMenu[0]);
-        }
-      }, [location.pathname]);
+     useEffect(() => {
+      const currentPath = location.pathname;
+      const currentMenuItem = LSideMenu.find(menu => {
+        const menuBasePath = menu.path.split('?')[0];
+        return currentPath.includes(menuBasePath);
+      });
+      if (currentMenuItem) {
+        setActiveMenuItem(currentMenuItem);
+      } else {
+        setActiveMenuItem(LSideMenu[0]);
+      }
+    }, [location.pathname, LSideMenu]);
 
 
     return (

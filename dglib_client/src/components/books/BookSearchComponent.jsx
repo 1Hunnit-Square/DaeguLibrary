@@ -2,7 +2,7 @@ import DynamicTab from "../../menus/DynamicTab";
 import NomalSearchBookComponent from "./NomalSearchBookComponent";
 import FilterSearchBookComponent from "./FilterSearchBookComponent";
 import { useSearchParams } from "react-router-dom";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 
 
 const BookSearchComponent = () => {
@@ -19,6 +19,10 @@ const BookSearchComponent = () => {
     const newParams = new URLSearchParams();
     newParams.set("tab", tabId);
     newParams.set("page", "1");
+    if(tabId === 'settings') {
+      newParams.set("sortBy", "bookTitle");
+      newParams.set("orderBy", "desc");
+    }
     setSearchURLParams(newParams);
   }, [searchURLParams, setSearchURLParams]);
 

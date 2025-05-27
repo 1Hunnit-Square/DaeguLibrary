@@ -69,5 +69,74 @@ export const getMemberInfo = async (params) => {
 export const modPost = async (params) => {
     const header = { headers: {'Content-Type': 'application/json'}};
     const res = await axiosClient.post(`${prefix}/modify`, params, header);
+}
+
+export const getInterestedBook = async (param) => {
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.get(`${prefix}/interestedbook`, { params : param, headers });
+    return res.data;
+}
+
+export const reserveBook = async (reservationData) => {
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/reservebook`, reservationData, { headers });
+    return res.data;
+
+}
+
+export const unMannedReserve = async (reservationData) => {
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/unmannedreserve`, reservationData, { headers });
+    return res.data;
+
+}
+
+export const addInterestedBook = async (id) => {
+
+    console.log(id);
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/addinterestedbook`, { libraryBookIds: id }, { headers });
+    return res.data;
+}
+
+export const deleteInterestedBook = async (ibIds) => {
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.delete(`${prefix}/deleteinterestedbook`, {
+        data: { ibIds },
+        headers,
+    });
+    return res.data;
+}
+
+export const getMemberBorrowList = async () => {
+    const res = await axiosClient.get(`${prefix}/memberborrowlist`);
+    return res.data;
+}
+
+export const extendBorrow = async (rentIds) => {
+    console.log(rentIds);
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/extendborrow`, rentIds, { headers });
     return res.data;
 }

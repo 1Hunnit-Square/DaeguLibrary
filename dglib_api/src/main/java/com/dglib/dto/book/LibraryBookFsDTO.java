@@ -21,6 +21,7 @@ public class LibraryBookFsDTO {
     private String sortBy;
     private String orderBy;
     private String keyword;
+    private String fingerprint;
     private LocalDate yearStartDate;
     private LocalDate yearEndDate;
     

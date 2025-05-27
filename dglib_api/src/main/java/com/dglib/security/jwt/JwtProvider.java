@@ -6,11 +6,6 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.dglib.dto.member.MemberDTO;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.Jwts;
@@ -67,14 +62,6 @@ public class JwtProvider {
 		return claims;
 	}
 	
-	public static String getMid() {
-	      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	      Object principal = authentication.getPrincipal();
-	      if (principal == null || !(principal instanceof MemberDTO)) {
-	         return null;
-	      }
-	      return ((MemberDTO) principal).getUsername();
-	      
-	   }
 
+	
 }

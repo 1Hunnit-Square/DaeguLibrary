@@ -10,9 +10,9 @@ export const useMoveTo = () => {
     navigate({pathname: path}, {replace:true})
     }
 
-    const moveToLogin = (message = "로그인이 필요합니다.") => {
+    const moveToLogin = (message = "로그인이 필요합니다.", { replace = false } = {}) => {
         const currentPath = location.pathname;
-        navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, {replace: false});
+        navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace });
         if (message) {
             alert(message);
         }

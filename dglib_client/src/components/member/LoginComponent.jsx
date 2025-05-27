@@ -1,7 +1,5 @@
 import Button from "../common/Button";
 import CheckBox from "../common/CheckBox";
-import { useRecoilState } from "recoil";
-import RecoilLoginState from '../../atoms/loginState';
 import { useState, useEffect, memo, useCallback } from "react";
 import { useLogin } from "../../hooks/useLogin";
 import { useMoveTo } from "../../hooks/useMoveTo";
@@ -40,9 +38,9 @@ const LoginComponent = () =>{
             }
         },[loginParam, savedId])
 
-        
+
         });
-    
+
     const handleChange = (e) => {
         setLoginParam(prev => ({
         ...prev,

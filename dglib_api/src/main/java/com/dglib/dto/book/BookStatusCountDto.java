@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class BookStatusCountDto {
 	private Long reserveCount;
     private Long borrowCount;
+    private Long unmannedCount;
 
 }

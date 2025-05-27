@@ -26,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		try {
 		log.info("FILETERING...");
 		String authHeader = request.getHeader("Authorization");
+		
 		String accessToken = authHeader.substring(7);
 		
 		Map<String, Object> claims = JwtProvider.validateToken(accessToken);
@@ -39,11 +40,12 @@ public class JwtFilter extends OncePerRequestFilter {
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 		
+
+		
 		filterChain.doFilter(request, response);
 		
 		} catch(Exception e){
 		    log.error(e.getMessage());
-
 		    Gson gson = new Gson();
 		    String json = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
 
@@ -59,15 +61,16 @@ public class JwtFilter extends OncePerRequestFilter {
 	    
 	    String path = request.getRequestURI();
 	    String authHeader = request.getHeader("Authorization");
+
 	    log.info("authHeader : " + authHeader);
 
 	    log.info("FILTER CHECK "+path);
 	    
 	    if (path.equals("/favicon.ico") || path.startsWith("/api/member/refresh")) {
-	        return true;
-	    }
-	   
+			return true;
+		}
 	    
+
 	    //회원 + 비회원
 	    if(path.startsWith("/api/")) {
 	          if(authHeader != null) {
@@ -76,12 +79,17 @@ public class JwtFilter extends OncePerRequestFilter {
 	           return true; //비회원의 경우
 	       }
 
-
+	    //이미지 조회 경로는 체크하지 않음
+	    if(path.startsWith("/api/view/")) {
+	        return true;
+	    }
 
 	    return false;
 	    }
 	 
-	   public static String getMid() {
+
+		public static String getMid() {
+
 		      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		      Object principal = authentication.getPrincipal();
 		      if (principal == null || !(principal instanceof MemberDTO)) {
@@ -90,6 +98,5 @@ public class JwtFilter extends OncePerRequestFilter {
 		      return ((MemberDTO) principal).getUsername();
 		      
 		   }
-
 	
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberSeaerchByMnoDTO {
+public class MemberSearchByMnoDTO {
 	
 	private String mid;
 	private String name;
@@ -24,6 +24,7 @@ public class MemberSeaerchByMnoDTO {
     private MemberState state;
     private Long rentalCount;
     private Long reserveCount;
+    private Long unmannedCount;
 
 
 }

@@ -1,6 +1,6 @@
 import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
-import QRComponent from "../components/member/QRComponent";
+import QRComponent from "../components/member/QrComponent";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../atoms/loginState";
 import { useEffect } from "react";

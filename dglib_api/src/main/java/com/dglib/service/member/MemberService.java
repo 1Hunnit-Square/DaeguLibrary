@@ -56,6 +56,8 @@ public interface MemberService {
 	
 	List<MemberReserveListDTO> getMemberReserveList(String mid);
 	
+	void cancelReserve(Long reserveId);
+	
 
 
 }

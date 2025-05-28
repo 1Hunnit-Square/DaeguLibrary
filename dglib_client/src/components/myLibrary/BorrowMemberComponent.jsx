@@ -7,10 +7,8 @@ import BorrowMemberHistoryComponent from './BorrowMemberHistoryComponent';
 
 const BorrowMemberComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
-    const today = new Date();
-    const aMonthAgo = new Date(today);
-    const year = today.getFullYear();
-    aMonthAgo.setDate(today.getDate() - 30);
+    const year =  new Date().getFullYear();
+
 
 
     const activeTab = useMemo(() => {

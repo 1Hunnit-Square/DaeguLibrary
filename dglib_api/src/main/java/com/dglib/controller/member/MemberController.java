@@ -225,5 +225,13 @@ public class MemberController {
 		return ResponseEntity.ok(dto);
 	}
 	
+	@DeleteMapping("/cancelreservebook")
+	public ResponseEntity<String> cancelReserveBook(@RequestParam Long reserveId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 예약 취소 요청: {}, 회원 id: {}", reserveId, mid);
+		memberService.cancelReserve(reserveId);
+		return ResponseEntity.ok().build();
+	}
+	
 
 }

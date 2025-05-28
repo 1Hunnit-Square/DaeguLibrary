@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-qu
 import root from './routers/root';
 import { ToastContainer, toast } from 'react-toastify';
 import './App.css'
+import RecoilLoginState from './atoms/loginState';
+import { useRecoilState } from 'recoil';
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -16,6 +19,22 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [loginState, setLoginState] = useRecoilState(RecoilLoginState);
+  useEffect(() => {
+    const syncLogout = (event) => {
+      if (event.key === 'logout') {
+        setLoginState({});
+
+      }
+    };
+
+    window.addEventListener('storage', syncLogout);
+
+    return () => {
+      window.removeEventListener('storage', syncLogout);
+    };
+  }
+  , []);
 
   return (
     <QueryClientProvider client={queryClient}>

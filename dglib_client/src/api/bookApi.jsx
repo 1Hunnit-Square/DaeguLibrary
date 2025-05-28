@@ -3,7 +3,7 @@ import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 import axiosClient from '../util/axiosClient';
 import { getFingerprint } from '../util/fingerprint';
-import { SiAlteryx } from 'react-icons/si';
+
 
 
 

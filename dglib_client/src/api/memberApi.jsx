@@ -152,3 +152,9 @@ export const getMemberReserveList = async () => {
     const res = await axiosClient.get(`${prefix}/memberreservelist`);
     return res.data;
 }
+
+export const cancelReserveBook = async (reserveId) => {
+
+    const res = await axiosClient.delete(`${prefix}/cancelreservebook`, {params: { reserveId }});
+    return res.data;
+}

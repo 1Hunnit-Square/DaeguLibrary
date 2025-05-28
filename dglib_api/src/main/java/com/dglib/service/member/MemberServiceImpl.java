@@ -283,7 +283,8 @@ public class MemberServiceImpl implements MemberService {
 	
 	@Override
 	public List<MemberReserveListDTO> getMemberReserveList(String mid) {
-		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED);
+		Sort sort = Sort.by(Sort.Direction.DESC, "reserveId");
+		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED, sort);
 		return reserves.stream().map(reserve -> {
 			MemberReserveListDTO dto = modelMapper.map(reserve, MemberReserveListDTO.class);
 			dto.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
@@ -301,6 +302,16 @@ public class MemberServiceImpl implements MemberService {
 					.anyMatch(r -> r.getState() == RentalState.RETURNED));
 			return dto;
 		}).collect(Collectors.toList());
+	}
+	
+	@Override
+	public void cancelReserve(Long reserveId) {
+		Reserve reserve = reserveRepository.findById(reserveId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 예약이 존재하지 않습니다."));
+		if (reserve.getState() != ReserveState.RESERVED) {
+			throw new IllegalStateException("이미 취소된 예약입니다.");
+		}
+		reserve.setState(ReserveState.CANCELED);
 	}
 	
 	

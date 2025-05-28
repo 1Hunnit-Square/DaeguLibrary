@@ -40,7 +40,7 @@ const MemberManagementComponent = () => {
                                 sortBy: queryParams.sortBy,
                                 orderBy: queryParams.orderBy,
                             };
-        
+
                             if (queryParams.query) {
                                 params.query = queryParams.query;
                                 params.option = queryParams.option;
@@ -49,9 +49,9 @@ const MemberManagementComponent = () => {
                             return getMemberList(params);
                         }
     });
-                    
+
     const memberList = useMemo(() => memberData.content, [memberData.content]);
-    
+
 
     const { renderPagination } = usePagination(memberData, searchURLParams, setSearchURLParams, isLoading);
 
@@ -121,16 +121,16 @@ const handleByRole = useCallback((value) => {
     }, [searchURLParams, setSearchURLParams]);
 
 
-    
+
     const handleByState = useCallback((value) => {
         const newParams = new URLSearchParams(searchURLParams);
-        
+
         newParams.set("state", value || "ALL");
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
     const filterValue = (value) => {
-        const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full"; 
+        const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full";
        const data = {
         "USER" : <span className={`text-black bg-amber-100 ${roundStyle}`}>정회원</span>,
         "MANAGER" : <span className={`text-blue-500 bg-amber-100 ${roundStyle}`}>사서</span>,
@@ -147,20 +147,20 @@ const handleByRole = useCallback((value) => {
     const handleClick = (e) => {
         setModData(e);
         setIsOpen(true);
-        
+
     }
 
     const handleClose = () => {
         setIsOpen(false);
         setModData({});
     }
-    
+
 
     return (  <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
              {isLoading && (
                 <Loading text="목록 갱신중.."/>
             )}
-            
+
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
             <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
                     <SearchSelectComponent options={options} defaultCategory={queryParams.option} selectClassName="mr-2 md:mr-5"
@@ -175,7 +175,7 @@ const handleByRole = useCallback((value) => {
                             <SelectComponent onChange={handleByRole} value={queryParams.role}  options={roleMap} />
                             <SelectComponent onChange={handleByState} value={queryParams.state}  options={stateMap} />
                         </div>
-                        
+
 
                     </div>
             </div>

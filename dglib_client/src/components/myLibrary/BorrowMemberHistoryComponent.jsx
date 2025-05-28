@@ -73,10 +73,11 @@ const BorrowMemberHistoryComponent = () => {
                                     </div>
                                     <div className="text-1xl mb-1 mt-2">
 
-                                        <Link to={`/mylibrary/detail/${book.isbn}?from=borrowstatus`} className="block text-xl font-semibold mb-4">
-                                            <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
-                                        </Link>
-
+                                        <div className="text-xl font-semibold mb-4">
+                                            <Link to={`/mylibrary/detail/${book.isbn}?from=borrowstatus`} className="inline">
+                                                <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
+                                            </Link>
+                                        </div>
 
                                     </div>
                                     <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">

@@ -37,6 +37,17 @@ public class WebConfig implements WebMvcConfigurer {
 				.build();
 	}
 	
+	@Bean
+	WebClient webClientChat() {
+		return WebClient.builder()
+				.exchangeStrategies(ExchangeStrategies.builder()
+						.codecs(configurer -> configurer.defaultCodecs()
+								.maxInMemorySize(-1))
+						.build())
+				.baseUrl("http://localhost:1992")
+				.build();
+	}
+	
 	 @Bean
 	    public ModelMapper getMapper(){
 	        ModelMapper modelMapper = new ModelMapper();
@@ -50,7 +61,7 @@ public class WebConfig implements WebMvcConfigurer {
 	 @Bean
 	    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
 	        return builder -> {
-	           
+	     
 	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 	            JavaTimeModule javaTimeModule = new JavaTimeModule();
 	            javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(formatter));

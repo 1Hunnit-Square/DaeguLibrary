@@ -19,6 +19,7 @@ const doLogin = async (loginParam) => {
 const doLogout = () => {
             removeCookie('auth');
             setLoginState({});
+            localStorage.setItem('logout', Date.now());
         }
 
 

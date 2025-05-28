@@ -130,9 +130,11 @@ const InterestedComponent = () => {
                                             {book.deleted && <span className="text-red-500 no-underline hover:text-red-500 hover:no-underline "> (분실 및 훼손된 도서입니다)</span>}
                                         </div>
                                         </> :  <>
-                                        <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="block text-xl font-semibold mb-4">
-                                            <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
-                                        </Link>
+                                        <div className="text-xl font-semibold mb-4">
+                                            <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="inline">
+                                                <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
+                                            </Link>
+                                        </div>
                                         </>}
 
                                     </div>

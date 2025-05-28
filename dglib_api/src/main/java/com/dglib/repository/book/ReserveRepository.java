@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -54,6 +55,6 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	List<Reserve> findByLibraryBookLibraryBookIdInAndStateOrderByReserveDateAsc(Set<Long> libraryBookIds, ReserveState state);
 	
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book", "libraryBook.rentals", "libraryBook.reserves"})
-	List<Reserve> findReservesByMemberMidAndState(String mid, ReserveState reserved);
+	List<Reserve> findReservesByMemberMidAndState(String mid, ReserveState reserved, Sort sort);
 	
 }

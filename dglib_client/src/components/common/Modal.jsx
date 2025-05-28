@@ -1,9 +1,9 @@
 import {memo, useRef} from 'react';
 import Draggable from "react-draggable";
 
-// 예시 : <Modal isOpen={isOpen} title={"제목"} onClose={handleClose} Confirm={"확인"} onConfirm={handleConfirm}> 내용 </Modal>
+// 예시 : <Modal isOpen={isOpen} title={"제목"} onClose={handleClose}> 내용 </Modal>
 
-const Modal = ({ isOpen, title, children, onClose, Confirm, onConfirm, dragOn=true}) => {
+const Modal = ({ isOpen, title, children, onClose, dragOn=true}) => {
   if (!isOpen) return null;
   const nodeRef = useRef(null);
 
@@ -22,12 +22,6 @@ const Modal = ({ isOpen, title, children, onClose, Confirm, onConfirm, dragOn=tr
         <div className="text-gray-700 p-5">
           {children}
         </div>
-        {Confirm && (
-            <button
-            onClick={onClose}
-            className="cursor-pointer mb-5 px-5 py-2 rounded text-black bg-gray-300 hover:bg-gray-400">
-            {Confirm}
-          </button>)}
         </div>
         </Draggable>
     </div>

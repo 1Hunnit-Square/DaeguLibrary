@@ -127,12 +127,12 @@ const EventManagementComponent = () => {
 
   // 날짜 클릭 시 모달 open
   const handleDateClick = (arg) => {
-    const target = events.find(e => e.closedDate === arg.dateStr);
+    const target = events.find(e => e.closedDate === arg);
     setIsEditMode(!!target);
     setIsClosed(target?.isClosed || false);
     setTitle(target?.reason || '');
     setOriginalDate(target?.closedDate || null);
-    setSelectedDate(arg.dateStr);
+    setSelectedDate(arg);
     setIsModalOpen(true);
   };
 
@@ -193,7 +193,8 @@ const EventManagementComponent = () => {
         buttonText={{ today: '오늘' }}
         titleFormat={{ year: 'numeric', month: 'long' }}
         datesSet={handleDatesSet}
-        dateClick={handleDateClick}
+        dateClick={(e) => handleDateClick(e.dateStr)}
+        eventClick={(e) => handleDateClick(e.event.startStr)}
         events={events.map(e => ({
           title: e.reason,
           date: e.closedDate,
@@ -202,7 +203,7 @@ const EventManagementComponent = () => {
         dayHeaderContent={({ date, text }) => (
           <div className={`py-2 text-sm font-semibold ${getDayColor(date.getDay())}`}>{text}</div>
         )}
-        dayCellClassNames={() => 'h-32 align-top p-2 border border-gray-200 text-sm cursor-pointer'}
+        dayCellClassNames={'h-32 align-top p-2 border border-gray-200 text-sm'}
         dayCellContent={({ date }) => (
           <div className={`text-sm font-semibold ${getDayColor(date.getDay(), 'text-gray-800')}`}>{date.getDate()}</div>
         )}
@@ -211,7 +212,7 @@ const EventManagementComponent = () => {
       <div className="mt-2 text-sm text-gray-600 italic">✔ 날짜를 클릭하면 일정을 편집할 수 있습니다.</div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+        <div className="fixed inset-0 z-200 bg-black/40 flex items-center justify-center">
           <Modal
             isOpen={true}
             title={selectedDate ? `${formatDate(selectedDate)} 일정 ${isEditMode ? '수정' : '등록'}` : '일정 등록'}

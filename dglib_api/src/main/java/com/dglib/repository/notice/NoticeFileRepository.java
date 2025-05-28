@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.dglib.entity.member.Member;
 import com.dglib.entity.notice.NoticeFile;
 
 public interface NoticeFileRepository extends JpaRepository<NoticeFile, Long>{
@@ -17,5 +18,6 @@ public interface NoticeFileRepository extends JpaRepository<NoticeFile, Long>{
 
     // 파일 번호로 단일 조회 (필요 시)
     Optional<NoticeFile> findByFno(Long fno);
+
 
 }

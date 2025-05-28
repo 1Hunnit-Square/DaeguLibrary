@@ -1,4 +1,5 @@
 import { selector } from 'recoil';
+import { memberRoleSelector } from '../atoms/loginState';
 
 const getDateParams = () => {
   const today = new Date();
@@ -11,6 +12,7 @@ const getDateParams = () => {
   return `startDate=${startDateStr}&endDate=${endDateStr}`;
 };
 const dateParams = getDateParams();
+
 
 
 
@@ -89,31 +91,32 @@ const defaultMenuItems = [
 
 
 
-  const getAdminMenuItem = () => {
+  const getAdminMenuItem = (items, role) => {
+    if(role == "ADMIN"){
+    return [ ...items, {
+      
+      id: 7,
+      title: '관리자',
+      link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
+      subMenus: [
+        { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
+        { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
+        { name: '회원관리', link: '/admin/membermanagement?page=1' },
+        { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
+        
+      ]
+    }];
 
-
-  return {
-    id: 6,
-    title: '관리자',
-    link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
-    subMenus: [
-      { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
-      { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
-      { name: '이달의 행사 관리', link: '/admin/eventmanagement' }
-    ]
-  };
+  }else {
+      return items;
+    }
 };
 
   export const menuItemsSelector = selector({
     key: 'menuItemsSelector',
     get: ({get}) => {
-      const isLoggedIn = true; //나중에 바꾸셈
-      const userRole = 'user' // 나중에 바꾸셈
-      const menuItems = [...defaultMenuItems];
-      if (isLoggedIn && userRole === 'admin') {
-        menuItems[5] = getAdminMenuItem();
-      }
-
+      const role = get(memberRoleSelector);
+      const menuItems = getAdminMenuItem(defaultMenuItems, role);
       return menuItems;
     }
   });

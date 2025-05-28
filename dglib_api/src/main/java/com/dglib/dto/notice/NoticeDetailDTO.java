@@ -1,8 +1,7 @@
 package com.dglib.dto.notice;
 
+import java.time.LocalDateTime;
 import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +14,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoticeDTO {
+public class NoticeDetailDTO {
+	
 	private String title;
 	private String content;
-	private boolean isHidden;
 	private boolean isPinned;
-	private String mid;             // 작성자 ID (식별자 용도)
+	private int viewCount;
+	private String mid;
+	private LocalDateTime postedAt;
+	private List<NoticeFileDTO> fileDTO;
+	
+
 }

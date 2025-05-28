@@ -30,6 +30,14 @@ export const memberMnoSelector = selector({
     }
 });
 
+export const memberRoleSelector = selector({
+    key : 'memberRoleSelector',
+    get: ({get}) =>{
+        const login = get(loginState);
+        return login?.roleName || null;
+    }
+})
+
 function loadCookie(){
     const memberInfo = getCookie("auth") ?? {};
     if(memberInfo){

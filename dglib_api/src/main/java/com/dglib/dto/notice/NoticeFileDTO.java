@@ -1,22 +1,13 @@
 package com.dglib.dto.notice;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class NoticeFileDTO {
-	
-	private Long fno;
-	private String originalName;
-	private String filePath;
-	private String fileType;
-	
 
+	private String originalName;
+	
+	private String filePath;
+	
+	private String fileType;
 }

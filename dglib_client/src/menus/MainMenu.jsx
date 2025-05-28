@@ -18,6 +18,7 @@ const MainMenu = () => {
     const menuRefs = useRef([]);
     const menuItems = useRecoilValue(menuItemsSelector);
     const navigate = useNavigate();
+    
 
     useEffect(() => {
         if (menuRefs.current.length === menuItems.length) {

@@ -74,7 +74,7 @@ public class FileUtil {
 	                    .toFile(thumbnailPath.toFile());
 	                }
 	                
-	               uploadPaths.add(Map.of("originName", originName, "pathName", pathEncode(dirName,savedName)));
+	               uploadPaths.add(Map.of("originalName", originName, "filePath", pathEncode(dirName,savedName)));
 
 	            } catch( IOException e ){
 	                throw new RuntimeException(e.getMessage());

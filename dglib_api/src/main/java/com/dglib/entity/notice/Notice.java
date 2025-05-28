@@ -58,16 +58,10 @@ public class Notice {
 	@Column(nullable = false)
 	private boolean isPinned = false; // 고정 여부
 	
-	public void addFile(NoticeFile file) {
-	    this.files.add(file);
-	    file.setNotice(this);
-	}
-		
 	
 	// 파일 연관관계
 	@OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
-	private List<NoticeFile> files = new ArrayList<>();
+	private List<NoticeFile> files;
 
 	
 	// FK: 회원 ID(작성자)

@@ -6,14 +6,15 @@ import { memberIdSelector } from "../../atoms/loginState";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
+import useQuillEditor from "../../hooks/useQuillEditor";
 
 const QnaNewComponent = () => {
   const mid = useRecoilValue(memberIdSelector);
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [checkPublic, setCheckPublic] = useState(true);
+  const { content, setContent, QuillComponent } = useQuillEditor();
 
   const handleSubmit = async () => {
     const confirmed = window.confirm("문의를 등록하시겠습니까?");
@@ -45,7 +46,7 @@ const QnaNewComponent = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full border border-gray-300 p-2 mt-1"
-          placeholder="100자 이내 제목을 입력해주세요"
+          placeholder=" 50자 이내 제목을 입력해주세요"
         />
       </div>
 
@@ -75,7 +76,7 @@ const QnaNewComponent = () => {
 
       <div className="mb-4">
         <label className="font-semibold">질문 내용</label>
-        <ReactQuill value={content} onChange={setContent} />
+        {QuillComponent}
       </div>
 
       <div className="flex justify-end gap-2">

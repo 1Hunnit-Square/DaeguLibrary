@@ -20,7 +20,8 @@ public class MemberListDTO {
 	private String checkSms;
 	private String checkEmail;
 	private LocalDate birthDate;
+	private LocalDate penaltyDate;
 	private MemberRole role;
 	private MemberState state;
-	private int penaltyDays;
+
 }

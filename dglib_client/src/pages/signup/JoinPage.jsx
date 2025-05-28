@@ -17,7 +17,7 @@ const location = useLocation();
 const navigate = useNavigate();
 const { phone } = location.state || {};
 const [ isOpen, setIsOpen ] = useState(false);
-const [ joinForm, setJoinForm] = useState({id : "", pw1:"", pw2:"", name: "", phone : phone, checkEmail: false, checkSms: false});
+const [ joinForm, setJoinForm] = useState({id : "", pw1:"", pw2:"", name: "", phone : phone, emailId:"", emailAddr:"", checkEmail: false, checkSms: false});
 const [ idCheck, setIdCheck ] = useState(false);
 const [ pwCheck, setPwCheck ] = useState(false);
 const [ pwEqual, setPwEqual ] = useState(false);
@@ -108,7 +108,7 @@ const onCloseAddr = () => {
 }
 
 const toJsonParams = (data) => {
-  const params = {
+  const dataParams = {
         mid : data.id,
         pw : data.pw2,
         name : data.name,
@@ -120,7 +120,11 @@ const toJsonParams = (data) => {
         checkSms : data.checkSms,
         checkEmail : data.checkEmail
         }
-    return params;
+
+        if(!data.emailId){
+          dataParams.email = null;
+        }
+    return dataParams;
     }
 
 const regMember = async() => {
@@ -138,6 +142,8 @@ const onClickJoin = () => {
   alert("비밀번호가 형식에 맞지 않거나 일치하지 않습니다.");
   } else if(!(joinForm.name && joinForm.birthDate && joinForm.gender && joinForm.address && joinForm.zonecode)){
   alert("필수 입력 정보를 확인해주세요.");
+  } else if(joinForm.emailId && !joinForm.emailAddr.includes(".")){
+    alert("이메일 형식이 올바르지 않습니다.");
   }
   else{
     console.log(joinForm);

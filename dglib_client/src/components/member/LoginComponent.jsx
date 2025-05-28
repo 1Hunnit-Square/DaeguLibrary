@@ -29,11 +29,10 @@ const LoginComponent = () =>{
             console.log(data);
 
             if(data.error){
-                alert("로그인 실패 ㅋ");
+                alert("아이디와 비밀번호가 일치하지 않습니다.");
                 setLoginParam(prev => ({ ...prev, pw : ""}));
             }
             else {
-                alert("로그인 완료");
                 moveToSaved();
             }
         },[loginParam, savedId])

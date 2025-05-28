@@ -2,28 +2,18 @@ import { useMemo, useState } from "react";
 import Button from "../common/Button";
 import SelectComponent from "../common/SelectComponent";
 import { postMemberManage } from "../../api/memberApi";
-import { useNavigate } from "react-router-dom";
 
 const MemberModifyComponent = ({data, refetch}) => {
-    
-
-    const penaltyDate = useMemo(()=>{
-        if(data.penaltyDays == 0)
-            return "";
-        const today = new Date();
-        today.setDate(today.getDate()+data.penaltyDays-1);
-        return today.toISOString().slice(0, 10);
-    },[data])
 
     const { zoneCode, addr, addrDetail } = useMemo(()=>{
         const addrResult = {};
-        addrResult.zoneCode = data.addr.split("(")[1]?.split(")")[0];
+        addrResult.zoneCode = data.addr.split("(")[1]?.split(")")[0] ?? "";
         addrResult.addr = data.addr.split(")")[1]?.split("(상세주소")[0] ?? data.addr
-        addrResult.addrDetail = data.addr?.split("(상세주소)")[1];
+        addrResult.addrDetail = data.addr.split("(상세주소)")[1] ?? "";
         return addrResult;
     },[data])
 
-    const [modData, setModData] = useState({role: data.role, state : data.state, penaltyDate : penaltyDate});
+    const [modData, setModData] = useState({role: data.role, state : data.state, penaltyDate : data.penaltyDate});
 
     
 
@@ -58,9 +48,7 @@ const MemberModifyComponent = ({data, refetch}) => {
             alert("날짜가 현재 날짜보다 이후여야 합니다.");
             return;
         }
-        // const inputDate = new Date(e.target.value).setHours(0, 0, 0, 0);
-        // const today = new Date().setHours(0, 0, 0, 0);
-        // const diffDays = Math.floor((inputDate - today) / (1000 * 60 * 60 * 24));
+
         setModData(prev => ({
             ...prev,
             ["penaltyDate"] : e.target.value
@@ -107,12 +95,12 @@ const MemberModifyComponent = ({data, refetch}) => {
     <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
     <span className="mr-5 font-bold">전화번호</span>
     <span className="mr-2">{data.phone}</span>
-    {data.checkSms ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
+    {data.checkSms == "true" ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
     </div>
     <div className="flex items-center pb-3 mb-3 border-b border-b-gray-300">
     <span className="mr-5 font-bold">이메일</span>
-    <span className="mr-2">{data.email}</span>
-    {data.checkEmail ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
+    <span className="mr-2">{data.email ?? ""}</span>
+    {data.checkEmail == "true" ? <span className="text-blue-600">(수신동의)</span> : <span className="text-red-600">(수신거부)</span>}
     </div>
     <div className="flex items-center pb-3 mb-4 border-b border-b-gray-300">
     <span className="mr-5 font-bold">주소</span>

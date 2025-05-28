@@ -90,7 +90,6 @@ public class MemberServiceImpl implements MemberService {
 			MemberListDTO memberListDTO = new MemberListDTO();
 			modelMapper.map(member, memberListDTO);
 			memberListDTO.setIndex(index.getAndIncrement());
-			memberListDTO.setPenaltyDays(calcPenaltyDays(member.getPenaltyDate()));
 				
 			return memberListDTO;	
 		});
@@ -173,19 +172,7 @@ public class MemberServiceImpl implements MemberService {
     }
 	
 	
-	public int calcPenaltyDays(LocalDate date) {
-		if(date == null) {
-			return 0;
-		}
-		LocalDate now = LocalDate.now();
-		Period period = Period.between(now, date);
-		int days = period.getDays()+1;
-		if(days <= 0) {
-			days = 0;
-		}
-		return days;
-	}
-	
+
 	private void checkOverdue() {
 		List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
 		Map<Member, Long> overdueCountByMember = overdueRentals.stream().filter(rental -> 

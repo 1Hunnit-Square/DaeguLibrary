@@ -19,7 +19,7 @@ const LogoutPage = () => {
         moveToPath("/");
         } else {
         doLogout();
-        alert("로그아웃 완료");
+        alert("로그아웃 되었습니다.");
         moveToPath("/");
         }
 

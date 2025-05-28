@@ -1,49 +1,38 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import CheckBoxNonLabel from "../common/CheckNonLabel";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
-import Button from "../common/Button";
-import { usePagination } from "../../hooks/usePagination";
+import { usePagination } from "../../hooks/usePage";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getMemberList } from "../../api/memberApi";
 import { useQuery } from "@tanstack/react-query";
 import Modal from "../common/Modal";
 import MemberModifyComponent from "./MemberModifyComponent";
+import { useSelectHandler } from "../../hooks/useSelectHandler";
 
 const MemberManagementComponent = () => {
 
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
     const [isOpen, setIsOpen]= useState(false);
     const [ modData, setModData ] = useState({});
 
-      const queryParams = useMemo(() => ({
-        query: searchURLParams.get("query") || "",
-        option: searchURLParams.get("option") || "회원ID",
-        page: searchURLParams.get("page") || "1",
-        size: searchURLParams.get("size") || "10",
-        role: searchURLParams.get("role") || "ALL",
-        state: searchURLParams.get("state") || "ALL",
-        sortBy: searchURLParams.get("sortBy") || "mno",
-        orderBy: searchURLParams.get("orderBy") || "desc",
-
-    }), [searchURLParams]);
 
     const { data: memberData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
         queryKey: ['memberList', searchURLParams.toString()],
         queryFn: () => {
                             const params = {
-                                page: parseInt(queryParams.page, 10),
-                                size: parseInt(queryParams.size, 10),
-                                state: queryParams.state,
-                                role: queryParams.role,
-                                sortBy: queryParams.sortBy,
-                                orderBy: queryParams.orderBy,
+                                page: parseInt(searchURLParams.get("page") || "1"),
+                                size: parseInt(searchURLParams.get("size") || "10"),
+                                state: searchURLParams.get("state") || "ALL",
+                                role: searchURLParams.get("role") || "ALL",
+                                sortBy: searchURLParams.get("sortBy") || "mno",
+                                orderBy: searchURLParams.get("orderBy") || "desc",
                             };
         
-                            if (queryParams.query) {
-                                params.query = queryParams.query;
-                                params.option = queryParams.option;
+                            if (searchURLParams.has("query")) {
+                                params.query = searchURLParams.get("query") || "";
+                                params.option = searchURLParams.get("option") || "회원ID";
                             }
                             console.log(params);
                             return getMemberList(params);
@@ -93,41 +82,6 @@ const MemberManagementComponent = () => {
             setSearchURLParams(newParams);
         }, [setSearchURLParams]);
 
-    const handleSortByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set("sortBy", value || "mno");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-   const handleOrderByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-
-        newParams.set("orderBy", value || "desc");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-
-    const handleSizeChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set("size", value || "10");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-const handleByRole = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-
-        newParams.set("role", value || "ALL");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-
-    
-    const handleByState = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        
-        newParams.set("state", value || "ALL");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
 
     const filterValue = (value) => {
         const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full"; 
@@ -154,6 +108,22 @@ const handleByRole = useCallback((value) => {
         setIsOpen(false);
         setModData({});
     }
+
+    const calcPenaltyDays = (date) => {
+		if(date == null) {
+			return 0;
+		}
+        const now = new Date();
+        const penalty = new Date(date);
+        now.setHours(0, 0, 0, 0);
+        penalty.setHours(0, 0, 0, 0);
+		const days = (penalty.getTime() - now.getTime()) / (1000*60*60*24) +1;
+		if(days <= 0) {
+			return <span className = "text-blue-500">(연체종료)</span>;
+		}
+		return <span className = "text-red-500">(D-{days})</span>
+	}
+	
     
 
     return (  <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -163,26 +133,26 @@ const handleByRole = useCallback((value) => {
             
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
             <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
-                    <SearchSelectComponent options={options} defaultCategory={queryParams.option} selectClassName="mr-2 md:mr-5"
+                    <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
-                        input={queryParams.query}
+                        input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-3 z-40">
-                            <SelectComponent onChange={handleByRole} value={queryParams.role}  options={roleMap} />
-                            <SelectComponent onChange={handleByState} value={queryParams.state}  options={stateMap} />
+                        <div className="flex items-center gap-3 z-110">
+                            <SelectComponent onChange={(e) => handleSelectChange('role', e)} value={searchURLParams.get("role") || "ALL"}  options={roleMap} />
+                            <SelectComponent onChange={(e) => handleSelectChange('state', e)} value={searchURLParams.get("state") || "ALL"}  options={stateMap} />
                         </div>
                         
 
                     </div>
             </div>
             <div className="flex justify-end item-center mb-5">
-                <SelectComponent onChange={handleSortByChange} value={queryParams.sortBy}  options={sortMap} />
-                <SelectComponent onChange={handleOrderByChange} value={queryParams.orderBy}  options={orderMap}/>
-                <SelectComponent onChange={handleSizeChange} value={queryParams.size}  options={sizeMap} />
+                <SelectComponent onChange={(e) => handleSelectChange('sortBy', e)} value={searchURLParams.get("sortBy") || "mno"}  options={sortMap} />
+                <SelectComponent onChange={(e) => handleSelectChange('orderBy', e)} value={searchURLParams.get("orderBy") || "desc"}  options={orderMap}/>
+                <SelectComponent onChange={(e) => handleSelectChange('size', e)} value={searchURLParams.get("size") || "10"}  options={sizeMap} />
             </div>
             <div className="shadow-md rounded-lg overflow-x-auto">
                 <table className="min-w-full bg-white">
@@ -222,8 +192,7 @@ const handleByRole = useCallback((value) => {
                                         <td className="py-4 px-6 whitespace-nowrap">{filterValue(item.role)}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">{filterValue(item.state)}</td>
                                         <td className="py-4 px-6 whitespace-nowrap">
-                                            {item.penaltyDays > 0 && <span className="text-red-500">{item.penaltyDays}일 남음</span>}
-                                            {item.penaltyDays <=0 && "-"}
+                                            {item.penaltyDate ? <>{item.penaltyDate} {calcPenaltyDays(item.penaltyDate)}</> : "-" }
                                             </td>
                                     </tr>
                                 );

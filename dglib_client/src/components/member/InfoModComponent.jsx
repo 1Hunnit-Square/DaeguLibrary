@@ -20,11 +20,11 @@ const InfoModComponent = ({data, handleSuccess}) => {
         phone : data.phone,
         checkSms : data.checkSms,
         checkEmail : data.checkEmail,
-        zonecode : data.addr.split("(")[1]?.split(")")[0],
+        zonecode : data.addr.split("(")[1]?.split(")")[0] ?? "",
         address : data.addr.split(")")[1]?.split("(상세주소")[0] ?? data.addr,
-        addrDetail : data.addr?.split("(상세주소)")[1],
-        emailId : data.email.split("@")[0],
-        emailAddr : data.email.split("@")[1]
+        addrDetail : data.addr.split("(상세주소)")[1] ?? "",
+        emailId : data.email?.split("@")[0] ?? "",
+        emailAddr : data.email?.split("@")[1] ?? ""
     }
     },[]);
     const [ isOpen, setIsOpen ] = useState({addr : false, modPw : false, modPhone : false});
@@ -139,6 +139,10 @@ const InfoModComponent = ({data, handleSuccess}) => {
         if(param.pw != data.pw){
           dataParams.pw =param.pw;
         }
+
+         if(!param.emailId){
+         dataParams.email = null;
+        }
         return dataParams;
         }
     
@@ -161,8 +165,9 @@ const InfoModComponent = ({data, handleSuccess}) => {
     const onClickModify = () => {
       if(!(form.name && form.birthDate && form.gender && form.address && form.zonecode)){
       alert("필수 입력 정보를 확인해주세요.");
-      }
-      else{
+      } else if(form.emailId && !form.emailAddr.includes(".")){
+        alert("이메일 형식이 올바르지 않습니다.");
+      } else{
         console.log(form);
         modMember(form);
       }

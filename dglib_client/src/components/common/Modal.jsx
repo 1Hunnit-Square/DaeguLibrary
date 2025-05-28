@@ -8,7 +8,7 @@ const Modal = ({ isOpen, title, children, onClose, Confirm, onConfirm, dragOn=tr
   const nodeRef = useRef(null);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+    <div className="fixed inset-0 z-150 bg-black/40 flex items-center justify-center">
         <Draggable nodeRef={nodeRef} handle={dragOn ? ".drag-handle" : "none"}>
         <div ref={nodeRef} className="bg-white w-full pb-5 max-w-md mx-auto rounded-xl shadow-lg relative">
           <div className="drag-handle bg-[#00893B] text-white px-4 py-2 flex justify-between items-center rounded-t-xl">

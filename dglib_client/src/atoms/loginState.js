@@ -22,6 +22,14 @@ export const memberNameSelector = selector({
     }
 });
 
+export const memberMnoSelector = selector({
+    key: 'memberMnoSelector',
+    get: ({get}) => {
+        const login = get(loginState);
+        return login?.mno || null;
+    }
+});
+
 function loadCookie(){
     const memberInfo = getCookie("auth") ?? {};
     if(memberInfo){

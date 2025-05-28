@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 const QrComponent = ({mid}) => {
 
-const reloadTime = 1000 * 30;
+const reloadTime = 1000 * 60;
 const [ leftTime, setLeftTime] = useState(reloadTime/1000);
 
 const { data, error, isLoading, refetch } = useQuery({
@@ -42,10 +42,10 @@ return () => clearInterval(interval);
 
 return(
     <>
-    <div div className="flex justify-center">남은 시간 : {leftTime} </div>
     {isLoading && <div className="flex justify-center">QR 불러오는중..</div> }
     {error && <div className="flex justify-center">QR 불러오기 오류</div> }
-    {data && <div className="flex justify-center mt-2"><QRCodeCanvas value={JSON.stringify(data)} size={128} /></div>}
+    {data && <div className="flex justify-center mb-2"><QRCodeCanvas value={JSON.stringify(data)} size={128} /></div>}
+    <div div className="flex justify-center">남은 시간 : {leftTime} </div>
     </>
 )
 }

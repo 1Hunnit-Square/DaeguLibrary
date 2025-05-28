@@ -44,9 +44,9 @@ const ClosedInfoComponent = () => {
                 <div className="flex items-center justify-between mb-2">
                     <h4 className="text-base font-semibold">휴관일 안내</h4>
                     <div className="flex items-center gap-2">
-                        <button onClick={handlePrevMonth} className="text-gray-500 hover:text-black">〈</button>
+                        <button onClick={handlePrevMonth} className="text-gray-500 hover:text-black cursor-pointer">〈</button>
                         <span className="font-semibold">{month}월</span>
-                        <button onClick={handleNextMonth} className="text-gray-500 hover:text-black">〉</button>
+                        <button onClick={handleNextMonth} className="text-gray-500 hover:text-black cursor-pointer">〉</button>
                     </div>
                 </div>
                 <div className="text-gray-700 mb-2">

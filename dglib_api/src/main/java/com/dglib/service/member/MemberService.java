@@ -48,6 +48,8 @@ public interface MemberService {
 	List<MemberBorrowNowListDTO> getMemberBorrowNowList(String mid);
 	
 	void extendMemberBorrow(List<Long> rentIds);
+	
+	MemberInfoDTO getMemberInfo(String mid);
 
 
 }

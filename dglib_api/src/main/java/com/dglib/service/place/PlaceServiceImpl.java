@@ -34,29 +34,22 @@ public class PlaceServiceImpl implements PlaceService {
 	private final MemberRepository memberRepository;
 	private final ClosedDayService closedDayService;
 
-	// 등록
+	// 예약 등록
 	@Override
 	public Long registerPlace(PlaceDTO dto) {
+		validateDuplicateReservation(dto); // 시간 겹침 검사
 
-		// 시간 겹치는 다른 시설 예약 방지
-		validateDuplicateReservation(dto);
-
-		// 회원 존재 여부 확인
 		Member member = memberRepository.findById(dto.getMemberMid())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-		// 이용일자: 오늘 이전 날짜 불가
-		if (dto.getUseDate().isBefore(LocalDateTime.now().toLocalDate())) {
+		if (dto.getUseDate().isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("지난 날짜는 선택이 불가능합니다.");
 		}
 
-		// 이용시간: 1~3시간만 허용
-		int duration = dto.getDurationTime();
-		if (duration < 1 || duration > 3) {
-			throw new IllegalArgumentException("이용 시간은 최대 3시간까지 가능합니다.");
+		if (dto.getDurationTime() < 1 || dto.getDurationTime() > 3) {
+			throw new IllegalArgumentException("이용 시간은 1~3시간 사이만 가능합니다.");
 		}
 
-		// 참가자 수 유효성 검사
 		if (dto.getParticipants() == null || dto.getParticipants().isBlank()) {
 			throw new IllegalArgumentException("참가자ID를 입력해 주세요.");
 		}
@@ -66,19 +59,44 @@ public class PlaceServiceImpl implements PlaceService {
 			throw new IllegalArgumentException("입력한 인원 수와 참가자 수가 일치하지 않습니다.");
 		}
 
-		// 해당 시간, 공간에 이미 신청된 내역이 있는지 확인
+		if (dto.getRoom().equals("동아리실")) {
+			if (dto.getPeople() < 4 || dto.getPeople() > 8) {
+				throw new IllegalArgumentException("동아리실은 4인 이상 8인 이하만 예약할 수 있습니다.");
+			}
+		}
+
+		if (dto.getRoom().equals("세미나실")) {
+			if (dto.getPeople() < 6 || dto.getPeople() > 12) {
+				throw new IllegalArgumentException("세미나실은 6인 이상 12인 이하만 예약할 수 있습니다.");
+			}
+		}
+
 		boolean alreadyExists = placeRepository.existsBySchedule(dto.getRoom(), dto.getUseDate(), dto.getStartTime());
 		if (alreadyExists) {
 			throw new IllegalArgumentException("선택하신 해당 공간의 시간대는 이미 예약되어 있습니다.");
 		}
 
-		// 중복 예약 검사 (1일 1시설 초과 예약 금지)
 		boolean duplicateReservation = placeRepository.existsByMember_MidAndRoomAndUseDate(dto.getMemberMid(),
 				dto.getRoom(), dto.getUseDate());
 		if (duplicateReservation) {
 			throw new IllegalArgumentException("하루에 동일한 시설을 중복 예약할 수 없습니다.");
 		}
 
+		// 하루 3시간 제한 검사
+		int userReservedMinutes = placeRepository.findByMember_MidAndUseDate(dto.getMemberMid(), dto.getUseDate())
+				.stream().mapToInt(p -> p.getDurationTime() * 60).sum();
+		if (userReservedMinutes + dto.getDurationTime() * 60 > 180) {
+			throw new IllegalArgumentException("하루 예약 가능 시간(3시간)을 초과할 수 없습니다.");
+		}
+
+		// 시설 하루 8시간 제한 검사
+		int roomReservedMinutes = placeRepository.findByRoomAndUseDate(dto.getRoom(), dto.getUseDate()).stream()
+				.mapToInt(p -> p.getDurationTime() * 60).sum();
+		if (roomReservedMinutes + dto.getDurationTime() * 60 > 480) {
+			throw new IllegalArgumentException("더 이상 예약할 수 없습니다 (시설 총 8시간 초과).");
+		}
+
+		// 최종 저장
 		Place place = Place.builder().member(member).room(dto.getRoom()).useDate(dto.getUseDate())
 				.startTime(dto.getStartTime()).durationTime(dto.getDurationTime()).people(dto.getPeople())
 				.participants(dto.getParticipants()).purpose(dto.getPurpose()).appliedAt(LocalDateTime.now()).build();
@@ -86,7 +104,7 @@ public class PlaceServiceImpl implements PlaceService {
 		return placeRepository.save(place).getPno();
 	}
 
-	// 다른 시설 예약 시 시간 겹치면 예약 불가
+	// 중복 예약 검사 (다른 시설과 시간 겹치지 않게)
 	private void validateDuplicateReservation(PlaceDTO dto) {
 		LocalDate useDate = dto.getUseDate();
 		LocalTime startTime = dto.getStartTime();
@@ -94,7 +112,7 @@ public class PlaceServiceImpl implements PlaceService {
 
 		List<Place> reservations = placeRepository.findByMember_MidAndUseDate(dto.getMemberMid(), useDate);
 
-		boolean hasOverlap = reservations.stream().anyMatch(p -> { // p는 reservation 리스트 안의 각 Place 개체 하나임
+		boolean hasOverlap = reservations.stream().anyMatch(p -> {
 			LocalTime existingStart = p.getStartTime();
 			LocalTime existingEnd = existingStart.plusHours(p.getDurationTime());
 			return startTime.isBefore(existingEnd) && endTime.isAfter(existingStart);
@@ -105,7 +123,7 @@ public class PlaceServiceImpl implements PlaceService {
 		}
 	}
 
-	// 조회
+	// 단건 조회
 	@Override
 	public PlaceDTO get(Long pno) {
 		Place place = placeRepository.findById(pno)
@@ -116,63 +134,83 @@ public class PlaceServiceImpl implements PlaceService {
 		return dto;
 	}
 
-	// 삭제
+	// 예약 삭제
 	@Override
 	public void delete(Long pno) {
 		Place place = placeRepository.findById(pno)
 				.orElseThrow(() -> new IllegalArgumentException("해당 신청 내역이 존재하지 않습니다."));
 
-		// 이용일이 지난 예약은 삭제 불가
-		if (place.getUseDate().isBefore(LocalDateTime.now().toLocalDate())) {
+		if (place.getUseDate().isBefore(LocalDate.now())) {
 			throw new IllegalStateException("이미 지난 예약은 취소할 수 없습니다.");
 		}
 
 		placeRepository.deleteById(pno);
 	}
 
-	// 회원별 신청 목록 조회
+	// 회원별 신청 내역
 	@Override
 	public List<PlaceDTO> getListByMember(String mid) {
-		List<Place> places = placeRepository.findByMember_Mid(mid);
-		return places.stream().map(place -> {
+		return placeRepository.findByMember_Mid(mid).stream().map(place -> {
 			PlaceDTO dto = modelMapper.map(place, PlaceDTO.class);
 			dto.setMemberMid(place.getMember().getMid());
+			dto.setEndTime(place.getStartTime().plusHours(place.getDurationTime()));
 			return dto;
 		}).collect(Collectors.toList());
 	}
 
+	// 월별 예약 현황 (달력 API)
 	@Override
-	public List<ReservationStatusDTO> getMonthlyRoomStatus(int year, int month) {
-	    List<Object[]> usageTimeList = placeRepository.sumReservedMinutesByDateAndRoom(year, month);
-	    List<ClosedDayDTO> closedList = closedDayService.getMonthlyList(year, month);
+	public List<ReservationStatusDTO> getMonthlyReservationStatus(int year, int month) {
+		List<Object[]> usageTimeList = placeRepository.sumReservedMinutesByDateAndRoom(year, month);
+		List<ClosedDayDTO> closedList = closedDayService.getMonthlyList(year, month);
 
-	    Map<LocalDate, ReservationStatusDTO> resultMap = new HashMap<>();
+		Map<LocalDate, ReservationStatusDTO> resultMap = new HashMap<>();
 
-	    // 휴관일 우선 등록
-	    for (ClosedDayDTO cd : closedList) {
-	        resultMap.put(cd.getClosedDate(), new ReservationStatusDTO(
-	            cd.getClosedDate(), true, cd.getReason(), null
-	        ));
-	    }
+		for (ClosedDayDTO cd : closedList) {
+			resultMap.put(cd.getClosedDate(), new ReservationStatusDTO(cd.getClosedDate(), true, cd.getReason(), null));
+		}
 
-	    // 시간 누적 기준으로 full 여부 판단
-	    for (Object[] row : usageTimeList) {
-	        LocalDate date = (LocalDate) row[0];
-	        String room = (String) row[1];
-	        Long totalMinutes = (Long) row[2]; // 예약된 총 분(minute)
+		for (Object[] row : usageTimeList) {
+			LocalDate date = (LocalDate) row[0];
+			String room = (String) row[1];
+			Long totalMinutes = (Long) row[2];
 
-	        if (resultMap.containsKey(date) && resultMap.get(date).isClosed()) continue;
+			if (resultMap.containsKey(date) && resultMap.get(date).isClosed())
+				continue;
 
-	        ReservationStatusDTO dto = resultMap.computeIfAbsent(date, d -> new ReservationStatusDTO(d, false, null, new HashMap<>()));
-	        if (dto.getStatus() == null) dto.setStatus(new HashMap<>());
+			ReservationStatusDTO dto = resultMap.computeIfAbsent(date,
+					d -> new ReservationStatusDTO(d, false, null, new HashMap<>()));
 
-	        dto.getStatus().put(room, totalMinutes >= 180 ? "full" : "available");
-	    }
+			if (dto.getStatus() == null)
+				dto.setStatus(new HashMap<>());
 
-	    return resultMap.values().stream()
-	            .sorted(Comparator.comparing(ReservationStatusDTO::getDate))
-	            .collect(Collectors.toList());
+			dto.getStatus().put(room, totalMinutes >= 480 ? "full" : "available");
+		}
+
+		return resultMap.values().stream().sorted(Comparator.comparing(ReservationStatusDTO::getDate))
+				.collect(Collectors.toList());
 	}
 
+	// 조회 전용 유틸
 
+	@Override
+	public boolean isTimeSlotReserved(String room, LocalDate date, LocalTime time) {
+		return placeRepository.existsBySchedule(room, date, time);
+	}
+
+	@Override
+	public boolean isDuplicateReservation(String mid, String room, LocalDate date) {
+		return placeRepository.existsByMember_MidAndRoomAndUseDate(mid, room, date);
+	}
+
+	@Override
+	public List<PlaceDTO> getReservedTimes(String room, LocalDate date) {
+		return placeRepository.findByRoomAndUseDate(room, date).stream().map(p -> {
+			PlaceDTO dto = new PlaceDTO();
+			dto.setStartTime(p.getStartTime());
+			dto.setDurationTime(p.getDurationTime());
+			dto.setEndTime(p.getStartTime().plusHours(p.getDurationTime()));
+			return dto;
+		}).toList();
+	}
 }

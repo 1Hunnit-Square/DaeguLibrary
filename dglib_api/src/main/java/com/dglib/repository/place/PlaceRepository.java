@@ -12,27 +12,32 @@ import com.dglib.entity.place.Place;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
-	// 회원 mid 기준으로 신청 내역 리스트 조회
+	// 회원 mid 기준 신청 내역
 	List<Place> findByMember_Mid(String mid);
 
-	// 해당 시간대에 이미 예약된 시설이 있는지 확인
+	// 예약 시간대 중복 확인
 	boolean existsByRoomAndUseDateAndStartTime(String room, LocalDate useDate, LocalTime startTime);
 
-	// → 위 메서드의 이름을 아래처럼 줄여서 사용 가능 (사용자 정의 네이밍)
+	// 간편한 예약 중복 확인
 	default boolean existsBySchedule(String room, LocalDate date, LocalTime time) {
 		return existsByRoomAndUseDateAndStartTime(room, date, time);
 	}
 
-	// 회원이 같은 날, 같은 시설을 이미 예약했는지 확인
+	// 동일 시설 중복 예약
 	boolean existsByMember_MidAndRoomAndUseDate(String mid, String room, LocalDate useDate);
 
-	// 해당 날짜에 예약한 내역 조회
+	// 회원의 날짜별 예약 내역
 	List<Place> findByMember_MidAndUseDate(String memberMid, LocalDate useDate);
 
-	// 날짜별, 공간별 예약 건수 조회
-	@Query("SELECT p.useDate, p.room, SUM(p.durationTime * 60) "
-			+ "FROM Place p WHERE YEAR(p.useDate) = :year AND MONTH(p.useDate) = :month "
-			+ "GROUP BY p.useDate, p.room")
-	List<Object[]> sumReservedMinutesByDateAndRoom(@Param("year") int year, @Param("month") int month);
+	// 시설의 날짜별 예약 내역
+	List<Place> findByRoomAndUseDate(String room, LocalDate useDate);
 
+	// 월별 날짜/공간별 총 예약시간 (분 단위)
+	@Query("""
+			    SELECT p.useDate, p.room, SUM(p.durationTime * 60)
+			    FROM Place p
+			    WHERE FUNCTION('YEAR', p.useDate) = :year AND FUNCTION('MONTH', p.useDate) = :month
+			    GROUP BY p.useDate, p.room
+			""")
+	List<Object[]> sumReservedMinutesByDateAndRoom(@Param("year") int year, @Param("month") int month);
 }

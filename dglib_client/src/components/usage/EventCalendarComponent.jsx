@@ -91,6 +91,7 @@ const EventCalendarComponent = ({
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
         locale={koLocale}
+        fixedWeekCount={false} // 달에 맞는 주 수만 표시됨
         contentHeight="auto"
         headerToolbar={{ left: 'prev', center: 'title', right: 'next' }}
         buttonText={{ today: '오늘' }}
@@ -110,7 +111,7 @@ const EventCalendarComponent = ({
           return <div className={`py-2 text-sm font-semibold ${color}`}>{text}</div>;
         }}
 
-        dayCellClassNames={() => 'h-32 align-top p-2 border border-gray-200 text-sm'}
+        dayCellClassNames={() => 'h-32 align-top p-2 border border-gray-200 text-sm hover:bg-gray-100'}
 
         dayCellContent={({ date }) => {
           const day = date.getDay();

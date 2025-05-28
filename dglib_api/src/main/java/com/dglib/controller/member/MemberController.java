@@ -1,6 +1,5 @@
 package com.dglib.controller.member;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,92 +48,89 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/member")
 public class MemberController {
-	
+
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberController.class);
 	private final MemberService memberService;
 	private final MemberCardService cardService;
 	private final BookService bookService;
-	
+
 	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber,
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
-		Pageable pageable = PageRequest.of(page -1, size);
+		Pageable pageable = PageRequest.of(page - 1, size);
 		Page<MemberSearchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
-		
 
 		return ResponseEntity.ok(memberList);
 	}
-	
+
 	@GetMapping("/listMember")
-	public ResponseEntity<Page<MemberListDTO>> listMember(@ModelAttribute MemberSearchDTO searchDTO){
+	public ResponseEntity<Page<MemberListDTO>> listMember(@ModelAttribute MemberSearchDTO searchDTO) {
 		System.out.println(searchDTO);
 		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
 		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
 		String sortBy = Optional.ofNullable(searchDTO.getSortBy()).orElse("mno");
 		String orderBy = Optional.ofNullable(searchDTO.getOrderBy()).orElse("desc");
-		
-		Sort sort = "asc".equalsIgnoreCase(orderBy) 
-			    ? Sort.by(sortBy).ascending() 
-			    : Sort.by(sortBy).descending();
-		
-		
+
+		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<MemberListDTO> memberList = memberService.findAll(searchDTO, pageable);
 		return ResponseEntity.ok(memberList);
 	}
-	
+
 	@PostMapping("/manageMember")
-	public ResponseEntity<String> manageMember(@ModelAttribute MemberManageDTO memberManageDTO){
+	public ResponseEntity<String> manageMember(@ModelAttribute MemberManageDTO memberManageDTO) {
 		memberService.manageMember(memberManageDTO);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/register")
-	public ResponseEntity<String> regMember (@RequestBody RegMemberDTO regMemberDTO){
+	public ResponseEntity<String> regMember(@RequestBody RegMemberDTO regMemberDTO) {
 		memberService.registerMember(regMemberDTO);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/cardinfo")
-	public ResponseEntity<Map<String, String>> getCardInfo (@RequestParam String mid){
+	public ResponseEntity<Map<String, String>> getCardInfo(@RequestParam String mid) {
 		return ResponseEntity.ok(cardService.setQRinfo(mid));
 	}
-	
+
 	@GetMapping("/existId")
-	public ResponseEntity<Boolean> existById(@RequestParam String mid){
+	public ResponseEntity<Boolean> existById(@RequestParam String mid) {
 		return ResponseEntity.ok(memberService.existById(mid));
 	}
-	
+
 	@GetMapping("/existPhone")
-	public ResponseEntity<Boolean> existByPhone(@RequestParam String phone){
+	public ResponseEntity<Boolean> existByPhone(@RequestParam String phone) {
 		return ResponseEntity.ok(memberService.existByPhone(phone));
 	}
-	
+
 	@GetMapping("/findId")
-	public ResponseEntity<String> findId(@ModelAttribute MemberFindIdDTO memberFindIdDTO){
+	public ResponseEntity<String> findId(@ModelAttribute MemberFindIdDTO memberFindIdDTO) {
 		return ResponseEntity.ok(memberService.findId(memberFindIdDTO));
 	}
-	
+
 	@GetMapping("/existAccount")
-	public ResponseEntity<Boolean> existAccount(@ModelAttribute MemberFindAccountDTO memberFindAccountDTO){
+	public ResponseEntity<Boolean> existAccount(@ModelAttribute MemberFindAccountDTO memberFindAccountDTO) {
 		return ResponseEntity.ok(memberService.existAccount(memberFindAccountDTO));
 	}
-	
+
 	@PostMapping("/modPwMember")
-	public ResponseEntity<String> findId(@RequestParam String mid, String pw){
+	public ResponseEntity<String> findId(@RequestParam String mid, String pw) {
 		memberService.modPwMember(mid, pw);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/getMemberInfo")
-	public ResponseEntity<MemberInfoDTO> getMemberInfo(@RequestParam String pw){
+	public ResponseEntity<MemberInfoDTO> getMemberInfo(@RequestParam String pw) {
 		String mid = JwtFilter.getMid();
 		System.out.println(mid);
 		return ResponseEntity.ok(memberService.findMemberInfo(mid, pw));
 	}
-	
+
 	@PostMapping("/modify")
-	public ResponseEntity<MemberInfoDTO> modMember(@RequestBody ModMemberDTO modMemberDTO){
+	public ResponseEntity<MemberInfoDTO> modMember(@RequestBody ModMemberDTO modMemberDTO) {
 		String mid = JwtFilter.getMid();
 		System.out.println(mid);
 		memberService.modifyMember(mid, modMemberDTO);
@@ -142,23 +138,26 @@ public class MemberController {
 	}
 
 	@GetMapping("/interestedbook")
-	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto, @RequestHeader(value = "Authorization", required = true) String authHeader ) {
+	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(
+			@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto,
+			@RequestHeader(value = "Authorization", required = true) String authHeader) {
 		String mid = JwtFilter.getMid();
 		LOGGER.info("관심도서 요청: {}, 회원 id : {}", interestedBookRequestDto, mid);
 		int page = Optional.ofNullable(interestedBookRequestDto.getPage()).orElse(1);
 		Pageable pageable = PageRequest.of(page - 1, 10);
-		Page<InterestedBookResponseDTO> interestedBookList = bookService.getInterestedBookList(pageable, interestedBookRequestDto, mid);
-		
+		Page<InterestedBookResponseDTO> interestedBookList = bookService.getInterestedBookList(pageable,
+				interestedBookRequestDto, mid);
+
 		return ResponseEntity.ok(interestedBookList);
 	}
-	
+
 	@PostMapping("/reservebook")
 	public ResponseEntity<String> reserveBook(@RequestBody ReserveBookDTO reserveDto) {
 		String mid = JwtFilter.getMid();
 		bookService.reserveBook(reserveDto.getLibraryBookId(), mid);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/unmannedreserve")
 	public ResponseEntity<String> unmannedReserveBook(@RequestBody ReserveBookDTO reserveDto) {
 		LOGGER.info("무인 예약 요청: {}", reserveDto);
@@ -166,7 +165,7 @@ public class MemberController {
 		bookService.unMannedReserveBook(reserveDto.getLibraryBookId(), mid);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/addinterestedbook")
 	public ResponseEntity<String> addInterestedBook(@RequestBody AddInterestedBookDTO addInteredtedBookDto) {
 		String mid = JwtFilter.getMid();
@@ -175,17 +174,17 @@ public class MemberController {
 		bookService.addInterestedBook(mid, addInteredtedBookDto);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@DeleteMapping("/deleteinterestedbook")
 	public ResponseEntity<String> deleteInterestedBook(@RequestBody InteresdtedBookDeleteDTO interesdtedBookDeleteDto) {
 		LOGGER.info("관심도서 삭제 요청: {}", interesdtedBookDeleteDto);
 		String mid = JwtFilter.getMid();
 		LOGGER.info("관심도서 삭제 요청: {}", mid);
 		bookService.deleteInterestedBook(interesdtedBookDeleteDto, mid);
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/memberborrowlist")
 	public ResponseEntity<List<MemberBorrowNowListDTO>> getMemberBorrowNowList() {
 		String mid = JwtFilter.getMid();
@@ -193,7 +192,7 @@ public class MemberController {
 		List<MemberBorrowNowListDTO> dto = memberService.getMemberBorrowNowList(mid);
 		return ResponseEntity.ok(dto);
 	}
-	
+
 	@PostMapping("/extendborrow")
 	public ResponseEntity<String> extendBorrow(@RequestBody List<Long> rentIds) {
 		String mid = JwtFilter.getMid();
@@ -201,6 +200,20 @@ public class MemberController {
 		memberService.extendMemberBorrow(rentIds);
 		return ResponseEntity.ok().build();
 	}
-	
+
+	@GetMapping("/info/{mid}")
+	public ResponseEntity<MemberInfoDTO> fetchMemberInfo(@PathVariable String mid) {
+		return ResponseEntity.ok(memberService.getMemberInfo(mid));
+	}
+
+	@PostMapping("/validate")
+	public ResponseEntity<Map<String, Object>> validateMemberIds(@RequestBody List<String> mids) {
+		List<String> notFound = mids.stream().filter(mid -> !memberService.existById(mid))
+				.toList();
+
+		Map<String, Object> result = Map.of("valid", notFound.isEmpty(), "invalidIds", notFound);
+
+		return ResponseEntity.ok(result);
+	}
 
 }

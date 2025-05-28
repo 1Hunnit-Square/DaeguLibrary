@@ -51,7 +51,7 @@ public class Member {
 	@Column(nullable = false, length = 200)
 	private String addr;
 	
-	@Column(nullable = false, length = 100)
+	@Column(length = 100)
 	private String email;
 	
 	@Column(nullable = false)

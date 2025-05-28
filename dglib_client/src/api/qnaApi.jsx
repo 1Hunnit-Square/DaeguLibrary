@@ -18,7 +18,7 @@ export const getQnaDetail = async (qno, requesterMid) => {
 };
 
 //등록
-export const createQna = async (data) => {
+export const createQuestion = async (data) => {
   const response = await axios.post(`${prefix}`, data, {
     headers: {
       "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export const createQna = async (data) => {
 };
 
 //수정
-export const updateQna = async (qno, updateData) => {
+export const updateQuestion = async (qno, updateData) => {
   const response = await axios.put(`${prefix}/${qno}`, updateData, {
     headers: {
       "Content-Type": "application/json",
@@ -38,10 +38,28 @@ export const updateQna = async (qno, updateData) => {
 };
 
 //삭제
-export const deleteQna = async (qno, requesterMid) => {
+export const deleteQuestion = async (qno, requesterMid) => {
   const response = await axios.delete(`${prefix}/${qno}`, {
-    params: requesterMid ? { requesterMid } : {}
+    params: requesterMid ? { requesterMid } : {},
   });
   return response.data;
 };
 
+
+//답변생성
+export const createAnswer = async(qno, answerData)=> {
+  const response = await axios.post(`${prefix}/${qno}/answer`, answerData);
+  return response.data;
+};
+
+//답변수정
+export const updateAnswer = async(qno, answerData)=>{
+  const response = await axios.put(`${prefix}/${qno}/answer`, answerData);
+  return response.data;
+};
+
+//답변삭제
+export const deleteAnswer = async (qno)=>{
+  const response = await axios.delete(`${prefix}/${qno}/answer`);
+  return response.data;
+};

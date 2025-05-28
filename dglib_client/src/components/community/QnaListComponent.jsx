@@ -8,6 +8,8 @@ import Button from "../common/Button";
 import { useQuery } from "@tanstack/react-query";
 import { getQnaList } from "../../api/qnaApi";
 import Loading from "../../routers/Loading";
+import useBoardListNumber from "../../hooks/useBoardListNumber";
+
 
 const LockIcon = () => <span style={{ color: 'gray' }}>🔒︎</span>;
 
@@ -45,7 +47,8 @@ const QnaListComponent = () => {
         size: 10,
         searchType: queryParams.option,
         keyword: queryParams.query,
-        requesterMid: mid
+        requesterMid: mid,
+        sort: "qno,DESC"
       }),
     keepPreviousData: true,
   });
@@ -78,6 +81,8 @@ const QnaListComponent = () => {
     }
     return null;
   }, [isSearched, pageable, queryParams.query]);
+
+  const getBoardListNumber = useBoardListNumber(pageable.totalElements || 0, queryParams.page, 10);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -135,9 +140,9 @@ const QnaListComponent = () => {
               </td>
             </tr>
           ) : (
-            qnaItems.map((item) => (
+            qnaItems.map((item, index) => (
               <tr key={item.qno} style={{ borderBottom: "1px solid #ddd", textAlign: "center" }}>
-                <td>{item.qno}</td>
+                <td>{getBoardListNumber(index)}</td>
                 <td><StatusBadge status={item.status} /></td>
                 <td
                   onClick={() => navigate(`/community/qna/${item.qno}`)}

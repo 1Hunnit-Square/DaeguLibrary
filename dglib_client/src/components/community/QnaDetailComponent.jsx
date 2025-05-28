@@ -1,23 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 import Button from "../common/Button";
 import Loading from "../../routers/Loading";
-
-
-const fetchQnaDetail = async (qno, mid) => {
-    const response = await axios.get(
-        `${API_SERVER_HOST}${API_ENDPOINTS.qna}/${qno}`,
-        {
-            params: mid ? { requesterMid: mid } : {},
-        }
-    );
-    return response.data;
-};
-
+import { useDeleteQuestion } from "../../hooks/useQuestionMutation";
+import { getQnaDetail } from "../../api/qnaApi";
 
 const QnaDetailComponent = () => {
     const { qno } = useParams();
@@ -28,26 +16,35 @@ const QnaDetailComponent = () => {
         data: question,
         isLoading,
         isError,
-        error,
     } = useQuery({
         queryKey: ["qnaDetail", qno, mid],
-        queryFn: () => fetchQnaDetail(qno, mid),
+        queryFn: () => getQnaDetail(qno, mid),
+        enabled: !!qno,
         retry: false,
         onError: (err) => {
             const message = err.response?.data?.message;
-            if (message) {
-                alert(message);
-            } else {
-                alert("Qna 조회하지 못했습니다.");
-            }
-        }
+            alert(message || "QnA 조회하지 못했습니다.");
+        },
     });
+
+    const { mutate: deleteQuestionMutate } = useDeleteQuestion();
+
+    const deleteQuestionMutation = useDeleteQuestion(() => {
+        alert("삭제되었습니다.");
+        navigate("/community/qna");
+    });
+
+    const handleDelete = () => {
+        if (window.confirm("정말로 삭제하시겠습니까?")) {
+            deleteQuestionMutation.mutate({ qno, requesterMid: mid });
+        }
+    };
 
     if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
     if (isError || !question) return null;
 
     const isWriter = mid === question.writerId;
-    const hasAnswer = !!question?.answer;
+    const hasAnswer = !!question.answer;
 
     return (
         <div className="max-w-4xl mx-auto text-sm">
@@ -99,9 +96,7 @@ const QnaDetailComponent = () => {
                             )}
                             <tr>
                                 <td className="bg-gray-100 p-2 font-semibold">내용</td>
-                                <td className="p-2 whitespace-pre-wrap">
-                                    {question.answer.content}
-                                </td>
+                                <td className="p-2 whitespace-pre-wrap">{question.answer.content}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -111,8 +106,18 @@ const QnaDetailComponent = () => {
             <div className="flex justify-end gap-2">
                 {isWriter && (
                     <>
-                        <Button className="bg-gray-500 hover:bg-gray-600">수정하기</Button>
-                        <Button className="bg-gray-500 hover:bg-gray-600">삭제하기</Button>
+                        <Button
+                            className="bg-gray-500 hover:bg-gray-600"
+                            onClick={() => navigate(`/community/qna/edit/${qno}`)}
+                        >
+                            수정하기
+                        </Button>
+                        <Button
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={handleDelete}
+                        >
+                            삭제하기
+                        </Button>
                     </>
                 )}
                 <Button onClick={() => navigate(-1)}>돌아가기</Button>

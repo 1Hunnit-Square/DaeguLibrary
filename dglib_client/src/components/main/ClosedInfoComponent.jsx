@@ -38,11 +38,11 @@ const ClosedInfoComponent = () => {
     };
 
     return (
-        <div className="flex flex-wrap justify-between bg-white rounded-lg shadow-md px-6 py-5 min-h-[120px] text-sm">
+        <div className="flex flex-wrap justify-center bg-white rounded-lg shadow-md px-6 py-5 min-h-[120px] text-sm">
             {/* 왼쪽: 휴관일 */}
-            <div className="basis-full md:basis-1/2 flex flex-col justify-center mb-6 md:mb-0">
-                <div className="flex items-center gap-4 mb-4 font-semibold text-[16px]">
-                    <span>휴관일</span>
+            <div className="basis-full md:basis-1/2 flex flex-col items-center justify-center border-t md:border-t-0 pt-4 md:pt-0 text-[13px] text-gray-800">
+                <div className="flex items-center gap-4 mb-2 font-semibold text-[17px]">
+                    <span>🌷 휴관일</span>
                     <button onClick={handlePrevMonth} className="text-green-600 hover:text-green-800 cursor-pointer">〈</button>
                     <span>{`${year}년 ${month}월`}</span>
                     <button onClick={handleNextMonth} className="text-green-600 hover:text-green-800 cursor-pointer">〉</button>
@@ -65,10 +65,9 @@ const ClosedInfoComponent = () => {
             </div>
 
             {/* 오른쪽: 이용시간 */}
-            <div className="basis-full md:basis-1/2 flex flex-col justify-center border-t md:border-t-0 md:border-l border-gray-300 pt-4 md:pt-0 pl-0 md:pl-8 text-[13px] text-gray-800">
-                <div className="font-semibold text-[16px] mb-4">이용 시간</div>
-                <div className="flex items-start gap-2 text-[14px]">
-                    <span className="text-[15px]">🕒</span>
+            <div className="basis-full md:basis-1/2 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-gray-400 pt-4 md:pt-0 pl-0 md:pl-1 text-[13px] text-gray-800">
+                <div className="font-semibold text-[17px] mb-3">🕒 이용 시간</div>
+                <div className="flex items-start gap-2 text-[16px]">
                     <div className="leading-tight">
                         <p>평일: 09:00 ~ 21:00</p>
                         <p>주말: 09:00 ~ 18:00</p>

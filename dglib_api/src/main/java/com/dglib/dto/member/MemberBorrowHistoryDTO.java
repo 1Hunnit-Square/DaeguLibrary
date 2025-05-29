@@ -18,4 +18,5 @@ public class MemberBorrowHistoryDTO {
 	Long rentId;
 	MemberState memberState;
 	RentalState rentalState;
+	boolean isDeleted;
 }

@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getBookrecoList } from "../../api/bookApi";
+import { getBookrecoList } from "../../api/bookPythonApi";
 import Loading from "../../routers/Loading";
 import { usePagination } from "../../hooks/usePage";
 import { Link } from "react-router-dom";

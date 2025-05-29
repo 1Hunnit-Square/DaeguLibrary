@@ -3,6 +3,9 @@ package com.dglib.service.member;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,6 +30,8 @@ import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberPhoneDTO;
+import com.dglib.dto.member.MemberRecoBookDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
@@ -272,6 +277,7 @@ public class MemberServiceImpl implements MemberService {
 			dto.setAuthor(rental.getLibraryBook().getBook().getAuthor());
 			dto.setIsbn(rental.getLibraryBook().getBook().getIsbn());
 			dto.setRentStartDate(rental.getRentStartDate());
+			dto.setDeleted(rental.getLibraryBook().isDeleted());
 			dto.setDueDate(rental.getDueDate());
 			dto.setReturnDate(rental.getReturnDate());
 			dto.setRentId(rental.getRentId());
@@ -312,6 +318,96 @@ public class MemberServiceImpl implements MemberService {
 			throw new IllegalStateException("이미 취소된 예약입니다.");
 		}
 		reserve.setState(ReserveState.CANCELED);
+	}
+	
+	@Override
+	public List<String> getMemberBorrowedBookIsbns(String mid) {
+		return memberRepository.find40borrowedIsbn(mid);
+		
+	}
+	
+	@Override
+	public Map<String, Map<String, Integer>> getMemberYearBorrowList(String mid) {
+	    LocalDate today = LocalDate.now();
+	    LocalDate tenYearsAgo = LocalDate.of(today.getYear() - 10, 1, 1);
+
+	    List<Rental> borrowList = rentalRepository.findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(mid, tenYearsAgo, today);
+
+	    Map<String, Map<String, Integer>> monthlyYearlyCounts = new LinkedHashMap<>();
+	    int startYear = tenYearsAgo.getYear();
+	    int endYear = today.getYear();
+
+	    for (int m = 1; m <= 12; m++) {
+	        String monthStr = m + "월";
+	        Map<String, Integer> yearMap = new LinkedHashMap<>();
+	        for (int y = startYear; y <= endYear; y++) {
+	            yearMap.put(y + "년", 0);
+	        }
+	        monthlyYearlyCounts.put(monthStr, yearMap);
+	    }
+
+	   
+	    for (Rental rental : borrowList) {
+	        LocalDate date = rental.getRentStartDate();
+	        String monthStr = date.getMonthValue() + "월";
+	        String yearStr = date.getYear() + "년";
+
+	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+	        yearMap.put(yearStr, yearMap.get(yearStr) + 1);
+	    }
+
+	    
+	    Map<String, Integer> cumulativeYearly = new HashMap<>();
+	    for (int y = startYear; y <= endYear; y++) {
+	        cumulativeYearly.put(y + "년", 0);
+	    }
+
+	    for (int m = 1; m <= 12; m++) {
+	        String monthStr = m + "월";
+	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+
+	        for (int y = startYear; y <= endYear; y++) {
+	            String yearStr = y + "년";
+	            int currentCount = yearMap.get(yearStr);
+	            int cumulative = cumulativeYearly.get(yearStr) + currentCount;
+	            cumulativeYearly.put(yearStr, cumulative);
+	            yearMap.put(yearStr, cumulative);
+	        }
+	    }
+
+	    return monthlyYearlyCounts;
+	}
+	
+	@Override
+	public MemberRecoBookDTO getMemberBorrowedBookIsbnForReco(String mid) {
+		List<String> isbns = memberRepository.find5borrowedIsbn(mid);
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		MemberRecoBookDTO recoBookDTO = new MemberRecoBookDTO();
+		recoBookDTO.setIsbns(isbns);
+		if(member.getGender().equals("남")) {
+			recoBookDTO.setGender(0L);
+		}else {
+			recoBookDTO.setGender(1L);
+		}
+		LocalDate birthDate = member.getBirthDate();
+	   
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        Long ageGroup = (long) ((age / 10) * 10);  
+        recoBookDTO.setAge(ageGroup);
+	    
+		return recoBookDTO;
+	}
+	
+	@Override
+	public MemberPhoneDTO getMemberPhone(String mid) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		String phone = member.getPhone();
+		MemberPhoneDTO dto = new MemberPhoneDTO();
+		dto.setPhoneList(Arrays.asList(phone.split("-")));
+		
+		return dto;
 	}
 	
 	

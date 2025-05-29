@@ -27,6 +27,7 @@ import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
@@ -36,6 +37,7 @@ import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberPhoneDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
@@ -232,6 +234,34 @@ public class MemberController {
 		memberService.cancelReserve(reserveId);
 		return ResponseEntity.ok().build();
 	}
+	
+	@GetMapping("/yearborrowhistory")
+	public ResponseEntity<Map<String, Map<String, Integer>>> cencelReserveBook() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 연간 대출 이력 요청: {}", mid);
+		Map<String, Map<String, Integer>> yearBorrowList = memberService.getMemberYearBorrowList(mid);
+		LOGGER.info("연간 대출 이력: {}", yearBorrowList);
+		return ResponseEntity.ok(yearBorrowList);
+	}
+	
+	@GetMapping("/getmemberphone")
+	public ResponseEntity<MemberPhoneDTO> getMemberPhone() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 전화번호 요청: {}", mid);
+		MemberPhoneDTO memberPhone = memberService.getMemberPhone(mid);
+		return ResponseEntity.ok(memberPhone);
+	}
+	
+	@PostMapping("/regwishbook")
+	public ResponseEntity<String> regWishBook(@RequestBody RegWishBookDTO dto) {
+        String mid = JwtFilter.getMid();
+        LOGGER.info("회원 희망도서 회원 id: {}", mid);
+        
+        return ResponseEntity.ok().build();
+    }
+	
+	
+
 	
 
 }

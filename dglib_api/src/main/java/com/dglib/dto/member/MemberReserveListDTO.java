@@ -16,6 +16,7 @@ public class MemberReserveListDTO {
 	boolean isUnmanned;
 	String isbn;
 	boolean isReturned;
+
 	
 
 }

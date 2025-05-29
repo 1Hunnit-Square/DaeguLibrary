@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 import logging
 from pydantic import BaseModel
-from dglib_chatbot.chatbotResponse import chatbot_ai
+from dglib_chatbot.chatbotResponse import chatbot_ai, chatbot_history_delete
 import uuid
+from dglib_chatbot.session_manager import start_scheduler
+from contextlib import asynccontextmanager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,20 +15,28 @@ logger = logging.getLogger(__name__)
 class ChatRequest(BaseModel):
     parts: str
     clientId: str = ""
+class resetRequest(BaseModel):
+    clientId: str
 
 app = FastAPI()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("챗봇 서버 시작")
+    start_scheduler()
+    yield
+    logger.info("챗봇 서버 종료")
+
+
 @app.post("/chatbot")
 async def chatbot(request: ChatRequest):
-    clientId = request.clientId.strip() if request.clientId else ""
+    clientId = request.clientId
     logger.info(f"클라이언트 요청: {request}")
     is_new_client = not clientId
     if is_new_client:
         clientId = str(uuid.uuid4())
     response = await chatbot_ai(clientId, request.parts)
     logger.info(f"챗봇 응답: {response}")
-
-
 
     response["clientId"] = clientId
 
@@ -38,3 +48,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+@app.post("/reset")
+async def reset_chat(request: resetRequest):
+    response = await chatbot_history_delete(request.clientId)
+    return response

@@ -11,3 +11,12 @@ export const getChatbotResponse = async (param) => {
     });
     return res.data;
 }
+
+export const resetChatHistory = async (clientId) => {
+    const res = await axiosClient.post(`${prefix}/reset`, { clientId }, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    return res.data;
+}

@@ -1,6 +1,7 @@
 package com.dglib.service.member;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,8 @@ import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberPhoneDTO;
+import com.dglib.dto.member.MemberRecoBookDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
@@ -57,6 +60,14 @@ public interface MemberService {
 	List<MemberReserveListDTO> getMemberReserveList(String mid);
 	
 	void cancelReserve(Long reserveId);
+	
+	List<String> getMemberBorrowedBookIsbns(String mid);
+	
+	Map<String, Map<String, Integer>> getMemberYearBorrowList(String mid);
+	
+	MemberRecoBookDTO getMemberBorrowedBookIsbnForReco(String mid);
+	
+	MemberPhoneDTO getMemberPhone(String mid);
 	
 
 

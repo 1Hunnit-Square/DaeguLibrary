@@ -12,6 +12,7 @@ const UseProgram = lazy(() => import("../components/myLibrary/UseProgramComponen
 const UsedFacility = lazy(() => import("../components/myLibrary/UsedFacilityComponent"));
 const Personalized = lazy(() => import("../components/myLibrary/PersonalizedComponent"));
 
+
 const myLibraryRouter = () => ([
 
     {
@@ -50,6 +51,7 @@ const myLibraryRouter = () => ([
         path: "detail/:isbn",
         element: <Suspense fallback={<Loading />}><Detail /></Suspense>
     },
+
 
 
 

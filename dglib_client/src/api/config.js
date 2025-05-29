@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   place: '/api/places',
   qna: '/api/question',
   chatbot: '/api/chatbot',
+  bookapi: '/api/bookapi',
 };
 
 export const SMS_KEY = "CREATION";

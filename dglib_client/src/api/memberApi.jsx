@@ -158,3 +158,21 @@ export const cancelReserveBook = async (reserveId) => {
     const res = await axiosClient.delete(`${prefix}/cancelreservebook`, {params: { reserveId }});
     return res.data;
 }
+
+export const getMemberYearBorrowHistory = async () => {
+    const res = await axiosClient.get(`${prefix}/yearborrowhistory`);
+    return res.data;
+}
+
+export const getMemberPhone = async () => {
+    const res = await axiosClient.get(`${prefix}/getmemberphone`);
+    return res.data;
+}
+
+export const regWishBook = async (book) => {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/regwishbook`, book, { headers });
+    return res.data;
+}

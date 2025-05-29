@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/chatbot")
 public class ChatbotController {
 	
-	@Qualifier("webClientChat")
+
 	private final WebClient webClient;
 	private final Logger LOGGER = LoggerFactory.getLogger(ChatbotController.class);
 	
@@ -37,6 +37,20 @@ public class ChatbotController {
 		return webClient.post().uri("/chatbot").body(Mono.just(requestBody), Map.class).retrieve()
 				.bodyToMono(String.class).map(response -> {
 					LOGGER.info("Chatbot response: {}", response);
+					return ResponseEntity.ok(response);
+				}).onErrorMap(original -> {
+					LOGGER.error("Python 백엔드 호출 중 오류 발생", original);
+					return new RuntimeException("api 서버와 통신 중 오류가 발생했습니다.", original);
+				});
+	}
+	
+	@PostMapping("/reset")
+	public Mono<ResponseEntity<String>> resetChatHistory(@RequestBody Map<String, String> requestBody) {
+		String clientId = requestBody.get("clientId");
+		LOGGER.info("Chatbot reset request for clientId: {}", clientId);
+		return webClient.post().uri("/reset").body(Mono.just(requestBody), Map.class).retrieve()
+				.bodyToMono(String.class).map(response -> {
+					LOGGER.info("Chatbot reset response: {}", response);
 					return ResponseEntity.ok(response);
 				}).onErrorMap(original -> {
 					LOGGER.error("Python 백엔드 호출 중 오류 발생", original);

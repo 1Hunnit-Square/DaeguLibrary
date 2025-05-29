@@ -1,6 +1,6 @@
 
 from datetime import datetime, timedelta
-from dglib_python.config import logger, INFO_NARU_URL, INFO_NARU_KEY, GENRE_MAP
+from dglib_python.config import logger, INFO_NARU_URL, INFO_NARU_KEY, GENRE_MAP, INFO_NARU_RECO
 from dglib_python.utils.http import safe_request
 from dglib_python.services.aladin import get_aladin_book_info
 import httpx
@@ -24,7 +24,7 @@ async def fetch_popular_books(genre: str):
         'addCode': '0;2;9',
         'kdc': kdc,
         'pageNo': 1,
-        'pageSize': 20,
+        'pageSize': 1,
         'format': 'json'
     }
 
@@ -69,3 +69,70 @@ async def fetch_popular_books(genre: str):
     except Exception as e:
         logger.error(f"데이터 처리 중 예외 발생: {e}")
         return False, {}
+
+async def get_member_reco_books(isbn_list: list[str], gender: int = 0, age: int = 30):
+
+    async with httpx.AsyncClient() as client:
+        combined_isbn = ';'.join(isbn_list)
+        logger.info(f"요청할 ISBN 목록: {combined_isbn}")
+
+        params = {
+        'authKey': INFO_NARU_KEY,
+        'isbn13': combined_isbn,
+        'type': 'mania',
+        'format': 'json',
+        'pageNo': 1,
+        'pageSize': 20,
+        'gender': gender,
+        'age': age,
+    }
+
+    data, error = await safe_request(INFO_NARU_RECO, params)
+
+    if error or not data:
+        logger.error(f"정보나루 API 오류: {error}")
+        return {
+            "success": False,
+            "error": error or "데이터를 받아오지 못했습니다",
+            "message": "정보나루 API 요청 실패"
+        }
+    try:
+        items = data.get('response', {}).get('docs', [])
+        result = {
+
+                "docs": []
+            }
+
+        logger.info(items)
+
+
+        async with httpx.AsyncClient() as client:
+            for item in items:
+                book = item.get('book', {})
+                isbn = book.get('isbn13') or book.get("isbn10") or book.get('isbn', '')
+
+                aladin_info = await get_aladin_book_info(isbn)
+                if aladin_info is None:
+                    logger.error(f"알라딘 정보 없음: ISBN {isbn}")
+                    continue
+
+                book['bookname'] = aladin_info['title']
+                book['authors'] = aladin_info['author']
+                book['bookImageURL'] = aladin_info['cover_url']
+                book['description'] = aladin_info['description']
+                book['publisher'] = aladin_info['publisher']
+                book['publication_year'] = aladin_info['pubDate']
+
+
+                result["docs"].append({"book": book})
+                logger.info(f"도서 정보 수정: {book['bookname']} - {book['authors']}")
+
+        return result
+    except Exception as e:
+        logger.error(f"데이터 처리 중 예외 발생: {e}")
+        return {"success": False, "error": str(e)}
+
+
+
+
+

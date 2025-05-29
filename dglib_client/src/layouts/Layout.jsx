@@ -3,10 +3,10 @@ import Footer from "./Footer";
 import LSide from "./LSide";
 import MainMenu from "../menus/MainMenu";
 import Search from "./Search";
-import Chat from "./Chat";
-import { getChatbotResponse } from "../api/chatbotApi";
+import ChatComponent from "../components/chat/ChatComponent";
+import { getChatbotResponse, resetChatHistory } from "../api/chatbotApi";
 import { useMutation } from '@tanstack/react-query';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import { chatHistoryState, isChatOpenState, clientIdState } from '../atoms/chatState';
 import { useCallback } from "react";
 
@@ -14,6 +14,7 @@ import { useCallback } from "react";
 const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
     const [isChatOpen, setIsChatOpen] = useRecoilState(isChatOpenState);
     const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
+    const resetChatHistoryState = useResetRecoilState(chatHistoryState);
     const [clientId, setClientId] = useRecoilState(clientIdState);
     const chatMutation = useMutation({
         mutationFn: async (param) => {
@@ -27,11 +28,24 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
         },
         onError: (error) => {
             console.error("Error fetching chatbot response:", error);
-            setChatHistory(prev => [...prev, { role: "model", parts: "죄송합니다. 오류가 발생했습니다." }]);
+            setChatHistory(prev => [...prev, { role: "model", parts: "오늘은 쉽니당. 꿈틀꿈틀🌱" }]);
         }
     });
-    console.log(clientId);
 
+    const resetChatMutation = useMutation({
+        mutationFn: async (clientId) => {
+            const response = await resetChatHistory(clientId);
+            return response;
+        },
+        onSuccess: () => {
+            resetChatHistoryState();
+            setClientId("");
+            console.log("Chat history reset successfully.");
+        },
+        onError: (error) => {
+            console.error("Error resetting chat history:", error);
+        }
+    })
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
@@ -48,6 +62,11 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
         }
         chatMutation.mutate(param);
     }, [clientId, chatMutation, setChatHistory]);
+
+    const resetHandler = useCallback(() => {
+        console.log("Resetting chat history for clientId:", clientId);
+        resetChatMutation.mutate(clientId);
+    }, [clientId, resetChatMutation]);
 
 
     return(
@@ -75,7 +94,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                 className="w-20 h-20"
             />
         </div>
-        {isChatOpen && <Chat onClose={() => setIsChatOpen(false)} chatHistory={chatHistory} addMessage={addMessage} />}
+        {isChatOpen && <ChatComponent onClose={() => setIsChatOpen(false)} chatHistory={chatHistory} addMessage={addMessage} resetChat={resetHandler} />}
             <Footer />
         </div>
     );

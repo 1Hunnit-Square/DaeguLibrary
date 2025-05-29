@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 # 정보나루 API 설정
 INFO_NARU_URL = 'http://data4library.kr/api/loanItemSrch'
+INFO_NARU_RECO = 'http://data4library.kr/api/recommandList'
 INFO_NARU_KEY = 'c1888c7a4825d9bd126707b7edf5314571ec8da864cd982b5eac20238ea88a5a'
 
 # 알라딘 API 설정

@@ -9,17 +9,7 @@ import { getFingerprint } from '../util/fingerprint';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.book}`;
 
-export const getBookreco = async (genre) => {
-    const res = await axios.get(`${prefix}/bookreco/${genre}`);
-    return res.data;
-}
 
-export const getBookrecoList = async (genre, page) => {
-    const res = await axios.get(`${prefix}/bookrecolist/${genre}`, {
-        params: { page }
-    });
-    return res.data;
-}
 export const getNsLibraryBookList = async (params = {}) => {
     const { page = 1, size = 10 } = params;
     const finalParams = { page, size, fingerprint: await getFingerprint() };
@@ -79,16 +69,6 @@ export const getLibraryBookDetail = async (isbn) => {
     return response.data;
 };
 
-
-
-export const searchBookApi = async (searchTerm, page = 1) => {
-    const encodedSearchTerm = encodeURIComponent(searchTerm);
-    const res = await axios.get(`${prefix}/search/${encodedSearchTerm}`, {
-        params: { page }
-    });
-    return res.data;
-}
-
 export const getTopBorrowedBookList = async (params = {}) => {
 
     const res = await axiosClient.get(`${prefix}/topborrowedbooklist`, {
@@ -100,6 +80,11 @@ export const getTopBorrowedBookList = async (params = {}) => {
     });
     return res.data;
 }
+
+
+
+
+
 
 
 

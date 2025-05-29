@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.entity.member.Member;
@@ -57,6 +58,39 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 			AND m.state != com.dglib.entity.member.MemberState.PUNISH 
 			""")
 	List<Member> findMembersWithPenaltyDateButNotOverdue();
+	
+	
+	@Query(value = """
+		   SELECT isbn FROM (
+			    SELECT DISTINCT b.isbn, r.rent_start_date
+			    FROM library_book lb
+			    JOIN book b ON lb.isbn = b.isbn
+			    JOIN rental r ON lb.library_book_id = r.library_book_id
+			    WHERE r.mid = :mid
+			    ORDER BY r.rent_start_date DESC
+			) AS sub
+			LIMIT 40;
+		    """,
+		    nativeQuery = true)
+	List<String> find40borrowedIsbn(
+	 @Param("mid") String mid);
+	
+	@Query(value = """
+			   SELECT isbn FROM (
+				    SELECT DISTINCT b.isbn, r.rent_start_date
+				    FROM library_book lb
+				    JOIN book b ON lb.isbn = b.isbn
+				    JOIN rental r ON lb.library_book_id = r.library_book_id
+				    WHERE r.mid = :mid
+				    ORDER BY r.rent_start_date DESC
+				) AS sub
+				LIMIT 5;
+			    """,
+			    nativeQuery = true)
+		List<String> find5borrowedIsbn(
+		 @Param("mid") String mid);
+
+
 	
 
 }

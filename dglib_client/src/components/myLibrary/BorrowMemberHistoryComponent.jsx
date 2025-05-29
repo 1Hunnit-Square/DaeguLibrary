@@ -74,9 +74,18 @@ const BorrowMemberHistoryComponent = () => {
                                     <div className="text-1xl mb-1 mt-2">
 
                                         <div className="text-xl font-semibold mb-4">
-                                            <Link to={`/mylibrary/detail/${book.isbn}?from=borrowstatus`} className="inline">
+                                            {book.deleted ?  <>
+                                        <div className="block text-xl font-semibold mb-4">
+                                            <span className="line-through hover:cursor-default">{book.bookTitle}</span>
+                                            {book.deleted && <span className="text-red-500 no-underline hover:text-red-500 hover:no-underline "> (분실 및 훼손된 도서입니다)</span>}
+                                        </div>
+                                        </> :  <>
+                                        <div className="text-xl font-semibold mb-4">
+                                            <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="inline">
                                                 <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
                                             </Link>
+                                        </div>
+                                        </>}
                                         </div>
 
                                     </div>

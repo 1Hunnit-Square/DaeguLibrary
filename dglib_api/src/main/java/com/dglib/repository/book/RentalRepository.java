@@ -59,6 +59,15 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.reserves"})
 	List<Rental> findWithDetailsByRentIdIn(List<Long> ids);
+	
+	@EntityGraph(attributePaths = {"member"})
+	List<Rental> findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(String mid, LocalDate startDate, LocalDate endDate);
+	
+	
+	
+	
+
+	
 
 	
 	

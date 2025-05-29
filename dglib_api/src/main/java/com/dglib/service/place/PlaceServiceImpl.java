@@ -86,14 +86,14 @@ public class PlaceServiceImpl implements PlaceService {
 		int userReservedMinutes = placeRepository.findByMember_MidAndUseDate(dto.getMemberMid(), dto.getUseDate())
 				.stream().mapToInt(p -> p.getDurationTime() * 60).sum();
 		if (userReservedMinutes + dto.getDurationTime() * 60 > 180) {
-			throw new IllegalArgumentException("하루 예약 가능 시간(3시간)을 초과할 수 없습니다.");
+			throw new IllegalArgumentException("더 이상 예약하실 수 없습니다.");
 		}
 
 		// 시설 하루 8시간 제한 검사
 		int roomReservedMinutes = placeRepository.findByRoomAndUseDate(dto.getRoom(), dto.getUseDate()).stream()
 				.mapToInt(p -> p.getDurationTime() * 60).sum();
 		if (roomReservedMinutes + dto.getDurationTime() * 60 > 480) {
-			throw new IllegalArgumentException("더 이상 예약할 수 없습니다 (시설 총 8시간 초과).");
+			throw new IllegalArgumentException("더 이상 예약하실 수 없습니다.");
 		}
 
 		// 최종 저장
@@ -192,7 +192,6 @@ public class PlaceServiceImpl implements PlaceService {
 	}
 
 	// 조회 전용 유틸
-
 	@Override
 	public boolean isTimeSlotReserved(String room, LocalDate date, LocalTime time) {
 		return placeRepository.existsBySchedule(room, date, time);

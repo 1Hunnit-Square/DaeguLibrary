@@ -58,7 +58,7 @@ const SelectComponent = ({
             {objIsArray && options.map((option, index) => (
               <div
                 key={index}
-                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
+                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 rounded-lg ${index === 0 ? 'mt-3' : ''}`}
                 onClick={() => handleSelectOption(option)}
                 name={name}
               >
@@ -69,7 +69,7 @@ const SelectComponent = ({
             {!objIsArray && Object.keys(options).map((key, index) => (
               <div
                 key={index}
-                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
+                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 rounded-lg ${index === 0 ? 'mt-3' : ''}`}
                 onClick={() => handleSelectOption(options[key])}
                 name={name}
               >

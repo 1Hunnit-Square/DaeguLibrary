@@ -71,7 +71,7 @@ useEffect(() => {
             {options.map((option, index) => (
               <div
                 key={index}
-                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''}`}
+                className={`py-2 px-4 text-left  cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-emerald-700 ${index === 0 ? 'mt-3' : ''} rounded-lg`}
                 onClick={() => handleSelectOption(option)}
               >
                 {option}

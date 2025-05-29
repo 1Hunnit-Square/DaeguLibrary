@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import Modal from "../common/Modal";
 import MemberModifyComponent from "./MemberModifyComponent";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
+import { useSearchHandler } from "../../hooks/useSearchHandler";
 
 const MemberManagementComponent = () => {
 
@@ -40,11 +41,11 @@ const MemberManagementComponent = () => {
     });
                     
     const memberList = useMemo(() => memberData.content, [memberData.content]);
+    const memberPage = useMemo(() => memberData.pageable, [memberData.pageable]);
     
 
     const { renderPagination } = usePagination(memberData, searchURLParams, setSearchURLParams, isLoading);
 
-    const options = ["회원ID", "이름","회원번호"];
     const roleMap = {
             "전체권한": "ALL",
             "정회원": "USER",
@@ -73,14 +74,7 @@ const MemberManagementComponent = () => {
             "내림차순": "desc"
         };
 
-       const handleSearch = useCallback((searchQuery, selectedOption) => {
-            const newParams = new URLSearchParams();
-            newParams.set("query", searchQuery);
-            newParams.set("option", selectedOption);
-            newParams.set("page", "1");
-
-            setSearchURLParams(newParams);
-        }, [setSearchURLParams]);
+        const { handleSearch } = useSearchHandler({});
 
 
     const filterValue = (value) => {
@@ -133,7 +127,7 @@ const MemberManagementComponent = () => {
             
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
             <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
-                    <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
+                    <SearchSelectComponent options={["회원ID", "이름","회원번호"]} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%]"
                         inputClassName="w-full bg-white"
@@ -158,16 +152,16 @@ const MemberManagementComponent = () => {
                 <table className="min-w-full bg-white">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">순번</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원ID</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">회원번호</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">이름</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">성별</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">전화번호</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">생년월일</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">권한</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">상태</th>
-                            <th className="py-3 px-6 text-left text-sm font-semibold uppercase">패널티</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">순번</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">회원ID</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">회원번호</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">이름</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">성별</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">전화번호</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">생년월일</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">권한</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">상태</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">패널티</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
@@ -182,17 +176,17 @@ const MemberManagementComponent = () => {
 
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=>handleClick(item)}>
-                                        <td className="py-4 px-6">{item.index}</td>
-                                        <td className="py-4 px-6">{item.mid}</td>
-                                        <td className="py-4 px-6 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.mno}>{item.mno}</td>
-                                        <td className="py-4 px-6 max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.name}>{item.name}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.gender}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.phone}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{item.birthDate}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{filterValue(item.role)}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">{filterValue(item.state)}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap">
-                                            {item.penaltyDate ? <>{item.penaltyDate} {calcPenaltyDays(item.penaltyDate)}</> : "-" }
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{memberPage.pageNumber * memberPage.pageSize  + index +1}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.mid}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.mno}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.name}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.gender}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.phone}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.birthDate}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{filterValue(item.role)}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{filterValue(item.state)}</td>
+                                        <td className="py-4 px-3 max-w-35 min-w-35 whitespace-nowrap text-center">
+                                            {item.penaltyDate ? <>{item.penaltyDate} {calcPenaltyDays(item.penaltyDate)}</> :<>-</> }
                                             </td>
                                     </tr>
                                 );

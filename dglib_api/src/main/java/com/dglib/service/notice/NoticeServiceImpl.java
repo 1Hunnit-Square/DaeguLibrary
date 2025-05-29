@@ -116,13 +116,12 @@ public class NoticeServiceImpl implements NoticeService {
 		Specification<Notice> spec = NoticeSpecifications.fromDTO(searchDTO);
 		Page<Notice> noticeList = noticeRepository.findAll(spec, pageable);
 		
-		AtomicLong index = new AtomicLong(1);
 		
 		Page<NoticeListDTO> result = noticeList.map(notice -> {
 			NoticeListDTO noticeListDTO = new NoticeListDTO();
 			modelMapper.map(notice, noticeListDTO);
-			noticeListDTO.setIndex(index.getAndIncrement());
 			noticeListDTO.setName(notice.getMember().getName());
+	
 				
 			return noticeListDTO;	
 		});

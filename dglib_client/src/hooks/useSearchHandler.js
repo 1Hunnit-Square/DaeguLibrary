@@ -30,7 +30,7 @@ export const useSearchHandler = ({
 
     if (searchQuery) newParams.set("query", searchQuery);
     if (selectedOption) newParams.set("option", selectedOption);
-    newParams.set("tab", tab);
+    if(tab) newParams.set("tab", tab);
     newParams.set("page", "1");
 
 

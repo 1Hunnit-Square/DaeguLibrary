@@ -6,7 +6,7 @@ import { path } from "framer-motion/client";
 import QnaDetailComponent from "../components/community/QnaDetailComponent";
 import QnaNewComponent from "../components/community/QnaNewComponent";
 
-const Notice = lazy(() => import("../components/community/NoticeComponent"));
+const Notice = lazy(() => import("../components/community/NoticeListComponent"));
 const News = lazy(() => import("../components/community/NewsComponent"));
 const Qna = lazy(() => import("../components/community/QnaComponent"));
 const Gallery = lazy(() => import("../components/community/GalleryComponent"));

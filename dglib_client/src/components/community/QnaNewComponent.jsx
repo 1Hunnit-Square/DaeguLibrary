@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
-import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
-import axios from "axios";
+import { createQuestion } from "../../api/qnaApi";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import useQuillEditor from "../../hooks/useQuillEditor";
 
 const QnaNewComponent = () => {
-  const mid = useRecoilValue(memberIdSelector);
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -21,11 +17,10 @@ const QnaNewComponent = () => {
     if (!confirmed) return;
 
     try {
-      await axios.post(`${API_SERVER_HOST}${API_ENDPOINTS.qna}`, {
+      await createQuestion({
         title,
         content,
         checkPublic,
-        memberMid: mid
       });
       alert("등록되었습니다.");
       navigate("/community/qna");
@@ -46,7 +41,7 @@ const QnaNewComponent = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full border border-gray-300 p-2 mt-1"
-          placeholder=" 50자 이내 제목을 입력해주세요"
+          placeholder="50자 이내 제목을 입력해주세요"
         />
       </div>
 

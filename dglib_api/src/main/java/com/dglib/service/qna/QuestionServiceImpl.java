@@ -1,5 +1,7 @@
 package com.dglib.service.qna;
 
+import java.time.LocalDateTime;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +13,9 @@ import com.dglib.dto.qna.QuestionDetailDTO;
 import com.dglib.dto.qna.QuestionListDTO;
 import com.dglib.dto.qna.QuestionNewDTO;
 import com.dglib.dto.qna.QuestionSearchDTO;
+import com.dglib.entity.member.Member;
 import com.dglib.entity.qna.Question;
+import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.QuestionRepository;
 import com.dglib.repository.qna.QuestionSpecifications;
 
@@ -25,19 +29,21 @@ import lombok.RequiredArgsConstructor;
 public class QuestionServiceImpl implements QuestionService {
 
 	private final QuestionRepository questionRepository;
+	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 
 	// 등록
 	@Override
-	public Long newQuestion(QuestionNewDTO questionDto) {
-////		Member member = memberRepository.findById(dto.getMemberMid())
-////				.orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
-////
-////		Question question = Question.builder().title(dto.getTitle()).content(dto.getContent())
-////				.checkPublic(dto.getCheckPublic()).postedAt(LocalDateTime.now()).member(member).build();
-////
-////		return questionRepository.save(question).getQno();
-		return null;
+	public Long newQuestion(QuestionNewDTO newDTO) {
+		Member member = memberRepository.findById(newDTO.getMemberMid())
+	            .orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+
+		Question question = modelMapper.map(newDTO, Question.class);
+		question.setMember(member);
+		question.setPostedAt(LocalDateTime.now());
+
+		return questionRepository.save(question).getQno();
+
 	}
 
 	// 목록 및 검색

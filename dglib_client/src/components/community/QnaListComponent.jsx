@@ -45,10 +45,9 @@ const QnaListComponent = () => {
       getQnaList({
         page: queryParams.page,
         size: 10,
-        searchType: queryParams.option,
-        keyword: queryParams.query,
+        option: queryParams.option,
+        query: queryParams.query,
         requesterMid: mid,
-
       }),
     keepPreviousData: true,
   });
@@ -75,7 +74,8 @@ const QnaListComponent = () => {
     if (isSearched && pageable?.totalElements !== undefined) {
       return (
         <div className="mb-4 text-sm text-gray-600">
-          "{queryParams.query}"에 대한 검색 결과 {pageable.totalElements}건이 있습니다.
+          "{queryParams.query}"에 대한 검색 결과 {pageable.totalElements}건이 있습니다.<br />
+          검색 시 조회 권한이 없는 글은 보이지 않습니다.
         </div>
       );
     }
@@ -167,7 +167,17 @@ const QnaListComponent = () => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <Button onClick={() => navigate("/community/qna/new")}>글쓰기</Button>
+        <Button onClick={() => {
+          if (!mid) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+          } else {
+            navigate("/community/qna/new")
+          }
+        }
+        }>
+          글쓰기
+        </Button>
       </div>
 
       {renderPagination()}

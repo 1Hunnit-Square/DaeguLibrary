@@ -10,11 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.qna.QuestionDetailDTO;
 import com.dglib.dto.qna.QuestionListDTO;
+import com.dglib.dto.qna.QuestionNewDTO;
 import com.dglib.dto.qna.QuestionSearchDTO;
 import com.dglib.security.jwt.JwtFilter;
 import com.dglib.service.qna.QuestionService;
@@ -29,14 +32,15 @@ public class QuestionController {
 
 	private final QuestionService questionService;
 
-//	// 등록
-//	@PostMapping
-//	public ResponseEntity<Long> createQuestion(@RequestBody QuestionSearchDTO dto) {
-//		Long qno = questionService.createQuestion(dto);
-//		return ResponseEntity.ok(qno);
-//	}
-//
-//	
+	// 등록
+	@PostMapping
+	public ResponseEntity<Long> createQuestion(@RequestBody QuestionNewDTO newDTO) {
+		String writerMid = JwtFilter.getMid();
+		newDTO.setMemberMid(writerMid);
+		Long qno = questionService.newQuestion(newDTO);
+		return ResponseEntity.ok(qno);
+	}
+
 
 	// 목록 및 검색
 	@GetMapping

@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
 public interface QuestionService {
 
 	//등록
-	Long newQuestion(QuestionNewDTO questionDto);
+	Long newQuestion(QuestionNewDTO newDTO);
 	
 	//목록 및 검색
 	Page<QuestionListDTO> findAll(QuestionSearchDTO searchDTO, Pageable pageable, String requesterMid);

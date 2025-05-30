@@ -37,7 +37,20 @@ const QnaDetailComponent = () => {
     };
 
     if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
-    if (isError || !question) return null;
+    if (isError) {
+        return (
+            <div>
+                <div className="text-center mt-20 text-red-600 font-semibold">
+                    이 글은 비공개이거나 존재하지 않습니다.
+                </div>
+                <div className="flex justify-center mt-8">
+                    <Button onClick={() => navigate(-1)}>목록</Button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!question) return null;
 
     const isOwner = mid === question.writerId;
     const hasAnswer = !!question.answer;

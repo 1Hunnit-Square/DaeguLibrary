@@ -2,6 +2,8 @@ package com.dglib.dto.qna;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+@Data
 public class QuestionUpdateDTO {
 	private String title; // 제목
 	private String content; // 본문

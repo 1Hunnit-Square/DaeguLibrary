@@ -9,38 +9,43 @@ import jakarta.persistence.criteria.Predicate;
 
 public class QuestionSpecifications {
 
-	public static Specification<Question> fromDTO(QuestionSearchDTO dto){
-		return Specification.where(searchFilter(dto.getQuery(), dto.getOption(), dto.getRequesterMid()));
-	}
-	
-	public static Specification<Question> searchFilter(String queryStr, String option, String requesterMid) {
-		return (root, query, cb) -> {
-			if (option == null || queryStr == null) {
-				return null;
-			}
+    public static Specification<Question> fromDTO(QuestionSearchDTO dto) {
+        // 검색어X
+        if (dto.getQuery() == null || dto.getOption() == null || dto.getQuery().isBlank()) {
+            return null;  // 전체 출력
+        }
 
-			Predicate canView = cb.or(
-					cb.isTrue(root.get("checkPublic")),
-					cb.equal(root.get("member").get("mid"), requesterMid)
-					);
+        // 검색어O
+        return Specification.where(searchFilter(dto.getQuery(), dto.getOption()))
+                .and(canView(dto.getRequesterMid()));
+    }
 
-			Predicate searchCondition;
-			switch (option) {
-			case "제목":
-				searchCondition = cb.like(root.get("title"), "%" + queryStr + "%");
-				break;
-			case "내용":
-				searchCondition = cb.like(root.get("content"), "%" + queryStr + "%");
-				break;
-			case "작성자":
-				searchCondition = cb.like(root.get("member").get("name"), "%" + queryStr + "%");
-				break;
-			default:
-				return null;
-			}
+    public static Specification<Question> canView(String requesterMid) {
+        return (root, query, cb) -> cb.or(
+                cb.isTrue(root.get("checkPublic")),
+                cb.equal(root.get("member").get("mid"), requesterMid)
+        );
+    }
 
-			return cb.and(searchCondition, canView);
-		};
+    public static Specification<Question> searchFilter(String queryStr, String option) {
+        return (root, query, cb) -> {
+            Predicate searchCondition;
 
-	}
+            switch (option) {
+                case "제목":
+                    searchCondition = cb.like(root.get("title"), "%" + queryStr + "%");
+                    break;
+                case "내용":
+                    searchCondition = cb.like(root.get("content"), "%" + queryStr + "%");
+                    break;
+                case "작성자":
+                    searchCondition = cb.like(root.get("member").get("name"), "%" + queryStr + "%");
+                    break;
+                default:
+                    return null;
+            }
+
+            return searchCondition;
+        };
+    }
 }

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
@@ -879,17 +880,9 @@ public class BookServiceImpl implements BookService {
     	}
     	Ebook ebook = modelMapper.map(dto, Ebook.class);
     	ebook.setEbookRegDate(LocalDate.now());
-    	Ebook oldEbook = ebookRepository.findTopByOrderByEbookIdDesc().orElse(null);
-    	
-    	
-    	Long id;
-    	if(oldEbook == null) {
-    		id = 0L;
-    	} else {
-    		id = oldEbook.getEbookId() + 1;
-    	}
-    	
-    	
+    	Long id = ebookRepository.findTopByOrderByEbookIdDesc()
+    		    .map(oldEbook -> oldEbook.getEbookId() + 1)
+    		    .orElse(1L);
     	
     	
     	
@@ -899,14 +892,8 @@ public class BookServiceImpl implements BookService {
 		try {
 			String path = "ebook/" + id;
 			List<MultipartFile> files = new ArrayList<>();
-			if (dto.getEbookCover() != null) {
-                files.add(dto.getEbookCover());
-                LOGGER.info("전자책 표지 이미지 저장 시작: {}", dto.getEbookCover().getOriginalFilename());
-            }
-			if (dto.getEbookFile() != null) {
-                files.add(dto.getEbookFile());
-                LOGGER.info("전자책 파일 저장 시작: {}", dto.getEbookFile().getOriginalFilename());
-            }
+			if (dto.getEbookCover() != null) files.add(dto.getEbookCover());
+			if (dto.getEbookFile() != null) files.add(dto.getEbookFile());
 			List<Object> savedFileInfos = fileUtil.saveFiles(files, path);
 			LOGGER.info("저장된 파일 정보: {}", savedFileInfos);
 			for (Object savedFileInfo : savedFileInfos) {

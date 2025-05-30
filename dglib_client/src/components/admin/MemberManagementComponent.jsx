@@ -1,10 +1,6 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
-<<<<<<< HEAD
-=======
-import Button from "../common/Button";
->>>>>>> origin/books
 import { usePagination } from "../../hooks/usePage";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -34,17 +30,10 @@ const MemberManagementComponent = () => {
                                 sortBy: searchURLParams.get("sortBy") || "mno",
                                 orderBy: searchURLParams.get("orderBy") || "desc",
                             };
-<<<<<<< HEAD
         
                             if (searchURLParams.has("query")) {
                                 params.query = searchURLParams.get("query") || "";
                                 params.option = searchURLParams.get("option") || "회원ID";
-=======
-
-                            if (queryParams.query) {
-                                params.query = queryParams.query;
-                                params.option = queryParams.option;
->>>>>>> origin/books
                             }
                             console.log(params);
                             return getMemberList(params);
@@ -52,12 +41,8 @@ const MemberManagementComponent = () => {
     });
 
     const memberList = useMemo(() => memberData.content, [memberData.content]);
-<<<<<<< HEAD
     const memberPage = useMemo(() => memberData.pageable, [memberData.pageable]);
     
-=======
-
->>>>>>> origin/books
 
     const { renderPagination } = usePagination(memberData, searchURLParams, setSearchURLParams, isLoading);
 
@@ -91,47 +76,6 @@ const MemberManagementComponent = () => {
 
         const { handleSearch } = useSearchHandler({});
 
-<<<<<<< HEAD
-=======
-            setSearchURLParams(newParams);
-        }, [setSearchURLParams]);
-
-    const handleSortByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set("sortBy", value || "mno");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-   const handleOrderByChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-
-        newParams.set("orderBy", value || "desc");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-
-    const handleSizeChange = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-        newParams.set("size", value || "10");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-const handleByRole = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-
-        newParams.set("role", value || "ALL");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
-
-
-
-    const handleByState = useCallback((value) => {
-        const newParams = new URLSearchParams(searchURLParams);
-
-        newParams.set("state", value || "ALL");
-        setSearchURLParams(newParams);
-    }, [searchURLParams, setSearchURLParams]);
->>>>>>> origin/books
 
     const filterValue = (value) => {
         const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full";

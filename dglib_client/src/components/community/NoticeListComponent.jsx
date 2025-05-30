@@ -52,6 +52,7 @@ const toDate = (dateTime) => {
      const tableMap = {
             table : {"title":"제목","name":"작성자","postedAt":"작성일","viewCount":"조회수"},
             trans : { "postedAt": toDate },
+            style : {"title" : "max-w-100 min-w-100"},
             leftKey: ["title"],
             overKey: ["title"],
             lineKey : ["title"],

@@ -870,56 +870,67 @@ public class BookServiceImpl implements BookService {
 		wishBookRepository.save(wishBook);
     }
     
-//    @Override
-//    public void regEbook(EbookRegistrationDTO dto) {
-//    	
-//    	Ebook ebook = ebookRepository.findByEbookIsbn(dto.getEbookIsbn()).orElse(null);
-//    	if (isExisit) {
-//    		throw new IllegalStateException("이미 등록된 전자책입니다.");
-//    	}
-//    	Ebook ebook = modelMapper.map(dto, Ebook.class);
-//    	ebook.setEbookRegDate(LocalDate.now());
-//    	
-//    	ebookRepository.save(ebook);
-//    	
-//    	
-//    	
-//		if (dto.getEbookFile() == null) {
-//			throw new IllegalArgumentException("전자책 파일을 업로드해야 합니다.");
-//		}
-//		try {
-//			String path = "ebook/" + ebook.getEbookId();
-//			List<MultipartFile> files = new ArrayList<>();
-//			if (dto.getEbookCover() != null) {
-//                files.add(dto.getEbookCover());
-//                LOGGER.info("전자책 표지 이미지 저장 시작: {}", dto.getEbookCover().getOriginalFilename());
-//            }
-//			if (dto.getEbookFile() != null) {
-//                files.add(dto.getEbookFile());
-//                LOGGER.info("전자책 파일 저장 시작: {}", dto.getEbookFile().getOriginalFilename());
-//            }
-//			List<Object> savedFileInfos = fileUtil.saveFiles(files, path);
-//			LOGGER.info("저장된 파일 정보: {}", savedFileInfos);
-//			for (Object savedFileInfo : savedFileInfos) {
-//	            Map<String, String> fileInfo = (Map<String, String>) savedFileInfo;
-//	            String originName = fileInfo.get("originName");
-//	            String pathName = fileInfo.get("pathName");
-//	            
-//	            if (fileUtil.isImageFile(originName)) {
-//	                ebook.setEbookCover(pathName);
-//	            } else {
-//	                ebook.setEbookFilePath(pathName);
-//	            }
-//	        }
-//	        
-//		} catch (Exception e) {
-//			LOGGER.error("전자책 파일 저장 실패: {}", e.getMessage());
-//			throw new IllegalStateException("전자책 파일 저장 실패: " + e.getMessage());
-//			
-//		}
-//	
-//		
-//    }
+    @Override
+    public void regEbook(EbookRegistrationDTO dto) {
+    	
+    	boolean isExist = ebookRepository.existsByEbookIsbn(dto.getEbookIsbn());
+    	if (isExist) {
+    		throw new IllegalStateException("이미 등록된 전자책입니다.");
+    	}
+    	Ebook ebook = modelMapper.map(dto, Ebook.class);
+    	ebook.setEbookRegDate(LocalDate.now());
+    	Ebook oldEbook = ebookRepository.findTopByOrderByEbookIdDesc().orElse(null);
+    	
+    	
+    	Long id;
+    	if(oldEbook == null) {
+    		id = 0L;
+    	} else {
+    		id = oldEbook.getEbookId() + 1;
+    	}
+    	
+    	
+    	
+    	
+    	
+		if (dto.getEbookFile() == null) {
+			throw new IllegalArgumentException("전자책 파일을 업로드해야 합니다.");
+		}
+		try {
+			String path = "ebook/" + id;
+			List<MultipartFile> files = new ArrayList<>();
+			if (dto.getEbookCover() != null) {
+                files.add(dto.getEbookCover());
+                LOGGER.info("전자책 표지 이미지 저장 시작: {}", dto.getEbookCover().getOriginalFilename());
+            }
+			if (dto.getEbookFile() != null) {
+                files.add(dto.getEbookFile());
+                LOGGER.info("전자책 파일 저장 시작: {}", dto.getEbookFile().getOriginalFilename());
+            }
+			List<Object> savedFileInfos = fileUtil.saveFiles(files, path);
+			LOGGER.info("저장된 파일 정보: {}", savedFileInfos);
+			for (Object savedFileInfo : savedFileInfos) {
+	            Map<String, String> fileInfo = (Map<String, String>) savedFileInfo;
+	            String originName = fileInfo.get("originName");
+	            String pathName = fileInfo.get("pathName");
+	            
+	            if (fileUtil.isImageFile(originName)) {
+	                ebook.setEbookCover(pathName);
+	            } else {
+	                ebook.setEbookFilePath(pathName);
+	            }
+	        }
+			
+			ebookRepository.save(ebook);
+	        
+		} catch (Exception e) {
+			LOGGER.error("전자책 파일 저장 실패: {}", e.getMessage());
+			throw new IllegalStateException("전자책 파일 저장 실패: " + e.getMessage());
+			
+		}
+	
+		
+    }
     
 
     

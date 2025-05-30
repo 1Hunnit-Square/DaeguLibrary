@@ -10,7 +10,7 @@ public interface EbookRepository extends JpaRepository<Ebook, Long> {
 
 	boolean existsByEbookIsbn(String ebookIsbn);
 
-	Optional<Ebook> findByEbookIsbn(String ebookIsbn);
+	Optional<Ebook> findTopByOrderByEbookIdDesc();
 
 	
 }

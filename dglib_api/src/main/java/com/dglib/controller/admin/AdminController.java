@@ -209,14 +209,14 @@ public class AdminController {
 		return ResponseEntity.ok().build();
 	}
 	
-//	@PostMapping("/regebook")
-//	public ResponseEntity<String> regEbook(EbookRegistrationDTO dto) {
-//		LOGGER.info("전자책 등록 요청 {}", dto);
-//		
-//		bookService.regEbook(dto);
-//		
-//		LOGGER.info("전자책 등록 성공");
-//		return ResponseEntity.ok().build();
-//	}
+	@PostMapping("/regebook")
+	public ResponseEntity<String> regEbook(EbookRegistrationDTO dto) {
+		LOGGER.info("전자책 등록 요청 {}", dto);
+		
+		bookService.regEbook(dto);
+		
+		LOGGER.info("전자책 등록 성공");
+		return ResponseEntity.ok().build();
+	}
 
 }

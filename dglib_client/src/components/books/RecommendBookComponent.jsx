@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getBookrecoList } from "../../api/bookApi";
+import { getBookrecoList } from "../../api/bookPythonApi";
 import Loading from "../../routers/Loading";
 import { usePagination } from "../../hooks/usePage";
 import { Link } from "react-router-dom";
@@ -69,9 +69,11 @@ const RecommendBookComponent = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <Link to={`/books/detail/${book.isbn13}?from=reco`} className="block text-xl font-semibold mb-4 hover:underline hover:cursor-pointer">
-                                                    {book.bookname}
-                                                </Link>
+                                                <div className="text-xl font-semibold mb-4">
+                                                    <Link to={`/books/detail/${book.isbn13}?from=reco`} className="inline">
+                                                        <span className="hover:underline hover:text-green-700 hover:cursor-pointer">{book.bookname}</span>
+                                                    </Link>
+                                                </div>
                                                 <div className="space-y-2 text-gray-600">
                                                     <p className="text-sm"><span className="font-medium">저자:</span> {book.authors || '-'}</p>
                                                     <p className="text-sm"><span className="font-medium">출판사:</span> {book.publisher || '-'}</p>

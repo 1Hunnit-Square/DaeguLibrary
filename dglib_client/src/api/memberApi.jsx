@@ -58,7 +58,7 @@ export const accountFind = async (params) => {
 export const modMemberPw = async (params) => {
     const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
     const res = await axios.post(`${prefix}/modPwMember`, params, header);
-    return res.data; 
+    return res.data;
 }
 
 export const getMemberInfo = async (params) => {
@@ -139,4 +139,54 @@ export const extendBorrow = async (rentIds) => {
     };
     const res = await axiosClient.post(`${prefix}/extendborrow`, rentIds, { headers });
     return res.data;
+}
+
+export const getMemberBorrowHistory = async (params = {}) => {
+    const res = await axiosClient.get(`${prefix}/memberborrowhistory`, {
+        params: params,
+    });
+    return res.data;
+}
+
+export const getMemberReserveList = async () => {
+    const res = await axiosClient.get(`${prefix}/memberreservelist`);
+    return res.data;
+}
+
+export const cancelReserveBook = async (reserveId) => {
+
+    const res = await axiosClient.delete(`${prefix}/cancelreservebook`, {params: { reserveId }});
+    return res.data;
+}
+
+export const getMemberYearBorrowHistory = async () => {
+    const res = await axiosClient.get(`${prefix}/yearborrowhistory`);
+    return res.data;
+}
+
+export const getMemberPhone = async () => {
+    const res = await axiosClient.get(`${prefix}/getmemberphone`);
+    return res.data;
+}
+
+export const regWishBook = async (book) => {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/regwishbook`, book, { headers });
+    return res.data;
+}
+
+
+export const getMemberWishBookList = async (year) => {
+
+    const res = await axiosClient.get(`${prefix}/memberwishbooklist/${year}`, );
+    return res.data;
+}
+
+export const cancelWishBook = async (wishNo) => {
+
+    const res = await axiosClient.post(`${prefix}/cancelwishbook/${wishNo}`);
+    return res.data;
+
 }

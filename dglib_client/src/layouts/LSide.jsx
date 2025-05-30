@@ -4,26 +4,33 @@ import { NavLink, useLocation } from 'react-router-dom';
 const LSide = ({ LMainMenu, LSideMenu }) => {
   const location = useLocation();
 
-  const activeMenu = useMemo(() => {
-    const currentPath = location.pathname;
-    const searchParams = new URLSearchParams(location.search);
+const activeMenu = useMemo(() => {
+  const currentPath = location.pathname;
+  const searchParams = new URLSearchParams(location.search);
+  if (currentPath.includes('/detail/')) {
+    const fromParam = searchParams.get('from');
+    if (fromParam) {
+      return fromParam;
+    }
+  }
+  let bestMatch = null;
+  let longestMatchLength = 0;
 
-    if (currentPath.includes('/detail/')) {
-      const fromParam = searchParams.get('from');
-      if (fromParam) {
-        return fromParam;
+  LSideMenu.forEach(menu => {
+    const menuBasePath = menu.path.split('?')[0];
+    if (currentPath.startsWith(menuBasePath)) {
+      if (menuBasePath.length > longestMatchLength) {
+        longestMatchLength = menuBasePath.length;
+        bestMatch = menu;
       }
     }
+  });
 
-    const currentMenuItem = LSideMenu.find(menu => {
-      const menuBasePath = menu.path.split('?')[0];
-      return currentPath === menuBasePath;
-    });
-    if (currentMenuItem) {
-      return currentMenuItem.id;
-    }
-    return LSideMenu[0]?.id || null;
-  }, [location.pathname, location.search, LSideMenu]);
+  if (bestMatch) {
+    return bestMatch.id;
+  }
+  return LSideMenu[0]?.id || null;
+}, [location.pathname, location.search, LSideMenu]);
 
   return (
     <div className="w-72 p-5">
@@ -47,7 +54,6 @@ const LSide = ({ LMainMenu, LSideMenu }) => {
                 hover:bg-green-100 hover:text-[#00893B]
                 ${activeMenu === menu.id ? 'text-[#00893B]' : ''}
               `}
-              // handleMenuClick 함수를 제거하고 NavLink의 기본 동작만 사용
             >
               {menu.label}
             </NavLink>

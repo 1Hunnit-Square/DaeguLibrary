@@ -1,5 +1,6 @@
 package com.dglib.controller.member;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,15 +27,21 @@ import com.dglib.dto.book.AddInterestedBookDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.ReserveBookDTO;
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberPhoneDTO;
+import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.security.jwt.JwtFilter;
@@ -201,6 +208,7 @@ public class MemberController {
 		return ResponseEntity.ok().build();
 	}
 
+
 	@GetMapping("/info/{mid}")
 	public ResponseEntity<MemberInfoDTO> fetchMemberInfo(@PathVariable String mid) {
 		return ResponseEntity.ok(memberService.getMemberInfo(mid));
@@ -215,5 +223,77 @@ public class MemberController {
 
 		return ResponseEntity.ok(result);
 	}
+
+	
+	@GetMapping("/memberborrowhistory")
+	public ResponseEntity<Page<MemberBorrowHistoryDTO>> getMemberBorrowHistory(
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
+			BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info(borrowHistoryRequestDTO + "");
+		LOGGER.info("회원 대출이력 요청: {}, 페이지: {}, 사이즈: {}", mid, page, size);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("rentStartDate").descending());
+		Page<MemberBorrowHistoryDTO> borrowHistory = memberService.getMemberBorrowHistory(mid, pageable, borrowHistoryRequestDTO);
+		return ResponseEntity.ok(borrowHistory);
+	}
+	
+	@GetMapping("/memberreservelist")
+	public ResponseEntity<List<MemberReserveListDTO>> getMemberReserveList() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 예약목록 요청: {}", mid);
+		List<MemberReserveListDTO> dto = memberService.getMemberReserveList(mid);
+		return ResponseEntity.ok(dto);
+	}
+	
+	@DeleteMapping("/cancelreservebook")
+	public ResponseEntity<String> cancelReserveBook(@RequestParam Long reserveId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 예약 취소 요청: {}, 회원 id: {}", reserveId, mid);
+		memberService.cancelReserve(reserveId);
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/yearborrowhistory")
+	public ResponseEntity<Map<String, Map<String, Integer>>> cencelReserveBook() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 연간 대출 이력 요청: {}", mid);
+		Map<String, Map<String, Integer>> yearBorrowList = memberService.getMemberYearBorrowList(mid);
+		LOGGER.info("연간 대출 이력: {}", yearBorrowList);
+		return ResponseEntity.ok(yearBorrowList);
+	}
+	
+	@GetMapping("/getmemberphone")
+	public ResponseEntity<MemberPhoneDTO> getMemberPhone() {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 전화번호 요청: {}", mid);
+		MemberPhoneDTO memberPhone = memberService.getMemberPhone(mid);
+		return ResponseEntity.ok(memberPhone);
+	}
+	
+	@PostMapping("/regwishbook")
+	public ResponseEntity<String> regWishBook(@RequestBody RegWishBookDTO dto) {
+        String mid = JwtFilter.getMid();
+        bookService.regWishBook(dto, mid);
+        LOGGER.info("회원 희망도서 회원 id: {}", mid);
+        LOGGER.info("희망도서 등록 요청: {}", dto);
+        return ResponseEntity.ok().build();
+    }
+	
+	@GetMapping("/memberwishbooklist/{year}")
+	public ResponseEntity<List<MemberWishBookListDTO>> memberWishBookList(@PathVariable int year) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 희망도서 목록 요청: {}, 년도: {}", mid, year);
+		List<MemberWishBookListDTO> wishBookList = memberService.getMemberWishBookList(mid, year);
+		return ResponseEntity.ok(wishBookList);
+	}
+	
+	@PostMapping("/cancelwishbook/{wishId}")
+	public ResponseEntity<String> cancelWishBook(@PathVariable Long wishId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 희망도서 삭제 요청: {}, 회원 id: {}", wishId, mid);
+		memberService.cancelWishBook(wishId, mid);
+		return ResponseEntity.ok().build();
+	}
+	
 
 }

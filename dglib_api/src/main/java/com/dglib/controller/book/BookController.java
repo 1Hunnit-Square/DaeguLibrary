@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +40,6 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/book")
 public class BookController {
 
@@ -45,77 +47,11 @@ public class BookController {
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
 	
-	@GetMapping("/bookreco/{genre}")
-	public Mono<ResponseEntity<Map<String, String>>> bookReco(@PathVariable String genre) {
-	    LOGGER.info("genre: {}", genre);
-
-	    return webClient.get()
-	            .uri(uriBuilder -> uriBuilder
-	                    .path("/bookreco/{genre}")
-	                    .build(genre))
-	            .retrieve()
-	            .bodyToMono(String.class)
-	            .map(result -> {
-	                LOGGER.info("result: {}", result);
-	                Map<String, String> responseMap = new HashMap<>();
-	                responseMap.put("result", result);
-	                return ResponseEntity.ok(responseMap);
-	            })
-	            .onErrorResume(e -> {
-	                LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
-	                Map<String, String> responseMap = new HashMap<>();
-	                responseMap.put("result", "백엔드 서버와 통신 중 오류가 발생했습니다.");
-	                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap));
-	            });
-	}
-	
-	@GetMapping("/bookrecolist/{genre}")
-	public Mono<ResponseEntity<String>> bookrecoList(
-	        @PathVariable String genre,
-	        @RequestParam(defaultValue = "1") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-	    LOGGER.info("genre: {}", genre);
-
-	    return webClient.get()
-	            .uri(uriBuilder -> uriBuilder
-	                    .path("/bookrecolist/{genre}")
-	                    .queryParam("page", page)
-	                    .queryParam("size", size)
-	                    .build(genre))
-	            .retrieve()
-	            .bodyToMono(String.class)
-	            .map(result -> {
-	                LOGGER.info("result: {}", result);
-	                return ResponseEntity.ok(result);
-	            })
-	            .onErrorResume(e -> {
-	                LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
-	                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                        .body("백엔드 서버와 통신 중 오류가 발생했습니다."));
-	            });
-	}
-	@GetMapping("/search/{searchTerm}")
-	public Mono<ResponseEntity<String>> searchBookApi(@PathVariable String searchTerm,
-										@RequestParam(defaultValue = "1") int page,
-										@RequestParam(defaultValue = "10") int size) {
-		LOGGER.info("검색어: {}, 페이지: {}, 페이지당 항목 수: {}", searchTerm, page, size);
-		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-                        .path("/search/{search_term}")
-                        .queryParam("page", page)
-                        .queryParam("items_per_page", size)
-                        .build(searchTerm))
-				.retrieve()
-				.bodyToMono(String.class)
-				.map(body -> {
-					return ResponseEntity.ok(body);
-				})
-				.onErrorResume(e -> {
-                    LOGGER.error("Python 백엔드 호출 중 오류 발생", e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("백엔드 서버와 통신 중 오류가 발생했습니다."));
-                });
-	}
-
+	public BookController(@Qualifier("webClient") WebClient webClient, BookService bookService) {
+        this.webClient = webClient;
+        this.bookService = bookService;
+    }
+		
 	
 	@GetMapping("/nslibrarybooklist")
 	public ResponseEntity<SearchBookDTO> getNsLibraryBookList(

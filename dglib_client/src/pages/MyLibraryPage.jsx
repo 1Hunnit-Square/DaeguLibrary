@@ -6,12 +6,13 @@ import SubHeader from "../layouts/SubHeader";
 const MyLibraryPage = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
   const location = useLocation();
+  const currentYear = new Date().getFullYear();
 
     const LSideMenu = useMemo(() => [
         { id: "borrowstatus", label: "대출관리", path: "/mylibrary/borrowstatus" },
         { id: "bookreservation", label: "도서예약", path: "/mylibrary/bookreservation" },
         { id: "interested", label: "관심도서", path: "/mylibrary/interested?page=1&option=전체" },
-        { id: "request", label: "희망도서", path: "/mylibrary/request" },
+        { id: "request", label: "희망도서", path: `/mylibrary/request?year=${currentYear}` },
         { id: "program", label: "프로그램 신청 내역", path: "/mylibrary/useprogram" },
         { id: "usedfacility", label: "이용 신청 내역", path: "/mylibrary/usedfacility" },
         { id: "personalized", label: "맞춤 정보", path: "/mylibrary/personalized" }], [] )

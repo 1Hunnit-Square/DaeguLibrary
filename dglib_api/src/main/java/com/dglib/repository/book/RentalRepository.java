@@ -15,10 +15,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.entity.book.LibraryBook;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
+import com.dglib.entity.book.ReserveState;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 	Optional<Rental> findByLibraryBookLibraryBookIdAndStateNot(Long libraryBookId, RentalState state);
@@ -41,6 +43,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	@EntityGraph(attributePaths = "member")
 	List<Rental> findByMemberMid(String mid);
 	
+	
 	@EntityGraph(attributePaths = "member")
 	@Query("SELECT r FROM Rental r WHERE r.state = com.dglib.entity.book.RentalState.BORROWED AND r.dueDate < :today")
     List<Rental> findOverdueRentals(
@@ -56,6 +59,18 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.reserves"})
 	List<Rental> findWithDetailsByRentIdIn(List<Long> ids);
+	
+	@EntityGraph(attributePaths = {"member"})
+	List<Rental> findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(String mid, LocalDate startDate, LocalDate endDate);
+	
+	
+	
+	
+
+	
+
+	
+	
 	
 	
 

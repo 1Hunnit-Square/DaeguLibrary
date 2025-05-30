@@ -10,7 +10,9 @@ export const API_ENDPOINTS = {
   calendar: '/api/closed',
   place: '/api/places',
   qna: '/api/question',
-  notice: '/api/notice'
+  notice: '/api/notice',
+  chatbot: '/api/chatbot',
+  bookapi: '/api/bookapi',
 };
 
 export const SMS_KEY = "CREATION";

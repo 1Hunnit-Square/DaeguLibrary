@@ -2,6 +2,8 @@ package com.dglib.dto.member;
 
 import java.time.LocalDate;
 
+import com.dglib.entity.member.MemberState;
+
 import lombok.Data;
 
 @Data
@@ -13,4 +15,5 @@ public class MemberBorrowNowListDTO {
 	LocalDate dueDate;
 	Long reserveCount;
 	Long rentId;
+	MemberState memberState;
 }

@@ -6,6 +6,7 @@ export const useBookMutation = (
     successMessage = '완료되었습니다.',
     queryKeyToInvalidate = ['librarybooklist'],
     onReset = () => {},
+    failRefrash = true
   }
 ) => {
   const queryClient = useQueryClient();
@@ -19,7 +20,10 @@ export const useBookMutation = (
     onError: (error) => {
       console.log("오류:", error);
       alert(`${error.response?.data?.message || ''}`);
-      window.location.reload();
+      if (failRefrash) {
+        window.location.reload();
+      }
+
     }
   });
 };

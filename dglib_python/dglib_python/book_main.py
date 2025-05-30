@@ -2,10 +2,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from dglib_python.config import logger, ALADIN_KEY, ALADIN_API_SEARCH_URL
-import httpx
+from typing import List
 from dglib_python.models.book import book_cache
 from dglib_python.schedulers.book_updater import start_scheduler, stop_scheduler, run_update_with_retry
-from dglib_python.services.aladin import get_total_results_count, get_books_by_page
+from dglib_python.services.aladin import get_total_results_count, get_books_by_page, get_aladin_keyword_by_isbn
+from dglib_python.services.info_naru import get_member_reco_books
+from pydantic import BaseModel
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -109,6 +111,30 @@ async def book_search(
     except Exception as e:
         logger.error(f"검색 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=f"검색 처리 중 오류가 발생했습니다: {str(e)}")
+
+
+@app.post("/wordcloud")
+async def wordcloud(isbn: List[str]):
+    word_cloud = None
+    if isbn:
+        word_cloud = await get_aladin_keyword_by_isbn(isbn)
+    logger.info(word_cloud)
+    return {"data": word_cloud}
+
+
+class MemberRecoBookDTO(BaseModel):
+    isbns: List[str]
+    gender: int
+    age: int
+
+
+@app.post("/memberrecobook")
+async def member_reco_book(dto: MemberRecoBookDTO):
+    logger.info(f"클라이언트 요청: {dto}")
+    reco_book_list = await get_member_reco_books(dto.isbns, dto.gender, dto.age)
+    logger.info(f"추천 도서 목록: {reco_book_list}")
+
+    return reco_book_list
 
 def main():
     import uvicorn

@@ -1,6 +1,10 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
+<<<<<<< HEAD
+=======
+import Button from "../common/Button";
+>>>>>>> origin/books
 import { usePagination } from "../../hooks/usePage";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -30,19 +34,30 @@ const MemberManagementComponent = () => {
                                 sortBy: searchURLParams.get("sortBy") || "mno",
                                 orderBy: searchURLParams.get("orderBy") || "desc",
                             };
+<<<<<<< HEAD
         
                             if (searchURLParams.has("query")) {
                                 params.query = searchURLParams.get("query") || "";
                                 params.option = searchURLParams.get("option") || "회원ID";
+=======
+
+                            if (queryParams.query) {
+                                params.query = queryParams.query;
+                                params.option = queryParams.option;
+>>>>>>> origin/books
                             }
                             console.log(params);
                             return getMemberList(params);
                         }
     });
-                    
+
     const memberList = useMemo(() => memberData.content, [memberData.content]);
+<<<<<<< HEAD
     const memberPage = useMemo(() => memberData.pageable, [memberData.pageable]);
     
+=======
+
+>>>>>>> origin/books
 
     const { renderPagination } = usePagination(memberData, searchURLParams, setSearchURLParams, isLoading);
 
@@ -76,9 +91,50 @@ const MemberManagementComponent = () => {
 
         const { handleSearch } = useSearchHandler({});
 
+<<<<<<< HEAD
+=======
+            setSearchURLParams(newParams);
+        }, [setSearchURLParams]);
+
+    const handleSortByChange = useCallback((value) => {
+        const newParams = new URLSearchParams(searchURLParams);
+        newParams.set("sortBy", value || "mno");
+        setSearchURLParams(newParams);
+    }, [searchURLParams, setSearchURLParams]);
+
+   const handleOrderByChange = useCallback((value) => {
+        const newParams = new URLSearchParams(searchURLParams);
+
+        newParams.set("orderBy", value || "desc");
+        setSearchURLParams(newParams);
+    }, [searchURLParams, setSearchURLParams]);
+
+
+    const handleSizeChange = useCallback((value) => {
+        const newParams = new URLSearchParams(searchURLParams);
+        newParams.set("size", value || "10");
+        setSearchURLParams(newParams);
+    }, [searchURLParams, setSearchURLParams]);
+
+const handleByRole = useCallback((value) => {
+        const newParams = new URLSearchParams(searchURLParams);
+
+        newParams.set("role", value || "ALL");
+        setSearchURLParams(newParams);
+    }, [searchURLParams, setSearchURLParams]);
+
+
+
+    const handleByState = useCallback((value) => {
+        const newParams = new URLSearchParams(searchURLParams);
+
+        newParams.set("state", value || "ALL");
+        setSearchURLParams(newParams);
+    }, [searchURLParams, setSearchURLParams]);
+>>>>>>> origin/books
 
     const filterValue = (value) => {
-        const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full"; 
+        const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full";
        const data = {
         "USER" : <span className={`text-black bg-amber-100 ${roundStyle}`}>정회원</span>,
         "MANAGER" : <span className={`text-blue-500 bg-amber-100 ${roundStyle}`}>사서</span>,
@@ -95,7 +151,7 @@ const MemberManagementComponent = () => {
     const handleClick = (e) => {
         setModData(e);
         setIsOpen(true);
-        
+
     }
 
     const handleClose = () => {
@@ -124,7 +180,7 @@ const MemberManagementComponent = () => {
              {isLoading && (
                 <Loading text="목록 갱신중.."/>
             )}
-            
+
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
             <div className="flex items-center justify-center mb-10 gap-30 bg-gray-300 h-30">
                     <SearchSelectComponent options={["회원ID", "이름","회원번호"]} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
@@ -139,7 +195,7 @@ const MemberManagementComponent = () => {
                             <SelectComponent onChange={(e) => handleSelectChange('role', e)} value={searchURLParams.get("role") || "ALL"}  options={roleMap} />
                             <SelectComponent onChange={(e) => handleSelectChange('state', e)} value={searchURLParams.get("state") || "ALL"}  options={stateMap} />
                         </div>
-                        
+
 
                     </div>
             </div>

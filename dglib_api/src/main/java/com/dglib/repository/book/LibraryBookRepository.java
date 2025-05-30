@@ -74,8 +74,8 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = {"book"})
 	List<LibraryBook> findAllByBookIsbn(String isbn);
 	
-	@EntityGraph(attributePaths = {"book"})
-	boolean existsByBookIsbn(String isbn);
+	
+	boolean existsByBookIsbnAndIsDeletedFalse(String isbn);
 	
 	
 	@Query("SELECT lb.libraryBookId FROM LibraryBook lb WHERE lb.libraryBookId IN :libraryBookIds")

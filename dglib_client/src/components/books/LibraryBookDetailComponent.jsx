@@ -29,7 +29,7 @@ const LibraryBookDetailComponent = () => {
                 return getLibraryBookDetail(isbn);
         },
     });
-    const isbnValue = fromParam === 'reco' ? isbn : libraryBookDetail?.isbn;
+    const isbnValue = (fromParam === 'reco' || fromParam === 'personalized') ? isbn : libraryBookDetail?.isbn;
 
     const findRecoBookData = () => {
         const queries = queryClient.getQueryCache().getAll();
@@ -37,16 +37,29 @@ const LibraryBookDetailComponent = () => {
         const recoQueries = queries.filter(query =>
                 query.queryKey[0] === 'recoBookList'
             );
+        const memberRecoQueries = queries.filter(query =>
+        query.queryKey[0] === 'memberRecoBook'
+    );
             for (const query of recoQueries) {
                 const data = query.state.data;
                 if (data?.content) {
-
-                const matchingBook = data.content.find(book => book.isbn13 === isbnValue);
-                if (matchingBook) {
-                    return matchingBook;
-                }
+                    const matchingBook = data.content.find(book => book.isbn13 === isbnValue);
+                    if (matchingBook) {
+                        return matchingBook;
+                    }
                 }
             }
+
+            for (const query of memberRecoQueries) {
+                const data = query.state.data;
+                if (data?.docs) {
+                    const matchingItem = data.docs.find(item => item.book.isbn13 === isbnValue);
+                    if (matchingItem) {
+                        return matchingItem.book;
+                    }
+                }
+            }
+
             return null;
     };
 

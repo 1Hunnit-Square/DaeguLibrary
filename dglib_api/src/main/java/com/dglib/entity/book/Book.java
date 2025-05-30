@@ -31,13 +31,13 @@ public class Book {
 	@Column(length = 13)
 	private String isbn;  // ISBN 0으로 시작 가능해서 String으로 설정
 	
-	@Column(nullable = false, length = 150)
+	@Column(nullable = false, length = 255)
 	private String bookTitle;
 	
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, length = 255)
 	private String author;
 	
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, length = 255)
 	private String publisher;
 	
 	@Column(nullable = false)

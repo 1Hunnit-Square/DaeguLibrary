@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBookreco } from "../../api/bookApi";
+import { getBookreco } from "../../api/bookPythonApi";
 import { useParams } from "react-router-dom";
 import Loading from "../../routers/Loading";
 

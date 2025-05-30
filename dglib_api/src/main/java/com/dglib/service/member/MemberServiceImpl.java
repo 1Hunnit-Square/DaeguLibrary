@@ -1,7 +1,11 @@
 package com.dglib.service.member;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,22 +21,36 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
 import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
+import com.dglib.dto.member.MemberPhoneDTO;
+import com.dglib.dto.member.MemberRecoBookDTO;
+import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
+import com.dglib.entity.book.Reserve;
+import com.dglib.entity.book.ReserveState;
+import com.dglib.entity.book.WishBook;
+import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.RentalRepository;
+import com.dglib.repository.book.RentalSpecifications;
+import com.dglib.repository.book.ReserveRepository;
+import com.dglib.repository.book.WishBookRepository;
+import com.dglib.repository.book.WishBookSpecifications;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
 
@@ -47,6 +65,8 @@ public class MemberServiceImpl implements MemberService {
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final RentalRepository rentalRepository;
+	private final ReserveRepository reserveRepository;
+	private final WishBookRepository wishBookRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
 
@@ -261,5 +281,177 @@ public class MemberServiceImpl implements MemberService {
 
 		return dto;
 	}
+
+	
+	@Override
+	public Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable, BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
+		Specification<Rental> spec = RentalSpecifications.mrsFilter(borrowHistoryRequestDTO, mid);
+		Page<Rental> rentalPage = rentalRepository.findAll(spec, pageable);
+		return rentalPage.map(rental -> {
+			MemberBorrowHistoryDTO dto = modelMapper.map(rental, MemberBorrowHistoryDTO.class);
+			dto.setBookTitle(rental.getLibraryBook().getBook().getBookTitle());
+			dto.setAuthor(rental.getLibraryBook().getBook().getAuthor());
+			dto.setIsbn(rental.getLibraryBook().getBook().getIsbn());
+			dto.setRentStartDate(rental.getRentStartDate());
+			dto.setDeleted(rental.getLibraryBook().isDeleted());
+			dto.setDueDate(rental.getDueDate());
+			dto.setReturnDate(rental.getReturnDate());
+			dto.setRentId(rental.getRentId());
+			dto.setMemberState(rental.getMember().getState());
+			dto.setRentalState(rental.getState());
+			return dto;
+		});
+	}
+	
+	@Override
+	public List<MemberReserveListDTO> getMemberReserveList(String mid) {
+		Sort sort = Sort.by(Sort.Direction.DESC, "reserveId");
+		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED, sort);
+		return reserves.stream().map(reserve -> {
+			MemberReserveListDTO dto = modelMapper.map(reserve, MemberReserveListDTO.class);
+			dto.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
+			dto.setAuthor(reserve.getLibraryBook().getBook().getAuthor());
+			dto.setIsbn(reserve.getLibraryBook().getBook().getIsbn());
+			dto.setReserveDate(reserve.getReserveDate());
+			dto.setUnmanned(reserve.isUnmanned());
+			dto.setReserveId(reserve.getReserveId());
+			dto.setDueDate(reserve.getLibraryBook().getRentals().stream()
+					.filter(rental -> rental.getState() == RentalState.BORROWED).map(Rental::getDueDate).findFirst()
+					.orElse(null));
+			dto.setReserveCount(reserve.getLibraryBook().getReserves().stream()
+					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned()).count());
+			dto.setReturned(reserve.getLibraryBook().getRentals().stream()
+					.anyMatch(r -> r.getState() == RentalState.RETURNED));
+			return dto;
+		}).collect(Collectors.toList());
+	}
+	
+	@Override
+	public void cancelReserve(Long reserveId) {
+		Reserve reserve = reserveRepository.findById(reserveId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 예약이 존재하지 않습니다."));
+		if (reserve.getState() != ReserveState.RESERVED) {
+			throw new IllegalStateException("이미 취소된 예약입니다.");
+		}
+		reserve.setState(ReserveState.CANCELED);
+	}
+	
+	@Override
+	public List<String> getMemberBorrowedBookIsbns(String mid) {
+		return memberRepository.find40borrowedIsbn(mid);
+		
+	}
+	
+	@Override
+	public Map<String, Map<String, Integer>> getMemberYearBorrowList(String mid) {
+	    LocalDate today = LocalDate.now();
+	    LocalDate tenYearsAgo = LocalDate.of(today.getYear() - 10, 1, 1);
+
+	    List<Rental> borrowList = rentalRepository.findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(mid, tenYearsAgo, today);
+
+	    Map<String, Map<String, Integer>> monthlyYearlyCounts = new LinkedHashMap<>();
+	    int startYear = tenYearsAgo.getYear();
+	    int endYear = today.getYear();
+
+	    for (int m = 1; m <= 12; m++) {
+	        String monthStr = m + "월";
+	        Map<String, Integer> yearMap = new LinkedHashMap<>();
+	        for (int y = startYear; y <= endYear; y++) {
+	            yearMap.put(y + "년", 0);
+	        }
+	        monthlyYearlyCounts.put(monthStr, yearMap);
+	    }
+
+	   
+	    for (Rental rental : borrowList) {
+	        LocalDate date = rental.getRentStartDate();
+	        String monthStr = date.getMonthValue() + "월";
+	        String yearStr = date.getYear() + "년";
+
+	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+	        yearMap.put(yearStr, yearMap.get(yearStr) + 1);
+	    }
+
+	    
+	    Map<String, Integer> cumulativeYearly = new HashMap<>();
+	    for (int y = startYear; y <= endYear; y++) {
+	        cumulativeYearly.put(y + "년", 0);
+	    }
+
+	    for (int m = 1; m <= 12; m++) {
+	        String monthStr = m + "월";
+	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+
+	        for (int y = startYear; y <= endYear; y++) {
+	            String yearStr = y + "년";
+	            int currentCount = yearMap.get(yearStr);
+	            int cumulative = cumulativeYearly.get(yearStr) + currentCount;
+	            cumulativeYearly.put(yearStr, cumulative);
+	            yearMap.put(yearStr, cumulative);
+	        }
+	    }
+
+	    return monthlyYearlyCounts;
+	}
+	
+	@Override
+	public MemberRecoBookDTO getMemberBorrowedBookIsbnForReco(String mid) {
+		List<String> isbns = memberRepository.find5borrowedIsbn(mid);
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		MemberRecoBookDTO recoBookDTO = new MemberRecoBookDTO();
+		recoBookDTO.setIsbns(isbns);
+		if(member.getGender().equals("남")) {
+			recoBookDTO.setGender(0L);
+		}else {
+			recoBookDTO.setGender(1L);
+		}
+		LocalDate birthDate = member.getBirthDate();
+	   
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        Long ageGroup = (long) ((age / 10) * 10);  
+        recoBookDTO.setAge(ageGroup);
+	    
+		return recoBookDTO;
+	}
+	
+	@Override
+	public MemberPhoneDTO getMemberPhone(String mid) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		String phone = member.getPhone();
+		MemberPhoneDTO dto = new MemberPhoneDTO();
+		dto.setPhoneList(Arrays.asList(phone.split("-")));
+		
+		return dto;
+	}
+	
+	@Override
+	public List<MemberWishBookListDTO> getMemberWishBookList(String mid, int year) {
+		Specification<WishBook> spac = WishBookSpecifications.wbFilter(year, mid, WishBookState.CANCELED);
+		Sort sort = Sort.by(Sort.Direction.DESC, "wishNo");
+		List<WishBook> wishBooks = wishBookRepository.findAll(spac, sort);
+		return wishBooks.stream().map(wishBook -> {
+			MemberWishBookListDTO dto = modelMapper.map(wishBook, MemberWishBookListDTO.class);
+			return dto;
+		}).collect(Collectors.toList());
+	}
+	
+	@Override
+	public void cancelWishBook(Long wishId, String mid) {
+		WishBook wishBook = wishBookRepository.findByWishNoAndMemberMid(wishId, mid)
+				.orElseThrow(() -> new IllegalArgumentException("해당 내역이 존재하지 않습니다."));
+		if (wishBook.getState() == WishBookState.CANCELED) {
+			throw new IllegalStateException("이미 취소된 내역입니다.");
+		}
+		if (wishBook.getState() == WishBookState.REJECTED) {
+			throw new IllegalStateException("이미 거절된 내역입니다.");
+		}
+		if (wishBook.getState() == WishBookState.ACCEPTED) {
+			throw new IllegalStateException("이미 수락된 내역입니다.");
+		}
+		wishBook.setState(WishBookState.CANCELED);
+	}
+	
 
 }

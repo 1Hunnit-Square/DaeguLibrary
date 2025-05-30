@@ -95,7 +95,7 @@ public class LibraryBookSpecifications {
 	               }
 	        }
 			predicates.add(basePredicate); 
-			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+			return criteriaBuilder.and(predicates.toArray(Predicate[] :: new));
 		};
             
 	}
@@ -161,7 +161,9 @@ public class LibraryBookSpecifications {
             
   
             
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(Predicate[] :: new));
         };
     }
+	
+	
 }

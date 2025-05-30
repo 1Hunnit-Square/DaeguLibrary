@@ -55,9 +55,7 @@ export const returnBook = async (returnData) => {
     const payload = returnData.map(rentId => ({rentId}));
     console.log(payload);
     const res = await axios.post(`${prefix}/returnbook`, payload, { headers: { 'Content-Type': 'application/json' } });
-    if (res.status !== 200) {
-        return res.data;
-    }
+
     return res.data;
 }
 
@@ -71,9 +69,7 @@ export const getReserveBookList = async (params = {}) => {
 export const cancelReserveBook = async (reserveUpdate) => {
     const payload = reserveUpdate.map(reserveId => ({reserveId}));
     const res = await axios.post(`${prefix}/cancelreservebook`, payload, { headers: { 'Content-Type': 'application/json' } });
-    if (res.status !== 200) {
-        return res.data;
-    }
+
     return res.data;
 
 }
@@ -82,16 +78,30 @@ export const cancelReserveBook = async (reserveUpdate) => {
 export const completeBorrowing = async (reserveUpdate) => {
     const payload = reserveUpdate.map(reserveId => ({reserveId}));
     const res = await axios.post(`${prefix}/completeborrowing`, payload, { headers: { 'Content-Type': 'application/json' } });
-    if (res.status !== 200) {
-        return res.data;
-    }
+
     return res.data;
 }
 
 export const updateOverdueMember = async () => {
     const res = await axios.post(`${prefix}/updateoverduemember`);
-    if (res.status !== 200) {
-        return res.data;
-    }
+
+    return res.data;
+}
+
+export const getWishBookList = async (params = {}) => {
+    const res = await axios.get(`${prefix}/wishbooklist`, {
+        params: params,
+    });
+    return res.data;
+}
+
+export const rejectWishBook = async (wishNo) => {
+    const res = await axios.post(`${prefix}/rejectwishbook/${wishNo}`);
+
+    return res.data;
+}
+
+export const regEbook = async (ebookData) => {
+    const res = await axios.post(`${prefix}/regebook`, ebookData, { headers: { 'Content-Type': 'multipart/form-data' } });
     return res.data;
 }

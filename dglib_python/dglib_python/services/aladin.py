@@ -2,6 +2,9 @@ from dglib_python.config import logger, ALADIN_API_URL, ALADIN_KEY, ALADIN_API_S
 from dglib_python.utils.http import safe_request
 import httpx
 import html
+from typing import List
+import asyncio
+
 
 async def get_aladin_book_info(isbn: str) -> dict:
 
@@ -100,13 +103,59 @@ async def get_books_by_page(query, page=1, items_per_page=10):
                 book['author'] = html.unescape(book.get('author', ''))
                 book['title'] = html.unescape(book.get('title', ''))
                 book['publisher'] = html.unescape(book.get('publisher', ''))
-
-
-
-
-
-
             return books
         except Exception as e:
             logger.error(f"API 요청 오류: {str(e)}")
             return []
+
+async def get_aladin_keyword_by_isbn(isbn_list: List[str]) -> list:
+
+    async def process_single_isbn(isbn):
+        async with httpx.AsyncClient() as client:
+            params = {
+                'ttbkey': ALADIN_KEY,
+                'ItemIdType': 'ISBN',
+                'ItemId': isbn,
+                'output': 'js',
+                'Version': '20131101'
+            }
+
+            try:
+                response = await client.get(ALADIN_API_URL, params=params, timeout=10.0)
+                response.raise_for_status()
+                data = response.json()
+                return data
+            except Exception as e:
+                logger.error(f"알라딘 API 요청 오류: {str(e)}")
+                return {}
+
+    semaphore = asyncio.Semaphore(10)
+
+    async def limited_request(isbn):
+        async with semaphore:
+            return await process_single_isbn(isbn)
+
+    tasks = [limited_request(isbn) for isbn in isbn_list]
+    results = await asyncio.gather(*tasks)
+
+    categories = []
+    for result in results:
+        if result and "item" in result and result["item"]:
+            for book in result["item"]:
+                if "categoryName" in book:
+                    category_name = book.get("categoryName", "")
+                    category_parts = category_name.split(">")
+                    if category_parts:
+                        last_category = category_parts[-1].strip()
+                        if '/' in last_category:
+                            slash_parts = last_category.split('/')
+                            last_category = slash_parts[-1].strip()
+                        if last_category:
+                            categories.append(last_category)
+    unique_categories = list(set(categories))
+    cloud_data = [
+        {"tag": category, "weight": 50}
+        for category in unique_categories
+    ]
+
+    return cloud_data

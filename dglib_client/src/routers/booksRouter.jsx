@@ -7,6 +7,8 @@ const NewBook = lazy(() => import("../components/books/NewBookComponent"));
 const Detail = lazy(() => import("../components/books/LibraryBookDetailComponent"));
 const RecommendBook = lazy(() => import("../components/books/RecommendBookComponent"));
 const TopBook = lazy(() => import("../components/books/TopBorrowedBookComponent"));
+const Ebook = lazy(() => import("../components/books/EbookListComponent"));
+
 const booksRouter = () => ([
 
     {
@@ -32,9 +34,11 @@ const booksRouter = () => ([
     {
         path: "top",
         element: <Suspense fallback={<Loading />}><TopBook /></Suspense>
+    },
+    {
+        path: "ebook",
+        element: <Suspense fallback={<Loading />}><Ebook /></Suspense>
     }
-
-
 ])
 
 export default booksRouter;

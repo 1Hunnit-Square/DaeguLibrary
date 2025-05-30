@@ -1,12 +1,13 @@
-package com.dglib.dto.wishBook;
+package com.dglib.dto.member;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.Data;
 
 @Data
-public class WishBookDTO {
-
+public class MemberWishBookListDTO {
+	
 	private Long wishNo;
 	private String bookTitle;
 	private String author;
@@ -14,9 +15,7 @@ public class WishBookDTO {
 	private String isbn;
 	private String note;
 	private String state;
-	private LocalDateTime appliedAt;
-	
-	
-	private String memberMid;
-	
+	private LocalDate appliedAt;
+	private LocalDate processedAt;
+
 }

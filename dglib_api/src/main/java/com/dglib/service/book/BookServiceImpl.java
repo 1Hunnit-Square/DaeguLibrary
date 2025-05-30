@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
@@ -25,8 +26,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.AdminWishBookListDTO;
+import com.dglib.dto.book.AdminWishBookSearchDTO;
 import com.dglib.dto.book.BookDTO;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
@@ -41,12 +45,14 @@ import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
+import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -54,6 +60,7 @@ import com.dglib.dto.book.KeywordDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.SearchBookDTO;
 import com.dglib.entity.book.Book;
+import com.dglib.entity.book.Ebook;
 import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Keyword;
 import com.dglib.entity.book.KeywordFingerprint;
@@ -62,9 +69,12 @@ import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
+import com.dglib.entity.book.WishBook;
+import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.BookRepository;
+import com.dglib.repository.book.EbookRepository;
 import com.dglib.repository.book.InterestedBookRepository;
 import com.dglib.repository.book.InterestedBookSpecifications;
 import com.dglib.repository.book.KeywordRepository;
@@ -75,8 +85,11 @@ import com.dglib.repository.book.RentalRepository;
 import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
 import com.dglib.repository.book.ReserveSpecifications;
+import com.dglib.repository.book.WishBookRepository;
+import com.dglib.repository.book.WishBookSpecifications;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.service.member.MemberService;
+import com.dglib.util.FileUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
@@ -98,6 +111,9 @@ public class BookServiceImpl implements BookService {
 	private final KeywordFingerprintRepository keywordFingerprintRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(BookServiceImpl.class);
 	private final MemberService memberService;
+	private final WishBookRepository wishBookRepository;
+	private final EbookRepository ebookRepository;
+	private final FileUtil fileUtil;
 	
 	private final Map<String, List<BookTopSumDTO>> topBooksCache = new ConcurrentHashMap<>();
 	
@@ -222,6 +238,12 @@ public class BookServiceImpl implements BookService {
 	                
 	        libraryBookRepository.saveAll(newLibraryBookEntities);
 	    }
+	    
+		WishBook wishbook = wishBookRepository.findByIsbnAndState(bookDto.getIsbn(), WishBookState.APPLIED).orElse(null);
+		if (wishbook != null) {
+			wishbook.setState(WishBookState.ACCEPTED);
+			wishbook.setProcessedAt(LocalDate.now());
+		}
 	}
 	
 	public void updatePopularKeywordCache() {
@@ -638,13 +660,17 @@ public class BookServiceImpl implements BookService {
 		
 		libraryBook.setDeleted(!(libraryBook.isDeleted()));
 		
+		if (!libraryBook.isDeleted()) {
+			WishBook wishBook = wishBookRepository.findByIsbnAndState(libraryBook.getBook().getIsbn(), WishBookState.APPLIED).orElse(null);
+			if (wishBook != null) {
+				wishBook.setState(WishBookState.ACCEPTED);
+				wishBook.setProcessedAt(LocalDate.now());
+			}
+		} 
 		
 	}
 	
-	@Override
-	public void setLibraryBook(Long libraryBookId) {
-		
-	}
+
 	
 	@Override
 	public Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto) {
@@ -785,6 +811,113 @@ public class BookServiceImpl implements BookService {
 	public void deleteKeywordFingerprint() {
 		keywordFingerprintRepository.deleteAll();
 	}
+    
+    @Override
+    public void regWishBook(RegWishBookDTO dto, String mid) {
+    	boolean isAlreadyExist = libraryBookRepository.existsByBookIsbnAndIsDeletedFalse(dto.getIsbn());
+		if (isAlreadyExist) {
+			throw new IllegalStateException("이미 소장중인 도서입니다.");
+		}
+		LocalDate  startOfYear = LocalDate.now().withMonth(1).withDayOfMonth(1);
+		LocalDate  endOfYear = LocalDate.now().withMonth(12).withDayOfMonth(31);
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+    	Long appCount = wishBookRepository.countByMidAndAppliedAtBetween(mid, startOfYear, endOfYear, WishBookState.CANCELED);
+		if (appCount >= 5) {
+			throw new IllegalStateException("이미 5권의 희망 도서를 신청했습니다.");
+		}
+		boolean isAlreadyApp = wishBookRepository.existsByIsbnAndStateNotTwo(dto.getIsbn(), WishBookState.REJECTED, WishBookState.CANCELED);
+		if (isAlreadyApp) {
+			throw new IllegalStateException("이미 신청된 도서입니다.");
+		}
+		boolean isValid = dto.getIsbn() != null || StringUtils.hasText(dto.getNote());
+		if (!isValid) {
+			throw new IllegalArgumentException("ISBN 또는 비고를 입력해야 합니다.");
+		}
+		
+		WishBook wishBook = modelMapper.map(dto, WishBook.class);
+		wishBook.setState(WishBookState.APPLIED);
+		wishBook.setAppliedAt(LocalDate.now());
+		wishBook.setMember(member);
+		wishBookRepository.save(wishBook);
+    }
+    
+    @Override
+    public Page<AdminWishBookListDTO> getWishBookList(Pageable pageable, AdminWishBookSearchDTO dto) {
+    	Specification<WishBook> spec = WishBookSpecifications.wsFilter(dto);
+    	Page<WishBook> wishBooks = wishBookRepository.findAll(spec, pageable);
+		return wishBooks.map(wishBook -> {
+			AdminWishBookListDTO adminWishBookListDTO = new AdminWishBookListDTO();
+			modelMapper.map(wishBook, adminWishBookListDTO);
+			adminWishBookListDTO.setMid(wishBook.getMember().getMid());
+			return adminWishBookListDTO;
+		});
+    }
+    
+    @Override
+    public void rejectWishBook(Long wishno) {
+		WishBook wishBook = wishBookRepository.findById(wishno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 희망 도서 정보를 찾을 수 없습니다."));
+		if (wishBook.getState() == WishBookState.REJECTED) {
+			throw new IllegalStateException("이미 거절된 도서입니다.");
+		}
+		if (wishBook.getState() == WishBookState.ACCEPTED) {
+			throw new IllegalStateException("이미 승인된 도서입니다.");
+		}
+		if (wishBook.getState() == WishBookState.CANCELED) {
+			throw new IllegalStateException("이미 취소된 도서입니다.");
+		}
+		wishBook.setState(WishBookState.REJECTED);
+		wishBook.setProcessedAt(LocalDate.now());
+		wishBookRepository.save(wishBook);
+    }
+    
+    @Override
+    public void regEbook(EbookRegistrationDTO dto) {
+    	
+    	boolean isExist = ebookRepository.existsByEbookIsbn(dto.getEbookIsbn());
+    	if (isExist) {
+    		throw new IllegalStateException("이미 등록된 전자책입니다.");
+    	}
+    	Ebook ebook = modelMapper.map(dto, Ebook.class);
+    	ebook.setEbookRegDate(LocalDate.now());
+    	Long id = ebookRepository.findTopByOrderByEbookIdDesc()
+    		    .map(oldEbook -> oldEbook.getEbookId() + 1)
+    		    .orElse(1L);
+    	
+    	
+    	
+		if (dto.getEbookFile() == null) {
+			throw new IllegalArgumentException("전자책 파일을 업로드해야 합니다.");
+		}
+		try {
+			String path = "ebook/" + id;
+			List<MultipartFile> files = new ArrayList<>();
+			if (dto.getEbookCover() != null) files.add(dto.getEbookCover());
+			if (dto.getEbookFile() != null) files.add(dto.getEbookFile());
+			List<Object> savedFileInfos = fileUtil.saveFiles(files, path);
+			LOGGER.info("저장된 파일 정보: {}", savedFileInfos);
+			for (Object savedFileInfo : savedFileInfos) {
+	            Map<String, String> fileInfo = (Map<String, String>) savedFileInfo;
+	            String originName = fileInfo.get("originName");
+	            String pathName = fileInfo.get("pathName");
+	            
+	            if (fileUtil.isImageFile(originName)) {
+	                ebook.setEbookCover(pathName);
+	            } else {
+	                ebook.setEbookFilePath(pathName);
+	            }
+	        }
+			
+			ebookRepository.save(ebook);
+	        
+		} catch (Exception e) {
+			LOGGER.error("전자책 파일 저장 실패: {}", e.getMessage());
+			throw new IllegalStateException("전자책 파일 저장 실패: " + e.getMessage());
+			
+		}
+	
+		
+    }
     
 
     

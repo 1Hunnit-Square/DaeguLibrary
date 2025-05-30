@@ -141,6 +141,10 @@ public class FileUtil {
 		  String pathStr = path.toString().replace("\\", "/");
 		  return pathStr;
 	  }
+	  
+	  public boolean isImageFile(String filename) {
+		    return filename != null && filename.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|bmp|webp|tiff|svg)$");
+		}
 	 
 	 
 

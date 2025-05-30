@@ -39,6 +39,7 @@ const UsedFacilityComponent = () => {
   const cancelMutation = useMutation({
     mutationFn: (id) => axios.delete(`${API_SERVER_HOST}/api/places/${id}`),
     onSuccess: () => {
+      alert('신청이 취소되었습니다.');
       queryClient.invalidateQueries(['reservations', memberId]);
     },
   });

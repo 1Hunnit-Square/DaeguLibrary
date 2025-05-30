@@ -35,18 +35,23 @@ import com.dglib.dto.member.MemberRecoBookDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
+import com.dglib.entity.book.WishBook;
+import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.RentalRepository;
 import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
+import com.dglib.repository.book.WishBookRepository;
+import com.dglib.repository.book.WishBookSpecifications;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
 
@@ -62,6 +67,7 @@ public class MemberServiceImpl implements MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final RentalRepository rentalRepository;
 	private final ReserveRepository reserveRepository;
+	private final WishBookRepository wishBookRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
 	
@@ -409,6 +415,34 @@ public class MemberServiceImpl implements MemberService {
 		
 		return dto;
 	}
+	
+	@Override
+	public List<MemberWishBookListDTO> getMemberWishBookList(String mid, int year) {
+		Specification<WishBook> spac = WishBookSpecifications.wbFilter(year, mid, WishBookState.CANCELED);
+		Sort sort = Sort.by(Sort.Direction.DESC, "wishNo");
+		List<WishBook> wishBooks = wishBookRepository.findAll(spac, sort);
+		return wishBooks.stream().map(wishBook -> {
+			MemberWishBookListDTO dto = modelMapper.map(wishBook, MemberWishBookListDTO.class);
+			return dto;
+		}).collect(Collectors.toList());
+	}
+	
+	@Override
+	public void cancelWishBook(Long wishId, String mid) {
+		WishBook wishBook = wishBookRepository.findByWishNoAndMemberMid(wishId, mid)
+				.orElseThrow(() -> new IllegalArgumentException("해당 내역이 존재하지 않습니다."));
+		if (wishBook.getState() == WishBookState.CANCELED) {
+			throw new IllegalStateException("이미 취소된 내역입니다.");
+		}
+		if (wishBook.getState() == WishBookState.REJECTED) {
+			throw new IllegalStateException("이미 거절된 내역입니다.");
+		}
+		if (wishBook.getState() == WishBookState.ACCEPTED) {
+			throw new IllegalStateException("이미 수락된 내역입니다.");
+		}
+		wishBook.setState(WishBookState.CANCELED);
+	}
+	
 	
 	
 

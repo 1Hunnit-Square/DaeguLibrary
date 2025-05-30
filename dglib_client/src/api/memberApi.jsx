@@ -176,3 +176,17 @@ export const regWishBook = async (book) => {
     const res = await axiosClient.post(`${prefix}/regwishbook`, book, { headers });
     return res.data;
 }
+
+
+export const getMemberWishBookList = async (year) => {
+
+    const res = await axiosClient.get(`${prefix}/memberwishbooklist/${year}`, );
+    return res.data;
+}
+
+export const cancelWishBook = async (wishNo) => {
+
+    const res = await axiosClient.post(`${prefix}/cancelwishbook/${wishNo}`);
+    return res.data;
+
+}

@@ -5,13 +5,14 @@ const getDateParams = () => {
   const aMonthAgo = new Date(today);
   aMonthAgo.setDate(today.getDate() - 30);
 
+
   const endDateStr = today.toLocaleDateString('fr-CA');
   const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
 
   return `startDate=${startDateStr}&endDate=${endDateStr}`;
 };
 const dateParams = getDateParams();
-
+const currentYear = new Date().getFullYear();
 
 
 const defaultMenuItems = [
@@ -34,7 +35,8 @@ const defaultMenuItems = [
         { name: '통합검색', link: '/books/search?tab=info&page=1' },
         { name: '신착도서', link: `/books/new?page=1&${dateParams}` },
         { name: '추천도서', link: '/books/recommend?genre=literature&page=1' },
-        { name: '대출베스트도서', link: '/books/top?check=오늘' }
+        { name: '대출베스트도서', link: '/books/top?check=오늘' },
+        { name: 'EBOOK', link: '/books/ebook' },
       ]
     },
     {
@@ -79,7 +81,7 @@ const defaultMenuItems = [
         { name: '대출현황', link: '/mylibrary/borrowstatus' },
         { name: '도서예약', link: '/mylibrary/bookreservation' },
         { name: '관심도서', link: '/mylibrary/interested?page=1&option=전체' },
-        { name: '희망도서', link: '/mylibrary/request' },
+        { name: '희망도서', link: `/mylibrary/request?year=${currentYear}` },
         { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
         { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
         { name: '맞춤정보', link: '/mylibrary/personalized' }

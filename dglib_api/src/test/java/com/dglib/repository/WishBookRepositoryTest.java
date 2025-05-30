@@ -10,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import com.dglib.entity.book.WishBook;
+import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
-import com.dglib.entity.wishBook.WishBook;
+import com.dglib.repository.book.WishBookRepository;
 import com.dglib.repository.member.MemberRepository;
-import com.dglib.repository.wishBook.WishBookRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -58,8 +59,8 @@ public class WishBookRepositoryTest {
                 .publisher("테스트출판사")
                 .isbn("1234567890123")
                 .note("비고입니다.")
-                .state("신청중")
-                .appliedAt(LocalDateTime.of(2025, 5, 13, 14, 0))
+                .state(WishBookState.APPLIED)
+                .appliedAt(LocalDate.of(2025, 5, 13))
                 .member(member)
                 .build();
 

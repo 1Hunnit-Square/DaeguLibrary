@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { memberNameSelector } from '../../atoms/loginState';
 import { useRecoilValue } from "recoil";
 import Loading from "../../routers/Loading";
+import { useNavigate } from "react-router-dom";
 
 
 const initialBookFormData = {
@@ -19,6 +20,8 @@ const BookRequestFormComponent = () => {
   const [bookFormData, setBookFormData] = useState(initialBookFormData);
   const name = useRecoilValue(memberNameSelector);
   const today = new Date().toLocaleDateString('en-CA');
+  const year = new Date().getFullYear();
+  const navigate = useNavigate();
   const { data: memberData=[], isLoading, isError } = useQuery({
     queryKey: ["memberData"],
     queryFn: getMemberPhone,
@@ -32,6 +35,8 @@ const BookRequestFormComponent = () => {
     },
     onSuccess: () => {
       alert("도서 등록이 완료되었습니다.");
+      navigate(`/mylibrary/request?year=${year}`);
+
 
 
     },
@@ -48,6 +53,7 @@ const BookRequestFormComponent = () => {
           author: event.data.book.author,
           publisher: event.data.book.publisher,
           isbn: event.data.book.isbn,
+          note: "",
         });
 
       }
@@ -65,12 +71,7 @@ const BookRequestFormComponent = () => {
       alert("희망도서명이나 비고를 작성해주세요.");
       return;
     }
-    const bookData = {
-      book: {
-        ...bookFormData,
-      },
-    };
-    regWishBookMutation.mutate(bookData);
+    regWishBookMutation.mutate(bookFormData);
   };
 
 
@@ -88,7 +89,9 @@ const BookRequestFormComponent = () => {
       {regWishBookMutation.isPending && (
         <Loading text="도서 등록중입니다.." />
       )}
-
+      {isLoading && (
+        <Loading text="신청자 정보를 불러오는 중입니다.." />
+      )}
       <div className="bg-white rounded-md shadow-sm border border-gray-200 mb-6">
         <h2 className="px-5 py-3 border-b border-gray-200 font-semibold text-gray-700 text-base">신청자 기본정보</h2>
         <div className="p-5 space-y-1">
@@ -167,9 +170,9 @@ const BookRequestFormComponent = () => {
             onChange={(e) => setBookFormData({...bookFormData, note: e.target.value})}
             className="w-full p-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#00893B]"
             rows="4"
-            placeholder="도서가 검색되지 않는 경우 저자, 출판사, ISBN 정보 등을 기재해주십시오. 도서정보가 부정확한 경우 희망도서 신청이 반려됩니다."
+            placeholder=""
           />
-          <p className="text-xs mt-1.5 mb-1.5"><span className="text-red-500">✓</span> 도서가 검색되지 않는 경우 저자, 출판사, ISBN 정보 등을 기재해주십시오. 도서정보가 부정확한 경우 희망도서 신청이 반려됩니다.</p>
+
           <p className="text-xs text-gray-500 mt-2">ⓘ 희망도서는 1~2개월 이상의 기간이 소요될 수 있습니다.</p>
         </div>
       </div>

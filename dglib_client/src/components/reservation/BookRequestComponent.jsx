@@ -7,10 +7,14 @@ import { useRecoilValue } from 'recoil';
 
 
 const BookRequestComponent = () => {
-      const mid = useRecoilValue(memberIdSelector);
-      const { moveToLogin } = useMoveTo();
+    const mid = useRecoilValue(memberIdSelector);
+    const { moveToLogin } = useMoveTo();
     const navigate = useNavigate();
     const handleRequestClick = () => {
+        if (!mid) {
+            moveToLogin();
+            return;
+        }
         navigate('/reservation/bookrequest/form');
     }
     return (
@@ -52,7 +56,7 @@ const BookRequestComponent = () => {
                         신청 책수
                     </div>
                     <div>
-                        <p className="text-2xl">대구도서관 대출증 발급회원</p>
+                        <p className="text-2xl">1인당 1년 최대 5권</p>
                     </div>
                 </div>
             </div>

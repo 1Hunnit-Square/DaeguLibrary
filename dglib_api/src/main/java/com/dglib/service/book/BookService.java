@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.AdminWishBookListDTO;
+import com.dglib.dto.book.AdminWishBookSearchDTO;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
@@ -18,11 +20,13 @@ import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
+import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -55,12 +59,15 @@ public interface BookService {
 	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
 	Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pagebale, String check);
 	void checkOverdue();
-	public void setLibraryBook(Long libraryBookId);
 	void recordSearch(String keyword, String fingerprint);
 	void updateTopBooksCache();
 	void updatePopularKeywordCache();
 	void deleteKeyword();
 	void deleteKeywordFingerprint();
+	void regWishBook(RegWishBookDTO dto, String mid);
+	Page<AdminWishBookListDTO> getWishBookList(Pageable pageable, AdminWishBookSearchDTO dto);
+	void rejectWishBook(Long wishno);
+	void regEbook(EbookRegistrationDTO dto);
 	
 	
 	

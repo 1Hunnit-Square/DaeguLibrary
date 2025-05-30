@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
-import RegBookComponent from './RegBookComponent';
+import RegEbookComponent from './RegEbookComponent';
 import { useSearchParams } from "react-router-dom";
 import LibraryBookListComponent from './LibraryBookListComponent';
 import WishBookListComponent from './WishBookListComponent';
 
-const BookManagementComponent = () => {
+const EbookManagementComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const today = new Date();
     const aMonthAgo = new Date(today);
@@ -44,7 +44,7 @@ const BookManagementComponent = () => {
         {
         id: 'regbook',
         label: '도서등록 및 수정',
-        content: <RegBookComponent />
+        content: <RegEbookComponent />
         },
         {
             id: 'wishbook',
@@ -63,5 +63,6 @@ const BookManagementComponent = () => {
         />
         </div>
     );
-    }
-export default BookManagementComponent;
+}
+
+export default EbookManagementComponent;

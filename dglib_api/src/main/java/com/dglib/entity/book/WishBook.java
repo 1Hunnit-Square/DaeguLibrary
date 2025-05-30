@@ -1,11 +1,14 @@
-package com.dglib.entity.wishBook;
+package com.dglib.entity.book;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.dglib.entity.member.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,13 +31,13 @@ public class WishBook {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long wishNo;
 	
-	@Column(nullable = false, length = 150)
+	@Column(nullable = false, length = 255)
 	private String bookTitle;
 	
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, length = 255)
 	private String author;
 	
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, length = 255)
 	private String publisher;
 	
 	@Column(nullable = false, length = 13)
@@ -43,11 +46,16 @@ public class WishBook {
 	@Column(columnDefinition = "TEXT")
 	private String note;
 	
-	@Column(nullable = false, length = 10)
-	private String state;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private WishBookState state;
 	
 	@Column(nullable = false)
-	private LocalDateTime appliedAt;
+	private LocalDate appliedAt;
+	
+	@Column(nullable = true)
+	private LocalDate processedAt;
+
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "mid", nullable = false)

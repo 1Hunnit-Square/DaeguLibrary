@@ -26,6 +26,7 @@ const InterestedComponent = () => {
         }
 
     })
+    console.log("interestedBooks data", data);
 
     const interestedBooks = useMemo(() => data.content, [data.content]);
 
@@ -84,7 +85,7 @@ const InterestedComponent = () => {
             <SearchSelectComponent
                             options={searchOption}
                             handleSearch={handleSearch}
-                            input={searchURLParams.get("query")}
+                            input={searchURLParams.get("query") || ""}
                             defaultCategory={searchURLParams.get("option")}
                             selectClassName="mr-2 md:mr-5"
                             dropdownClassName="w-24 md:w-32"
@@ -121,7 +122,7 @@ const InterestedComponent = () => {
                                                 ? "text-yellow-500"
                                                 : "text-green-600"
                                         }>
-                                        <span>{(book.borrowed || book.unmanned) ? `대출중(예약 ${book.reserveCount}명)`  : book.reserved ? `예약대기중(예약 ${book.reserveCount}명)` : "대출가능" }</span>
+                                        <span>{book.borrowed ? `대출중(예약 ${book.reserveCount}명)` : book.unmanned ? `무인예약중`  : book.reserved ? `예약대기중(예약 ${book.reserveCount}명)` : "대출가능" }</span>
                                     </div>
                                     <div className="text-1xl mb-1 mt-2">
                                         {book.deleted ?  <>
@@ -141,11 +142,11 @@ const InterestedComponent = () => {
                                     <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">
                                         <div className="flex gap-2 items-center ">
                                             <span className="border px-2 py-1 w-20 text-center">저자</span>
-                                            <span className="truncate" title={book.author}>{book.author}</span>
+                                            <span className="truncate max-w-40" title={book.author}>{book.author}</span>
                                         </div>
                                         <div className="flex gap-2 items-center ">
                                             <span className="border px-2 py-1 w-20 text-center">출판사</span>
-                                            <span className="truncate" title={book.publisher}>{book.publisher}</span>
+                                            <span className="truncate max-w-40" title={book.publisher}>{book.publisher}</span>
                                         </div>
                                         <div className="flex gap-2 items-center ">
                                             <span className="border px-2 py-1 w-20 text-center">위치</span>

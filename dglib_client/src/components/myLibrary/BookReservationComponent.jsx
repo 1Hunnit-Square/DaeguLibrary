@@ -60,7 +60,7 @@ const BookReservationComponent = () => {
                                     <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">
                                         <div className="flex gap-2 items-center">
                                             <span className="border px-2 py-1 w-20 text-center">저자</span>
-                                            <span className="truncate " title={book.author}>{book.author}</span>
+                                            <span className="truncate max-w-40" title={book.author}>{book.author}</span>
                                         </div>
                                         <div className="flex gap-2 items-center ">
                                             <span className="border px-2 py-1 w-20 text-center">신청일</span>

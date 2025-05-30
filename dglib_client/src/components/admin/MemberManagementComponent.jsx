@@ -3,7 +3,7 @@ import CheckBoxNonLabel from "../common/CheckNonLabel";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
-import { usePagination } from "../../hooks/usePagination";
+import { usePagination } from "../../hooks/usePage";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getMemberList } from "../../api/memberApi";

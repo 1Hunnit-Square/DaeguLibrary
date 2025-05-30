@@ -86,7 +86,7 @@ const MyReadingComponent = () => {
       categoryField: "tag",
       valueField: "weight",
       maxFontSize: am5.percent(50),
-      minFontSize: am5.percent(30),
+      minFontSize: am5.percent(20),
     }));
     series.labels.template.setAll({
       fontFamily: "Courier New"

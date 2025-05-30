@@ -28,7 +28,8 @@ const BooksPage = () => {
         { id: "search", label: "통합검색", path: "/books/search?tab=info&page=1" },
         { id: "newbook", label: "신착도서", path: `/books/new?page=1&${getDateParams}` },
         { id: "reco", label: "추천도서", path: "/books/recommend?genre=literature&page=1" },
-        { id: "borrowbest", label: "대출베스트도서", path: "/books/top?check=오늘" },], [getDateParams]);
+        { id: "borrowbest", label: "대출베스트도서", path: "/books/top?check=오늘" },
+        {id: "ebook", label: "EBOOK", path: "/books/ebook"}], [getDateParams]);
 
   useEffect(() => {
       const currentPath = location.pathname;

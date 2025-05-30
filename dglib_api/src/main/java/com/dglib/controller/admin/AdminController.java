@@ -1,5 +1,6 @@
 package com.dglib.controller.admin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.dglib.controller.book.BookController;
+import com.dglib.dto.book.AdminWishBookListDTO;
+import com.dglib.dto.book.AdminWishBookSearchDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
@@ -33,11 +37,13 @@ import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.LibraryBookChangeDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
+import com.dglib.util.FileUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +55,7 @@ public class AdminController {
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
 	private final MemberService memberService;
+	
 	
 	@PostMapping("/regbook")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
@@ -181,5 +188,35 @@ public class AdminController {
 		memberService.executeOverdueCheck();
 		return ResponseEntity.ok().build();
 	}
+	
+	@GetMapping("wishbooklist")
+	public ResponseEntity<Page<AdminWishBookListDTO>> getWishBookList(AdminWishBookSearchDTO dto) {
+		LOGGER.info("위시리스트 도서 조회 요청 {}" , dto);
+		int page = Optional.ofNullable(dto.getPage()).orElse(1);
+		int size = Optional.ofNullable(dto.getSize()).orElse(10);
+		String sortBy = Optional.ofNullable(dto.getSortBy()).orElse("wishNo");
+		String orderBy = Optional.ofNullable(dto.getOrderBy()).orElse("desc");
+		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
+		Page<AdminWishBookListDTO> wishBookList = bookService.getWishBookList(pageable, dto);
+		return ResponseEntity.ok(wishBookList);
+	}
+	
+	@PostMapping("/rejectwishbook/{wishNo}")
+	public ResponseEntity<String> rejectWishBook(@PathVariable Long wishNo) {
+		LOGGER.info("위시리스트 도서 거절 요청: {}", wishNo);
+		bookService.rejectWishBook(wishNo);
+		return ResponseEntity.ok().build();
+	}
+	
+//	@PostMapping("/regebook")
+//	public ResponseEntity<String> regEbook(EbookRegistrationDTO dto) {
+//		LOGGER.info("전자책 등록 요청 {}", dto);
+//		
+//		bookService.regEbook(dto);
+//		
+//		LOGGER.info("전자책 등록 성공");
+//		return ResponseEntity.ok().build();
+//	}
 
 }

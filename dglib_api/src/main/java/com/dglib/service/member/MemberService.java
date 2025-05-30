@@ -19,6 +19,7 @@ import com.dglib.dto.member.MemberRecoBookDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 
@@ -68,6 +69,12 @@ public interface MemberService {
 	MemberRecoBookDTO getMemberBorrowedBookIsbnForReco(String mid);
 	
 	MemberPhoneDTO getMemberPhone(String mid);
+	
+	List<MemberWishBookListDTO> getMemberWishBookList(String mid, int year);
+	
+	void cancelWishBook(Long wishId, String mid);
+	
+	
 	
 
 

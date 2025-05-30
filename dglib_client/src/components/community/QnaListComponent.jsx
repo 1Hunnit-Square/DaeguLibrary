@@ -43,12 +43,12 @@ const QnaListComponent = () => {
     queryKey: ["qnalist", queryParams],
     queryFn: () =>
       getQnaList({
-        page: queryParams.page - 1,
+        page: queryParams.page,
         size: 10,
         searchType: queryParams.option,
         keyword: queryParams.query,
         requesterMid: mid,
-        sort: "qno,DESC"
+
       }),
     keepPreviousData: true,
   });
@@ -119,7 +119,7 @@ const QnaListComponent = () => {
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "2px solid #00893B", borderTop: "2px solid #00893B" }}>
-            <th style={{ padding: "10px" }}>번호</th>
+            <th style={{ padding: "10px" }}>순번</th>
             <th style={{ padding: "10px" }}>처리상황</th>
             <th style={{ padding: "10px" }}>제목</th>
             <th style={{ padding: "10px" }}>공개여부</th>
@@ -157,7 +157,7 @@ const QnaListComponent = () => {
                   {item.title}
                 </td>
                 <td>{item.checkPublic ? "" : <LockIcon />}</td>
-                <td>{item.writerName}</td>
+                <td>{item.name}</td>
                 <td>{item.postedAt?.substring(0, 10)}</td>
                 <td>{item.viewCount}</td>
               </tr>

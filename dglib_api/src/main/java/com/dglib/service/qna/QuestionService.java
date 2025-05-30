@@ -2,18 +2,31 @@ package com.dglib.service.qna;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
-import com.dglib.dto.qna.QuestionDTO;
-import com.dglib.entity.qna.Question;
+import com.dglib.dto.qna.QuestionDetailDTO;
+import com.dglib.dto.qna.QuestionListDTO;
+import com.dglib.dto.qna.QuestionNewDTO;
+import com.dglib.dto.qna.QuestionSearchDTO;
+
+import jakarta.servlet.http.HttpSession;
 
 public interface QuestionService {
 
-	Long createQuestion(QuestionDTO questionDto);
-	QuestionDTO getQuestion(Long qno, String requesterMid);
-	void updateQuestion(Long qno, QuestionDTO dto);
-	void deleteQuestion(Long qno, String requesterMid);
-	Page<QuestionDTO> getQuestionsWithStatus(Pageable pageable, String requesterMid);
-	Page<QuestionDTO> getQuestionsWithSpecification(Specification<Question> spec, Pageable pageable, String requesterMid);
+	//등록
+	Long newQuestion(QuestionNewDTO questionDto);
 	
+	//목록 및 검색
+	Page<QuestionListDTO> findAll(QuestionSearchDTO searchDTO, Pageable pageable, String requesterMid);
+	
+	//상세보기
+	QuestionDetailDTO getQuestion(Long qno, String requesterMid);
+	
+	//수정
+	void updateQuestion(Long qno, QuestionDetailDTO dto);
+	
+	//삭제
+	void deleteQuestion(Long qno, String requesterMid);
+	
+	//조회수증가
+	void increaseViewCount(Long qno, HttpSession session);
 }

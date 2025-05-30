@@ -12,11 +12,7 @@ const QnaDetailComponent = () => {
     const mid = useRecoilValue(memberIdSelector);
     const navigate = useNavigate();
 
-    const {
-        data: question,
-        isLoading,
-        isError,
-    } = useQuery({
+    const { data: question, isLoading, isError } = useQuery({
         queryKey: ["qnaDetail", qno, mid],
         queryFn: () => getQnaDetail(qno, mid),
         enabled: !!qno,
@@ -43,7 +39,7 @@ const QnaDetailComponent = () => {
     if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
     if (isError || !question) return null;
 
-    const isWriter = mid === question.writerId;
+    const isOwner = mid === question.writerId;
     const hasAnswer = !!question.answer;
 
     return (
@@ -54,7 +50,7 @@ const QnaDetailComponent = () => {
                 <tbody>
                     <tr className="border-b">
                         <td className="bg-gray-100 w-1/5 p-2 font-semibold">작성자</td>
-                        <td className="p-2">{question.writerName}</td>
+                        <td className="p-2">{question.name}</td>
                     </tr>
                     <tr className="border-b">
                         <td className="bg-gray-100 p-2 font-semibold">작성일</td>
@@ -104,7 +100,7 @@ const QnaDetailComponent = () => {
             )}
 
             <div className="flex justify-end gap-2">
-                {isWriter && (
+                {isOwner && (
                     <>
                         <Button
                             className="bg-gray-500 hover:bg-gray-600"
@@ -120,7 +116,7 @@ const QnaDetailComponent = () => {
                         </Button>
                     </>
                 )}
-                <Button onClick={() => navigate(-1)}>돌아가기</Button>
+                <Button onClick={() => navigate(-1)}>목록</Button>
             </div>
         </div>
     );

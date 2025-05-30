@@ -8,6 +8,8 @@ import Button from "../common/Button";
 import { useQuery } from "@tanstack/react-query";
 import { getQnaList } from "../../api/qnaApi";
 import Loading from "../../routers/Loading";
+import useBoardListNumber from "../../hooks/useBoardListNumber";
+
 
 const LockIcon = () => <span style={{ color: 'gray' }}>🔒︎</span>;
 
@@ -41,11 +43,11 @@ const QnaListComponent = () => {
     queryKey: ["qnalist", queryParams],
     queryFn: () =>
       getQnaList({
-        page: queryParams.page - 1,
+        page: queryParams.page,
         size: 10,
-        searchType: queryParams.option,
-        keyword: queryParams.query,
-        requesterMid: mid
+        option: queryParams.option,
+        query: queryParams.query,
+        requesterMid: mid,
       }),
     keepPreviousData: true,
   });
@@ -72,12 +74,15 @@ const QnaListComponent = () => {
     if (isSearched && pageable?.totalElements !== undefined) {
       return (
         <div className="mb-4 text-sm text-gray-600">
-          "{queryParams.query}"에 대한 검색 결과 {pageable.totalElements}건이 있습니다.
+          "{queryParams.query}"에 대한 검색 결과 {pageable.totalElements}건이 있습니다.<br />
+          검색 시 조회 권한이 없는 글은 보이지 않습니다.
         </div>
       );
     }
     return null;
   }, [isSearched, pageable, queryParams.query]);
+
+  const getBoardListNumber = useBoardListNumber(pageable.totalElements || 0, queryParams.page, 10);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -114,7 +119,7 @@ const QnaListComponent = () => {
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "2px solid #00893B", borderTop: "2px solid #00893B" }}>
-            <th style={{ padding: "10px" }}>번호</th>
+            <th style={{ padding: "10px" }}>순번</th>
             <th style={{ padding: "10px" }}>처리상황</th>
             <th style={{ padding: "10px" }}>제목</th>
             <th style={{ padding: "10px" }}>공개여부</th>
@@ -135,9 +140,9 @@ const QnaListComponent = () => {
               </td>
             </tr>
           ) : (
-            qnaItems.map((item) => (
+            qnaItems.map((item, index) => (
               <tr key={item.qno} style={{ borderBottom: "1px solid #ddd", textAlign: "center" }}>
-                <td>{item.qno}</td>
+                <td>{getBoardListNumber(index)}</td>
                 <td><StatusBadge status={item.status} /></td>
                 <td
                   onClick={() => navigate(`/community/qna/${item.qno}`)}
@@ -152,7 +157,7 @@ const QnaListComponent = () => {
                   {item.title}
                 </td>
                 <td>{item.checkPublic ? "" : <LockIcon />}</td>
-                <td>{item.writerName}</td>
+                <td>{item.name}</td>
                 <td>{item.postedAt?.substring(0, 10)}</td>
                 <td>{item.viewCount}</td>
               </tr>
@@ -162,7 +167,17 @@ const QnaListComponent = () => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <Button onClick={() => navigate("/community/qna/new")}>글쓰기</Button>
+        <Button onClick={() => {
+          if (!mid) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+          } else {
+            navigate("/community/qna/new")
+          }
+        }
+        }>
+          글쓰기
+        </Button>
       </div>
 
       {renderPagination()}

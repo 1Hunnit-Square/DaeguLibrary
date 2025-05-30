@@ -1,5 +1,7 @@
 package com.dglib.common;
 
+import java.nio.file.AccessDeniedException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -34,6 +36,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleException(RuntimeException ex) {
 		ErrorResponse error = new ErrorResponse("RUNTIME_ERROR", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleEAccessDenied(AccessDeniedException ex) {
+		ErrorResponse error = new ErrorResponse("권한이 없음", ex.getMessage());
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 
 }

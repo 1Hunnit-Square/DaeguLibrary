@@ -8,11 +8,12 @@ import QnaNewComponent from "../components/community/QnaNewComponent";
 
 const Notice = lazy(() => import("../components/community/NoticeListComponent"));
 const News = lazy(() => import("../components/community/NewsComponent"));
-const Qna = lazy(() => import("../components/community/QnaComponent"));
+const Qna = lazy(() => import("../components/community/QnAComponent"));
 const Gallery = lazy(() => import("../components/community/GalleryComponent"));
 const Press = lazy(() => import("../components/community/PressComponent"));
 const Donation = lazy(() => import("../components/community/DonationComponent"));
-
+const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
+const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
 
 
 const communityRouter = () => ([
@@ -24,6 +25,14 @@ const communityRouter = () => ([
     {
         path: "notice",
         element: <Suspense fallback={<Loading />}><Notice /></Suspense>
+    },
+    {
+        path: "notice/:ano",
+        element: <Suspense fallback={<Loading />}><NoticeDetail /></Suspense>
+    },
+     {
+        path: "notice/new",
+        element: <Suspense fallback={<Loading />}><NoticeNew /></Suspense>
     },
     {
         path: "news",

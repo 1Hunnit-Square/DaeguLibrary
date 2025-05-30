@@ -87,15 +87,18 @@ public class NoticeServiceImpl implements NoticeService {
 	public NoticeDetailDTO getDetail(Long ano) {
 		Notice notice = noticeRepository.findById(ano)
 				.orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
+		
 		NoticeDetailDTO dto = new NoticeDetailDTO();
 		modelMapper.map(notice, dto);
-		dto.setMid(notice.getMember().getMid());
+		dto.setName(notice.getMember().getName());
 		
 		List<NoticeFile> file = notice.getFiles(); // 이미지 불러오기
 		if(file != null) {
 			List<NoticeFileDTO> fileDTO = file.stream().map(f -> modelMapper.map(f, NoticeFileDTO.class)).collect(Collectors.toList());
 			dto.setFileDTO(fileDTO);
 		}
+		notice.setViewCount(notice.getViewCount()+1); // 조회수 1 증가
+		
 		return dto;
 	}
 	

@@ -148,7 +148,7 @@ const MemberManagementComponent = () => {
                 <SelectComponent onChange={(e) => handleSelectChange('orderBy', e)} value={searchURLParams.get("orderBy") || "desc"}  options={orderMap}/>
                 <SelectComponent onChange={(e) => handleSelectChange('size', e)} value={searchURLParams.get("size") || "10"}  options={sizeMap} />
             </div>
-            <div className="shadow-md rounded-lg overflow-x-auto">
+            <div className="min-w-fit shadow-md rounded-lg overflow-x-hidden">
                 <table className="min-w-full bg-white">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
@@ -177,7 +177,7 @@ const MemberManagementComponent = () => {
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=>handleClick(item)}>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{memberPage.pageNumber * memberPage.pageSize  + index +1}</td>
-                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.mid}</td>
+                                        <td className="py-4 px-3 max-w-30 min-w-30 whitespace-nowrap text-center">{item.mid}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.mno}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.name}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.gender}</td>

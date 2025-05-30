@@ -12,7 +12,7 @@ public class NoticeDetailDTO {
 	private String content;
 	private boolean isPinned;
 	private int viewCount;
-	private String mid;
+	private String name;
 	private LocalDateTime postedAt;
 	private List<NoticeFileDTO> fileDTO;
 	

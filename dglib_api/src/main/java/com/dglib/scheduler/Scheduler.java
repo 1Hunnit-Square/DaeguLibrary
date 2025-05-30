@@ -7,13 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.dglib.repository.days.ClosedDayRepository;
 import com.dglib.service.book.BookService;
 import com.dglib.service.days.ClosedDayService;
-import com.dglib.service.days.HolidayApiService;
 import com.dglib.service.member.MemberService;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -25,8 +22,6 @@ public class Scheduler {
 	private final MemberService memberService;
 	private final BookService bookService;
 	private final ClosedDayService closedDayService;
-	private final HolidayApiService holidayApiService;
-	private final ClosedDayRepository closedDayRepository;	
 
 	
 	
@@ -73,7 +68,7 @@ public class Scheduler {
 		bookService.deleteKeyword();
 	}
 	
-	@Scheduled(cron = "0 0 0 1 * *")
+	@Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Seoul")
 	public void autoRegisterClosedDay() {
 		int year = LocalDate.now().getYear();
 		try {

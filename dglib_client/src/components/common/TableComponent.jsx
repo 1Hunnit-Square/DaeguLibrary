@@ -2,7 +2,6 @@ import Loading from "../../routers/Loading";
 
 // tableMap = {
 // table : {},
-// width : {},
 // trans : {},
 // leftKey: [],
 // overKey: [],
@@ -45,10 +44,9 @@ return(
                 {indexNum && <td className={`py-3 px-1 text-center whitespace-nowrap`}>{dataPage * dataSize  + index +1}</td>}
                 {Object.keys(tableMap.table).map((key, index) => {
                     const left = tableMap.leftKey?.includes(key) ? "text-left" : "text-center";
-                    const overflow = tableMap.overKey?.includes(key) ? "truncate" : "";
+                    const overflow = tableMap.overKey?.includes(key) ? "truncate max-w-100 min-w-100" : "";
                     const underline = tableMap.lineKey?.includes(key) ? "hover:underline" : "";
-                    const width = tableMap.width[key] ? `max-w-${tableMap.width[key]} min-w-${tableMap.width[key]}` : "";
-                    return <td key ={index} className={`py-3 px-3 ${left} ${overflow} ${underline} ${width} whitespace-nowrap`}>{ tableMap.trans[key] ? tableMap.trans[key](item[key]) : item[key]}</td>
+                    return <td key ={index} className={`py-3 px-3 ${left} ${overflow} ${underline} whitespace-nowrap`}>{ tableMap.trans[key] ? tableMap.trans[key](item[key]) : item[key]}</td>
 
                 })}
               </tr>

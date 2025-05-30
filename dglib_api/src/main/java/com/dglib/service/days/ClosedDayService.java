@@ -17,6 +17,9 @@ public interface ClosedDayService {
 	
 	void delete(LocalDate date); // 삭제
 	
+//	void deleteAllClosedDays(); // 전체 삭제(테스트용)
+
+	
 	// 자동 등록 메서드
 	
 	void registerMondays(int year); // 정기 휴관일: 매주 월요일

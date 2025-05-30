@@ -12,18 +12,16 @@ import Loading from '../../routers/Loading';
 import { getClosedDays, createClosedDay, updateClosedDay, deleteClosedDay, registerAutoAllEvents } from '../../api/closedDayApi';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 
-// 날짜 문자열 변환 YYYY.MM.DD
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 };
 
-// 연도 선택(드롭다운)
 const getYearOptions = () =>
   Array.from({ length: 10 }, (_, i) => `${new Date().getFullYear() - 5 + i}년`);
-
 
 const getDayColor = (day, base = 'text-gray-600') => {
   if (day === 0) return 'text-red-500';
@@ -38,6 +36,7 @@ const EventManagementComponent = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [originalDate, setOriginalDate] = useState(null);
@@ -54,7 +53,6 @@ const EventManagementComponent = () => {
     enabled: !!selectedYear && !!selectedMonth,
   });
 
-  // 일정 등록 또는 수정 요청을 서버에 보내는 비동기 처리 ,성공 시: 해당 연도/월의 일정 데이터를 자동으로 최신화함, 실패 시: 에러 메시지 출력
   const saveMutation = useMutation({
     mutationFn: (dto) => (isEditMode ? updateClosedDay(dto) : createClosedDay(dto)),
     onSuccess: () => {
@@ -64,7 +62,6 @@ const EventManagementComponent = () => {
     onError: (err) => alert('저장 중 오류 발생: ' + (err.response?.data || err.message)),
   });
 
-  // 일정 삭제 요청을 서버에 보내는 비동기 처리, 성공 시: 자동으로 현재 연/월 일정 목록을 다시 불러옴, 실패 시: 에러 메시지 출력
   const deleteMutation = useMutation({
     mutationFn: (date) => deleteClosedDay(date),
     onSuccess: () => {
@@ -74,8 +71,6 @@ const EventManagementComponent = () => {
     onError: (err) => alert('삭제 중 오류 발생: ' + (err.response?.data || err.message)),
   });
 
-
-  // 모달 닫을 때 모든 입력값과 상태 초기화
   const resetModal = () => {
     setIsModalOpen(false);
     setIsClosed(false);
@@ -86,8 +81,6 @@ const EventManagementComponent = () => {
     setOriginalDate(null);
   };
 
-
-  // 현재 보고 있는 날짜 기준으로 상태 업데이트
   const updateDateStateFromCalendar = () => {
     const calendarApi = calendarRef.current?.getApi();
     if (!calendarApi) return;
@@ -96,14 +89,11 @@ const EventManagementComponent = () => {
     setSelectedMonth(currentDate.getMonth() + 1);
   };
 
-  // 캘린더 오늘 날짜로 이동
   const handleGoToday = () => {
     calendarRef.current?.getApi()?.today();
     updateDateStateFromCalendar();
   };
 
-
-  // 캘린더를 해당 연도로 이동(드롭다운에서 연도 바꿨을 때)
   const handleYearChange = async (label) => {
     const newYear = parseInt(label.replace('년', ''), 10);
     setSelectedYear(newYear);
@@ -115,9 +105,9 @@ const EventManagementComponent = () => {
 
     if (!autoRegisteredYears.current.has(newYear)) {
       try {
-        await registerAutoAllEvents(newYear); // 백엔드에서 월요일, 공휴일, 개관일 자동 등록
-        autoRegisteredYears.current.add(newYear); // 한 번 등록한 연도는 다시 등록하지 않도록 체크
-        refetch(); // 등록 이후, 해당 연도 일정 다시 불러옴
+        await registerAutoAllEvents(newYear);
+        autoRegisteredYears.current.add(newYear);
+        refetch();
       } catch (error) {
         console.warn('자동 등록 실패', error);
       }
@@ -126,7 +116,6 @@ const EventManagementComponent = () => {
 
   const handleDatesSet = () => updateDateStateFromCalendar();
 
-  // 날짜 클릭 시 모달 open
   const handleDateClick = (arg) => {
     const target = events.find(e => e.closedDate === arg);
     setIsEditMode(!!target);
@@ -152,7 +141,7 @@ const EventManagementComponent = () => {
       setTitle('');
       setOriginalDate(null);
     }
-  }
+  };
 
   const handleSaveSchedule = () => {
     if (!title.trim()) return alert("일정을 입력해주세요.");
@@ -170,38 +159,41 @@ const EventManagementComponent = () => {
     if (selectedDate) deleteMutation.mutate(selectedDate);
   };
 
-  // ESC, ENTER 버튼 동작
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isModalOpen) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        resetModal();
-      }
-
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleSaveSchedule();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen]);
-
   return (
     <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12">
-      <div className="mb-4 flex justify-end items-center gap-2">
+      <div className="mb-4 flex items-center gap-2 justify-end z-0 relative">
         <SelectComponent
           options={getYearOptions()}
           value={`${selectedYear}년`}
           onChange={handleYearChange}
           selectClassName="w-28 text-sm"
-          dropdownClassName="w-28"
+          dropdownClassName="w-28 z-40"
         />
-        <Button
-          onClick={handleGoToday}>오늘</Button>
+        <Button onClick={handleGoToday} className="h-10">오늘</Button>
+        {isRegisterLoading ? (
+          <div className='h-10 flex items-center justify-center'>
+            <Loading />
+          </div>
+        ) : (
+          <Button
+            onClick={async () => {
+              setIsRegisterLoading(true);
+              try {
+                await registerAutoAllEvents(new Date().getFullYear());
+                alert('공휴일 및 휴관일이 등록되었습니다.');
+                refetch();
+              } catch (e) {
+                alert('공휴일 및 휴관일 등록 실패: ' + (e.response?.date || e.message));
+              } finally {
+                setIsRegisterLoading(false);
+              }
+            }}
+            className="h-10 bg-gray-500 hover:bg-gray-600 flex items-center justify-center gap-2"
+          >
+            {isRegisterLoading && <Loading size="20px" />}
+            공휴일 수동 등록
+          </Button>
+        )}
       </div>
 
       {isLoading && <Loading />}
@@ -212,7 +204,7 @@ const EventManagementComponent = () => {
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         locale={koLocale}
-        fixedWeekCount={false} // 달에 맞는 주 수만 표시됨
+        fixedWeekCount={false}
         contentHeight="auto"
         headerToolbar={{ left: 'prev', center: 'title', right: 'next' }}
         buttonText={{ today: '오늘' }}
@@ -240,43 +232,45 @@ const EventManagementComponent = () => {
       <div className="mt-2 text-sm text-gray-600 italic">✔ 날짜를 클릭하면 일정을 편집할 수 있습니다.</div>
 
       {isModalOpen && (
-        <Modal
-          isOpen={true}
-          title={selectedDate ? `${formatDate(selectedDate)} 일정 ${isEditMode ? '수정' : '등록'}` : '일정 등록'}
-          onClose={resetModal}
-        >
-          <div className="space-y-4">
-            <input
-              type="date"
-              value={selectedDate || ''}
-              onChange={handleDateChange}
-              className="w-full border rounded px-3 py-2"
-            />
-            <CheckBox label="휴관일로 지정" checked={isClosed} onChange={(e) => setIsClosed(e.target.checked)} />
-            <SelectComponent options={['기념일', '공휴일']} value={selectedType} onChange={setSelectedType} />
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-              placeholder="일정 이름을 입력하세요"
-            />
-            <button
-              onClick={handleSaveSchedule}
-              className="w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D] cursor-pointer"
-            >
-              {isEditMode ? '수정' : '등록'}
-            </button>
-            {isEditMode && (
+        <div className="fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center">
+          <Modal
+            isOpen={true}
+            title={selectedDate ? `${formatDate(selectedDate)} 일정 ${isEditMode ? '수정' : '등록'}` : '일정 등록'}
+            onClose={resetModal}
+          >
+            <div className="space-y-4">
+              <input
+                type="date"
+                value={selectedDate || ''}
+                onChange={handleDateChange}
+                className="w-full border rounded px-3 py-2"
+              />
+              <CheckBox label="휴관일로 지정" checked={isClosed} onChange={(e) => setIsClosed(e.target.checked)} />
+              <SelectComponent options={['기념일', '공휴일']} value={selectedType} onChange={setSelectedType} dropdownClassName="z-40" />
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                placeholder="일정 이름을 입력하세요"
+              />
               <button
-                onClick={handleDeleteSchedule}
-                className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e] cursor-pointer"
+                onClick={handleSaveSchedule}
+                className="w-full bg-[#00893B] text-white px-4 py-2 rounded hover:bg-[#006C2D] cursor-pointer"
               >
-                삭제
+                {isEditMode ? '수정' : '등록'}
               </button>
-            )}
-          </div>
-        </Modal>
+              {isEditMode && (
+                <button
+                  onClick={handleDeleteSchedule}
+                  className="w-full mt-2 px-4 py-2 bg-[#ac0010] text-white rounded hover:bg-[#9b111e] cursor-pointer"
+                >
+                  삭제
+                </button>
+              )}
+            </div>
+          </Modal>
+        </div>
       )}
     </div>
   );

@@ -1,11 +1,9 @@
 package com.dglib.service.member;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -44,25 +42,24 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 public class MemberServiceImpl implements MemberService {
-	
+
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final RentalRepository rentalRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
-	
-	
+
 	@Override
 	public Page<MemberSearchByMnoDTO> searchByMno(String mno, Pageable pageable) {
 		return memberRepository.findByMno(mno, pageable);
 	}
-	
+
 	@Override
 	public boolean existById(String mid) {
 		return memberRepository.existsById(mid);
 	}
-	
+
 	@Override
 	public void registerMember(RegMemberDTO regMemberDTO) {
 		Member member = modelMapper.map(regMemberDTO, Member.class);
@@ -71,99 +68,102 @@ public class MemberServiceImpl implements MemberService {
 		member.setState(MemberState.NORMAL);
 		member.setMno(setMno());
 		memberRepository.save(member);
-		
+
 	}
-	
+
 	@Override
 	public boolean existByPhone(String phone) {
 		return memberRepository.existsByPhone(phone);
 	}
-	
+
 	@Override
 	public Page<MemberListDTO> findAll(MemberSearchDTO searchDTO, Pageable pageable) {
 		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
 		Page<Member> memberList = memberRepository.findAll(spec, pageable);
-		
-		AtomicLong index = new AtomicLong(1);
-		
+
+
 		Page<MemberListDTO> result = memberList.map(member -> {
 			MemberListDTO memberListDTO = new MemberListDTO();
 			modelMapper.map(member, memberListDTO);
-			memberListDTO.setIndex(index.getAndIncrement());
 				
 			return memberListDTO;	
+
 		});
-		
+
 		return result;
 	}
-	
-	
+
 	@Override
 	public void manageMember(MemberManageDTO memberManageDTO) {
-		Member member = memberRepository.findById(memberManageDTO.getMid()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		Member member = memberRepository.findById(memberManageDTO.getMid())
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		member.setRole(memberManageDTO.getRole());
 		member.setState(memberManageDTO.getState());
 		member.setPenaltyDate(memberManageDTO.getPenaltyDate());
 		memberRepository.save(member);
 	}
-	
+
 	@Override
 	public String findId(MemberFindIdDTO memberFindIdDTO) {
-		Member member = memberRepository.findByNameAndBirthDateAndPhone(memberFindIdDTO.getName(), memberFindIdDTO.getBirthDate(), memberFindIdDTO.getPhone())
+		Member member = memberRepository.findByNameAndBirthDateAndPhone(memberFindIdDTO.getName(),
+				memberFindIdDTO.getBirthDate(), memberFindIdDTO.getPhone())
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		return member.getMid();
 	}
-	
+
 	@Override
 	public boolean existAccount(MemberFindAccountDTO memberFindAccountDTO) {
-		return memberRepository.existsByMidAndBirthDateAndPhone(memberFindAccountDTO.getMid(), memberFindAccountDTO.getBirthDate(), memberFindAccountDTO.getPhone());
+		return memberRepository.existsByMidAndBirthDateAndPhone(memberFindAccountDTO.getMid(),
+				memberFindAccountDTO.getBirthDate(), memberFindAccountDTO.getPhone());
 	}
-	
+
 	@Override
 	public void modPwMember(String mid, String pw) {
-		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		member.setPw(passwordEncoder.encode(pw));
 		memberRepository.save(member);
 	}
-	
+
 	@Override
 	public MemberInfoDTO findMemberInfo(String mid, String pw) {
-		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		boolean valid = passwordEncoder.matches(pw, member.getPw());
-		if(!valid) {
+		if (!valid) {
 			throw new IllegalArgumentException("Password Different");
 		}
 		return modelMapper.map(member, MemberInfoDTO.class);
 	}
-	
+
 	@Override
 	public void modifyMember(String mid, ModMemberDTO modMemberDTO) {
-		if(!mid.equals(modMemberDTO.getMid())) {
+		if (!mid.equals(modMemberDTO.getMid())) {
 			throw new IllegalArgumentException("ID Different");
 		}
-		Member member = memberRepository.findById(mid).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		String oldPw = member.getPw();
 		modelMapper.map(modMemberDTO, member);
-		if(modMemberDTO.getPw() != null) {
+		if (modMemberDTO.getPw() != null) {
 			member.setPw(passwordEncoder.encode(modMemberDTO.getPw()));
 		} else {
 			member.setPw(oldPw);
 		}
 		memberRepository.save(member);
 	}
-	
-	public String setMno () {
+
+	public String setMno() {
 		String result = null;
 		LocalDate today = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
 		String fDate = today.format(formatter);
-		
-		Long newMno = memberRepository.countByMnoLike(fDate+"____");
-		result = fDate + String.format("%04d", newMno+1);
-		
+
+		Long newMno = memberRepository.countByMnoLike(fDate + "____");
+		result = fDate + String.format("%04d", newMno + 1);
+
 		return result;
 	}
-	
 
 	@Override
 	public void executeOverdueCheck() {
@@ -175,29 +175,28 @@ public class MemberServiceImpl implements MemberService {
 
 	private void checkOverdue() {
 		List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
-		Map<Member, Long> overdueCountByMember = overdueRentals.stream().filter(rental -> 
-		    rental.getMember().getState() != MemberState.PUNISH &&
-		    rental.getMember().getState() != MemberState.LEAVE
-		).collect(Collectors.groupingBy(Rental::getMember, Collectors.counting()));
+		Map<Member, Long> overdueCountByMember = overdueRentals.stream()
+				.filter(rental -> rental.getMember().getState() != MemberState.PUNISH
+						&& rental.getMember().getState() != MemberState.LEAVE)
+				.collect(Collectors.groupingBy(Rental::getMember, Collectors.counting()));
 		overdueCountByMember.forEach((member, count) -> {
 			LOGGER.info("Member ID: {}, Overdue Count: {}", member.getMid(), count);
-			member.setPenaltyDate(LocalDate.now().plusDays(count -1));
+			member.setPenaltyDate(LocalDate.now().plusDays(count - 1));
 			member.setState(MemberState.OVERDUE);
-			List<Member> releasedMember =  memberRepository.findMembersWithPenaltyDateButNotOverdue();
+			List<Member> releasedMember = memberRepository.findMembersWithPenaltyDateButNotOverdue();
 			releasedMember.forEach(m -> {
 				m.setPenaltyDate(null);
 				m.setState(MemberState.NORMAL);
 			});
-		});	
-		
-		
-    }
-	
+		});
+
+	}
+
 	@Override
 	public boolean isLastSuccessOverdueCheckDateToday() {
 		return lastSuccessOverdueCheckDate != null && lastSuccessOverdueCheckDate.equals(LocalDate.now());
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<MemberBorrowNowListDTO> getMemberBorrowNowList(String mid) {
@@ -209,11 +208,13 @@ public class MemberServiceImpl implements MemberService {
 			dto.setAuthor(rental.getLibraryBook().getBook().getAuthor());
 			dto.setIsbn(rental.getLibraryBook().getBook().getIsbn());
 			dto.setReserveCount(rental.getLibraryBook().getReserves().stream()
-					.filter(reserve -> reserve.getState() == com.dglib.entity.book.ReserveState.RESERVED && reserve.isUnmanned() == false).count());
+					.filter(reserve -> reserve.getState() == com.dglib.entity.book.ReserveState.RESERVED
+							&& reserve.isUnmanned() == false)
+					.count());
 			return dto;
 		}).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public void extendMemberBorrow(List<Long> rentIds) {
 		List<Rental> rentals = rentalRepository.findWithDetailsByRentIdIn(rentIds);
@@ -225,7 +226,8 @@ public class MemberServiceImpl implements MemberService {
 								&& reserve.isUnmanned() == false));
 		boolean isMemberPunish = rentals.stream()
 				.anyMatch(rental -> rental.getMember().getState() == MemberState.PUNISH);
-		boolean isAlreadyExtended = rentals.stream().anyMatch(rental -> rental.getDueDate().isAfter(rental.getRentStartDate().plusDays(7)));
+		boolean isAlreadyExtended = rentals.stream()
+				.anyMatch(rental -> rental.getDueDate().isAfter(rental.getRentStartDate().plusDays(7)));
 		if (isMemberOverdue) {
 			throw new IllegalStateException("회원의 연체 상태로 인해 대출 연장이 불가능합니다.");
 		} else if (isReserve) {
@@ -238,9 +240,26 @@ public class MemberServiceImpl implements MemberService {
 		rentals.forEach(rental -> {
 			rental.setDueDate(rental.getDueDate().plusDays(7));
 		});
-		
+
 	}
-	
-	
+
+	@Override
+	public MemberInfoDTO getMemberInfo(String mid) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+
+		MemberInfoDTO dto = new MemberInfoDTO();
+		dto.setMid(member.getMid());
+		dto.setName(member.getName());
+		dto.setPhone(member.getPhone());
+		dto.setAddr(member.getAddr());
+		dto.setEmail(member.getEmail());
+		dto.setGender(member.getGender());
+		dto.setBirthDate(member.getBirthDate());
+		dto.setCheckSms(member.isCheckSms());
+		dto.setCheckEmail(member.isCheckEmail());
+
+		return dto;
+	}
 
 }

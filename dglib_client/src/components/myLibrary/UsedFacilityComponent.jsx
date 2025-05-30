@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import { memberIdSelector } from '../../atoms/loginState';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../../routers/Loading';
+import dayjs from 'dayjs';
 
-// 임시 mock, 병합 후 교체
 const fetchReservations = async (memberId) => {
-  return []; // 추후 axios 요청으로 변경
+  const res = await axios.get(`${API_SERVER_HOST}/api/places/member/${memberId}`);
+  return Array.isArray(res.data) ? res.data : [];
 };
 
 const UsedFacilityComponent = () => {
@@ -16,7 +18,6 @@ const UsedFacilityComponent = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // 비로그인 시 리다이렉트
   useEffect(() => {
     if (!memberId) {
       alert('로그인이 필요한 서비스입니다.');
@@ -31,86 +32,103 @@ const UsedFacilityComponent = () => {
   } = useQuery({
     queryKey: ['reservations', memberId],
     queryFn: () => fetchReservations(memberId),
-    enabled: !!memberId, // 로그인 상태일 때만 실행
-    retry: false, // 실패 시 재시도 안 함 (에러 도배 방지)
+    enabled: !!memberId,
+    retry: false,
   });
 
   const cancelMutation = useMutation({
-    mutationFn: (id) => axios.delete(`/api/places/${id}`),
+    mutationFn: (id) => axios.delete(`${API_SERVER_HOST}/api/places/${id}`),
     onSuccess: () => {
+      alert('신청이 취소되었습니다.');
       queryClient.invalidateQueries(['reservations', memberId]);
     },
   });
 
-  if (!memberId) return null; // useEffect가 처리하므로 렌더링 방지
+  if (!memberId) return null;
 
   return (
-    <div className="p-6">
-      {/* 로딩 */}
+    <div className="p-6 mt-6">
       {isLoading && (
         <div className="text-center py-6">
           <Loading />
         </div>
       )}
 
-      {/* 에러 */}
       {!isLoading && isError && (
         <div className="text-center text-sm text-red-500 py-4">
           신청 내역을 불러오지 못했습니다.
         </div>
       )}
 
-      {/* 정상 표시 */}
       {!isLoading && !isError && (
-        <table className="w-full text-center border-t border-black text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2">번호</th>
-              <th>이용일시</th>
-              <th>장소</th>
-              <th>이용인원</th>
-              <th>신청일자</th>
-              <th>접수상태</th>
-              <th>취소</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.length === 0 ? (
+        <div className="overflow-x-auto shadow-md rounded-lg">
+          <table className="w-full table-fixed bg-white text-sm">
+            <thead className="bg-[#00893B] text-white text-xs uppercase">
               <tr>
-                <td colSpan="7" className="py-6 text-gray-500">
-                  신청내역이 없습니다.
-                </td>
+                <th className="py-3 px-2 w-[5%]">번호</th>
+                <th className="py-3 px-2 w-[25%]">이용일시</th>
+                <th className="py-3 px-2 w-[20%]">장소</th>
+                <th className="py-3 px-2 w-[10%]">인원</th>
+                <th className="py-3 px-2 w-[15%]">신청일자</th>
+                <th className="py-3 px-2 w-[15%]">상태</th>
+                <th className="py-3 px-2 w-[10%]">취소</th>
               </tr>
-            ) : (
-              reservations.map((item, index) => (
-                <tr key={item.id} className="border-t">
-                  <td className="py-2">{index + 1}</td>
-                  <td>
-                    {item.useDate}
-                    <br />
-                    ({item.startTime} ~ {item.endTime})
-                  </td>
-                  <td>{item.roomName}</td>
-                  <td>{item.personCount}명</td>
-                  <td>{item.registerDate}</td>
-                  <td>
-                    <span className="bg-blue-300 text-white px-3 py-1 rounded-full text-xs">
-                      신청완료
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => cancelMutation.mutate(item.id)}
-                      className="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded text-xs"
-                    >
-                      신청취소
-                    </button>
+            </thead>
+            <tbody className="text-gray-700">
+              {reservations.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-6 text-center text-gray-500 text-base">
+                    신청내역이 없습니다.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                reservations.map((item, index) => (
+                  <tr key={item.pno} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-3 px-2 text-center">{index + 1}</td>
+                    <td className="py-3 px-2 text-center align-middle">
+                      <div className="flex flex-col items-center justify-center gap-2 text-xs">
+                        <div className="flex items-center gap-5">
+                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs">이용일자</span>
+                          <span>{item.useDate}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs">이용시간</span>
+                          <span>{item.startTime} ~ {item.endTime}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-center">{item.room}</td>
+                    <td className="py-3 px-2 text-center">{item.people}명</td>
+                    <td className="py-3 px-2 text-center">{dayjs(item.appliedAt).format('YYYY-MM-DD')}</td>
+                    <td className="py-3 px-2 text-center">
+                      <span className="text-green-700 font-semibold text-xs px-2 py-1">
+                        신청완료
+                      </span>
+                    </td>
+                    <td className="py-3 px-2 text-center">
+                      <button
+                        onClick={() => {
+                          if (dayjs(item.useDate).isBefore(dayjs(), 'day')) {
+                            alert('이미 이용이 완료된 신청은 취소할 수 없습니다.');
+                            return;
+                          }
+                          cancelMutation.mutate(item.pno);
+                        }}
+                        disabled={dayjs(item.useDate).isBefore(dayjs(), 'day')}
+                        className={`px-3 py-1 text-xs rounded ${dayjs(item.useDate).isBefore(dayjs(), 'day')
+                          ? 'bg-gray-300 text-white cursor-not-allowed'
+                          : 'bg-red-500 hover:bg-red-600 text-white cursor-pointer'
+                          }`}
+                      >
+                        신청취소
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

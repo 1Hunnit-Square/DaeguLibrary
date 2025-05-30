@@ -6,10 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import com.dglib.controller.book.BookController;
 import com.dglib.service.book.BookService;
+import com.dglib.service.days.ClosedDayService;
 import com.dglib.service.member.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,7 @@ public class Scheduler {
 	private static final Logger overdueLogger = LoggerFactory.getLogger("OverdueLogger");
 	private final MemberService memberService;
 	private final BookService bookService;
+	private final ClosedDayService closedDayService;
 
 	
 	
@@ -68,6 +68,14 @@ public class Scheduler {
 		bookService.deleteKeyword();
 	}
 	
-	
-
+	@Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Seoul")
+	public void autoRegisterClosedDay() {
+		int year = LocalDate.now().getYear();
+		try {
+			closedDayService.registerAllAutoEventsForYear(year);
+			LOGGER.info("{}년도 자동 등록 완료", year);
+		} catch (Exception e) {
+			LOGGER.error("{}년도 자동 등록 실패: {}", year, e.getMessage(), e);
+		}
+	}
 }

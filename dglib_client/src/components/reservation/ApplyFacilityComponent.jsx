@@ -74,7 +74,7 @@ const ApplyFacilityComponent = () => {
           const dateStr = formatDate(date);
 
           const matched = statusData.find(item => item.date === dateStr);
-          const bookedRooms = matched?.rooms || [];
+          const statusMap = matched?.status || {};
 
           const roomList = ['동아리실', '세미나실'];
 
@@ -88,20 +88,20 @@ const ApplyFacilityComponent = () => {
           }
 
           return (
-            <div className="relative h-full flex flex-col justify-start items-start w-full pt-1">
-              <div className="flex flex-col gap-[4px] w-full mt-6">
+            <div className="relative h-full flex flex-col justify-end items-end w-full pb-1 mt-3">
+              <div className="flex flex-col gap-[4px] w-full ">
                 {roomList.map((room, idx) => {
-                  const isAlreadyBooked = bookedRooms.includes(room);
+                  const isFullyBooked = statusMap[room] === 'full';
                   return (
                     <button
                       key={idx}
-                      onClick={() => !isAlreadyBooked && handleDateClick(date, room)}
-                      disabled={isAlreadyBooked}
+                      onClick={() => !isFullyBooked && handleDateClick(date, room)}
+                      disabled={isFullyBooked}
                       className={`
-                        text-xs px-2 py-[2px] w-full rounded border
-                        ${isAlreadyBooked
+                        text-xs px-2 py-[2px] w-full rounded border transition pb-1 
+                        ${isFullyBooked
                           ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
-                          : 'border-gray-400 text-gray-700 hover:bg-gray-100'}
+                          : 'border-blue-300 text-gray-800 bg-blue-300 hover:bg-blue-400 cursor-pointer'}
                       `}
                     >
                       {room}

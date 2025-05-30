@@ -16,23 +16,14 @@ const TableComponent = ({data, isLoading, handleListClick, tableMap, defaultKey,
     const dataPage = data.pageable?.pageNumber;
     const dataSize = data.pageable?.pageSize;
 
-
-
-    const toWidth = (key) => {
-      if(tableMap.width[key]){
-        return `max-w-${tableMap.width[key]} min-w-${tableMap.width[key]}`;
-      } else
-      return "";
-    }
-
 return(
 
 <table className = "min-w-full bg-white">
         <thead>
           <tr className = "border-b-2 border-b-[#00893B] border-t-2 border-t-[#00893B]" >
             {indexNum && <th className={`py-3 px-1 text-center whitespace-nowrap uppercase`}>번호</th>}
-            { Object.values(tableMap.table).map((value) =>{ 
-                return <th className={`py-3 px-3 text-center whitespace-nowrap uppercase`}>{value}</th>
+            { Object.values(tableMap.table).map((value, index) =>{ 
+                return <th key={index} className={`py-3 px-3 text-center whitespace-nowrap uppercase`}>{value}</th>
             }) 
             }
           </tr>
@@ -52,11 +43,12 @@ return(
             dataList.map((item, index) => (
               <tr key={index} className = {`border-b border-[#ddd] hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=> handleListClick(item[defaultKey])}>
                 {indexNum && <td className={`py-3 px-1 text-center whitespace-nowrap`}>{dataPage * dataSize  + index +1}</td>}
-                {Object.keys(tableMap.table).map((key) => {
+                {Object.keys(tableMap.table).map((key, index) => {
                     const left = tableMap.leftKey?.includes(key) ? "text-left" : "text-center";
                     const overflow = tableMap.overKey?.includes(key) ? "truncate" : "";
                     const underline = tableMap.lineKey?.includes(key) ? "hover:underline" : "";
-                    return <td className={`py-3 px-3 ${left} ${overflow} ${underline} ${toWidth(key)} whitespace-nowrap`}>{ tableMap.trans[key] ? tableMap.trans[key](item[key]) : item[key]}</td>
+                    const width = tableMap.width[key] ? `max-w-${tableMap.width[key]} min-w-${tableMap.width[key]}` : "";
+                    return <td key ={index} className={`py-3 px-3 ${left} ${overflow} ${underline} ${width} whitespace-nowrap`}>{ tableMap.trans[key] ? tableMap.trans[key](item[key]) : item[key]}</td>
 
                 })}
               </tr>

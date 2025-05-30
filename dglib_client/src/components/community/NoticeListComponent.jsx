@@ -51,7 +51,7 @@ const toDate = (dateTime) => {
 
      const tableMap = {
             table : {"title":"제목","name":"작성자","postedAt":"작성일","viewCount":"조회수"},
-            width : {"title" : "100"},
+            width : {"title" : 100},
             trans : { "postedAt": toDate },
             leftKey: ["title"],
             overKey: ["title"],
@@ -80,7 +80,7 @@ const toDate = (dateTime) => {
         />
       </div>
         <TableComponent data={noticeData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"ano"} />
-        
+      
       <div className="flex justify-end mt-4">
         <Button onClick={() => navigate("/community/notice/new")}>글쓰기</Button>
       </div>

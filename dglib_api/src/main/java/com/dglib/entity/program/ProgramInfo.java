@@ -37,6 +37,9 @@ public class ProgramInfo {
 	@Column(nullable = false, length = 200)
 	private String progName;	//프로그램명
 	
+	@Column(columnDefinition = "TEXT")
+	private String content; // 프로그램 상세 내용
+	
 	@Column(nullable = false, length = 18)
 	private String teachName;	//강사명
 	
@@ -45,6 +48,9 @@ public class ProgramInfo {
 	
 	@Column(nullable = false)
 	private LocalDateTime applyEndAt;	//신청종료기간
+	
+	@Column(length = 20)
+	private String status; // 신청전 / 신청중 / 신청마감 등
 	
 	@ElementCollection
 	@Enumerated(EnumType.STRING)

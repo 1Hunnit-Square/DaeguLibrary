@@ -6,5 +6,6 @@ import com.dglib.entity.program.ProgramUse;
 
 public interface ProgramUseRepository extends JpaRepository<ProgramUse, Long>{
 	
+	boolean existsByProgramInfo_ProgNoAndMember_Mid(Long progNo, String mid);
 
 }

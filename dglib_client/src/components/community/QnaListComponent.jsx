@@ -47,7 +47,6 @@ const QnaListComponent = () => {
         size: 10,
         option: queryParams.option,
         query: queryParams.query,
-        requesterMid: mid,
       }),
     keepPreviousData: true,
   });

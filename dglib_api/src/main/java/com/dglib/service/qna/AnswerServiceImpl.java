@@ -28,7 +28,7 @@ public class AnswerServiceImpl implements AnswerService	{
 	//등록
 	@Override
 	public Long createAnswer(AnswerDTO dto) {
-		Member member = memberRepository.findById(dto.getMemberMid())
+		Member member = memberRepository.findById(dto.getAdminMid())
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
 		
 		Question question = questionRepository.findById(dto.getQno())
@@ -57,7 +57,7 @@ public class AnswerServiceImpl implements AnswerService	{
 		dto.setPostedAt(answer.getPostedAt());
 		dto.setModifiedAt(answer.getModifiedAt());
 		dto.setContent(answer.getContent());
-		dto.setMemberMid(answer.getMember().getMid());
+		dto.setAdminMid(answer.getMember().getMid());
 		
 		return dto;
 		

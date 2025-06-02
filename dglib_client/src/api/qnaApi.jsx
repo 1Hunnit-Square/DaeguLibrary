@@ -29,7 +29,7 @@ export const createQuestion = async (data) => {
 };
 
 //수정
-export const updateQuestion = async (qno, updateData) => {
+export const updateQuestion = async ({ qno, updateData }) => {
   const response = await axiosClient.put(`${prefix}/${qno}`, updateData, {
     headers: {
       "Content-Type": "application/json",
@@ -38,14 +38,15 @@ export const updateQuestion = async (qno, updateData) => {
   return response.data;
 };
 
-//삭제
-export const deleteQuestion = async (qno, requesterMid) => {
-  const response = await axiosClient.delete(`${prefix}/${qno}`, {
+// 삭제
+export const deleteQuestion = (qno, requesterMid) => {
+  console.log("삭제 요청 URL:", `${prefix}/${qno}`);
+  console.log("요청자:", requesterMid);
+
+  return axiosClient.delete(`${prefix}/${qno}`, {
     params: requesterMid ? { requesterMid } : {},
   });
-  return response.data;
 };
-
 
 //답변생성
 export const createAnswer = async(qno, answerData)=> {

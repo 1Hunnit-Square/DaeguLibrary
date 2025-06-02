@@ -15,6 +15,5 @@ public class AnswerDTO {
 	private LocalDateTime postedAt;	//등록일
 	private LocalDateTime modifiedAt;	//수정일	
 	private String content;	//내용
-	
-	private String memberMid;	//회원id
+	private String adminMid;	//관리자id
 }

@@ -5,7 +5,14 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.place.PlaceDTO;
 import com.dglib.dto.place.ReservationStatusDTO;
@@ -23,6 +30,7 @@ public class PlaceController {
 	// 예약 등록
 	@PostMapping("/register")
 	public ResponseEntity<String> registerPlace(@RequestBody PlaceDTO dto) {
+		System.out.println("📌 예약 등록 요청 들어옴: " + dto);
 		Long pno = placeService.registerPlace(dto);
 		return ResponseEntity.ok().build();
 	}

@@ -59,6 +59,14 @@ public class PlaceServiceImpl implements PlaceService {
 			throw new IllegalArgumentException("입력한 인원 수와 참가자 수가 일치하지 않습니다.");
 		}
 
+		for (String participantId : participantsArray) {
+			String trimmedId = participantId.trim();
+			boolean exists = memberRepository.existsById(trimmedId);
+			if (!exists) {
+				throw new IllegalArgumentException("참가자 ID '" + trimmedId + "' 는 존재하지 않는 회원입니다.");
+			}
+		}
+
 		if (dto.getRoom().equals("동아리실")) {
 			if (dto.getPeople() < 4 || dto.getPeople() > 8) {
 				throw new IllegalArgumentException("동아리실은 4인 이상 8인 이하만 예약할 수 있습니다.");

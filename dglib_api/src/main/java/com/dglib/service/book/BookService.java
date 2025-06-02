@@ -26,7 +26,9 @@ import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
+import com.dglib.dto.book.EbookSumDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -68,6 +70,7 @@ public interface BookService {
 	Page<AdminWishBookListDTO> getWishBookList(Pageable pageable, AdminWishBookSearchDTO dto);
 	void rejectWishBook(Long wishno);
 	void regEbook(EbookRegistrationDTO dto);
+	Page<EbookSumDTO> getEbookList(EbookListRequestDTO dto);
 	
 	
 	

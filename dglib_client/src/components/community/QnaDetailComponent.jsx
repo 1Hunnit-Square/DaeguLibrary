@@ -77,7 +77,7 @@ const QnaDetailComponent = () => {
                     )}
                     <tr>
                         <td className="bg-gray-100 p-2 font-semibold">내용</td>
-                        <td className="p-2 whitespace-pre-wrap">{question.content}</td>
+                        <td className="p-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: question.content }}></td>
                     </tr>
                 </tbody>
             </table>
@@ -105,7 +105,7 @@ const QnaDetailComponent = () => {
                             )}
                             <tr>
                                 <td className="bg-gray-100 p-2 font-semibold">내용</td>
-                                <td className="p-2 whitespace-pre-wrap">{question.answer.content}</td>
+                                <td className="p-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: question.answer.content }}></td>
                             </tr>
                         </tbody>
                     </table>

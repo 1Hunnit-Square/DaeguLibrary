@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +54,9 @@ import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
+import com.dglib.dto.book.EbookSumDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -898,13 +902,15 @@ public class BookServiceImpl implements BookService {
 			LOGGER.info("저장된 파일 정보: {}", savedFileInfos);
 			for (Object savedFileInfo : savedFileInfos) {
 	            Map<String, String> fileInfo = (Map<String, String>) savedFileInfo;
-	            String originName = fileInfo.get("originName");
-	            String pathName = fileInfo.get("pathName");
+	            String originName = fileInfo.get("originalName");
+	            String pathName = fileInfo.get("filePath");
 	            
 	            if (fileUtil.isImageFile(originName)) {
 	                ebook.setEbookCover(pathName);
+	                LOGGER.info("전자책 표지 이미지 경로: {}", pathName);
 	            } else {
 	                ebook.setEbookFilePath(pathName);
+	                LOGGER.info("전자책 파일 경로: {}", pathName);
 	            }
 	        }
 			
@@ -918,6 +924,23 @@ public class BookServiceImpl implements BookService {
 	
 		
     }
+    
+    public Page<EbookSumDTO> getEbookList(EbookListRequestDTO dto) {
+    	int page = dto.getPage() > 0 ? dto.getPage() : 1;
+    	int size = dto.getSize() > 0 ? dto.getSize() : 10;
+    	Pageable pageable = PageRequest.of(page - 1, size, Sort.by("ebookId").descending());
+    	Page<Ebook> ebookPage = ebookRepository.findAll(pageable);
+		return ebookPage.map(ebook -> {
+			EbookSumDTO ebookSumDTO = new EbookSumDTO();
+			modelMapper.map(ebook, ebookSumDTO);
+			ebookSumDTO.setEbookCover(ebook.getEbookCover());
+			ebookSumDTO.setEbookFilePath(ebook.getEbookFilePath());
+			return ebookSumDTO;
+		});
+    }
+    
+    
+
     
 
     

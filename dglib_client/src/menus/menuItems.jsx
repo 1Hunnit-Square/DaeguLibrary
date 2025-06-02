@@ -96,16 +96,16 @@ const defaultMenuItems = [
   const getAdminMenuItem = (items, role) => {
     if(role == "ADMIN"){
     return [ ...items, {
-      
+
       id: 7,
       title: '관리자',
-      link: `/admin/bookmanagement?tab=booklist&page=1&${dateParams}`,
+      link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}`,
       subMenus: [
         { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
         { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
         { name: '회원관리', link: '/admin/membermanagement?page=1' },
         { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
-        
+
       ]
     }];
 

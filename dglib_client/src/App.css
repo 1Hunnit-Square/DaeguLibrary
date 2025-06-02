@@ -1,5 +1,39 @@
 @import "tailwindcss";
 
+
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  iframe html::-webkit-scrollbar,
+  iframe body::-webkit-scrollbar {
+    display: none !important;
+  }
+  iframe html,
+  iframe body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.epub-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+.epub-container {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+
+}
+
+
+
+
+
+
 .ql-tooltip {
   display: none !important;
 }

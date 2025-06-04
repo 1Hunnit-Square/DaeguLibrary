@@ -56,7 +56,7 @@ const toDate = (dateTime) => {
             leftKey: ["title"],
             overKey: ["title"],
             lineKey : ["title"],
-            noneMsg: "회원 정보가 없습니다."
+            noneMsg: "등록된 글이 없습니다."
             }
 
     const handleDetail = (ano) => {

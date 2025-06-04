@@ -34,7 +34,8 @@ public class NoticeController {
 	private final String DIRNAME = "notice";
 
 	@PostMapping("/register")
-	public ResponseEntity<String> manageMember(@ModelAttribute NoticeDTO noticeDTO, @RequestParam(required = false) List<MultipartFile> files){
+	public ResponseEntity<String> manageMember(@ModelAttribute NoticeDTO noticeDTO,
+		 @RequestParam(required = false) List<MultipartFile> files){
 		noticeService.register(noticeDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}

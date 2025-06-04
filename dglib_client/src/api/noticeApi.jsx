@@ -13,3 +13,9 @@ export const getNoticeDetail = async (path) => {
     const res = await axiosClient.get(`${prefix}/${path}`);
     return res.data;
 }
+
+export const regNotice = async (params) => {
+    const header = { headers: {"Content-Type": 'multipart/form-data'}};
+    const res = await axios.post(`${prefix}/register`, params, header);
+    return res.data;
+}

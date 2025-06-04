@@ -2,7 +2,7 @@ package com.dglib.service.notice;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,6 +41,7 @@ public class NoticeServiceImpl implements NoticeService {
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final FileUtil fileUtil;
+	private final String viewPath = "/api/view/";
 	
 	@Override
 	public void register(NoticeDTO dto, List<MultipartFile> files, String dirName) {
@@ -66,18 +67,28 @@ public class NoticeServiceImpl implements NoticeService {
 		notice.setMember(member);
 		
 		
-		// 이미지첨부
+		AtomicInteger index = new AtomicInteger(0);
+		// 파일첨부
 		List<Object> fileMap = fileUtil.saveFiles(files, dirName);
 		if(fileMap != null) {
 			List<NoticeFile> fileList = fileMap.stream().map(obj -> {
+				int i = index.getAndIncrement();
 				NoticeFile file = new NoticeFile();
 				modelMapper.map(obj, file);
-				file.setFileType("image");
+
+				if(!dto.getUrlList().get(i).equals("null")) {
+					file.setFileType("image");
+					String content = notice.getContent().replace(dto.getUrlList().get(i), viewPath+file.getFilePath());
+					notice.setContent(content);
+				} else 
+					file.setFileType("other");
 				file.setNotice(notice);
 				return file;
 			}).collect(Collectors.toList());
 			notice.setFiles(fileList);
-		}
+				
+			}
+			
 		noticeRepository.save(notice);
 	}
 	
@@ -88,16 +99,24 @@ public class NoticeServiceImpl implements NoticeService {
 		Notice notice = noticeRepository.findById(ano)
 				.orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
 		
+		notice.setViewCount(notice.getViewCount()+1); // 조회수 1 증가
+		
 		NoticeDetailDTO dto = new NoticeDetailDTO();
 		modelMapper.map(notice, dto);
 		dto.setName(notice.getMember().getName());
 		
-		List<NoticeFile> file = notice.getFiles(); // 이미지 불러오기
-		if(file != null) {
-			List<NoticeFileDTO> fileDTO = file.stream().map(f -> modelMapper.map(f, NoticeFileDTO.class)).collect(Collectors.toList());
-			dto.setFileDTO(fileDTO);
+		List<NoticeFile> fileList = notice.getFiles(); // 이미지 불러오기
+		if(fileList != null) {
+			List<NoticeFileDTO> dtoList = fileList.stream().map(file -> { 
+				NoticeFileDTO fileDTO = new NoticeFileDTO();
+				modelMapper.map(file, fileDTO);
+				fileDTO.setFilePath(viewPath + fileDTO.getFilePath());
+				return fileDTO;
+
+			}).collect(Collectors.toList());
+			dto.setFileDTO(dtoList);
 		}
-		notice.setViewCount(notice.getViewCount()+1); // 조회수 1 증가
+		
 		
 		return dto;
 	}

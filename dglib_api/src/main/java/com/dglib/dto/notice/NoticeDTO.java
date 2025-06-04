@@ -21,4 +21,5 @@ public class NoticeDTO {
 	private boolean isHidden;
 	private boolean isPinned;
 	private String mid;             // 작성자 ID (식별자 용도)
+	private List<String> urlList;
 }

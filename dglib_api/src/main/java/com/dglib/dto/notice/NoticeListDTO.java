@@ -1,6 +1,7 @@
 package com.dglib.dto.notice;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 

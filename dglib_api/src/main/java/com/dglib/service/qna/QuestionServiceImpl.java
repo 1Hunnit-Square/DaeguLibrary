@@ -80,8 +80,9 @@ public class QuestionServiceImpl implements QuestionService {
 		String writerMid = question.getMember().getMid();
 		boolean isOwner = requesterMid != null && writerMid.equals(requesterMid);
 		boolean isPublic = question.isCheckPublic();
-
-		if (!isOwner && !isPublic) {
+		boolean isAdmin = "admin".equals(requesterMid);
+		
+		if (!isOwner && !isPublic &&!isAdmin) {
 			System.out.println("질문을 가져올 수 없음");
 			throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
 		}

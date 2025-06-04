@@ -1,52 +1,53 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
-import Button from "../common/Button";
-import axios from "axios";
-import ReactQuill from "react-quill";
-import 'react-quill/dist/quill.snow.css';
+import { memberIdSelector } from "../../atoms/loginState";
+import useQuillEditor from "../../hooks/useQuillEditor";
+import { useCreateAnswer } from "../../hooks/useAnswerMutation";
 
 const AnswerNewComponent = () => {
   const { qno } = useParams();
   const adminMid = useRecoilValue(memberIdSelector);
-  const roleName = useRecoilValue(memberRoleSelector);
-  const [content, setContent] = useState("");
   const navigate = useNavigate();
 
-  if (roleName !== "ADMIN") {
-    return (
-      <div className="text-center mt-20 text-red-600 font-semibold">
-        관리자만 답변을 작성할 수 있습니다.
-      </div>
-    );
-  }
+  const { content, setContent, QuillComponent } = useQuillEditor("", "답변 내용을 입력하세요...");
+  const createAnswerMutation = useCreateAnswer(() => navigate(`/community/qna/${qno}`));
 
-  const handleSubmit = async () => {
-    try {
-      await axios.post(`/api/answer/${qno}`, {
-        content,
-        adminMid,
-      });
-      alert("답변이 등록되었습니다.");
-      navigate(`/community/qna/${qno}`);
-    } catch (err) {
-      const msg = err?.response?.data?.message || "답변 등록 중 오류가 발생했습니다.";
-      alert(msg);
+  const handleSubmit = () => {
+    if (!content.trim()) {
+      alert("답변 내용을 입력해주세요.");
+      return;
     }
+
+    createAnswerMutation.mutate({
+      qno: parseInt(qno),
+      content,
+      adminMid,
+    });
   };
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-xl font-bold mb-6">답변 작성</h2>
-      <ReactQuill
-        value={content}
-        onChange={setContent}
-        placeholder="답변 내용을 입력해주세요..."
-      />
+      <h2 className="text-xl font-bold mb-6">답변 작성하기</h2>
+
+      <div className="mb-4">
+        <label className="font-semibold">답변 내용</label>
+        {QuillComponent}
+      </div>
+
       <div className="flex justify-end gap-2">
-        <Button onClick={handleSubmit}>등록하기</Button>
-        <Button onClick={() => navigate(-1)}>돌아가기</Button>
+        <button
+          className="px-4 py-2 bg-gray-400 text-white rounded"
+          onClick={() => navigate(-1)}
+        >
+          돌아가기
+        </button>
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded"
+          onClick={handleSubmit}
+        >
+          등록하기
+        </button>
       </div>
     </div>
   );

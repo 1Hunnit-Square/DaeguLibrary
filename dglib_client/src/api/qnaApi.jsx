@@ -49,14 +49,18 @@ export const deleteQuestion = (qno, requesterMid) => {
 };
 
 //답변생성
-export const createAnswer = async(qno, answerData)=> {
-  const response = await axiosClient.post(`${prefix}/${qno}/answer`, answerData);
+export const createAnswer = async (answerData) => {
+  const response = await axiosClient.post(`${API_SERVER_HOST}/api/answer`, answerData, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
   return response.data;
 };
 
 //답변수정
-export const updateAnswer = async(qno, answerData)=>{
-  const response = await axiosClient.put(`${prefix}/${qno}/answer`, answerData);
+export const updateAnswer = async({qno, answerData})=>{
+  const response = await axiosClient.put(`${API_SERVER_HOST}/api/answer/question/${qno}`, answerData);
   return response.data;
 };
 

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 import Button from "../common/Button";
 import Loading from "../../routers/Loading";
@@ -11,6 +11,7 @@ const QnaDetailComponent = () => {
   const { qno } = useParams();
   console.log("params로 받은 qno:", qno);
   const mid = useRecoilValue(memberIdSelector);
+  const roleName = useRecoilValue(memberRoleSelector);
   const navigate = useNavigate();
 
   const { data: question, isLoading, isError } = useQuery({
@@ -24,29 +25,73 @@ const QnaDetailComponent = () => {
     },
   });
 
-  const deleteQuestionMutation = useDeleteQuestion(() => {
-    alert("삭제되었습니다.");
-    navigate("/community/qna");
-  });
+  const renderAdminButtons = () => (
+    <div className="flex justify-end gap-2">
+      <Button
+        className="bg-red-500 hover:bg-red-600"
+        onClick={handleDelete}
+      >
+        삭제하기</Button>
+      <Button
+        className="bg-orange-400 hover:bg-orange-500"
+        onClick={() => navigate(`/community/qna/answer/${qno}`)}
+      >
+        답변달기
+      </Button>
+    </div>
+  );
 
-const handleEdit = () => {
-  if (!title.trim()) {
-    alert("제목을 입력해주세요.");
-    return;
-  }
-  if (!content.trim()) {
-    alert("내용을 입력해주세요.");
-    return;
-  }
+  const renderAdminEditButtons = () => (
+    <div className="flex justify-end gap-2">
+      <Button
+        className="bg-red-500 hover:bg-red-600"
+        onClick={handleDelete}
+      >
+        삭제하기</Button>
+      <Button
+        className="bg-blue-400 hover:bg-blue-500"
+        onClick={() => navigate(`/community/qna/answer/edit/${qno}`)}
+      >
+        답변수정
+      </Button>
+    </div>
+  )
 
-  updateMutate({
-    qno,
-    title,
-    content,
-    checkPublic,
-    memberMid: mid,
-  });
-};
+  const renderOwnerButtons = () => (
+    <div className="flex justify-end gap-2">
+      <Button
+        className="bg-red-500 hover:bg-red-600"
+        onClick={handleDelete}
+      >
+        삭제하기
+      </Button>
+      <Button
+        className="bg-blue-400 hover:bg-blue-500"
+        onClick={() => navigate(`/community/qna/edit/${qno}`)}
+      >
+        수정하기
+      </Button>
+    </div>
+  );
+
+  const handleEdit = () => {
+    if (!title.trim()) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
+    if (!content.trim()) {
+      alert("내용을 입력해주세요.");
+      return;
+    }
+
+    updateMutate({
+      qno,
+      title,
+      content,
+      checkPublic,
+      memberMid: mid,
+    });
+  };
 
   const handleDelete = () => {
     console.log("삭제 직전 qno:", qno);
@@ -56,7 +101,13 @@ const handleEdit = () => {
     }
   };
 
+  const deleteQuestionMutation = useDeleteQuestion(() => {
+    alert("삭제되었습니다.");
+    navigate("/community/qna");
+  });
+
   if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
+
   if (isError) {
     return (
       <div>
@@ -76,6 +127,7 @@ const handleEdit = () => {
   console.log("질문 작성자 ID:", question.writerMid);
   const isOwner = mid === question.writerMid;
   const hasAnswer = !!question.answer;
+  const isAdmin = roleName == "ADMIN";
 
   return (
     <div className="max-w-4xl mx-auto text-sm">
@@ -132,24 +184,13 @@ const handleEdit = () => {
         </>
       )}
 
-      <div className="flex justify-end gap-2">
-        {isOwner && (
-          <>
-            <Button
-              className="bg-blue-400 hover:bg-blue-500"
-              onClick={() => navigate(`/community/qna/edit/${qno}`)}
-            >
-              수정하기
-            </Button>
-            <Button
-              className="bg-red-500 hover:bg-red-600"
-              onClick={handleDelete}
-            >
-              삭제하기
-            </Button>
-          </>
-        )}
-        <Button onClick={() => navigate(-1)}>목록</Button>
+      {!hasAnswer && isAdmin && renderAdminButtons()}
+      {hasAnswer && isAdmin && renderAdminEditButtons()}
+      {isOwner && renderOwnerButtons()}
+
+
+      <div className="flex justify-center gap-2">
+        <Button onClick={() => navigate(`/community/qna`)}>목록</Button>
       </div>
     </div>
   );

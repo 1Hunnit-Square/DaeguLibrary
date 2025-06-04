@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/answer")
+@RequestMapping("/api/answer")
 public class AnswerController {
 
 	private final AnswerService answerService;
@@ -33,12 +33,12 @@ public class AnswerController {
 		return ResponseEntity.ok(answerService.getAnswer(ano));
 	}
 	
-	@PutMapping("/{ano}")
+	@PutMapping("/question/{qno}")
 	public ResponseEntity<Void> updateAnswer(
-			@PathVariable Long ano,
+			@PathVariable Long qno,
 			@RequestBody AnswerDTO dto) {
 		
-		answerService.updateAnswer(ano, dto);
+		answerService.updateAnswer(qno, dto);
 		return ResponseEntity.noContent().build();
 	}
 	

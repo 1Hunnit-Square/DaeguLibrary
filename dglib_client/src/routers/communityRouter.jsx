@@ -6,7 +6,8 @@ import { path } from "framer-motion/client";
 import QnaDetailComponent from "../components/community/QnaDetailComponent";
 import QnaNewComponent from "../components/community/QnaNewComponent";
 import QnaEditComponent from "../components/community/QnaEditComponent";
-
+import AnswerNewComponent from "../components/community/AnswerNewComponent";
+import AnswerEditComponent from "../components/community/AnswerEditComponent";
 
 const Notice = lazy(() => import("../components/community/NoticeListComponent"));
 const News = lazy(() => import("../components/community/NewsComponent"));
@@ -60,6 +61,14 @@ const communityRouter = () => ([
             {
                 path: "edit/:qno",
                 element: <Suspense fallback={<Loading />}><QnaEditComponent /></Suspense>
+            },
+            {
+                path: "answer/:qno",
+                element: <Suspense fallback={<Loading />}><AnswerNewComponent /></Suspense>
+            },
+            {
+                path: "answer/edit/:qno",
+                element: <Suspense fallback={<Loading />}><AnswerEditComponent /></Suspense>
             }
         ]
     },

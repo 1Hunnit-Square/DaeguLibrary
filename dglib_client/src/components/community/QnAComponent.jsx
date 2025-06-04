@@ -9,7 +9,9 @@ const QnAComponent = () => {
                 <Route index element={<QnaListComponent />} />
                 <Route path=":qno" element={<QnaDetailComponent />} />
                 <Route path="new" element={<QnaNewComponent />} />
-                <Route path="edit: element+{<QnaEditComponent /} />
+                <Route path="edit/:qno" element={<QnaEditComponent /} />
+                <Route path="answer/:qno" element={<AnswerNewComponent /} />
+                <Route path="answer/edit/:qno" element={<AnswerEditComponent /} />
             </Routes> */}
             <Outlet />
         </div>

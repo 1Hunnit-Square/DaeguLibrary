@@ -1,5 +1,6 @@
 package com.dglib.service.program;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,8 +8,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,10 +45,29 @@ public class ProgramServiceImpl implements ProgramService {
 
 	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
 	@Override
-	public Page<ProgramInfoDTO> getProgramList(Pageable pageable, String searchType, String keyword) {
-		Page<ProgramInfo> programPage = infoRepository.searchProgram(searchType, keyword, pageable);
-		return programPage.map(program -> modelMapper.map(program, ProgramInfoDTO.class));
+	public Page<ProgramInfoDTO> getProgramList(Pageable pageable, String progName, String content, String status) {
+	    // 모든 조건이 비어 있으면 전체 조회
+	    boolean noFilter = (progName == null || progName.isBlank()) &&
+	                       (content == null || content.isBlank()) &&
+	                       (status == null || status.isBlank());
+
+	    Page<ProgramInfo> result;
+
+	    if (noFilter) {
+	        result = infoRepository.findAll(pageable);
+	    } else {
+	        result = infoRepository.searchProgram(progName, content, status, pageable);
+	    }
+
+	    return result.map(program -> {
+	        ProgramInfoDTO dto = modelMapper.map(program, ProgramInfoDTO.class);
+	        int applicants = useRepository.countByProgram(program.getProgNo());
+	        dto.setCurrent(applicants);
+
+	        return dto;
+	    });
 	}
+
 
 	// 배너 리스트 조회
 	@Override
@@ -68,14 +91,12 @@ public class ProgramServiceImpl implements ProgramService {
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 		return modelMapper.map(info, ProgramInfoDTO.class);
 	}
-	
+
 	@Override
 	public ProgramInfo getProgramEntity(Long progNo) {
-	    return infoRepository.findById(progNo)
-	        .orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-	    
-	}
+		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
+	}
 
 	// 프로그램 등록
 	@Override
@@ -95,6 +116,7 @@ public class ProgramServiceImpl implements ProgramService {
 		modelMapper.map(dto, existing);
 		existing.setProgNo(existingProgNo);
 		setFileInfo(existing, file);
+		infoRepository.save(existing); // 수정된 엔티티 저장
 	}
 
 	// 파일 처리 공통 메서드
@@ -108,7 +130,7 @@ public class ProgramServiceImpl implements ProgramService {
 
 			List<Object> uploaded = fileUtil.saveFiles(List.of(file), "program");
 			Map<String, String> fileInfo = (Map<String, String>) uploaded.get(0);
-			info.setFilename(fileInfo.get("filename"));
+			info.setFilename(fileInfo.get("originalName")); // FileUtil에서 originalName을 사용하므로 그대로 사용
 			info.setFilePath(fileInfo.get("filePath"));
 		}
 	}
@@ -116,8 +138,15 @@ public class ProgramServiceImpl implements ProgramService {
 	// 프로그램 삭제
 	@Override
 	public void deleteProgram(Long progNo) {
-		if (!infoRepository.existsById(progNo)) {
-			throw new IllegalArgumentException("해당 프로그램이 존재하지 않습니다.");
+		ProgramInfo programToDelete = infoRepository.findById(progNo)
+				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+		if (programToDelete.getFilePath() != null && !programToDelete.getFilePath().isEmpty()) {
+			try {
+				fileUtil.deleteFiles(List.of(programToDelete.getFilePath()));
+			} catch (RuntimeException e) {
+				System.err.println("파일 삭제 실패: " + programToDelete.getFilePath() + " - " + e.getMessage());
+				throw e;
+			}
 		}
 		infoRepository.deleteById(progNo);
 	}
@@ -178,4 +207,30 @@ public class ProgramServiceImpl implements ProgramService {
 		return program.getApplyEndAt().toLocalDate().isAfter(LocalDate.now());
 	}
 
+	// 파일 다운로드 로직 구현
+	@Override
+	public FileDownloadInfo downloadProgramFile(Long progNo) throws IOException {
+		ProgramInfo info = infoRepository.findById(progNo)
+				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+
+		ResponseEntity<Resource> fileUtilResponse = fileUtil.getFile(info.getFilePath(), null); // type은 null로 전달 (썸네일이
+																								// 아니므로)
+
+		if (!fileUtilResponse.getStatusCode().is2xxSuccessful()) {
+			throw new IOException("파일 다운로드 실패: " + fileUtilResponse.getStatusCode());
+		}
+
+		Resource resource = fileUtilResponse.getBody();
+		if (resource == null || !resource.exists()) {
+			throw new IllegalArgumentException("파일을 찾을 수 없거나 접근할 수 없습니다: " + info.getFilePath());
+		}
+
+		// Content-Type 추출 (FileUtil의 ResponseEntity에서 가져옴)
+		String contentType = fileUtilResponse.getHeaders().getContentType() != null
+				? fileUtilResponse.getHeaders().getContentType().toString()
+				: MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+		// FileDownloadInfo 객체를 생성하여 반환
+		return new FileDownloadInfo(resource, info.getFilename(), contentType);
+	}
 }

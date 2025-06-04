@@ -1,23 +1,18 @@
 package com.dglib.controller.program;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,12 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramUseDTO;
-import com.dglib.entity.program.ProgramInfo;
 import com.dglib.service.program.ProgramService;
+import com.dglib.service.program.ProgramService.FileDownloadInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,14 +35,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProgramController {
 
-//	private static final Logger LOGGER = LoggerFactory.getLogger(ProgramController.class);
 	private final ProgramService programService;
-	
+
 	@Value("${file.upload.path}")
-    private String uploadBasePath;
+	private String uploadBasePath;
 
 	// 관리자용 API
-
 	// 1. 배너 목록 조회
 	@GetMapping("/banners")
 	public ResponseEntity<List<ProgramBannerDTO>> getAllBanners() {
@@ -61,12 +55,12 @@ public class ProgramController {
 
 	// 3. 페이지네이션 + 검색 조건 포함 목록 조회
 	@GetMapping
-	public ResponseEntity<Page<ProgramInfoDTO>> getProgramList(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String progName,
-			@RequestParam(required = false) String content) {
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "progNo"));
-		return ResponseEntity.ok(programService.getProgramList(pageable, progName, content));
+	public ResponseEntity<Page<ProgramInfoDTO>> getProgramList(@RequestParam(required = false) String progName,
+			@RequestParam(required = false) String content, @RequestParam(required = false) String status,
+			Pageable pageable) {
 
+		Page<ProgramInfoDTO> result = programService.getProgramList(pageable, progName, content, status);
+		return ResponseEntity.ok(result);
 	}
 
 	// 4. 프로그램 상세 조회
@@ -75,17 +69,21 @@ public class ProgramController {
 		return ResponseEntity.ok(programService.getProgram(progNo));
 	}
 
-	// 5. 프로그램 등록
+	// 5. 프로그램 등록(파일 업로드 포함)
 	@PostMapping("/register")
-	public ResponseEntity<Void> registerProgram(@RequestBody ProgramInfoDTO dto) {
-		programService.registerProgram(dto, null);
-		return ResponseEntity.ok().build();
+	public ResponseEntity<String> registerProgram(@ModelAttribute ProgramInfoDTO dto,
+			@RequestParam(value = "file", required = false) MultipartFile file) {
+
+		programService.registerProgram(dto, file);
+		return ResponseEntity.ok("등록 완료");
 	}
 
-	// 6. 수정
+	// 6. 수정(파일 업데이트 포함)
 	@PutMapping("/update/{progNo}")
-	public ResponseEntity<Void> updateProgram(@PathVariable Long progNo, @RequestBody ProgramInfoDTO dto) {
-		programService.updateProgram(progNo, dto, null);
+	public ResponseEntity<Void> updateProgram(@PathVariable Long progNo, @ModelAttribute ProgramInfoDTO dto,
+			@RequestParam(value = "file", required = false) MultipartFile file) {
+
+		programService.updateProgram(progNo, dto, file);
 		return ResponseEntity.ok().build();
 	}
 
@@ -97,7 +95,6 @@ public class ProgramController {
 	}
 
 	// 사용자용 API
-
 	// 1. 프로그램 신청
 	@PostMapping("/apply")
 	public ResponseEntity<Void> applyProgram(@RequestBody ProgramUseDTO dto) {
@@ -120,18 +117,12 @@ public class ProgramController {
 	// 4. 파일 다운로드
 	@GetMapping("/file/{progNo}")
 	public ResponseEntity<Resource> downloadProgramFile(@PathVariable Long progNo) throws IOException {
-		ProgramInfo info = programService.getProgramEntity(progNo); // Entity 직접 가져오는 메서드 필요
-		String fullPath = Paths.get(uploadBasePath, info.getFilePath()).toString(); // ex: upload/program/abc.pdf
+		FileDownloadInfo fileInfo = programService.downloadProgramFile(progNo);
 
-		File file = new File(fullPath);
-		if (!file.exists()) {
-			return ResponseEntity.notFound().build();
-		}
-
-		Resource resource = new InputStreamResource(new FileInputStream(file));
-		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + info.getFilename() + "\"")
-				.body(resource);
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(fileInfo.getContentType())) // Service에서 받은
+																									// Content-Type 사용
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileInfo.getFilename() + "\"")
+				.body(fileInfo.getResource());
 	}
 
 }

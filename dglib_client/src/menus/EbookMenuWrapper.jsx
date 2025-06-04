@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 
-const EbookMenuWrapper = forwardRef(({ title, show, onClose, children }, ref) => {
+const EbookMenuWrapper = ({ title, show, onClose, children }, ref) => {
     return (
         <div
             ref={ref}
@@ -32,8 +32,8 @@ const EbookMenuWrapper = forwardRef(({ title, show, onClose, children }, ref) =>
             {children}
         </div>
     );
-});
+};
 
 EbookMenuWrapper.displayName = 'EbookMenuWrapper';
 
-export default EbookMenuWrapper;
+export default forwardRef(EbookMenuWrapper);

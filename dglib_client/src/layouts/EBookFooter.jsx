@@ -1,5 +1,6 @@
 import { useRecoilValue } from 'recoil';
 import { currentLocationState } from '../atoms/EbookState';
+import { memo } from 'react';
 
 const EbookFooter = ({onPageMove}) => {
     const currentLocation = useRecoilValue(currentLocationState);
@@ -44,4 +45,4 @@ const EbookFooter = ({onPageMove}) => {
     )
 }
 
-export default EbookFooter;
+export default memo(EbookFooter);

@@ -7,8 +7,6 @@ public class EbookSumDTO {
 	
 	private Long ebookId; 
 	
-	private String ebookIsbn;
-	
 	private String ebookTitle;
 	
 	private String ebookAuthor;
@@ -19,7 +17,6 @@ public class EbookSumDTO {
 	
 	private String ebookCover;
 	
-	private String ebookFilePath;
 	
 	
 }

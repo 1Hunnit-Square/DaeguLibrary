@@ -3,14 +3,10 @@ import { atom } from 'recoil';
 export const bookInfoState = atom({
   key: 'bookInfoState',
   default: {
-    coverURL: '',
-    title: '',
-    description: '',
-    published_date: '',
-    modified_date: '',
-    author: '',
-    publisher: '',
-    language: ''
+    ebookCover: '',
+    ebookTitle: '',
+    ebookAuthor: '',
+    ebookPublisher: '',
   },
 });
 
@@ -26,6 +22,15 @@ export const currentLocationState = atom({
     progress: 0,
     startCfi: '',
     endCfi: '',
-    base: ''
+    base: '',
+    currentPage: 0,
   },
+});
+
+export const bookLabelState = atom({
+  key: "bookLabelState",
+  default: {
+    ebookId: "",
+    highlights: [],
+  }
 });

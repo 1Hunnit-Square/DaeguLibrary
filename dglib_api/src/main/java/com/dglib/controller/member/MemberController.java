@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.HighlightRequestDTO;
+import com.dglib.dto.book.HighlightResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -32,6 +34,7 @@ import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberEbookDetailDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
@@ -293,6 +296,30 @@ public class MemberController {
 		LOGGER.info("회원 희망도서 삭제 요청: {}, 회원 id: {}", wishId, mid);
 		memberService.cancelWishBook(wishId, mid);
 		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/ebookinfo/{ebookId}")
+	public ResponseEntity<MemberEbookDetailDTO> getEbookDetail(@PathVariable Long ebookId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("전자책 상세 정보 요청: {}, 회원 id: {}", ebookId, mid);
+		MemberEbookDetailDTO ebookDetail = memberService.getMemberEbookDetail(ebookId, mid);
+		return ResponseEntity.ok(ebookDetail);
+	}
+	
+	@GetMapping("/highlights/{ebookId}")
+	public ResponseEntity<List<HighlightResponseDTO>> getHighlights(@PathVariable Long ebookId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("전자책 하이라이트 목록 요청: {}, 회원 id: {}", ebookId, mid);
+		List<HighlightResponseDTO> highlights = bookService.getHighlights(mid, ebookId);
+		return ResponseEntity.ok(highlights);
+	}
+	
+	@PostMapping("/addhighlight")
+	public ResponseEntity<HighlightResponseDTO> addHighlight(@RequestBody HighlightRequestDTO dto) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("하이라이트 추가 요청: {}, 회원 id: {}", dto, mid);
+		HighlightResponseDTO highlight = bookService.addHighlight(mid, dto);
+		return ResponseEntity.ok(highlight);
 	}
 	
 

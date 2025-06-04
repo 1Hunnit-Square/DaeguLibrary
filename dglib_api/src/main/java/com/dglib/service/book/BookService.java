@@ -29,6 +29,8 @@ import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.EbookSumDTO;
+import com.dglib.dto.book.HighlightRequestDTO;
+import com.dglib.dto.book.HighlightResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -71,6 +73,9 @@ public interface BookService {
 	void rejectWishBook(Long wishno);
 	void regEbook(EbookRegistrationDTO dto);
 	Page<EbookSumDTO> getEbookList(EbookListRequestDTO dto);
+	List<HighlightResponseDTO> getHighlights(String mid, Long ebookId);
+	HighlightResponseDTO addHighlight(String mid, HighlightRequestDTO requestDto);
+	
 	
 	
 	

@@ -18,11 +18,11 @@ const EbookListComponent = () => {
 
     const books = useMemo(() => ebookList.content, [ebookList.content]);
 
-    const searchClick = () => {
+    const readClick = (id) => {
         const windowName = "EBOOK Viewer"
         const screenWidth = window.screen.availWidth;
         const screenHeight = window.screen.availHeight;
-        window.open(`/viewer`, windowName, `width=${screenWidth},height=${screenHeight},left=0,top=0`);
+        window.open(`/viewer?id=${id}`, windowName, `width=${screenWidth},height=${screenHeight},left=0,top=0`);
     };
 
 
@@ -86,8 +86,7 @@ const EbookListComponent = () => {
                                             className="px-6 py-2 rounded text-white bg-emerald-500 hover:bg-emerald-600 cursor-pointer transition"
                                             children="읽기"
                                             onClick={() => {
-                                                // 전자책 읽기 기능 구현 예정
-                                                searchClick();
+                                                readClick(book.ebookId);
                                             }}
                                         />
                                     </div>

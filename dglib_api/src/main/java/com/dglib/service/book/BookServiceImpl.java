@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -57,6 +58,8 @@ import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.EbookSumDTO;
+import com.dglib.dto.book.HighlightRequestDTO;
+import com.dglib.dto.book.HighlightResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -65,6 +68,7 @@ import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.SearchBookDTO;
 import com.dglib.entity.book.Book;
 import com.dglib.entity.book.Ebook;
+import com.dglib.entity.book.Highlight;
 import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Keyword;
 import com.dglib.entity.book.KeywordFingerprint;
@@ -79,6 +83,7 @@ import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberState;
 import com.dglib.repository.book.BookRepository;
 import com.dglib.repository.book.EbookRepository;
+import com.dglib.repository.book.HighlightRepository;
 import com.dglib.repository.book.InterestedBookRepository;
 import com.dglib.repository.book.InterestedBookSpecifications;
 import com.dglib.repository.book.KeywordRepository;
@@ -117,6 +122,7 @@ public class BookServiceImpl implements BookService {
 	private final MemberService memberService;
 	private final WishBookRepository wishBookRepository;
 	private final EbookRepository ebookRepository;
+	private final HighlightRepository highlightRepository;
 	private final FileUtil fileUtil;
 	
 	private final Map<String, List<BookTopSumDTO>> topBooksCache = new ConcurrentHashMap<>();
@@ -925,6 +931,7 @@ public class BookServiceImpl implements BookService {
 		
     }
     
+    @Override
     public Page<EbookSumDTO> getEbookList(EbookListRequestDTO dto) {
     	int page = dto.getPage() > 0 ? dto.getPage() : 1;
     	int size = dto.getSize() > 0 ? dto.getSize() : 10;
@@ -933,10 +940,42 @@ public class BookServiceImpl implements BookService {
 		return ebookPage.map(ebook -> {
 			EbookSumDTO ebookSumDTO = new EbookSumDTO();
 			modelMapper.map(ebook, ebookSumDTO);
-			ebookSumDTO.setEbookCover(ebook.getEbookCover());
-			ebookSumDTO.setEbookFilePath(ebook.getEbookFilePath());
 			return ebookSumDTO;
 		});
+    }
+    
+    @Override
+    public List<HighlightResponseDTO> getHighlights(String mid, Long ebookId) {
+    	List<Highlight> highlights = highlightRepository.findByMemberMidAndEbookEbookIdOrderByCreatedAtAsc(mid, ebookId);
+		return highlights.stream().map(highlight -> {
+			HighlightResponseDTO dto = new HighlightResponseDTO();
+			modelMapper.map(highlight, dto);
+			return dto;
+		}).collect(Collectors.toList());
+    }
+    
+    @Override
+    public HighlightResponseDTO addHighlight(String mid, HighlightRequestDTO requestDto) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+		Ebook ebook = ebookRepository.findById(requestDto.getEbookId())
+				.orElseThrow(() -> new EntityNotFoundException("해당 전자책을 찾을 수 없습니다."));
+
+		Optional<Highlight> existing = highlightRepository.findByMemberMidAndEbookEbookIdAndKey(mid, requestDto.getEbookId(), requestDto.getKey());
+		if (existing.isPresent()) {
+			throw new IllegalStateException("이미 존재하는 책갈피입니다.");
+		}
+		
+		Highlight highlight = new Highlight();
+		modelMapper.map(requestDto, highlight);
+		highlight.setMember(member);
+		highlight.setEbook(ebook);
+		highlight.setCreatedAt(LocalDateTime.now());
+		highlightRepository.save(highlight);
+		HighlightResponseDTO dto = new HighlightResponseDTO();
+		modelMapper.map(highlight, dto);
+		
+		return dto;
     }
     
     

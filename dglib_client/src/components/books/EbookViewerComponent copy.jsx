@@ -13,8 +13,6 @@ import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query';
 import { getEbookInfo } from '../../api/memberApi';
 import Loading from '../../routers/Loading'
-import EbookContextMenu from '../../menus/EbookContextMenu';
-import useHighlight from '../../hooks/useHighlight'
 
 
 const EbookViewerComponent = () => {
@@ -30,7 +28,6 @@ const EbookViewerComponent = () => {
     const [bookInfo, setBookInfo] = useRecoilState(bookInfoState);
     const setBookToc = useSetRecoilState(bookTocState);
     const [currentLocation, setCurrentLocation] = useRecoilState(currentLocationState);
-    const [isContextMenu, setIsContextMenu] = useState(false);
     const [ bookStyle, setBookStyle ] = useState({
         fontFamily: 'Origin',
         fontSize: 18,
@@ -43,7 +40,6 @@ const EbookViewerComponent = () => {
         resizeOnOrientationChange: true,
         spread: "auto"
     });
-    const { selection, highlights, onSelection, onClickHighlight, onAddHighlight, onRemoveHighlight, onUpdateHighlight} = useHighlight(viewerRef, setIsContextMenu, bookStyle, bookOption.flow, ebookId);
 
     const { data = {}, isLoading, isError } = useQuery({
         queryKey: ['ebookInfo', ebookId],
@@ -104,7 +100,7 @@ const EbookViewerComponent = () => {
             startCfi: location.startCfi || '',
             endCfi: location.endCfi || '',
             base: location.base || '',
-            currentPage: location.currentPage || 0,
+            pageNum: location.currentPage || 0,
         });
     }, [setCurrentLocation]);
 
@@ -129,15 +125,6 @@ const EbookViewerComponent = () => {
         }
     }, []);
 
-    const onContextMenu = (cfiRange) => {
-        const result = onSelection(cfiRange);
-        setIsContextMenu(result);
-    }
-
-    const onContextmMenuRemove = useCallback(() => {
-        setIsContextMenu(false);
-    }, []);
-
 
 
     return (
@@ -155,7 +142,6 @@ const EbookViewerComponent = () => {
                     viewerOption={bookOption}
                     onPageChange={updateCurrentPage}
                     onTocChange={onTocChange}
-                    onSelection={onContextMenu}
                     loadingView={<Loading text="전자책을 불러오는 중입니다..." />}
                 />
             </div>
@@ -166,10 +152,7 @@ const EbookViewerComponent = () => {
             <EbookNavMenu control={navControl} onToggle={onNavToggle} onLocation={onLocationChange} ref={navRef}/>
             <EbookOptionMenu control={optionControl} bookStyle={bookStyle} bookOption={bookOption} bookFlow={bookOption.flow}
                 onToggle={onOptionToggle} onBookStyleChange={setBookStyle} onBookOptionChange={setBookOption} ref={optionRef} emitEvent={emitEvent} />
-            {/* <EbookHighlightMenu control={learningControl} onToggle={onLearningToggle} ref={learningRef} /> */}
-            <EbookContextMenu active={isContextMenu} viewerRef={viewerRef} selection={selection} highlights={highlights}
-            onAddHighlight={onAddHighlight} onRemoveHighlight={onRemoveHighlight} onUpdateHighlight={onUpdateHighlight}
-            onContextmMenuRemove={onContextmMenuRemove}/>
+            <EbookHighlightMenu control={learningControl} onToggle={onLearningToggle} ref={learningRef} />
         </div>
     )}
         </>

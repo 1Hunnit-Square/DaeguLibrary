@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 import { useRecoilValue } from 'recoil';
 import { bookInfoState, bookTocState } from '../atoms/EbookState';
 
-const EbookNavMenu = forwardRef(({control, onToggle, onLocation}, ref) => {
+const EbookNavMenu = ({control, onToggle, onLocation}, ref) => {
     const bookInfo = useRecoilValue(bookInfoState);
     const bookToc = useRecoilValue(bookTocState);
 
@@ -29,13 +29,21 @@ const EbookNavMenu = forwardRef(({control, onToggle, onLocation}, ref) => {
        <>
         {control?.display && (
             <EbookMenuWrapper title="목차" show={control.open} onClose={onToggle} ref={ref}>
+                <div name="container" className="flex p-6 gap-3">
+                    <img src={`http://localhost:8090/api/view/${bookInfo.ebookCover}`} className="mr-3, w-[44%] min-w-[120px]  bg-[#eee]" />
+                    <div name="bookContent" className="flex-1">
+                        <div name="title" className="mb-1 font-medium">{bookInfo.ebookTitle}</div>
+                        <div name="author" className="text-sm mb-1">{bookInfo.ebookAuthor}</div>
+                        <div name="publisher" className="text-sm mb-1">{bookInfo.ebookPublisher}</div>
+                    </div>
+                </div>
                 {Tocs}
             </EbookMenuWrapper>
         )}
        </>
     )
-});
+};
 
 EbookNavMenu.displayName = 'EbookNavMenu';
 
-export default EbookNavMenu;
+export default forwardRef(EbookNavMenu);

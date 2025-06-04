@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberEbookDetailDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
@@ -37,6 +38,7 @@ import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
+import com.dglib.entity.book.Ebook;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
@@ -46,6 +48,7 @@ import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
+import com.dglib.repository.book.EbookRepository;
 import com.dglib.repository.book.RentalRepository;
 import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
@@ -67,6 +70,7 @@ public class MemberServiceImpl implements MemberService {
 	private final RentalRepository rentalRepository;
 	private final ReserveRepository reserveRepository;
 	private final WishBookRepository wishBookRepository;
+	private final EbookRepository ebookRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
 
@@ -451,6 +455,14 @@ public class MemberServiceImpl implements MemberService {
 			throw new IllegalStateException("이미 수락된 내역입니다.");
 		}
 		wishBook.setState(WishBookState.CANCELED);
+	}
+	
+	@Override
+	public MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid) {
+		Ebook ebook = ebookRepository.findById(ebookId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 EBOOK이 존재하지 않습니다."));
+		MemberEbookDetailDTO dto = modelMapper.map(ebook, MemberEbookDetailDTO.class);
+		return dto;
 	}
 	
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 
 export const useEbookMenu = (ref, delay) => {
@@ -7,22 +7,31 @@ export const useEbookMenu = (ref, delay) => {
         display : false,
         open: false,
     })
+    const timeoutRef = useRef(null);
 
     const onToggle = useCallback(() => {
-        let event = null;
-        window.clearTimeout(event);
-        if(!control.display) {
+        if (timeoutRef.current) {
+            window.clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        if (!control.display) {
             setControl({ display: true, open: false });
-            event = window.setTimeout(() => setControl({ display: true, open: true }), 0);
+            timeoutRef.current = window.setTimeout(() => {
+                setControl({ display: true, open: true });
+            }, 0);
         } else {
             setControl({ display: true, open: false });
-            event = window.setTimeout(() => setControl({ display: false, open: false }), delay - 50);
+            timeoutRef.current = window.setTimeout(() => {
+                setControl({ display: false, open: false });
+            }, delay - 50);
         }
     }, [control.display, delay]);
 
+
+
     const onClose = useCallback((e) => {
         if (!ref || !ref.current) return;
-        if( !e.path.includes(ref.current)) {
+        if( !ref.current.contains(ref.current)) {
             onToggle();
         }
     }, [ref, onToggle]);

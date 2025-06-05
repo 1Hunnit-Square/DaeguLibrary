@@ -7,16 +7,17 @@ import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
 import Button from '../common/Button';
 import CheckNonLabel from '../common/CheckNonLabel';
+import { API_ENDPOINTS } from '../../api/config';
 
 // 회원 정보 가져오기
 const getMemberInfo = async (mid) => {
-    const res = await axios.get(`${API_SERVER_HOST}/api/member/info/${mid}`);
+    const res = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.member}/info/${mid}`);
     return res.data;
 };
 
 // 참가자 명단 아이디 검사
 const validateParticipantIds = async (mids) => {
-    const res = await axios.post(`${API_SERVER_HOST}/api/member/validate`, mids);
+    const res = await axios.post(`${API_SERVER_HOST}${API_ENDPOINTS.member}/validate`, mids);
     return res.data;
 };
 
@@ -61,7 +62,7 @@ const ApplyFacilityFormComponent = () => {
         if (roomName && selectedDate) {
             const fetchReservedTimes = async () => {
                 try {
-                    const res = await axios.get(`${API_SERVER_HOST}/api/places/time-status`, {
+                    const res = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.place}/time-status`, {
                         params: { room: roomName, date: selectedDate },
                     });
                     const reserved = [];

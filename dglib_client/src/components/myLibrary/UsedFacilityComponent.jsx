@@ -7,9 +7,10 @@ import { memberIdSelector } from '../../atoms/loginState';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../../routers/Loading';
 import dayjs from 'dayjs';
+import { API_ENDPOINTS } from '../../api/config';
 
 const fetchReservations = async (memberId) => {
-  const res = await axios.get(`${API_SERVER_HOST}/api/places/member/${memberId}`);
+  const res = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.place}/member/${memberId}`);
   return Array.isArray(res.data) ? res.data : [];
 };
 

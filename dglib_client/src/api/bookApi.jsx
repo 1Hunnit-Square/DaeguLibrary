@@ -81,6 +81,20 @@ export const getTopBorrowedBookList = async (params = {}) => {
     return res.data;
 }
 
+export const getEbookList = async (params = {}) => {
+    const res = await axiosClient.get(`${prefix}/ebooklist`, {
+        params: params,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return res.data;
+}
+
+
+
+
+
 
 
 

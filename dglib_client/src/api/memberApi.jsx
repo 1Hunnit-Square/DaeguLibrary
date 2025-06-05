@@ -190,3 +190,47 @@ export const cancelWishBook = async (wishNo) => {
     return res.data;
 
 }
+
+export const getEbookInfo = async (ebookId) => {
+    const res = await axiosClient.get(`${prefix}/ebookinfo/${ebookId}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return res.data;
+}
+
+export const getHighlights = async (ebookId) => {
+    const res =await axiosClient.get(`${prefix}/highlights/${ebookId}`);
+    return res.data;
+}
+
+export const addHighlight = async (highlightData) => {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.post(`${prefix}/addhighlight`, highlightData, { headers });
+    return res.data;
+}
+
+
+export const updateHighlight = async (data) => {
+    const response = await axiosClient.put(`${prefix}/updatehighlight`, data);
+    return response.data;
+}
+
+export const deleteHighlight = async ({highlightId, cfiRange}) => {
+    const response = await axiosClient.delete(`${prefix}/deletehighlight/${highlightId}`);
+    return response.data;
+}
+
+export const saveCurrentPage = async (data) => {
+    const response = await axiosClient.post(`${prefix}/savepage`, data);
+    return response.data;
+}
+
+export const getCurrentPage = async (ebookId) => {
+    const response = await axiosClient.get(`${prefix}/currentpage/${ebookId}`);
+    return response.data;
+};
+

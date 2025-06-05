@@ -28,6 +28,8 @@ import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.BookTopSumDTO;
+import com.dglib.dto.book.EbookListRequestDTO;
+import com.dglib.dto.book.EbookSumDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
 import com.dglib.dto.book.SearchBookDTO;
@@ -128,6 +130,15 @@ public class BookController {
 		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("borrowCount").descending());
 		Page<BookTopSumDTO> bookList = bookService.getTopBorrowedBookList(pageable, check);
 		return ResponseEntity.ok(bookList);
+		
+	}
+	
+	@GetMapping("/ebooklist")
+	public ResponseEntity<Page<EbookSumDTO>> getEbookList(EbookListRequestDTO dto) {
+		LOGGER.info("전자책 목록 요청: {}", dto);
+		
+		Page<EbookSumDTO> ebookList = bookService.getEbookList(dto);
+		return ResponseEntity.ok(ebookList);
 		
 	}
 	

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberEbookDetailDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
@@ -75,6 +76,8 @@ public interface MemberService {
 	List<MemberWishBookListDTO> getMemberWishBookList(String mid, int year);
 	
 	void cancelWishBook(Long wishId, String mid);
+	
+	MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid);
 	
 	
 	

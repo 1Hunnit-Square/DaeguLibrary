@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,14 +25,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.HighlightRequestDTO;
+import com.dglib.dto.book.HighlightResponseDTO;
+import com.dglib.dto.book.HighlightUpdateDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.PageSaveRequestDTO;
 import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberEbookDetailDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
 import com.dglib.dto.member.MemberInfoDTO;
@@ -293,6 +299,65 @@ public class MemberController {
 		LOGGER.info("회원 희망도서 삭제 요청: {}, 회원 id: {}", wishId, mid);
 		memberService.cancelWishBook(wishId, mid);
 		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/ebookinfo/{ebookId}")
+	public ResponseEntity<MemberEbookDetailDTO> getEbookDetail(@PathVariable Long ebookId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("전자책 상세 정보 요청: {}, 회원 id: {}", ebookId, mid);
+		MemberEbookDetailDTO ebookDetail = memberService.getMemberEbookDetail(ebookId, mid);
+		return ResponseEntity.ok(ebookDetail);
+	}
+	
+	@GetMapping("/highlights/{ebookId}")
+	public ResponseEntity<List<HighlightResponseDTO>> getHighlights(@PathVariable Long ebookId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("전자책 하이라이트 목록 요청: {}, 회원 id: {}", ebookId, mid);
+		List<HighlightResponseDTO> highlights = bookService.getHighlights(mid, ebookId);
+		return ResponseEntity.ok(highlights);
+	}
+	
+	@PostMapping("/addhighlight")
+	public ResponseEntity<HighlightResponseDTO> addHighlight(@RequestBody HighlightRequestDTO dto) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("하이라이트 추가 요청: {}, 회원 id: {}", dto, mid);
+		bookService.addHighlight(mid, dto);
+		return ResponseEntity.ok().build();
+	}
+	
+	@PutMapping("/updatehighlight")
+	public ResponseEntity<String> updateHighlight(@RequestBody HighlightUpdateDTO dto) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("하이라이트 수정 요청: {}, 회원 id: {}", dto, mid);
+		bookService.updateHighlight(mid, dto);
+		return ResponseEntity.ok().build();
+	}
+	
+	@DeleteMapping("/deletehighlight/{highlightId}")
+	public ResponseEntity<String> deleteHighlight(@PathVariable Long highlightId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("하이라이트 삭제 요청: {}, 회원 id: {}", highlightId, mid);
+		bookService.deleteHighlight(mid, highlightId);
+		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("/savepage")
+	public ResponseEntity<String> savePage(@RequestBody PageSaveRequestDTO dto) {
+		String mid = JwtFilter.getMid();
+		
+		bookService.savePage(mid, dto);
+		LOGGER.info("페이지 저장 완료");
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/currentpage/{ebookId}")
+	public ResponseEntity<String> getCurrentPage(@PathVariable Long ebookId) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("저장된 페이지 요청: {}, 회원 id: {}", ebookId, mid);
+		String startCfi = bookService.getSavedPage(mid, ebookId);
+		LOGGER.info("저장된 페이지: {}", startCfi);
+		return ResponseEntity.ok(startCfi);
 	}
 	
 

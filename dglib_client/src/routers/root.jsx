@@ -31,6 +31,8 @@ const MemberSearch = lazy(()=> import ("../components/admin/MemberSearchComponen
 const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSearchComponent"));
 const FindAccount = lazy(()=> import ("../pages/FindAccountPage"));
 const InfoMod = lazy(()=> import ("../pages/InfoModPage"));
+const EbookViewer = lazy(() => import("../components/books/EbookViewerComponent"));
+
 
 
 const root = createBrowserRouter([
@@ -115,6 +117,10 @@ const root = createBrowserRouter([
       {
         path : "modinfo",
         element: <Suspense fallback={<Loading />}><InfoMod /></Suspense>
+    },
+    {
+        path: "viewer",
+        element: <Suspense fallback={<Loading />}><EbookViewer /></Suspense>
     }
 
 

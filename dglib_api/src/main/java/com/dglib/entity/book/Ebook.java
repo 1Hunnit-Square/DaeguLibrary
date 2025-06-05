@@ -3,11 +3,13 @@ package com.dglib.entity.book;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,6 +52,12 @@ public class Ebook {
 	
 	@Column(nullable = false)
 	private LocalDate ebookRegDate;
+	
+	@OneToMany(mappedBy = "ebook", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Highlight> highlights;
+	
+	@OneToMany(mappedBy = "ebook", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<EbookReadingProgress> readingProgressList;
 	
 	
 

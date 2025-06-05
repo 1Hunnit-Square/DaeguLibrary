@@ -105,3 +105,20 @@ export const regEbook = async (ebookData) => {
     const res = await axios.post(`${prefix}/regebook`, ebookData, { headers: { 'Content-Type': 'multipart/form-data' } });
     return res.data;
 }
+
+export const getEbookList = async (params = {}) => {
+    const res = await axios.get(`${prefix}/ebooklist`, {
+        params: params,
+    });
+    return res.data;
+}
+
+export const updateEbook = async (ebookData) => {
+    const res = await axios.post(`${prefix}/updateebook`, ebookData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return res.data;
+}
+
+export const deleteEbook = async (ebookId) => {
+    const res = await axios.delete(`${prefix}/deleteebook/${ebookId}`);
+    return res.data;
+}

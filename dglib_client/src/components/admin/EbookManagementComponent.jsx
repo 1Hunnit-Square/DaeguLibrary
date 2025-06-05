@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
 import RegEbookComponent from './RegEbookComponent';
 import { useSearchParams } from "react-router-dom";
-import LibraryBookListComponent from './LibraryBookListComponent';
-import WishBookListComponent from './WishBookListComponent';
+import EbookListComponent from './EbookListComponent';
 
 const EbookManagementComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -14,7 +13,7 @@ const EbookManagementComponent = () => {
 
     const activeTab = useMemo(() => {
         const tabParam = searchURLParams.get("tab");
-        return (tabParam && (tabParam === 'booklist' || tabParam === 'regbook' || tabParam === 'wishbook')) ? tabParam : 'booklist';
+        return (tabParam && (tabParam === 'ebooklist' || tabParam === 'regebook')) ? tabParam : 'booklist';
     }, [searchURLParams]);
 
 
@@ -22,36 +21,26 @@ const EbookManagementComponent = () => {
         const newParams = new URLSearchParams();
         newParams.set("tab", tabId);
         newParams.set("page", "1");
-        if (tabId === 'booklist') {
+        if (tabId === 'ebooklist') {
             newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
             newParams.set("endDate", today.toLocaleDateString('fr-CA'));
             newParams.set("option", "도서명")
         }
-        if (tabId === 'wishbook') {
-            newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
-            newParams.set("endDate", today.toLocaleDateString('fr-CA'));
-            newParams.set("option", "회원ID")
-        }
+
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
     const myTabs = useMemo(() => [
         {
-        id: 'booklist',
-        label: '도서목록',
-        content: <LibraryBookListComponent />
+        id: 'ebooklist',
+        label: 'EBOOK 목록',
+        content: <EbookListComponent />
         },
         {
-        id: 'regbook',
-        label: '도서등록 및 수정',
+        id: 'regebook',
+        label: 'EBOOK 등록',
         content: <RegEbookComponent />
         },
-        {
-            id: 'wishbook',
-            label: '희망도서',
-            content: <WishBookListComponent />
-        },
-
     ], []);
 
     return (

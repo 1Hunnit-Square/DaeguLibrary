@@ -1,4 +1,4 @@
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useSearchParams  } from 'react-router-dom';
 import { getLibraryBookDetail} from '../../api/bookApi';
 import { reserveBook, unMannedReserve, addInterestedBook } from '../../api/memberApi';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,8 +15,7 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 const LibraryBookDetailComponent = () => {
     const { isbn } = useParams();
     console.log("librarybookid", isbn);
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
+    const [searchParams] = useSearchParams();
     const fromParam = searchParams.get('from');
     const [selectedBook, setSelectedBook] = useState(null);
     const queryClient = useQueryClient();

@@ -83,7 +83,8 @@ public class JwtFilter extends OncePerRequestFilter {
 	    if(path.startsWith("/api/view/")) {
 	        return true;
 	    }
-
+	    
+	    
 	    return false;
 	    }
 	 

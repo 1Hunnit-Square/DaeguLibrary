@@ -6,6 +6,7 @@ import Button from "../common/Button";
 import Loading from "../../routers/Loading";
 import { useDeleteQuestion, useUpdateQuestion } from "../../hooks/useQuestionMutation";
 import { getQnaDetail } from "../../api/qnaApi";
+import { useDeleteAnswer } from "../../hooks/useAnswerMutation";
 
 const QnaDetailComponent = () => {
   const { qno } = useParams();
@@ -31,7 +32,7 @@ const QnaDetailComponent = () => {
         className="bg-red-500 hover:bg-red-600"
         onClick={handleDelete}
       >
-        삭제하기</Button>
+        질문삭제</Button>
       <Button
         className="bg-orange-400 hover:bg-orange-500"
         onClick={() => navigate(`/community/qna/answer/${qno}`)}
@@ -47,12 +48,23 @@ const QnaDetailComponent = () => {
         className="bg-red-500 hover:bg-red-600"
         onClick={handleDelete}
       >
-        삭제하기</Button>
+        전체삭제</Button>
       <Button
         className="bg-blue-400 hover:bg-blue-500"
         onClick={() => navigate(`/community/qna/answer/edit/${qno}`)}
       >
         답변수정
+      </Button>
+    </div>
+  )
+
+  const renderAnswerDeleteButtons = () => (
+    <div className="gap-2">
+      <Button
+        className="bg-red-500 hover:bg-red-600"
+        onClick={handleAnswerDelete}
+      >
+        답글삭제
       </Button>
     </div>
   )
@@ -94,10 +106,27 @@ const QnaDetailComponent = () => {
   };
 
   const handleDelete = () => {
-    console.log("삭제 직전 qno:", qno);
-    console.log("삭제 직전 requesterMid:", mid);
+    console.log("삭제 할 qno:", qno);
+    console.log("삭제 하는 requesterMid:", mid);
     if (window.confirm("정말로 삭제하시겠습니까?")) {
       deleteQuestionMutation.mutate({ qno, requesterMid: mid });
+    }
+  };
+
+  const handleAnswerDelete = () => {
+    console.log("삭제할 답변 ano:", question?.answer?.ano);
+    console.log("question.answer 전체:", question.answer);
+
+    const ano = question?.answer?.ano;
+    if (!ano) {
+      alert("해당하는 답변을 찾지 못 했습니다.");
+      return;
+    }
+    // if (window.confirm("답글을 삭제하시겠습니까?")) {
+    //   deleteAnswerMutation.mutate(ano);
+    // }
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      deleteAnswerMutation.mutate({ ano, requesterMid: mid });
     }
   };
 
@@ -105,6 +134,11 @@ const QnaDetailComponent = () => {
     alert("삭제되었습니다.");
     navigate("/community/qna");
   });
+
+  const deleteAnswerMutation = useDeleteAnswer(() => {
+    alert("삭제되었습니다.");
+    navigate(`/community/qna/${qno}`);
+  })
 
   if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
 
@@ -158,7 +192,10 @@ const QnaDetailComponent = () => {
 
       {hasAnswer && (
         <>
-          <h3 className="font-bold text-lg mb-2">답변</h3>
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="font-bold text-lg mb-2">답변</h3>
+            {hasAnswer && isAdmin && renderAnswerDeleteButtons()}
+          </div>
           <table className="w-full border border-gray-300 mb-8">
             <tbody>
               <tr className="border-b">

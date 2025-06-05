@@ -21,7 +21,6 @@ import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.QuestionRepository;
 import com.dglib.repository.qna.QuestionSpecifications;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -86,6 +85,7 @@ public class QuestionServiceImpl implements QuestionService {
 			System.out.println("질문을 가져올 수 없음");
 			throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
 		}
+		question.setViewCount(question.getViewCount() + 1);
 		
 		QuestionDetailDTO dto = modelMapper.map(question, QuestionDetailDTO.class);
 		dto.setName(question.getMember().getName());
@@ -99,19 +99,6 @@ public class QuestionServiceImpl implements QuestionService {
 		return dto;
 	}
 
-	//조회수증가(지금안됨)
-	@Override
-	public void increaseViewCount(Long qno, HttpSession session) {
-		String key = "qna_view_" + qno;
-		if (session.getAttribute(key) == null) {
-			Question question = questionRepository.findById(qno)
-					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-			question.setViewCount(question.getViewCount() + 1);
-			questionRepository.save(question);
-			session.setAttribute(key, true);
-		}
-	}
-		
 	// 수정
 	@Override
 	public void update(Long qno, QuestionUpdateDTO dto) {
@@ -150,8 +137,9 @@ public class QuestionServiceImpl implements QuestionService {
 	public void delete(Long qno, String requesterMid) {
 	    Question question = questionRepository.findById(qno)
 	        .orElseThrow(() -> new IllegalArgumentException("해당 질문이 존재하지 않습니다."));
-
-	    if (!question.getMember().getMid().equals(requesterMid)) {
+	    boolean isAdmin = "admin".equals(requesterMid);
+	    
+	    if (!question.getMember().getMid().equals(requesterMid) && !isAdmin) {
 	        throw new IllegalArgumentException("삭제 권한이 없습니다.");
 	    }
 

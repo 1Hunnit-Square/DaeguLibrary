@@ -59,13 +59,15 @@ export const createAnswer = async (answerData) => {
 };
 
 //답변수정
-export const updateAnswer = async({qno, answerData})=>{
+export const updateAnswer = async ({ qno, answerData }) => {
   const response = await axiosClient.put(`${API_SERVER_HOST}/api/answer/question/${qno}`, answerData);
   return response.data;
 };
 
 //답변삭제
-export const deleteAnswer = async (qno)=>{
-  const response = await axiosClient.delete(`${prefix}/${qno}/answer`);
+export const deleteAnswer = async (ano, requesterMid) => {
+  const response = await axiosClient.delete(`${API_SERVER_HOST}/api/answer/${ano}`, {
+    data: { requesterMid },
+  });
   return response.data;
 };

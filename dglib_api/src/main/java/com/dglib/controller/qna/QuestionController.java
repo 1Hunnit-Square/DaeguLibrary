@@ -65,7 +65,6 @@ public class QuestionController {
 	// 상세 조회
 	@GetMapping("/{qno}")
 	public ResponseEntity<QuestionDetailDTO> detailQuestion(@PathVariable Long qno, HttpSession session) {
-		questionService.increaseViewCount(qno, session);
 		String requestermid = JwtFilter.getMid();
 
 		QuestionDetailDTO questionDetail = questionService.getQuestion(qno, requestermid);

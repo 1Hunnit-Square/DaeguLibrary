@@ -1,5 +1,7 @@
 package com.dglib.controller.qna;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,12 +45,11 @@ public class AnswerController {
 	}
 	
 	@DeleteMapping("/{ano}")
-	public ResponseEntity<Void> deleteAnswer(@PathVariable Long ano){
-		answerService.deleteAnswer(ano);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Void> deleteAnswer(@PathVariable Long ano, @RequestBody Map<String, String> body){
+	    String requesterMid = body.get("requesterMid");
+	    answerService.deleteAnswer(ano, requesterMid);
+	    return ResponseEntity.noContent().build();
 	}
-	
-	
 	
 	
 }

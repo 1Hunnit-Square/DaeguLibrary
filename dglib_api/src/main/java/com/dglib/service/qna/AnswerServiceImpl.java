@@ -12,6 +12,7 @@ import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.AnswerRepository;
 import com.dglib.repository.qna.QuestionRepository;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class AnswerServiceImpl implements AnswerService {
 	private final AnswerRepository answerRepository;
 	private final QuestionRepository questionRepository;
 	private final MemberRepository memberRepository;
+	private final EntityManager em;
 
 	// 등록
 	@Override
@@ -33,12 +35,8 @@ public class AnswerServiceImpl implements AnswerService {
 		Question question = questionRepository.findById(dto.getQno())
 				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
-		Answer answer = Answer.builder()
-				.question(question)
-				.postedAt(LocalDateTime.now())
-				.content(dto.getContent())
-				.member(member)
-				.build();
+		Answer answer = Answer.builder().question(question).postedAt(LocalDateTime.now()).content(dto.getContent())
+				.member(member).build();
 
 		return answerRepository.save(answer).getAno();
 	}
@@ -75,10 +73,27 @@ public class AnswerServiceImpl implements AnswerService {
 	}
 
 	// 삭제
-	public void deleteAnswer(Long ano) {
+	public void deleteAnswer(Long ano, String requesterMid) {
 		Answer answer = answerRepository.findById(ano).orElseThrow(() -> new IllegalArgumentException("답변이 없습니다."));
 
-		answerRepository.delete(answer);
+		System.out.println(">> 삭제 요청자: " + requesterMid);
+		System.out.println(">> 실제 작성자: " + answer.getMember().getMid());
+
+		boolean isAdmin = "admin".equals(requesterMid);
+		
+		if (!isAdmin) {
+			throw new IllegalArgumentException("삭제 권한이 없습니다.");
+		}
+		
+		// 양방향 관계 끊기
+		Question question = answer.getQuestion();
+		question.setAnswer(null); // Answer 제거
+		answer.setQuestion(null); // 반대편도 끊기
+
+		// 질문 저장 -> orphanRemoval 트리거
+		questionRepository.save(question);
+
+		System.out.println(">> 삭제 완료");
 	}
 
 }

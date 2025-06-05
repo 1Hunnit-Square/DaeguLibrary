@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import QuillToolbar from "./QuillToolbar";
@@ -6,13 +6,15 @@ import 'react-tooltip/dist/react-tooltip.css';
 import Button from "./Button";
 import DOMPurify from 'dompurify';
 import CheckBox from "./CheckBox";
-import { fileSize } from "./Download";
+import { fileSize } from "../../util/commonUtil";
+import { API_SERVER_HOST } from "../../api/config";
+import { API_ENDPOINTS } from "../../api/config";
 
-const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, upload = ["file", "image"]}) => {
+const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, upload = ["file", "image"], modMap}) => {
   const quillRef = useRef(null);
   const imgRef = useRef(null);
   const fileRef = useRef(null);
-  const [content, setContent ] = useState('');
+  const [content, setContent ] = useState("");
   const [fileList, setFileList ] = useState([]);
   const [title, setTitle] = useState("");
   const [ pinned, setPinned ] = useState(false);
@@ -21,9 +23,32 @@ const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, uploa
 
 const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
 
+useEffect(()=>{
+
+  if(modMap){
+    const editor = quillRef.current?.getEditor();
+    if(editor){
+    editor.clipboard.dangerouslyPasteHTML(modMap.data.content || '');
+    const length = editor.getLength();
+    editor.setSelection(length, 0);
+   
+  }
+    useTitle && setTitle(modMap.data.title);
+    usePinned && setPinned(modMap.data.pinned);
+    usePublic && setCheckPublic(modMap.data.checkPublic);
+    const modFileList = modMap.data[modMap.fileDTOName]?.map(dto => {
+      const file  = { name : dto.originalName, size : null, path : dto.filePath};
+      const blobUrl = (!dto.fileType || dto.fileType == "image")? `${API_SERVER_HOST}${API_ENDPOINTS.view}/${dto.filePath}` : null;
+      return {file, blobUrl}
+    });
+    modFileList && setFileList(modFileList);
+  }
+
+},[])
 
 
-function linkHandler() {
+
+const linkHandler = () => {
   const editor = quillRef.current?.getEditor();
     const range = editor?.getSelection();
 
@@ -122,8 +147,10 @@ const handleClick = () => {
     return ;
   }
 
-  const files = fileList.map(img => img.file);
-  const urlList = fileList.map(img => img.blobUrl);
+  const oldfileList = fileList.filter(file => file.file.size == null);
+  const newfileList = fileList.filter(file => file.file.size != null);
+  const files = newfileList.map(file => file.file);
+  const urlList = newfileList.map(file => file.blobUrl);
 
   const paramData = new FormData();
 
@@ -135,8 +162,11 @@ const handleClick = () => {
   urlList.forEach((url) => {
     paramData.append("urlList", url);
   });
+  oldfileList.forEach((file) => {
+    paramData.append("oldfiles", file);
+  });
 
-  usePinned && paramData.append("isPinned", pinned);
+  usePinned && paramData.append("pinned", pinned);
   usePublic && paramData.append("checkPublic", checkPublic);
   onParams(paramData);
 

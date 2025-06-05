@@ -95,6 +95,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		      if (principal == null || !(principal instanceof MemberDTO)) {
 		         return null;
 		      }
+		      
 		      return ((MemberDTO) principal).getUsername();
 		      
 		   }

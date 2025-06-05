@@ -71,7 +71,7 @@ public class ProgramUseRepositoryTest {
 	                .endTime(LocalTime.of(16, 0))
 	                .target("성인")
 	                .capacity(20)
-	                .filename("test.pdf")
+	                .fileName("test.pdf")
 	                .filePath("/files/test.pdf")
 	                .build();
 	        programInfoRepository.save(programInfo);

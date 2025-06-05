@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   notice: '/api/notice',
   chatbot: '/api/chatbot',
   bookapi: '/api/bookapi',
+  view : '/api/view'
 };
 
 export const SMS_KEY = "CREATION";

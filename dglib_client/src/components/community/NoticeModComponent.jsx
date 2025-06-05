@@ -7,14 +7,27 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../../routers/Loading";
+import { getNoticeDetail } from "../../api/noticeApi";
+import { imgReplace } from "../../util/commonUtil";
 
+const NoticeModComponent = () => {
 
-const NoticeNewComponent = () => {
-
-  const { moveToLogin } = useMoveTo();
+const { moveToLogin } = useMoveTo();
 const navigate = useNavigate();
 const mid = useRecoilValue(memberIdSelector);
 
+const { ano } = useParams();
+const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['noticeDetail', ano],
+        queryFn: () => getNoticeDetail(ano),
+        refetchOnWindowFocus: false,
+    });
+
+
+const dataMap = useMemo(()=>({data : {...data, content : imgReplace(data?.content)}, fileDTOName : "fileDTO"}),[data]);
 
 const sendParams = (paramData) => {
 
@@ -44,15 +57,17 @@ useEffect(() => {
   
   }
 
+
 },[]);
 
     return (
          <div className = "flex flex-col justify-center bt-5 mb-10">
-      {mid &&<QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
+        {isLoading && <Loading />}
+      {mid && data && <QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} modMap={dataMap}/>}
      
      </div>     
     );
 }
 
-export default NoticeNewComponent;
+export default NoticeModComponent;
 

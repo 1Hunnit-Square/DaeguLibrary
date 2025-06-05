@@ -68,8 +68,8 @@ public class GalleryRepositoryTest {
                 .build();
 
         GalleryImage image = GalleryImage.builder()
-                .originalFilename("sample.jpg")
-                .imageUrl("/img/sample.jpg")
+                .originalName("sample.jpg")
+                .filePath("/img/sample.jpg")
                 .gallery(gallery)
                 .build();
 
@@ -77,7 +77,7 @@ public class GalleryRepositoryTest {
         Gallery saved = galleryRepository.save(gallery);
 
         assertThat(saved.getImages()).hasSize(1);
-        assertThat(saved.getImages().get(0).getOriginalFilename()).isEqualTo("sample.jpg");
+        assertThat(saved.getImages().get(0).getOriginalName()).isEqualTo("sample.jpg");
     }
 
 //    @Test
@@ -94,8 +94,8 @@ public class GalleryRepositoryTest {
                 .build();
 
         GalleryImage image = GalleryImage.builder()
-                .originalFilename("read.jpg")
-                .imageUrl("/img/read.jpg")
+                .originalName("read.jpg")
+                .filePath("/img/read.jpg")
                 .gallery(gallery)
                 .build();
 
@@ -121,8 +121,8 @@ public class GalleryRepositoryTest {
                 .build();
 
         GalleryImage image = GalleryImage.builder()
-                .originalFilename("old.jpg")
-                .imageUrl("/img/old.jpg")
+                .originalName("old.jpg")
+                .filePath("/img/old.jpg")
                 .gallery(gallery)
                 .build();
 
@@ -134,8 +134,8 @@ public class GalleryRepositoryTest {
 
         // 새 이미지 추가
         GalleryImage newImage = GalleryImage.builder()
-                .originalFilename("new.jpg")
-                .imageUrl("/img/new.jpg")
+                .originalName("new.jpg")
+                .filePath("/img/new.jpg")
                 .gallery(saved)
                 .build();
         saved.getImages().add(newImage);
@@ -148,7 +148,7 @@ public class GalleryRepositoryTest {
 
         assertThat(updated.getTitle()).isEqualTo("수정 후 제목");
         assertThat(updated.getImages()).hasSize(1);
-        assertThat(updated.getImages().get(0).getOriginalFilename()).isEqualTo("new.jpg");
+        assertThat(updated.getImages().get(0).getOriginalName()).isEqualTo("new.jpg");
     }
 
     @Test
@@ -165,8 +165,8 @@ public class GalleryRepositoryTest {
                 .build();
 
         GalleryImage image = GalleryImage.builder()
-                .originalFilename("delete.jpg")
-                .imageUrl("/img/delete.jpg")
+                .originalName("delete.jpg")
+                .filePath("/img/delete.jpg")
                 .gallery(gallery)
                 .build();
 

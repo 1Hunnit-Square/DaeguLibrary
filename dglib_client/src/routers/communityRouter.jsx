@@ -14,6 +14,7 @@ const Press = lazy(() => import("../components/community/PressComponent"));
 const Donation = lazy(() => import("../components/community/DonationComponent"));
 const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
 const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
+const NoticeMod = lazy(() => import("../components/community/NoticeModComponent"));
 
 
 const communityRouter = () => ([
@@ -33,6 +34,10 @@ const communityRouter = () => ([
      {
         path: "notice/new",
         element: <Suspense fallback={<Loading />}><NoticeNew /></Suspense>
+    },
+    {
+        path: "notice/edit/:ano",
+        element: <Suspense fallback={<Loading />}><NoticeMod /></Suspense>
     },
     {
         path: "news",

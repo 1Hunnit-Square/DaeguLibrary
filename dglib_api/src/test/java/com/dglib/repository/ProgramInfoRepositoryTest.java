@@ -41,7 +41,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(17, 0))
                 .target("누구나")
                 .capacity(10)
-                .filename("야외독서 피크닉 강의계획서")
+                .fileName("야외독서 피크닉 강의계획서")
                 .filePath("/programs/picnic")
                 .build();
 
@@ -67,7 +67,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(12, 0))
                 .target("성인")
                 .capacity(20)
-                .filename("조회계획서.pdf")
+                .fileName("조회계획서.pdf")
                 .filePath("/programs/query")
                 .build();
 
@@ -97,7 +97,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(11, 0))
                 .target("아동")
                 .capacity(25)
-                .filename("수정계획서.docx")
+                .fileName("수정계획서.docx")
                 .filePath("/programs/update")
                 .build();
 
@@ -128,7 +128,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(12, 0))
                 .target("성인")
                 .capacity(20)
-                .filename("삭제계획서.docx")
+                .fileName("삭제계획서.docx")
                 .filePath("/programs/delete")
                 .build();
 

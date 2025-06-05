@@ -37,12 +37,10 @@ import lombok.RequiredArgsConstructor;
 public class NoticeServiceImpl implements NoticeService {
 	
 	private final NoticeRepository noticeRepository;
-	private final NoticeFileRepository noticeFileRepository;
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final FileUtil fileUtil;
-	private final String viewPath = "/api/view/";
-	
+
 	@Override
 	public void register(NoticeDTO dto, List<MultipartFile> files, String dirName) {
 		
@@ -78,7 +76,7 @@ public class NoticeServiceImpl implements NoticeService {
 
 				if(!dto.getUrlList().get(i).equals("null")) {
 					file.setFileType("image");
-					String content = notice.getContent().replace(dto.getUrlList().get(i), viewPath+file.getFilePath());
+					String content = notice.getContent().replace(dto.getUrlList().get(i), "image://"+file.getFilePath());
 					notice.setContent(content);
 				} else 
 					file.setFileType("other");
@@ -110,7 +108,6 @@ public class NoticeServiceImpl implements NoticeService {
 			List<NoticeFileDTO> dtoList = fileList.stream().map(file -> { 
 				NoticeFileDTO fileDTO = new NoticeFileDTO();
 				modelMapper.map(file, fileDTO);
-				fileDTO.setFilePath(viewPath + fileDTO.getFilePath());
 				return fileDTO;
 
 			}).collect(Collectors.toList());

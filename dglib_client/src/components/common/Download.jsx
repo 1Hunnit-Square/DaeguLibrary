@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
-
-export const fileSize = (bytes) => {
-    if(bytes === null) return "";
-  if (bytes === 0) return '(0 Bytes)';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const size = bytes / Math.pow(k, i);
-  return `(${size.toFixed(2)} ${sizes[i]})`;
-}
+import { fileSize } from "../../util/commonUtil";
 
 const Download = ({link, fileName, className}) => {
 

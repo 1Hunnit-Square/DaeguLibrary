@@ -38,6 +38,9 @@ import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
+import com.dglib.dto.book.EbookSearchDTO;
+import com.dglib.dto.book.EbookSummaryDTO;
+import com.dglib.dto.book.EbookUpdateDTO;
 import com.dglib.dto.book.LibraryBookChangeDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
@@ -216,6 +219,28 @@ public class AdminController {
 		bookService.regEbook(dto);
 		
 		LOGGER.info("전자책 등록 성공");
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/ebooklist")
+	public ResponseEntity<Page<EbookSummaryDTO>> getEbookList(@ModelAttribute EbookSearchDTO dto) {
+		LOGGER.info(dto + " ");
+		int page = Optional.ofNullable(dto.getPage()).orElse(1);
+		int size = Optional.ofNullable(dto.getSize()).orElse(10);
+		String sortBy = Optional.ofNullable(dto.getSortBy()).orElse("ebookId");
+		String orderBy = Optional.ofNullable(dto.getOrderBy()).orElse("desc");
+
+		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
+		Page<EbookSummaryDTO> ebookList = bookService.getEbookAdminList(pageable, dto);
+		return ResponseEntity.ok(ebookList);
+		
+	}
+	
+	@PostMapping("/updateebook")
+	public ResponseEntity<String> updateEbook(@ModelAttribute EbookUpdateDTO dto) {
+		LOGGER.info("전자책 수정 요청: {}", dto);
 		return ResponseEntity.ok().build();
 	}
 

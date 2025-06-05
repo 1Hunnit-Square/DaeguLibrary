@@ -75,6 +75,7 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
     }, [onContextmMenuRemove]);
 
     useEffect(() => {
+        console.log("selection.update:", selection.update);
         if(!active) setIsEraseBtn(false);
 
         const paragraphCfi = getParagraphCfi(selection.cfiRange);
@@ -82,7 +83,7 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
 
         const filtered = highlights.filter(h => h.key === paragraphCfi + selection.cfiRange);
 
-        if(!filtered.length) return;
+        // if(!filtered.length) return;
 
 
         if (selection.update && filtered.length > 0) {
@@ -153,29 +154,36 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
   return (
             <>
             {display &&
-            <div name="contextWrapper"
-                ref={menuRef}
-                className={`absolute box-border rounded bg-black/80 shadow-lg z-10 ${contextmenuWidth > 0 ? 'p-1' : ''}`}
+        <div name="contextWrapper"
+            ref={menuRef}
+            className={`absolute box-border rounded bg-black/80 shadow-lg z-10 ${contextmenuWidth > 0 ? 'p-1' : ''}`}
+            style={{
+                left: window.innerWidth < selection.x + contextmenuWidth
+                ? `${window.innerWidth - contextmenuWidth}px`
+                : `${selection.x}px`,
+                top: window.innerHeight < y + 40
+                ? `${window.innerHeight - 40}px`
+                : `${y}px`,
+                width: contextmenuWidth + 'px',
+                height: height + 'px',
+            }} >
+            <div
+                className="absolute left-[80px] transform -translate-x-2 border-[8px] border-transparent z-[1]"
                 style={{
-                    left: window.innerWidth < selection.x + contextmenuWidth
-                    ? `${window.innerWidth - contextmenuWidth}px`
-                    : `${selection.x}px`,
-                    top: window.innerHeight < y + 40
-                    ? `${window.innerHeight - 40}px`
-                    : `${y}px`,
-                    width: contextmenuWidth + 'px',
-                    height: height + 'px',
-                }} >
-                <div className="h-full overflow-y-auto scrollbar-hide">
-                    {ColorList}
-                    {isEraseBtn &&
-                    <button onClick={onRemoveHighlight_} className="w-full h-[32px] leading-[32px] text-center text-[14px] text-[#ccc]
-                                                        transition-[background-color,color] duration-100 ease-[cubic-bezier(0.25,0.1,0.25,1)]
-                                                        bg-transparent rounded-md cursor-pointer outline-none
-                                                        hover:text-white hover:bg-[#ff4445] focus:text-white focus:bg-[#ff4445]">
-                                                            Remove</button>}
-                </div>
-            </div>}
+                    [isReverse ? 'bottom' : 'top']: '-16px',
+                    [isReverse ? 'borderTopColor' : 'borderBottomColor']: 'rgba(0,0,0,0.8)'
+                }}
+            />
+            <div className="h-full overflow-y-auto scrollbar-hide">
+                {ColorList}
+                {isEraseBtn &&
+                <button onClick={onRemoveHighlight_} className="w-full h-[32px] leading-[32px] text-center text-[14px] text-[#ccc]
+                                                    transition-[background-color,color] duration-100 ease-[cubic-bezier(0.25,0.1,0.25,1)]
+                                                    bg-transparent rounded-md cursor-pointer outline-none
+                                                    hover:text-white hover:bg-[#ff4445] focus:text-white focus:bg-[#ff4445]">
+                                                        Remove</button>}
+            </div>
+        </div>}
 
            </>
   );

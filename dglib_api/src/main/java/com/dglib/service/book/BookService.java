@@ -20,6 +20,7 @@ import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
 import com.dglib.dto.book.LibraryBookSearchDTO;
 import com.dglib.dto.book.LibraryBookSummaryDTO;
 import com.dglib.dto.book.NewLibrarayBookRequestDTO;
+import com.dglib.dto.book.PageSaveRequestDTO;
 import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.RentalBookListDTO;
 import com.dglib.dto.book.RentalPageDTO;
@@ -28,9 +29,12 @@ import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
+import com.dglib.dto.book.EbookSearchDTO;
 import com.dglib.dto.book.EbookSumDTO;
+import com.dglib.dto.book.EbookSummaryDTO;
 import com.dglib.dto.book.HighlightRequestDTO;
 import com.dglib.dto.book.HighlightResponseDTO;
+import com.dglib.dto.book.HighlightUpdateDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
@@ -74,7 +78,12 @@ public interface BookService {
 	void regEbook(EbookRegistrationDTO dto);
 	Page<EbookSumDTO> getEbookList(EbookListRequestDTO dto);
 	List<HighlightResponseDTO> getHighlights(String mid, Long ebookId);
-	HighlightResponseDTO addHighlight(String mid, HighlightRequestDTO requestDto);
+	void addHighlight(String mid, HighlightRequestDTO requestDto);
+	void updateHighlight(String mid, HighlightUpdateDTO dto);
+	void deleteHighlight(String mid, Long highlightId);
+	String getSavedPage(String mid, Long ebookId);
+	void savePage(String mid, PageSaveRequestDTO dto);
+	Page<EbookSummaryDTO> getEbookAdminList(Pageable pageable, EbookSearchDTO dto);
 	
 	
 	

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getParagraphCfi, clashCfiRange, getSelectionPosition, compareCfi, cfiRangeSpliter, getNodefromCfi } from '../util/EbookUtils';
 import { useRecoilState } from 'recoil';
 import { currentLocationState, bookLabelState } from '../atoms/EbookState';
@@ -18,6 +18,8 @@ const contextmenuWidth = 160;
 const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId ) => {
     const [currentLocation] = useRecoilState(currentLocationState);
     const queryClient = useQueryClient();
+    const justAddRef = useRef(null);
+
     // const [bookLabel, setBookLabel] = useRecoilState(bookLabelState);
     // const highlights = bookLabel.highlights;
     const [selection, setSelection] = useState({
@@ -36,53 +38,91 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
 
     const addHighlightMutation = useMutation({
         mutationFn: addHighlight,
-        onSuccess: () => {
+        onSuccess: (addedHighlightData, variables) => {
+            const newHighlightCfi = variables.cfiRange;
+            console.log("새로 추가된 책갈피 데이터:", newHighlightCfi);
+            if ( newHighlightCfi) {
+                justAddRef.current = newHighlightCfi;
+            }
             queryClient.invalidateQueries(['highlights', ebookId]);
             toast.success("책갈피가 추가되었습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
-
              setSelection({ ...selection, update: true });
+             setTimeout(() => {
+                const iframe = viewerRef.current?.querySelector('iframe');
+                        const iframeWin = iframe?.contentWindow;
+                        if (iframeWin && iframeWin.getSelection) {
+                            iframeWin.getSelection().removeAllRanges();
+                        }
+             }, 500)
+
+
         },
         onError: (error) => {
-            toast.error("책갈피 추가에 실패했습니다.", {
+            toast.error(error.response?.data?.message || "책갈피 추가에 실패했습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
         }
     });
 
     const updateHighlightMutation = useMutation({
-        mutationFn: ({ highlightId, updateData }) => updateHighlight(highlightId, updateData),
+        mutationFn: (data) => updateHighlight(data),
         onSuccess: () => {
             queryClient.invalidateQueries(['highlights', ebookId]);
             toast.success("책갈피가 수정되었습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
+
         },
         onError: (error) => {
-            toast.error("책갈피 수정에 실패했습니다.", {
+            toast.error(error.response?.data?.message || "책갈피 수정에 실패했습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
         }
     });
 
     const deleteHighlightMutation = useMutation({
         mutationFn: deleteHighlight,
-        onSuccess: () => {
-            queryClient.invalidateQueries(['highlights', ebookId]);
+        onSuccess: (deletedData, variables) => {
+            const { highlightId, cfiRange } = variables;
+            viewerRef.current.offHighlight(cfiRange);
+
             toast.success("책갈피가 삭제되었습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
+            queryClient.setQueryData(['highlights', ebookId], (oldData) => {
+            if (!oldData) return [];
+            return oldData.filter(h => h.highlightId !== highlightId);
+        });
         },
         onError: (error) => {
-            toast.error("책갈피 삭제에 실패했습니다.", {
+            toast.error(error.response?.data?.message || "책갈피 삭제에 실패했습니다.", {
                 position: 'top-center',
                 autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
             });
         }
     });
@@ -131,25 +171,21 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
     const onClickHighlight = useCallback((clickedElement, cfiRangeFromEvent) => {
         const targetGElement = clickedElement.closest('g.epub-highlight');
         if (!targetGElement) {
-            console.error("하이라이트 <g> 요소를 찾을 수 없습니다. 클릭된 요소:", clickedElement);
             return;
         }
 
         const cfiRange = cfiRangeFromEvent;
         if (!cfiRange) {
-            console.error("CFI Range를 전달받지 못했습니다.");
             return;
         }
 
         const iframe = viewerRef.current.querySelector('iframe');
         if (!iframe) {
-            console.error("Iframe을 찾을 수 없습니다.");
+
             return;
         }
 
         const highlightRectInIframe = targetGElement.getBoundingClientRect();
-
-
 
         const viewerScrollTop = viewerRef.current.scrollTop || 0;
         const viewerScrollLeft = viewerRef.current.scrollLeft || 0;
@@ -184,7 +220,6 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
         const highlightData = {
             ebookId: ebookId,
             key: paragraphCfi + selection.cfiRange,
-            accessTime: new Date().toLocaleDateString('en-CA'),
             createTime: new Date().toLocaleDateString('en-CA'),
             color,
             paragraphCfi,
@@ -203,10 +238,12 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
 
         if (!highlight || !highlight.highlightId) return;
 
-        updateHighlightMutation.mutate({
+        const data = {
             highlightId: highlight.highlightId,
-            updateData: { color }
-        });
+            color: color,
+        }
+
+        updateHighlightMutation.mutate(data);
     }, [updateHighlightMutation]);
 
     const onRemoveHighlight = useCallback((highlightId, cfiRange) => {
@@ -216,9 +253,10 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
         // const highlight = highlights.find(h => h.highlightId === highlightId);
         // if (!highlight || !highlight.id) return;
 
-        deleteHighlightMutation.mutate(highlightId);
-        viewerRef.current.offHighlight(cfiRange);
-    });
+
+        deleteHighlightMutation.mutate({highlightId, cfiRange});
+
+    }, [viewerRef, deleteHighlightMutation]);
 
     useEffect(() => {
         if (!viewerRef.current) return;
@@ -230,6 +268,8 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
         const iframeWin = iframe.contentWindow;
         if (!iframeWin) return;
 
+
+
         highlights.forEach(h => {
             const cfiRange = cfiRangeSpliter(h.cfiRange);
             if (!cfiRange) return;
@@ -239,12 +279,9 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
 
             if (compareCfi(currentLocation.startCfi, startCfi) < 1 && compareCfi(currentLocation.endCfi, startCfi) > -1) {
                 // const node = getNodefromCfi(h.paragraphCfi, iframe);
-
                 // if (!node) return;
 
-                console.log("씨이벌!")
-
-
+                console.log("아아아아아아아앙!")
                 viewerRef.current.onHighlight(
                     h.cfiRange,
                     (e) => {
@@ -253,11 +290,49 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
                     },
                     h.color
                 );
+                if (justAddRef.current === h.cfiRange) {
+                    const iframe = viewerRef.current?.querySelector('iframe');
+                    const iframeWin = iframe?.contentWindow;
+                    if (iframeWin && iframeWin.getSelection) {
+                        iframeWin.getSelection().removeAllRanges();
+                    }
 
-
+                    justAddRef.current = null;
+                }
             }
         })
     }, [viewerRef, highlights, currentLocation, onClickHighlight, setIsContextMenu, onRemoveHighlight,  ]);
+
+    useEffect(() => {
+    if (!viewerRef.current) return;
+
+    const iframe = viewerRef.current.querySelector('iframe');
+    if (!iframe) return;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    const handleClick = (e) => {
+        const selection = iframeDoc.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            if (range.collapsed) {
+                const targetElement = document.body;
+                targetElement.focus();
+                selection.removeAllRanges();
+                iframe.blur();
+            }
+        }
+    };
+
+    iframeDoc.addEventListener('click', handleClick);
+
+    return () => {
+        iframeDoc.removeEventListener('click', handleClick);
+    };
+}, [viewerRef, currentLocation]);
+
+
 
     return {
         selection,

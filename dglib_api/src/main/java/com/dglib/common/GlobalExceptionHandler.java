@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.dglib.security.jwt.JwtException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,6 +44,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleEAccessDenied(AccessDeniedException ex) {
 		ErrorResponse error = new ErrorResponse("권한이 없음", ex.getMessage());
 		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+		ErrorResponse error = new ErrorResponse("엔티티를 찾을 수 없음", ex.getMessage());
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 
 }

@@ -16,26 +16,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "gallery_img")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class GalleryImage {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long gino;
-	
-	@Column(nullable = false, length = 500)
-	private String imageUrl;
-	
-	@Column(nullable = false, length = 255)
-	private String originalFilename;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "gno", nullable = false)
-	private Gallery gallery;
+   
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private Long ino;
+   
+   @Column(nullable = false, length = 255)
+   private String originalName;
+   
+   @Column(nullable = false, length = 500)
+   private String filePath;
+   
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "galleryGno", nullable = false)
+   private Gallery gallery;
 
 }

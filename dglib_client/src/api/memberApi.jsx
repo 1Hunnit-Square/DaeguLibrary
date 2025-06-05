@@ -214,12 +214,23 @@ export const addHighlight = async (highlightData) => {
 }
 
 
-export const updateHighlight = async (highlightId, updateData) => {
-    const response = await axiosClient.put(`${prefix}/updatehighlight/${highlightId}`, updateData);
+export const updateHighlight = async (data) => {
+    const response = await axiosClient.put(`${prefix}/updatehighlight`, data);
     return response.data;
 }
 
-export const deleteHighlight = async (highlightId) => {
+export const deleteHighlight = async ({highlightId, cfiRange}) => {
     const response = await axiosClient.delete(`${prefix}/deletehighlight/${highlightId}`);
     return response.data;
 }
+
+export const saveCurrentPage = async (data) => {
+    const response = await axiosClient.post(`${prefix}/savepage`, data);
+    return response.data;
+}
+
+export const getCurrentPage = async (ebookId) => {
+    const response = await axiosClient.get(`${prefix}/currentpage/${ebookId}`);
+    return response.data;
+};
+

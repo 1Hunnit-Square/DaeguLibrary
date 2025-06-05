@@ -1,5 +1,7 @@
 import { EpubCFI } from 'epubjs'
 
+
+
 export const compareCfi = (cfi_1, cfi_2) => {
 
     const epubcfi = new EpubCFI();
@@ -65,43 +67,95 @@ export const getSelectionPosition = (viewer, bookStyle, bookFlow, MIN_VIEWER_WID
 
 }
 
-export const getNodefromCfi = (cfi) => {
-    const epubcfi = cfi.slice(8, -1);
-    const pureCfi = epubcfi.replace(/\[.*?\]/gi, '');
-    const splitCfi = pureCfi.split('!');
-
-
-    if (splitCfi.length < 1 || splitCfi[1] === "") return null;
-
-    const cfiPath = splitCfi[1].split('/').slice(2).map(x => Number(x));
-
-    const iframe = document.querySelector('iframe');
-
-    if (!iframe) return null;
-
-    const iframeBody = iframe.contentWindow && iframe.contentWindow.document.body;
-
-    if (!iframeBody) return null;
-
-    let component = iframeBody;
-
-    for (let idx of cfiPath) {
-        const childNodes = component && component.childNodes;
-
-        const filtered = ([...childNodes].filter(n => !n.dataset || !n.dataset.bookmark|| !n.dataset.highlight ));
-
-        component = filtered[idx - 1]
-
-
-
-        if(!component) {
-            component = null;
-            break;
-        }
+export const getNodefromCfi = (cfi, currentIframe) => {
+    if (!cfi || typeof cfi !== 'string' || !cfi.startsWith("epubcfi(")) {
+        console.error("Invalid CFI string:", cfi);
+        return null;
     }
 
-    return component;
 
-}
+    let path = cfi.substring(8, cfi.length - 1);
 
 
+    path = path.replace(/\[.*?\]/g, '');
+
+
+    path = path.replace(/:\d+$/, '');
+
+    const parts = path.split('!');
+    if (parts.length < 2 || !parts[1]) {
+        console.error("Invalid CFI path structure after '!' :", path);
+        return null;
+    }
+
+    const contentPath = parts[1];
+    const steps = contentPath.split('/').slice(1);
+
+    const iframeToUse = currentIframe || document.querySelector('iframe');
+    if (!iframeToUse) {
+        console.error("Iframe not found.");
+        return null;
+    }
+
+    const doc = iframeToUse.contentDocument || iframeToUse.contentWindow?.document;
+    if (!doc || !doc.body) {
+        console.error("Iframe document or body not found.");
+        return null;
+    }
+
+    let currentNode = doc.body;
+
+    for (let i = 0; i < steps.length; i++) {
+        const step = parseInt(steps[i], 10);
+        if (isNaN(step) || step <= 0) {
+            console.error("Invalid CFI step:", steps[i], "in", cfi);
+            return null;
+        }
+
+
+        let childElementCount = 0;
+        let targetNode = null;
+        let found = false;
+
+        if (!currentNode || !currentNode.childNodes || currentNode.childNodes.length === 0) {
+            console.error("Current node has no childNodes at step:", steps[i], "CFI:", cfi, "CurrentNode:", currentNode);
+            return null;
+        }
+
+        const childNodesArray = Array.from(currentNode.childNodes);
+
+        for (let j = 0; j < childNodesArray.length; j++) {
+            const child = childNodesArray[j];
+
+
+            if (child.nodeType === Node.ELEMENT_NODE) {
+                const el = child;
+                if (el.dataset.epubcfi && (el.classList.contains('epub-highlight') || el.dataset.bookmark)) {
+
+                    continue;
+                }
+            }
+
+            childElementCount++;
+
+            if (childElementCount === step) {
+
+
+
+
+                targetNode = child;
+                found = true;
+                break;
+            }
+        }
+
+
+        if (!found || !targetNode) {
+            console.error("Failed to find node for step:", step, "(actual count:", childElementCount, ") in CFI:", cfi, "Parent:", currentNode);
+
+            return null;
+        }
+        currentNode = targetNode;
+    }
+    return currentNode;
+};

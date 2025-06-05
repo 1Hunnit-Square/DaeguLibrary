@@ -15,6 +15,8 @@ import { getEbookInfo } from '../../api/memberApi';
 import Loading from '../../routers/Loading'
 import EbookContextMenu from '../../menus/EbookContextMenu';
 import useHighlight from '../../hooks/useHighlight'
+import { API_SERVER_HOST } from '../../api/config';
+import usePageSaver from '../../hooks/usePageSaver';
 
 
 const EbookViewerComponent = () => {
@@ -31,6 +33,21 @@ const EbookViewerComponent = () => {
     const setBookToc = useSetRecoilState(bookTocState);
     const [currentLocation, setCurrentLocation] = useRecoilState(currentLocationState);
     const [isContextMenu, setIsContextMenu] = useState(false);
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+    const [showRestoreLoading, setShowRestoreLoading] = useState(false);
+    // const [ isisloadoing , setIsLoading ] = useState(false);
+    const { savedPage, restorePosition } = usePageSaver(ebookId, currentLocation, viewerRef);
+
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         setIsLoading(false);
+    //     }, 1000);
+    // }, [])
+
+
+
+
+
     const [ bookStyle, setBookStyle ] = useState({
         fontFamily: 'Origin',
         fontSize: 18,
@@ -52,26 +69,45 @@ const EbookViewerComponent = () => {
     console.log(data);
 
     useEffect(() => {
-        if (data && !isLoading) {
-                setBookInfo({
-                    ebookTitle : data.ebookTitle || '',
-                    ebookAuthor : data.ebookAuthor || '',
-                    ebookCover : data.ebookCover || '',
-                    ebookPublisher : data.ebookPublisher || '',
-                })
+        if (data && !isLoading && viewerRef.current && savedPage) {
+            setShowRestoreLoading(true);
+            const timer = setTimeout(() => {
+                restorePosition();
+                setTimeout(() => {
+                    setShowRestoreLoading(false);
+                }, 500);
+            }, 2000);
 
+            return () => {
+                clearTimeout(timer);
+                setShowRestoreLoading(false);
+            }
         }
-    }, [data])
-
+    }, [data, isLoading, savedPage, restorePosition]);
 
 
 
 
 
     useEffect(() => {
+    if (data && !isLoading && viewerRef.current && savedPage && isFirstLoad) {
+        setShowRestoreLoading(true);
+        const timer = setTimeout(() => {
+            restorePosition();
+        }, 2000);
+
+        return () => {
+            clearTimeout(timer);
+        }
+    }
+}, [data, isLoading, savedPage, restorePosition, isFirstLoad]);
+
+
+    useEffect(() => {
             const handleKeyDown = (event) => {
                 if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
                     event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -84,6 +120,7 @@ const EbookViewerComponent = () => {
             };
         }, []);
 
+
     const viewerLayout = useMemo(() => ({
         MIN_VIEWER_WIDTH: 300,
         MIN_VIEWER_HEIGHT: 300,
@@ -94,6 +131,7 @@ const EbookViewerComponent = () => {
 
     const updateCurrentPage = useCallback((location) => {
       console.log('Current location:', location);
+      console.log('Viewer ref:', viewerRef.current);
 
         const progress = location.currentPage && location.totalPage
             ? Math.round((location.currentPage / location.totalPage) * 100)
@@ -106,6 +144,13 @@ const EbookViewerComponent = () => {
             base: location.base || '',
             currentPage: location.currentPage || 0,
         });
+        if (showRestoreLoading && savedPage && location.startCfi === savedPage) {
+        console.log('저장된 페이지 이동 완료!');
+        setShowRestoreLoading(false);
+    } else if (isFirstLoad) {
+        // 첫 로드 완료
+        setIsFirstLoad(false);
+    }
     }, [setCurrentLocation]);
 
     const onPageMove = useCallback((type) => {
@@ -123,11 +168,6 @@ const EbookViewerComponent = () => {
         setBookToc(toc);
     }, []);
 
-    useEffect(() => {
-        if (viewerRef.current) {
-            console.log('ReactEpubViewer instance:', viewerRef.current);
-        }
-    }, []);
 
     const onContextMenu = (cfiRange) => {
         const result = onSelection(cfiRange);
@@ -139,16 +179,17 @@ const EbookViewerComponent = () => {
     }, []);
 
 
-
     return (
         <>
-        {isLoading && <Loading />}
-        {!isLoading && data && data.ebookFilePath && (
+        {(isLoading || showRestoreLoading) && (
+            <Loading text={isLoading ? "전자책을 불러오는 중입니다..." : "저장된 페이지로 이동 중입니다..."} />
+        )}
+        {!isLoading && data && data.ebookFilePath &&  (
         <div className="relative w-screen h-screen overflow-x-hidden flex flex-col scrollbar-hidden">
             <EBookHeader onNavToggle={onNavToggle} onOptionToggle={onOptionToggle} onLearningToggle={onLearningToggle} />
             <div className="flex-1">
                 <ReactEpubViewer
-                    url={`http://localhost:8090/api/view/${data.ebookFilePath}`}
+                    url={`${API_SERVER_HOST}/api/view/${data.ebookFilePath}`}
                     ref={viewerRef}
                     viewerLayout={viewerLayout}
                     viewerStyle={bookStyle}
@@ -164,9 +205,13 @@ const EbookViewerComponent = () => {
                 onPageMove={onPageMove}
                />
             <EbookNavMenu control={navControl} onToggle={onNavToggle} onLocation={onLocationChange} ref={navRef}/>
+
             <EbookOptionMenu control={optionControl} bookStyle={bookStyle} bookOption={bookOption} bookFlow={bookOption.flow}
                 onToggle={onOptionToggle} onBookStyleChange={setBookStyle} onBookOptionChange={setBookOption} ref={optionRef} emitEvent={emitEvent} />
-            {/* <EbookHighlightMenu control={learningControl} onToggle={onLearningToggle} ref={learningRef} /> */}
+
+            <EbookHighlightMenu  emitEvent={emitEvent} viewerRef={viewerRef} control={learningControl} onToggle={onLearningToggle}
+            ref={learningRef} highlights={highlights} onClickHighlight={onClickHighlight}/>
+
             <EbookContextMenu active={isContextMenu} viewerRef={viewerRef} selection={selection} highlights={highlights}
             onAddHighlight={onAddHighlight} onRemoveHighlight={onRemoveHighlight} onUpdateHighlight={onUpdateHighlight}
             onContextmMenuRemove={onContextmMenuRemove}/>

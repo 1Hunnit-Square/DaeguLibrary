@@ -97,10 +97,11 @@ public class ProgramController {
 	// 사용자용 API
 	// 1. 프로그램 신청
 	@PostMapping("/apply")
-	public ResponseEntity<Void> applyProgram(@RequestBody ProgramUseDTO dto) {
-		programService.applyProgram(dto);
-		return ResponseEntity.ok().build();
+	public ResponseEntity<String> applyProgram(@RequestBody ProgramUseDTO dto) {
+	    programService.applyProgram(dto);
+	    return ResponseEntity.ok("신청이 완료되었습니다.");
 	}
+
 
 	// 2. 신청 여부 확인(중복 신청 방지용)
 	@GetMapping("/applied")

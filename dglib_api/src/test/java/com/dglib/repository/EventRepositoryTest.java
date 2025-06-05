@@ -111,8 +111,8 @@ public class EventRepositoryTest {
 				.build();
 		
 		EventImage image = EventImage.builder()
-				.imageUrl("/img/test.jpg")
-				.originalFilename("test.jpg")
+				.filePath("/img/test.jpg")
+				.originalName("test.jpg")
 				.event(event)
 				.build();
 		event.addImage(image);
@@ -141,8 +141,8 @@ public class EventRepositoryTest {
 		Event savedEvent = eventRepository.save(eventUpdate);
 		
 		EventImage image = EventImage.builder()
-				.imageUrl("/img/test2.jpg")
-				.originalFilename("test2.jpg")
+				.filePath("/img/test2.jpg")
+				.originalName("test2.jpg")
 				.event(eventUpdate)
 				.build();
 		savedEvent.addImage(image);

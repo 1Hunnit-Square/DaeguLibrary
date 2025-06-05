@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getProgramList } from '../../api/programApi';
 import { usePagination } from '../../hooks/usePage';
 import { useSearchHandler } from '../../hooks/useSearchHandler';
 import SelectComponent from '../common/SelectComponent';
+import dayjs from 'dayjs';
 
 const ProgramComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -32,6 +33,8 @@ const ProgramComponent = () => {
         setSearchParams(newParams);
     };
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchPrograms = async () => {
             setIsLoading(true);
@@ -47,7 +50,7 @@ const ProgramComponent = () => {
             const currentQuery = searchParams.get('query') || '';
 
             if (currentOption === 'all') {
-                params.title = currentQuery;
+                params.progName = currentQuery;
                 params.content = currentQuery;
             } else {
                 params[currentOption] = currentQuery;
@@ -98,9 +101,17 @@ const ProgramComponent = () => {
     };
 
     return (
-        <div className="p-6">
+        <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
             <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
-                <h2 className="text-2xl font-bold">프로그램 신청</h2>
+                <div>
+                    <h2 className="text-2xl text-gray-800 font-semibold">프로그램 목록</h2>
+
+                    {programs.content.length > 0 && (
+                        <div className="text-center text-sm text-gray-500 mt-4">
+                            총 {programs.totalElements}개의 프로그램이 등록되어있습니다.
+                        </div>
+                    )}
+                </div>
 
                 <div className="flex flex-wrap gap-2 items-center">
                     <SelectComponent
@@ -110,7 +121,7 @@ const ProgramComponent = () => {
                     />
 
                     <SelectComponent
-                        options={{ 전체: 'all', 강좌명: 'title', 내용: 'content' }}
+                        options={{ 전체: 'all', 강좌명: 'progName', 내용: 'content' }}
                         value={option}
                         onChange={handleOptionChange}
                     />
@@ -143,13 +154,16 @@ const ProgramComponent = () => {
                     {programs.content.map((program) => {
                         const status = getProgramStatus(program.applyStartAt, program.applyEndAt, program.current, program.capacity);
                         return (
-                            <div key={program.progNo} className="relative p-6 border rounded-2xl shadow-sm bg-white flex justify-between items-start">
+                            <div key={program.progNo} className="relative p-7 border rounded-2xl shadow-sm bg-white flex justify-between items-start">
                                 <div>
-                                    <h3 className="text-lg font-bold mb-2">{program.progName}</h3>
-                                    <p className="text-sm"><strong>신청기간:</strong> {program.applyStartAt} ~ {program.applyEndAt}</p>
-                                    <p className="text-sm"><strong>운영기간:</strong> {program.startDate} ~ {program.endDate}</p>
-                                    <p className="text-sm"><strong>수강대상:</strong> {program.target}</p>
-                                    <p className="text-sm"><strong>모집인원:</strong> [선착순] {program.current} / {program.capacity}명</p>
+                                    <h3 className='text-lg font-bold mb-2 cursor-pointer hover:underline'
+                                        onClick={() => navigate(`/reservation/program/${program.progNo}`)}>
+                                        {program.progName}
+                                    </h3>
+                                    <p className="text-sm mb-2"><strong>신청기간:</strong> {dayjs(program.applyStartAt).format('YYYY-MM-DD HH:mm')} ~ {dayjs(program.applyEndAt).format('YYYY-MM-DD HH:mm')}</p>
+                                    <p className="text-sm mb-2"><strong>운영기간:</strong> {program.startDate} ~ {program.endDate}</p>
+                                    <p className="text-sm mb-2"><strong>수강대상:</strong> {program.target}</p>
+                                    <p className="text-sm mb-2"><strong>모집인원:</strong> [선착순] {program.current} / {program.capacity}명</p>
                                 </div>
                                 <div className="ml-4 self-center">
                                     {renderStatusBadge(status)}

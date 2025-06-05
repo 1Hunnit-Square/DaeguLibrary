@@ -1,17 +1,19 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { memberIdSelector } from "../../atoms/loginState";
+import { useMoveTo } from "../../hooks/useMoveTo";
 import { useRecoilValue } from "recoil";
 
 const FacilityComponent = () => {
 
   const navigate = useNavigate();
+  const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
 
   const handleReserve = (roomName) => {
 
     if (!mid) {
       alert("로그인 후 이용해주세요.");
-      navigate("/login");
+      moveToLogin("로그인 후 이용해주세요.");
       return;
     }
     navigate("/reservation/facility/apply", { state: { roomName } });

@@ -45,3 +45,12 @@ export const downloadProgramFile = async (progNo) => {
   });
   return response;
 };
+
+// 프로그램 신청(회원용)
+export const applyProgram = async (progNo, mid) => {
+  const response = await axiosClient.post(`/api/programs/apply`, {
+    progNo,
+    mid
+  });
+  return response.data;
+};

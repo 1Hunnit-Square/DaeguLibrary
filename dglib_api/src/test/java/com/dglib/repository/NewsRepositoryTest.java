@@ -73,8 +73,8 @@ public class NewsRepositoryTest {
                 .build();
 
         NewsImage image = NewsImage.builder()
-                .originalFilename("news.jpg")
-                .imageUrl("/img/news.jpg")
+                .originalName("news.jpg")
+                .filePath("/img/news.jpg")
                 .news(news)
                 .build();
 
@@ -86,7 +86,7 @@ public class NewsRepositoryTest {
         
         assertThat(found.getTitle()).isEqualTo("보도자료 제목");
         assertThat(saved.getImages()).hasSize(1);
-        assertThat(saved.getImages().get(0).getOriginalFilename()).isEqualTo("news.jpg");
+        assertThat(saved.getImages().get(0).getOriginalName()).isEqualTo("news.jpg");
     }
 
 
@@ -106,8 +106,8 @@ public class NewsRepositoryTest {
                 .build();
 
         NewsImage image = NewsImage.builder()
-                .originalFilename("old.jpg")
-                .imageUrl("/img/old.jpg")
+                .originalName("old.jpg")
+                .filePath("/img/old.jpg")
                 .news(news)
                 .build();
 
@@ -119,8 +119,8 @@ public class NewsRepositoryTest {
 
         // 새 이미지 추가
         NewsImage newImage = NewsImage.builder()
-                .originalFilename("new.jpg")
-                .imageUrl("/img/new.jpg")
+                .originalName("new.jpg")
+                .filePath("/img/new.jpg")
                 .news(saved)
                 .build();
         saved.getImages().add(newImage);
@@ -132,7 +132,7 @@ public class NewsRepositoryTest {
 
         assertThat(updated.getTitle()).isEqualTo("수정 후 제목");
         assertThat(updated.getImages()).hasSize(1);
-        assertThat(updated.getImages().get(0).getOriginalFilename()).isEqualTo("new.jpg");
+        assertThat(updated.getImages().get(0).getOriginalName()).isEqualTo("new.jpg");
     }
 
     @Test
@@ -151,8 +151,8 @@ public class NewsRepositoryTest {
                 .build();
 
         NewsImage image = NewsImage.builder()
-                .originalFilename("delete.jpg")
-                .imageUrl("/img/delete.jpg")
+                .originalName("delete.jpg")
+                .filePath("/img/delete.jpg")
                 .news(news)
                 .build();
 

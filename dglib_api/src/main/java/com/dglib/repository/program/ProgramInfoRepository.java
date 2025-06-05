@@ -14,11 +14,17 @@ public interface ProgramInfoRepository extends JpaRepository<ProgramInfo, Long> 
 	@Query("""
 			  SELECT p FROM ProgramInfo p
 			  WHERE
-			    (:progName IS NULL OR :progName = '' OR LOWER(p.progName) LIKE LOWER(CONCAT('%', :progName, '%')))
-			    AND (:content IS NULL OR :content = '' OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%')))
+			    (
+			      (:progName IS NULL OR :progName = '')
+			      OR LOWER(p.progName) LIKE LOWER(CONCAT('%', :progName, '%'))
+			    )
+			    OR
+			    (
+			      (:content IS NULL OR :content = '')
+			      OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))
+			    )
 			    AND (:status IS NULL OR :status = '' OR p.status = :status)
 			""")
-
 	Page<ProgramInfo> searchProgram(@Param("progName") String progName, @Param("content") String content,
 			@Param("status") String status, Pageable pageable);
 

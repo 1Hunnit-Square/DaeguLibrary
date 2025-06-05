@@ -157,6 +157,7 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 		}
 	}
 
+	// 한해 자동 등록
 	@Override
 	public void registerAllAutoEventsForYear(int year) {
 		try {
@@ -165,7 +166,6 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 			registerLibraryAnniversary(year);
 		} catch (Exception e) {
 			LOGGER.error("자동 등록 중 예외 발생: {}", e.getMessage());
-			// 예외 무시하고 정상 응답만 리턴
 		}
 	}
 

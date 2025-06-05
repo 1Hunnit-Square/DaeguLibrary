@@ -12,7 +12,6 @@ import Loading from '../../routers/Loading';
 import { getClosedDays, createClosedDay, updateClosedDay, deleteClosedDay, registerAutoAllEvents } from '../../api/closedDayApi';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 
 // 날짜 문자열 변환 YYYY.MM.DD
 const formatDate = (dateStr) => {
@@ -48,7 +47,10 @@ const EventManagementComponent = () => {
   const [title, setTitle] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const autoRegisteredYears = useRef(new Set());
+  const [autoRegisteredYears, setAutoRegisteredYears] = useState(() => {
+    const saved = localStorage.getItem('autoRegisteredYears');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   const { data: events = [], refetch, isLoading, isError } = useQuery({
     queryKey: ['closedDays', selectedYear, selectedMonth],
@@ -115,10 +117,13 @@ const EventManagementComponent = () => {
       calendarApi.gotoDate(new Date(newYear, calendarApi.getDate().getMonth(), 1));
     }
 
-    if (!autoRegisteredYears.current.has(newYear)) {
+    if (!autoRegisteredYears.has(newYear)) {
       try {
         await registerAutoAllEvents(newYear); // 백엔드에서 월요일, 공휴일, 개관일 자동 등록
-        autoRegisteredYears.current.add(newYear); // 한 번 등록한 연도는 다시 등록하지 않도록 체크
+        const updatedSet = new Set(autoRegisteredYears);
+        updatedSet.add(newYear);
+        setAutoRegisteredYears(updatedSet);
+        localStorage.setItem('autoRegisteredYears', JSON.stringify([...updatedSet]));
         refetch(); // 등록 이후, 해당 연도 일정 다시 불러옴
       } catch (error) {
         console.warn('자동 등록 실패', error);
@@ -249,9 +254,20 @@ const EventManagementComponent = () => {
         ) : (
           <Button
             onClick={async () => {
+              const year = new Date().getFullYear();
+
+              if (autoRegisteredYears.has(year)) {
+                alert(`${year}년은 자동 등록되어 있어요🙂`);
+                return;
+              }
+
               setIsRegisterLoading(true);
               try {
-                await registerAutoAllEvents(new Date().getFullYear());
+                await registerAutoAllEvents(year);
+                const updatedSet = new Set(autoRegisteredYears);
+                updatedSet.add(year);
+                setAutoRegisteredYears(updatedSet);
+                localStorage.setItem('autoRegisteredYears', JSON.stringify([...updatedSet]));
                 alert('공휴일 및 휴관일이 등록되었습니다.');
                 refetch();
               } catch (e) {

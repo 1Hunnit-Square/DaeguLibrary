@@ -17,8 +17,6 @@ public class PlaceDTO {
 	private LocalDate useDate; // 이용날짜
 	@JsonFormat(pattern = "HH:mm")
 	private LocalTime startTime; // 시작시간
-	@JsonFormat(pattern = "HH:mm")
-	private LocalTime endTime;
 	private int durationTime; // 지속시간(1~3)
 	private String room; // 동아리실, 세미나실
 	private int people; // 이용인원
@@ -26,6 +24,10 @@ public class PlaceDTO {
 	private String participants; // 참가자 명단
 	private String purpose; // 사용목적
 
-	private String memberMid; // 회원id
+	private String memberMid; // 회원 id
 
+	@JsonFormat(pattern = "HH:mm")
+	public LocalTime getEndTime() {
+		return (this.startTime != null) ? this.startTime.plusHours(this.durationTime) : null;
+	}
 }

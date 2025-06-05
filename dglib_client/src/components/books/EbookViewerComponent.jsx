@@ -17,6 +17,7 @@ import EbookContextMenu from '../../menus/EbookContextMenu';
 import useHighlight from '../../hooks/useHighlight'
 import { API_SERVER_HOST } from '../../api/config';
 import usePageSaver from '../../hooks/usePageSaver';
+import { API_ENDPOINTS } from '../../api/config'
 
 
 const EbookViewerComponent = () => {
@@ -189,7 +190,7 @@ const EbookViewerComponent = () => {
             <EBookHeader onNavToggle={onNavToggle} onOptionToggle={onOptionToggle} onLearningToggle={onLearningToggle} />
             <div className="flex-1">
                 <ReactEpubViewer
-                    url={`${API_SERVER_HOST}/api/view/${data.ebookFilePath}`}
+                    url={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${data.ebookFilePath}`}
                     ref={viewerRef}
                     viewerLayout={viewerLayout}
                     viewerStyle={bookStyle}

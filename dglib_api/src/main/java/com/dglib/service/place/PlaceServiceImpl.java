@@ -34,6 +34,15 @@ public class PlaceServiceImpl implements PlaceService {
 	private final MemberRepository memberRepository;
 	private final ClosedDayService closedDayService;
 
+	private static final int MIN_DURATION_HOURS = 1;
+	private static final int MAX_DURATION_HOURS = 3;
+	private static final int CLUB_ROOM_MIN_PEOPLE = 4;
+	private static final int CLUB_ROOM_MAX_PEOPLE = 8;
+	private static final int SEMINAR_ROOM_MIN_PEOPLE = 6;
+	private static final int SEMINAR_ROOM_MAX_PEOPLE = 12;
+	private static final int MAX_USER_RESERVATION_MINUTES_PER_DAY = 180; // 3시간 * 60분
+	private static final int MAX_ROOM_RESERVATION_MINUTES_PER_DAY = 480; // 8시간 * 60분
+
 	// 예약 등록
 	@Override
 	public Long registerPlace(PlaceDTO dto) {
@@ -46,8 +55,9 @@ public class PlaceServiceImpl implements PlaceService {
 			throw new IllegalArgumentException("지난 날짜는 선택이 불가능합니다.");
 		}
 
-		if (dto.getDurationTime() < 1 || dto.getDurationTime() > 3) {
-			throw new IllegalArgumentException("이용 시간은 1~3시간 사이만 가능합니다.");
+		if (dto.getDurationTime() < MIN_DURATION_HOURS || dto.getDurationTime() > MAX_DURATION_HOURS) {
+			throw new IllegalArgumentException(
+					"이용 시간은 " + MIN_DURATION_HOURS + "~" + MAX_DURATION_HOURS + "시간 사이만 가능합니다.");
 		}
 
 		if (dto.getParticipants() == null || dto.getParticipants().isBlank()) {
@@ -59,15 +69,33 @@ public class PlaceServiceImpl implements PlaceService {
 			throw new IllegalArgumentException("입력한 인원 수와 참가자 수가 일치하지 않습니다.");
 		}
 
+		// 참여자 유효성 검사 최적화
+		List<String> participantIds = List.of(participantsArray).stream().map(String::trim)
+				.collect(Collectors.toList());
+
+		List<Member> existingParticipants = memberRepository.findAllById(participantIds);
+
+		if (existingParticipants.size() != participantIds.size()) {
+			List<String> foundIds = existingParticipants.stream().map(Member::getMid).collect(Collectors.toList());
+			String missingId = participantIds.stream().filter(id -> !foundIds.contains(id)).findFirst()
+					.orElse("Unknown");
+
+			throw new IllegalArgumentException("참가자 ID '" + missingId + "' 는 존재하지 않는 회원입니다.");
+		}
+
 		if (dto.getRoom().equals("동아리실")) {
-			if (dto.getPeople() < 4 || dto.getPeople() > 8) {
-				throw new IllegalArgumentException("동아리실은 4인 이상 8인 이하만 예약할 수 있습니다.");
+			
+			if (dto.getPeople() < CLUB_ROOM_MIN_PEOPLE || dto.getPeople() > CLUB_ROOM_MAX_PEOPLE) {
+				throw new IllegalArgumentException(
+						"동아리실은 " + CLUB_ROOM_MIN_PEOPLE + "인 이상 " + CLUB_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
 			}
 		}
 
 		if (dto.getRoom().equals("세미나실")) {
-			if (dto.getPeople() < 6 || dto.getPeople() > 12) {
-				throw new IllegalArgumentException("세미나실은 6인 이상 12인 이하만 예약할 수 있습니다.");
+			
+			if (dto.getPeople() < SEMINAR_ROOM_MIN_PEOPLE || dto.getPeople() > SEMINAR_ROOM_MAX_PEOPLE) {
+				throw new IllegalArgumentException(
+						"세미나실은 " + SEMINAR_ROOM_MIN_PEOPLE + "인 이상 " + SEMINAR_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
 			}
 		}
 
@@ -85,14 +113,14 @@ public class PlaceServiceImpl implements PlaceService {
 		// 하루 3시간 제한 검사
 		int userReservedMinutes = placeRepository.findByMember_MidAndUseDate(dto.getMemberMid(), dto.getUseDate())
 				.stream().mapToInt(p -> p.getDurationTime() * 60).sum();
-		if (userReservedMinutes + dto.getDurationTime() * 60 > 180) {
+		if (userReservedMinutes + dto.getDurationTime() * 60 > MAX_USER_RESERVATION_MINUTES_PER_DAY) {
 			throw new IllegalArgumentException("더 이상 예약하실 수 없습니다.");
 		}
 
 		// 시설 하루 8시간 제한 검사
 		int roomReservedMinutes = placeRepository.findByRoomAndUseDate(dto.getRoom(), dto.getUseDate()).stream()
 				.mapToInt(p -> p.getDurationTime() * 60).sum();
-		if (roomReservedMinutes + dto.getDurationTime() * 60 > 480) {
+		if (roomReservedMinutes + dto.getDurationTime() * 60 > MAX_ROOM_RESERVATION_MINUTES_PER_DAY) {
 			throw new IllegalArgumentException("더 이상 예약하실 수 없습니다.");
 		}
 
@@ -153,7 +181,6 @@ public class PlaceServiceImpl implements PlaceService {
 		return placeRepository.findByMember_Mid(mid).stream().map(place -> {
 			PlaceDTO dto = modelMapper.map(place, PlaceDTO.class);
 			dto.setMemberMid(place.getMember().getMid());
-			dto.setEndTime(place.getStartTime().plusHours(place.getDurationTime()));
 			return dto;
 		}).collect(Collectors.toList());
 	}
@@ -184,7 +211,7 @@ public class PlaceServiceImpl implements PlaceService {
 			if (dto.getStatus() == null)
 				dto.setStatus(new HashMap<>());
 
-			dto.getStatus().put(room, totalMinutes >= 480 ? "full" : "available");
+			dto.getStatus().put(room, totalMinutes >= MAX_ROOM_RESERVATION_MINUTES_PER_DAY ? "full" : "available");
 		}
 
 		return resultMap.values().stream().sorted(Comparator.comparing(ReservationStatusDTO::getDate))
@@ -208,7 +235,6 @@ public class PlaceServiceImpl implements PlaceService {
 			PlaceDTO dto = new PlaceDTO();
 			dto.setStartTime(p.getStartTime());
 			dto.setDurationTime(p.getDurationTime());
-			dto.setEndTime(p.getStartTime().plusHours(p.getDurationTime()));
 			return dto;
 		}).toList();
 	}

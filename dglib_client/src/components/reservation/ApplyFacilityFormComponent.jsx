@@ -3,15 +3,33 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { memberIdSelector } from '../../atoms/loginState';
 import { registerPlace } from '../../api/placeApi';
+import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
 import Button from '../common/Button';
 import CheckNonLabel from '../common/CheckNonLabel';
 
-// memberApi에 직접 손대기 어려워서 여기에 별도 정의(추후 수정 예정)
+// 회원 정보 가져오기
 const getMemberInfo = async (mid) => {
-    const res = await axios.get(`http://localhost:8090/api/member/info/${mid}`);
+    const res = await axios.get(`${API_SERVER_HOST}/api/member/info/${mid}`);
     return res.data;
 };
+
+// 참가자 명단 아이디 검사
+const validateParticipantIds = async (mids) => {
+    const res = await axios.post(`${API_SERVER_HOST}/api/member/validate`, mids);
+    return res.data;
+};
+
+// 사용 목적 유효성 검사
+const isPurposeValid = (purpose) => {
+    const trimmed = purpose.trim();
+    if (trimmed.length < 3) return false;       // 최소 3글자 이상
+    if (/^\d+$/.test(trimmed)) return false;    // 숫자만 입력된 경우
+    if (/^(.)\1+$/.test(trimmed)) return false; // 반복된 문자만 입력된 경우
+
+    return true;
+};
+
 
 const ApplyFacilityFormComponent = () => {
     const location = useLocation();
@@ -22,10 +40,10 @@ const ApplyFacilityFormComponent = () => {
 
     const [memberInfo, setMemberInfo] = useState({ name: '', phone: '', address: '' });
     const [durationTime, setDurationTime] = useState([]);
+    const [reservedSlots, setReservedSlots] = useState([]);
     const [participants, setParticipants] = useState('');
     const [purpose, setPurpose] = useState('');
     const [personCount, setPersonCount] = useState('');
-    const [modal, setModal] = useState({ open: false, message: '' });
 
     useEffect(() => {
         if (memberId) {
@@ -33,12 +51,35 @@ const ApplyFacilityFormComponent = () => {
                 setMemberInfo({
                     name: data.name || '',
                     phone: data.phone || '',
-                    address: data.address || '',
+                    address: data.addr || '',
                 });
             });
         }
     }, [memberId]);
 
+    useEffect(() => {
+        if (roomName && selectedDate) {
+            const fetchReservedTimes = async () => {
+                try {
+                    const res = await axios.get(`${API_SERVER_HOST}/api/places/time-status`, {
+                        params: { room: roomName, date: selectedDate },
+                    });
+                    const reserved = [];
+                    res.data.forEach(item => {
+                        const startHour = parseInt(item.startTime.split(':')[0], 10);
+                        for (let i = 0; i < item.durationTime; i++) {
+                            const timeSlot = `${String(startHour + i).padStart(2, '0')}:00 - ${String(startHour + i + 1).padStart(2, '0')}:00`;
+                            reserved.push(timeSlot);
+                        }
+                    });
+                    setReservedSlots(reserved);
+                } catch (err) {
+                    console.error('예약된 시간 불러오기 실패:', err);
+                }
+            };
+            fetchReservedTimes();
+        }
+    }, [roomName, selectedDate]);
 
     const timeSlots = [
         '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00',
@@ -62,24 +103,28 @@ const ApplyFacilityFormComponent = () => {
     };
 
     const handleSubmit = async () => {
-        if (!participants.trim()) return setModal({ open: true, message: '참가자 아이디를 입력해 주세요.' });
-        if (!purpose.trim()) return setModal({ open: true, message: '사용 목적을 입력해 주세요.' });
-        if (!personCount || Number(personCount) <= 0) return setModal({ open: true, message: '이용 인원을(를) 입력해 주세요.' });
-        if (durationTime.length === 0) return setModal({ open: true, message: '이용 시간은 1일 최대 3시간입니다.' });
+        if (!participants.trim()) return alert('참가자 아이디를 입력해 주세요.');
+        if (!purpose.trim()) return alert('사용 목적을 입력해 주세요.');
+        if (!isPurposeValid(purpose)) return alert('사용 목적은 3글자 이상으로 입력해 주세요.');
+        if (!personCount || Number(personCount) <= 0) return alert('이용 인원을(를) 입력해 주세요.');
+
+        const count = Number(personCount);
+        if (roomName === '동아리실' && (count < 4 || count > 8)) return alert('동아리실은 4인 이상 8인 이하만 예약할 수 있습니다.');
+        if (roomName === '세미나실' && (count < 6 || count > 12)) return alert('세미나실은 6인 이상 12인 이하만 예약할 수 있습니다.');
+        if (durationTime.length === 0) return alert('이용 시간은 1일 최대 3시간입니다.');
 
         const sorted = [...durationTime].sort();
-        if (!isConsecutive(sorted)) {
-            return setModal({ open: true, message: '이용 시간을 선택하세요.' });
-        }
+        if (!isConsecutive(sorted)) return alert('이용 시간을 다시 선택하세요.\n(예: 09:00-10:00, 10:00-11:00, 11:00-12:00)');
 
-        const participantCount = participants.split(',').filter(p => p.trim()).length;
-        if (participantCount !== Number(personCount)) {
-            return setModal({ open: true, message: '참가자 수와 인원수가 일치하지 않습니다.' });
-        }
+        const mids = participants.split(',').map(p => p.trim()).filter(p => p);
+        const result = await validateParticipantIds(mids);
+        if (!result.valid) return alert(`존재하지 않는 아이디입니다:\n${result.invalidIds.join(', ')}`);
+
+        const participantCount = mids.filter(p => p).length;
+        if (participantCount !== Number(personCount)) return alert('이용인원 수와 참가자 수가 일치하지 않습니다.');
 
         if (roomName.includes('동아리') && roomName.includes('세미나')) {
-            return setModal({ open: true, message: '하루 중 한 종류의 시설만 예약할 수 있습니다.' });
-        }
+        return alert('하루 중 한 시설만 예약할 수 있습니다.')};
 
         const dto = {
             memberMid: memberId,
@@ -98,7 +143,7 @@ const ApplyFacilityFormComponent = () => {
             navigate('/reservation/facility');
         } catch (err) {
             const fallback = err.response?.data?.message || '신청 중 오류가 발생했습니다. 다시 시도해 주세요.';
-            setModal({ open: true, message: fallback });
+            alert(fallback);
         }
     };
 
@@ -128,19 +173,26 @@ const ApplyFacilityFormComponent = () => {
                         <label className="block font-medium mb-1">✔ 이용시간 <span className="text-xs text-gray-500 ml-2">※ 1일 최대 3시간까지 연속 선택</span></label>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 border rounded">
                             {timeSlots.map((slot, idx) => (
-                                <label key={idx} className={`inline-flex items-center gap-2 border px-2 py-1 rounded cursor-pointer ${durationTime.includes(slot) ? 'bg-green-600 text-white' : 'bg-white'}`}>
+                                <label
+                                    key={idx}
+                                    className={`inline-flex items-center gap-2 border px-2 py-1 rounded cursor-pointer 
+                                        ${durationTime.includes(slot)
+                                            ? 'bg-green-600 text-white'
+                                            : reservedSlots.includes(slot)
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-white'}`}
+                                >
                                     <CheckNonLabel
                                         checked={durationTime.includes(slot)}
                                         onChange={() => toggleDuration(slot)}
                                         inputClassName="w-4 h-4"
-                                        disabled={durationTime.length >= 3 && !durationTime.includes(slot)}
+                                        disabled={reservedSlots.includes(slot) || (durationTime.length >= 3 && !durationTime.includes(slot))}
                                     />
                                     <span>{slot}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
-
                     <div>
                         <label className="block font-medium mb-1">✔ 참가자 명단 <span className="text-xs text-gray-500 ml-2">※ 참가자 아이디를 입력해 주세요. / 예: user1, user2 (쉼표 구분)</span></label>
                         <textarea value={participants} onChange={(e) => setParticipants(e.target.value)} className="w-full border px-3 py-2 rounded" rows={2} placeholder="참가자 명단을 입력해주세요" />
@@ -164,36 +216,16 @@ const ApplyFacilityFormComponent = () => {
                     <Button onClick={() => navigate(-1)} className="bg-gray-400 hover:bg-gray-500">취소</Button>
                 </div>
                 <p className='text-xs text-gray-500 text-center'>
-                    ※ 예약 확인은 <span className='text-green-700 font-medium'>내서재 &gt; 이용 신청 내역</span> 에서 확인 가능합니다.
+                    ※ 예약 확인은{' '}
+                    <button
+                        onClick={() => navigate('/mylibrary/usedfacility')}
+                        className="text-green-700 underline hover:text-green-900 cursor-pointer"
+                    >
+                        내서재 &gt; 이용 신청 내역
+                    </button>{' '}
+                    에서 확인 가능합니다.
                 </p>
             </div>
-
-            {modal.open && (
-                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden">
-                        <div className="flex justify-between items-center bg-green-600 text-white px-4 py-3">
-                            <h2 className="text-lg font-semibold">안내</h2>
-                            <button
-                                onClick={() => setModal({ open: false, message: '' })}
-                                className="text-white text-xl hover:text-gray-200 cursor-pointer"
-                            >
-                                ⨉
-                            </button>
-                        </div>
-                        <div className="px-5 py-6 text-gray-800 text-sm whitespace-pre-line">
-                            {modal.message}
-                        </div>
-                        <div className="px-5 pb-5 flex justify-end">
-                            <button
-                                onClick={() => setModal({ open: false, message: '' })}
-                                className="bg-green-700 hover:bg-green-800 text-white text-sm px-4 py-2 rounded cursor-pointer"
-                            >
-                                확인
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

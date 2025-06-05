@@ -1,5 +1,7 @@
 package com.dglib.controller.qna;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/answer")
+@RequestMapping("/api/answer")
 public class AnswerController {
 
 	private final AnswerService answerService;
@@ -33,22 +35,21 @@ public class AnswerController {
 		return ResponseEntity.ok(answerService.getAnswer(ano));
 	}
 	
-	@PutMapping("/{ano}")
+	@PutMapping("/question/{qno}")
 	public ResponseEntity<Void> updateAnswer(
-			@PathVariable Long ano,
+			@PathVariable Long qno,
 			@RequestBody AnswerDTO dto) {
 		
-		answerService.updateAnswer(ano, dto);
+		answerService.updateAnswer(qno, dto);
 		return ResponseEntity.noContent().build();
 	}
 	
 	@DeleteMapping("/{ano}")
-	public ResponseEntity<Void> deleteAnswer(@PathVariable Long ano){
-		answerService.deleteAnswer(ano);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Void> deleteAnswer(@PathVariable Long ano, @RequestBody Map<String, String> body){
+	    String requesterMid = body.get("requesterMid");
+	    answerService.deleteAnswer(ano, requesterMid);
+	    return ResponseEntity.noContent().build();
 	}
-	
-	
 	
 	
 }

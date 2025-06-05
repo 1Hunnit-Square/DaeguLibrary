@@ -5,10 +5,13 @@ import QnaListComponent from "../components/community/QnaListComponent";
 import { path } from "framer-motion/client";
 import QnaDetailComponent from "../components/community/QnaDetailComponent";
 import QnaNewComponent from "../components/community/QnaNewComponent";
+import QnaEditComponent from "../components/community/QnaEditComponent";
+import AnswerNewComponent from "../components/community/AnswerNewComponent";
+import AnswerEditComponent from "../components/community/AnswerEditComponent";
 
 const Notice = lazy(() => import("../components/community/NoticeListComponent"));
 const News = lazy(() => import("../components/community/NewsComponent"));
-const Qna = lazy(() => import("../components/community/QnAComponent"));
+const Qna = lazy(() => import("../components/community/QnaComponent"));
 const Gallery = lazy(() => import("../components/community/GalleryComponent"));
 const Press = lazy(() => import("../components/community/PressComponent"));
 const Donation = lazy(() => import("../components/community/DonationComponent"));
@@ -31,7 +34,7 @@ const communityRouter = () => ([
         path: "notice/:ano",
         element: <Suspense fallback={<Loading />}><NoticeDetail /></Suspense>
     },
-     {
+    {
         path: "notice/new",
         element: <Suspense fallback={<Loading />}><NoticeNew /></Suspense>
     },
@@ -47,7 +50,7 @@ const communityRouter = () => ([
     {
         path: "qna",
         element: <Suspense fallback={<Loading />}><Qna /></Suspense>,
-        children:[
+        children: [
             {
                 index: true, // 나중에  path: "" 이거와 비교하기
                 element: <Suspense fallback={<Loading />}><QnaListComponent /></Suspense>
@@ -59,6 +62,18 @@ const communityRouter = () => ([
             {
                 path: "new",
                 element: <Suspense fallback={<Loading />}><QnaNewComponent /></Suspense>
+            },
+            {
+                path: "edit/:qno",
+                element: <Suspense fallback={<Loading />}><QnaEditComponent /></Suspense>
+            },
+            {
+                path: "answer/:qno",
+                element: <Suspense fallback={<Loading />}><AnswerNewComponent /></Suspense>
+            },
+            {
+                path: "answer/edit/:qno",
+                element: <Suspense fallback={<Loading />}><AnswerEditComponent /></Suspense>
             }
         ]
     },

@@ -6,6 +6,7 @@ import { usePagination } from "../../hooks/usePage";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
 import { API_SERVER_HOST } from '../../api/config';
+import { API_ENDPOINTS } from '../../api/config';
 
 const EbookListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -58,7 +59,7 @@ const EbookListComponent = () => {
                                 >
                                     <div className="w-full md:w-48 flex justify-center">
                                         <img
-                                            src={`${API_SERVER_HOST}/api/view/${book.ebookCover}?type=thumbnail`}
+                                            src={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${book.ebookCover}?type=thumbnail`}
                                             alt={book.ebookTitle || '표지 없음'}
                                             className="h-64 object-contain"
                                             onError={(e) => e.currentTarget.src = '/placeholder-image.png'}

@@ -7,10 +7,10 @@ import lombok.Data;
 
 @Data
 public class NoticeListDTO {
-	private Long ano;
-	private String title;
-	private boolean isPinned;
-	private String name;
-	private LocalDateTime postedAt;
-	private int viewCount;
+   private Long ano;
+   private String title;
+   private boolean isPinned;
+   private String name;
+   private LocalDateTime postedAt;
+   private int viewCount;
 }

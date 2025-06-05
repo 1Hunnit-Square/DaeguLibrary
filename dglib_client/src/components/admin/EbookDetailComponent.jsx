@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../common/Button';
-import { API_SERVER_HOST } from '../../api/config';
+import { API_ENDPOINTS, API_SERVER_HOST } from '../../api/config';
 import { updateEbook, deleteEbook } from '../../api/adminApi';
 import { useBookMutation } from "../../hooks/useBookMutation";
 
@@ -199,7 +199,7 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
                                         {selectedImage ? (
                                             <div className="relative group w-full h-full">
                                                 <img
-                                                    src={selectedImage === eBook.ebookCover ? `${API_SERVER_HOST}/api/view/${eBook.ebookCover}` : selectedImage}
+                                                    src={selectedImage === eBook.ebookCover ? `${API_SERVER_HOST}${API_ENDPOINTS.view}/${eBook.ebookCover}` : selectedImage}
                                                     alt="전자책 표지"
                                                     className="w-full h-full object-fill"
                                                     onError={(e) => {

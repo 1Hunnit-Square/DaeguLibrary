@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createQuestion, updateQuestion, deleteQuestion } from "../api/qnaApi";
 import { useNavigate } from "react-router-dom";
 
-
+// 일단 지금 삭제 빼곤 안쓰게 됐는데 삭제해 말아...
 export const useCreateQuestion = () => {
     const navigate = useNavigate();
     return useMutation({
@@ -23,7 +23,8 @@ export const useUpdateQuestion = () => {
         mutationFn: updateQuestion,
         onSuccess: () => {
             alert("질문이 수정되었습니다.");
-            navigate(`/community/qna/${variables.qno}`);
+            navigate(`/community/qna/${variables.qno}`,{replace:true});
+      
         }
     });
 };

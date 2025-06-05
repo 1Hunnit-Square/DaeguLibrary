@@ -7,8 +7,7 @@ import com.dglib.dto.qna.QuestionDetailDTO;
 import com.dglib.dto.qna.QuestionListDTO;
 import com.dglib.dto.qna.QuestionNewDTO;
 import com.dglib.dto.qna.QuestionSearchDTO;
-
-import jakarta.servlet.http.HttpSession;
+import com.dglib.dto.qna.QuestionUpdateDTO;
 
 public interface QuestionService {
 
@@ -22,11 +21,8 @@ public interface QuestionService {
 	QuestionDetailDTO getQuestion(Long qno, String requesterMid);
 	
 	//수정
-	void updateQuestion(Long qno, QuestionDetailDTO dto);
+	void update(Long qno, QuestionUpdateDTO dto);
 	
 	//삭제
-	void deleteQuestion(Long qno, String requesterMid);
-	
-	//조회수증가
-	void increaseViewCount(Long qno, HttpSession session);
+	void delete(Long qno, String requesterMid);
 }

@@ -21,19 +21,19 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class EventImage {
-   
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long ino;
-   
-   @Column(nullable = false, length = 255)
-   private String originalName;
-   
-   @Column(nullable = false, length = 500)
-   private String filePath;
-   
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "eventEno", nullable = false) // 글번호(FK)
-   private Event event;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long ino;
+	
+	@Column(nullable = false, length = 255)
+	private String originalName;
+	
+	@Column(nullable = false, length = 500)
+	private String filePath;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "eventEno", nullable = false) // 글번호(FK)
+	private Event event;
 
 }

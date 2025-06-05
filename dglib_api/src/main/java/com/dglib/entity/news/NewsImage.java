@@ -21,19 +21,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NewsImage {
-   
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long ino;
-   
-   @Column(nullable = false, length = 255)
-   private String originalName;
-   
-   @Column(nullable = false, length = 500)
-   private String filePath;   
-   
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "newsNno", nullable = false)
-   private News news;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long ino;
+	
+	@Column(nullable = false, length = 255)
+	private String originalName;
+	
+	@Column(nullable = false, length = 500)
+	private String filePath;	
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "newsNno", nullable = false)
+	private News news;
 
 }

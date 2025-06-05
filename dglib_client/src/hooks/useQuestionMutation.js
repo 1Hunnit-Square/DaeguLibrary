@@ -23,7 +23,8 @@ export const useUpdateQuestion = () => {
         mutationFn: updateQuestion,
         onSuccess: () => {
             alert("질문이 수정되었습니다.");
-            navigate(`/community/qna/${variables.qno}`);
+            navigate(`/community/qna/${variables.qno}`,{replace:true});
+      
         }
     });
 };

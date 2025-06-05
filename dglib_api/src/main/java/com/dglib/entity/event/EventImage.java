@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "event_img")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,13 +24,13 @@ public class EventImage {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long eino;
-	
-	@Column(nullable = false, length = 500)
-	private String imageUrl;
+	private Long ino;
 	
 	@Column(nullable = false, length = 255)
-	private String originalFilename;
+	private String originalName;
+	
+	@Column(nullable = false, length = 500)
+	private String filePath;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "eventEno", nullable = false) // 글번호(FK)

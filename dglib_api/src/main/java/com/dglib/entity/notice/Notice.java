@@ -1,7 +1,6 @@
 package com.dglib.entity.notice;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.dglib.entity.member.Member;
@@ -9,6 +8,7 @@ import com.dglib.entity.member.Member;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -65,7 +65,7 @@ public class Notice {
 
 	
 	// FK: 회원 ID(작성자)
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "mid", nullable = false)
 	private Member member;
 	

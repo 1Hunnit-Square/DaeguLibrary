@@ -48,8 +48,10 @@ public class Gallery {
 	private LocalDateTime modifiedAt; // 수정일
 	
 	@Column(nullable = false)
+	@Builder.Default
 	private int viewCount = 0; // 조회수
 
+	@Builder.Default
 	@Column(nullable = false)
 	private boolean isHidden = false; // 숨김 여부
 	

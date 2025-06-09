@@ -1,10 +1,14 @@
 package com.dglib.security.jwt;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -100,5 +104,29 @@ public class JwtFilter extends OncePerRequestFilter {
 		      return ((MemberDTO) principal).getUsername();
 		      
 		   }
+		
+		public static String getRoleName() {
+
+		      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		      Object principal = authentication.getPrincipal();
+		      if (principal == null || !(principal instanceof MemberDTO)) {
+		         return null;
+		      }
+		      
+		      Collection<? extends GrantedAuthority> authorities = ((MemberDTO) principal).getAuthorities();
+		      
+		      List<String> roles = authorities.stream()
+		    		    .map(GrantedAuthority::getAuthority)
+		    		    .collect(Collectors.toList());
+		      
+		      return roles.get(0);
+		   }
+		
+	public static boolean checkAuth(String mid) {
+		if((mid != null && JwtFilter.getMid().equals(mid)) || JwtFilter.getRoleName().equals("ROLE_ADMIN"))
+			return true;
+		else
+			return false;
+	}
 	
 }

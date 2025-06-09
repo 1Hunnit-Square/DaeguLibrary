@@ -10,7 +10,7 @@ import Loading from "../../routers/Loading";
 // noneMsg: ""
 // }
 
-const TableComponent = ({data, isLoading, handleListClick, tableMap, defaultKey, indexNum = true}) => {
+const TableComponent = ({data, isLoading, handleListClick, tableMap, defaultKey, indexNum = true, pinnedList}) => {
 
     const dataList = data.content;
     const dataPage = data.pageable?.pageNumber;
@@ -29,6 +29,20 @@ return(
           </tr>
         </thead>
         <tbody>
+        {Array.isArray(pinnedList) && pinnedList.length !== 0 && pinnedList.map((item, index) => (
+              <tr key={index} className = {`border-b border-[#ddd] hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=> handleListClick(item[defaultKey])}>
+                <td className={`py-3 px-1 text-center whitespace-nowrap`}>
+                  <span className = "text-white text-xs bg-red-400 rounded p-1">공지</span>                  
+                  </td>
+                {Object.keys(tableMap.table).map((key, index) => {
+                    const left = tableMap.leftKey?.includes(key) ? "text-left" : "text-center";
+                    const overflow = tableMap.overKey?.includes(key) ? "truncate" : "";
+                    const underline = tableMap.lineKey?.includes(key) ? "hover:underline" : "";
+                    const style = tableMap.style[key] ?? "";
+                    return <td key ={index} className={`py-3 px-3 ${left} ${overflow} ${underline} ${style} whitespace-nowrap`}>{ tableMap.trans[key] ? tableMap.trans[key](item[key]) : item[key]}</td>
+
+                })}
+              </tr>))}
           {isLoading ? (
             <tr>
               <td><Loading /></td>

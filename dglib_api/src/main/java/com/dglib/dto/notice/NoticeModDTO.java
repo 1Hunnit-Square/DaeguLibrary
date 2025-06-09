@@ -15,12 +15,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoticeDTO {
+public class NoticeModDTO {
 	private String title;
 	private String content;
-	private boolean isHidden;
 	private boolean isPinned;
 	private String mid;             // 작성자 ID (식별자 용도)
 	private List<String> urlList;
-
+	private List<String> oldFiles;
 }

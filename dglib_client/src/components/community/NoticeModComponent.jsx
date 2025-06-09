@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import 'react-quill/dist/quill.snow.css';
 import 'react-tooltip/dist/react-tooltip.css';
 import QuillComponent from "../common/QuillComponent";
-import { regNotice } from "../../api/noticeApi";
+import { modNotice, getNoticeDetail } from "../../api/noticeApi";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
@@ -10,7 +10,6 @@ import { useMoveTo } from "../../hooks/useMoveTo";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
-import { getNoticeDetail } from "../../api/noticeApi";
 import { imgReplace } from "../../util/commonUtil";
 
 const NoticeModComponent = () => {
@@ -31,16 +30,15 @@ const dataMap = useMemo(()=>({data : {...data, content : imgReplace(data?.conten
 
 const sendParams = (paramData) => {
 
-paramData.append("mid", mid);
 console.log(paramData);
 
 
-regNotice(paramData).then(res => {
-  alert("글을 등록하였습니다.");
+modNotice(ano, paramData).then(res => {
+  alert("글을 수정하였습니다.");
   navigate("/community/notice");
 
 }).catch(error => {
-  alert("글 등록에 실패했습니다.");
+  alert("글 수정에 실패했습니다.");
   console.error(error);
 })
 }

@@ -5,7 +5,7 @@ import QuillComponent from "../common/QuillComponent";
 import { regNotice } from "../../api/noticeApi";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 
 
@@ -14,11 +14,11 @@ const NoticeNewComponent = () => {
   const { moveToLogin } = useMoveTo();
 const navigate = useNavigate();
 const mid = useRecoilValue(memberIdSelector);
+const role = useRecoilValue(memberRoleSelector);
 
 
 const sendParams = (paramData) => {
 
-paramData.append("mid", mid);
 console.log(paramData);
 
 
@@ -41,14 +41,18 @@ useEffect(() => {
   
   if(!mid){
    moveToLogin();
-  
+  }
+
+  if(role != "ADMIN"){
+    alert("글쓰기 권한이 없습니다.");
+    navigate(-1, {replace : true});
   }
 
 },[]);
 
     return (
          <div className = "flex flex-col justify-center bt-5 mb-10">
-      {mid &&<QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
+      {(role == "ADMIN") &&<QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
      
      </div>     
     );

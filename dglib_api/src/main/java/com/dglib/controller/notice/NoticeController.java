@@ -8,10 +8,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dglib.dto.notice.NoticeDTO;
 import com.dglib.dto.notice.NoticeDetailDTO;
 import com.dglib.dto.notice.NoticeListDTO;
+import com.dglib.dto.notice.NoticeModDTO;
 import com.dglib.dto.notice.NoticeSearchDTO;
+import com.dglib.security.jwt.JwtFilter;
 import com.dglib.service.notice.NoticeService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,9 +38,16 @@ public class NoticeController {
 	private final String DIRNAME = "notice";
 
 	@PostMapping("/register")
-	public ResponseEntity<String> manageMember(@ModelAttribute NoticeDTO noticeDTO,
+	public ResponseEntity<String> regNotice(@ModelAttribute NoticeDTO noticeDTO, 
 		 @RequestParam(required = false) List<MultipartFile> files){
 		noticeService.register(noticeDTO, files, DIRNAME);
+		return ResponseEntity.ok().build();
+	}
+	
+	@PutMapping("/{ano}")
+	public ResponseEntity<String> updateNotice(@PathVariable Long ano, @ModelAttribute NoticeModDTO noticeModDTO,
+		 @RequestParam(required = false) List<MultipartFile> files){
+		noticeService.update(ano, noticeModDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 	
@@ -45,8 +56,14 @@ public class NoticeController {
 		return ResponseEntity.ok(noticeService.getDetail(ano));
 	}
 	
+	@DeleteMapping("/{ano}")
+	public ResponseEntity<NoticeDetailDTO> deleteNotice(@PathVariable Long ano){
+		noticeService.delete(ano);
+		return ResponseEntity.ok().build();
+	}
+	
 	@GetMapping("/list")
-	public ResponseEntity<Page<NoticeListDTO>> manageMember(@ModelAttribute NoticeSearchDTO searchDTO){
+	public ResponseEntity<Page<NoticeListDTO>> listNotice(@ModelAttribute NoticeSearchDTO searchDTO){
 		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
 		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
 		String sortBy = Optional.ofNullable(searchDTO.getSortBy()).orElse("postedAt");
@@ -59,6 +76,13 @@ public class NoticeController {
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		return ResponseEntity.ok(noticeService.findAll(searchDTO, pageable));
 	}
+	
+	@GetMapping("/listPinned")
+	public ResponseEntity<List<NoticeListDTO>> listPinNotice(){
+		return ResponseEntity.ok(noticeService.findPinned());
+	}
+	
+	
 	
 	
 	

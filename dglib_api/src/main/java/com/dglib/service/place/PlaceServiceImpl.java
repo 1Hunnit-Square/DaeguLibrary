@@ -3,6 +3,7 @@ package com.dglib.service.place;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +11,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dglib.dto.days.ClosedDayDTO;
 import com.dglib.dto.place.PlaceDTO;
+import com.dglib.dto.place.PlaceSearchConditionDTO;
 import com.dglib.dto.place.ReservationStatusDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.place.Place;
@@ -22,6 +28,7 @@ import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.place.PlaceRepository;
 import com.dglib.service.days.ClosedDayService;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -33,6 +40,9 @@ public class PlaceServiceImpl implements PlaceService {
 	private final ModelMapper modelMapper;
 	private final MemberRepository memberRepository;
 	private final ClosedDayService closedDayService;
+	
+	private String option;
+	private String query;
 
 	private static final int MIN_DURATION_HOURS = 1;
 	private static final int MAX_DURATION_HOURS = 3;
@@ -43,6 +53,61 @@ public class PlaceServiceImpl implements PlaceService {
 	private static final int MAX_USER_RESERVATION_MINUTES_PER_DAY = 180; // 3시간 * 60분
 	private static final int MAX_ROOM_RESERVATION_MINUTES_PER_DAY = 480; // 8시간 * 60분
 
+	// 관리자 조회
+	@Override
+	public Page<PlaceDTO> getListByAdmin(PlaceSearchConditionDTO cond) {
+		Pageable pageable = PageRequest.of(cond.getPage(), cond.getSize(),
+				Sort.by(Sort.Direction.fromString(cond.getOrderBy()), cond.getSortBy()));
+		
+	    if (cond.getOption() != null && cond.getQuery() != null && !cond.getQuery().isBlank()) {
+	        switch (cond.getOption()) {
+	            case "mid" -> cond.setMid(cond.getQuery());
+	            case "name" -> cond.setName(cond.getQuery());
+	            case "room" -> cond.setRoom(cond.getQuery());
+	        }
+	    }
+
+		Page<Place> result = placeRepository.findAll((root, query, cb) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (cond.getStartDate() != null && !cond.getStartDate().isEmpty()) {
+				predicates.add(cb.greaterThanOrEqualTo(root.get("appliedAt"), LocalDate.parse(cond.getStartDate()).atStartOfDay()));
+			}
+			if (cond.getEndDate() != null && !cond.getEndDate().isEmpty()) {
+				predicates.add(cb.lessThanOrEqualTo(root.get("appliedAt"), LocalDate.parse(cond.getEndDate()).atTime(23, 59, 59)));
+			}
+			if (cond.getMid() != null && !cond.getMid().isEmpty()) {
+				predicates.add(cb.equal(root.get("member").get("mid"), cond.getMid()));
+			}
+			if (cond.getName() != null && !cond.getName().isEmpty()) {
+				predicates.add(cb.like(root.get("member").get("name"), "%" + cond.getName() + "%"));
+			}
+			if (cond.getRoom() != null && !cond.getRoom().isEmpty()) {
+				predicates.add(cb.equal(root.get("room"), cond.getRoom()));
+			}
+
+			return cb.and(predicates.toArray(new Predicate[0]));
+		}, pageable);
+
+		return result.map(this::convertToDTO);
+	}
+
+	private PlaceDTO convertToDTO(Place entity) {
+	    return PlaceDTO.builder()
+	            .pno(entity.getPno())
+	            .memberMid(entity.getMember().getMid())
+	            .memberName(entity.getMember().getName())
+	            .appliedAt(entity.getAppliedAt())
+	            .useDate(entity.getUseDate())
+	            .startTime(entity.getStartTime())
+	            .durationTime(entity.getDurationTime())
+	            .room(entity.getRoom())
+	            .people(entity.getPeople())
+	            .participants(entity.getParticipants())
+	            .purpose(entity.getPurpose())
+	            .build();
+	}
+	
 	// 예약 등록
 	@Override
 	public Long registerPlace(PlaceDTO dto) {

@@ -2,6 +2,7 @@ package com.dglib.controller.program;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -22,8 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dglib.dto.program.ProgramApplyRequestDTO;
 import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
+import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
 import com.dglib.service.program.ProgramService;
 import com.dglib.service.program.ProgramService.FileDownloadInfo;
@@ -55,11 +58,11 @@ public class ProgramController {
 
 	// 3. 페이지네이션 + 검색 조건 포함 목록 조회
 	@GetMapping
-	public ResponseEntity<Page<ProgramInfoDTO>> getProgramList(@RequestParam(required = false) String progName,
-			@RequestParam(required = false) String content, @RequestParam(required = false) String status,
+	public ResponseEntity<Page<ProgramInfoDTO>> getProgramList(@RequestParam(required = false) String option,
+			@RequestParam(required = false) String query, @RequestParam(required = false) String status,
 			Pageable pageable) {
 
-		Page<ProgramInfoDTO> result = programService.getProgramList(pageable, progName, content, status);
+		Page<ProgramInfoDTO> result = programService.searchProgramList(pageable, option, query, status);
 		return ResponseEntity.ok(result);
 	}
 
@@ -93,15 +96,24 @@ public class ProgramController {
 		programService.deleteProgram(progNo);
 		return ResponseEntity.noContent().build();
 	}
+	
+	// 8. 장소 체크
+	@PostMapping("/check-room")
+	public ResponseEntity<Map<String, Boolean>> checkRoomAvailability(@RequestBody ProgramRoomCheckDTO request) {
+	    boolean full = programService.isAllRoomsOccupied(request);
+	    return ResponseEntity.ok(Map.of("full", full));
+	}
+	
+
+
 
 	// 사용자용 API
 	// 1. 프로그램 신청
 	@PostMapping("/apply")
-	public ResponseEntity<String> applyProgram(@RequestBody ProgramUseDTO dto) {
-	    programService.applyProgram(dto);
-	    return ResponseEntity.ok("신청이 완료되었습니다.");
+	public ResponseEntity<String> applyProgram(@RequestBody ProgramApplyRequestDTO dto) {
+		programService.applyProgram(dto);
+		return ResponseEntity.ok("신청이 완료되었습니다.");
 	}
-
 
 	// 2. 신청 여부 확인(중복 신청 방지용)
 	@GetMapping("/applied")
@@ -124,6 +136,19 @@ public class ProgramController {
 																									// Content-Type 사용
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileInfo.getFilename() + "\"")
 				.body(fileInfo.getResource());
+	}
+
+	// 5. 사용자 신청 리스트
+	@GetMapping("/use")
+	public ResponseEntity<List<ProgramUseDTO>> getProgramUseList(@RequestParam String mid) {
+		return ResponseEntity.ok(programService.getUseListByMember(mid));
+	}
+
+	// 6. 사용자 신청 취소
+	@DeleteMapping("/cancel/{progUseNo}")
+	public ResponseEntity<Void> cancelProgram(@PathVariable Long progUseNo) {
+		programService.cancelProgram(progUseNo);
+		return ResponseEntity.noContent().build();
 	}
 
 }

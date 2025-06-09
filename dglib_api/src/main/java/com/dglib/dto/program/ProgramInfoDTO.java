@@ -17,7 +17,9 @@ public class ProgramInfoDTO {
 	private String progName;
 	private String teachName;
 	private String status; // 신청전, 신청중, 신청마감
-
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime createdAt; // 프로그램 등록일
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime applyStartAt; // 신청시작기간
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

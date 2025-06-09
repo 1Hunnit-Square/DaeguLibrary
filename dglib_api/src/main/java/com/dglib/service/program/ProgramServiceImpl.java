@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dglib.dto.program.ProgramApplyRequestDTO;
 import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
+import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.program.ProgramInfo;
@@ -82,6 +84,35 @@ public class ProgramServiceImpl implements ProgramService {
 			return dto;
 		});
 	}
+	
+	// 프로그램 목록 검색
+	@Override
+	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
+	    // 검색 타입에 따라 searchType 설정
+		
+	    String searchType = null;
+	    if ("progName".equals(option) || "teachName".equals(option)) {
+	        searchType = option;
+	    }
+	    
+	    Page<ProgramInfo> result = infoRepository.searchAdminPrograms(
+	        searchType,
+	        query,
+	        status,
+	        null,
+	        null,
+	        pageable
+	    );
+
+	    return result.map(p -> {	    	
+	        ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+	        dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+	        dto.setOriginalName(p.getFileName());
+	        dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
+	        return dto;
+	    });
+	}
+
 
 	// 배너 리스트 조회
 	@Override
@@ -204,7 +235,7 @@ public class ProgramServiceImpl implements ProgramService {
 
 	// 프로그램 중복 신청 방지 및 대상자 필터링
 	@Override
-	public void applyProgram(ProgramUseDTO dto) {
+	public void applyProgram(ProgramApplyRequestDTO dto) {
 		Long progNo = dto.getProgNo();
 		String mid = dto.getMid();
 
@@ -218,21 +249,21 @@ public class ProgramServiceImpl implements ProgramService {
 			throw new IllegalStateException("이미 신청한 프로그램입니다.");
 		}
 
-		// 프로그램 유효성 확인
+		// 프로그램 정보 조회
 		ProgramInfo program = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
-		// 신청 상태 확인
-		if (!"신청중".equals(program.getStatus())) {
+		LocalDateTime now = LocalDateTime.now();
+
+		if (now.isBefore(program.getApplyStartAt())) {
 			throw new IllegalStateException("신청 기간이 아닙니다.");
 		}
 
-		// 날짜 기반 확인
-		if (program.getApplyEndAt().toLocalDate().isBefore(LocalDate.now())) {
+		if (now.isAfter(program.getApplyEndAt())) {
 			throw new IllegalStateException("신청 기간이 종료되었습니다.");
 		}
 
-		// 회원 존재 확인
+		// 회원 정보 확인
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
@@ -242,10 +273,43 @@ public class ProgramServiceImpl implements ProgramService {
 		}
 
 		// 신청 저장
-		ProgramUse use = ProgramUse.builder().programInfo(program).member(member).applyAt(LocalDateTime.now()).build();
+		ProgramUse programUse = ProgramUse.builder().programInfo(program).member(member).applyAt(LocalDateTime.now())
+				.build();
 
-		useRepository.save(use);
+		useRepository.save(programUse);
 
+	}
+	
+	// 모든 강의실(문화교실1~3)이 해당 기간과 요일에 이미 예약되어 있는지 확인
+	@Override
+	public boolean isAllRoomsOccupied(ProgramRoomCheckDTO request) {
+	    List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+
+	    long count = rooms.stream()
+	        .filter(room -> infoRepository.existsByRoomAndOverlap(
+	            room,
+	            request.getStartDate(),
+	            request.getEndDate(),
+	            request.getDaysOfWeek()
+	        ))
+	        .count();
+
+	    return count >= 3;
+	}
+	
+	// 가능한 강의실 목록 리턴
+	@Override
+	public List<String> getAvailableRooms(ProgramRoomCheckDTO request) {
+	    List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+
+	    return rooms.stream()
+	        .filter(room -> !infoRepository.existsByRoomAndOverlap(
+	            room,
+	            request.getStartDate(),
+	            request.getEndDate(),
+	            request.getDaysOfWeek()
+	        ))
+	        .toList();
 	}
 
 	// 신청 대상자 여부 판단
@@ -276,6 +340,40 @@ public class ProgramServiceImpl implements ProgramService {
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
 		return program.getApplyEndAt().toLocalDate().isAfter(LocalDate.now());
+	}
+
+	// 사용자 프로그램 신청 취소
+	@Override
+	public void cancelProgram(Long progUseNo) {
+		ProgramUse programUse = useRepository.findById(progUseNo)
+				.orElseThrow(() -> new IllegalArgumentException("신청 내역이 존재하지 않습니다."));
+
+		useRepository.delete(programUse);
+	}
+
+	// 사용자 신청 리스트
+	@Override
+	public List<ProgramUseDTO> getUseListByMember(String mid) {
+		List<ProgramUse> list = useRepository.findByMember_Mid(mid);
+
+		return list.stream().map(use -> {
+			ProgramInfo info = use.getProgramInfo();
+
+			// 상태 계산: 현재 날짜 기준 강의종료 여부 판단
+			String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
+
+			// 요일 리스트 → 문자열
+			String dayOfWeekStr = info.getDaysOfWeek() != null
+					? info.getDaysOfWeek().stream().map(Enum::name).collect(Collectors.joining(", "))
+					: "";
+
+			return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt())
+					.progNo(info.getProgNo()).mid(mid).progName(info.getProgName()).teachName(info.getTeachName())
+					.startDate(info.getStartDate()).endDate(info.getEndDate()).startTime(info.getStartTime().toString())
+					.endTime(info.getEndTime().toString()).dayOfWeek(dayOfWeekStr).room(info.getRoom())
+					.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
+					.build();
+		}).collect(Collectors.toList());
 	}
 
 	// 파일 다운로드 로직 구현

@@ -1,0 +1,179 @@
+import { useMemo } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getProgramList } from "../../api/programApi";
+import { useSearchHandler } from "../../hooks/useSearchHandler";
+import { usePagination } from "../../hooks/usePage";
+import SearchSelectComponent from "../common/SearchSelectComponent";
+import SelectComponent from "../common/SelectComponent";
+import Loading from "../../routers/Loading";
+import Button from "../common/Button";
+
+const ProgramAdminComponent = () => {
+    const searchFieldMap = {
+        "프로그램명": "progName",
+        "강사명": "teachName",
+    };
+
+    const searchOptions = Object.keys(searchFieldMap);
+    const orderByOption = useMemo(() => ({ 오름차순: "asc", 내림차순: "desc" }), []);
+    const sortByOption = useMemo(() => ({ 등록일: "createdAt" }), []);
+    const sizeOption = useMemo(() => ({ "10개씩": "10", "50개씩": "50", "100개씩": "100" }), []);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const { handleSearch } = useSearchHandler({ tab: "program" });
+
+    const today = new Date();
+    const aMonthAgo = new Date(today);
+    aMonthAgo.setDate(today.getDate() - 30);
+
+    const dateFrom = searchParams.get("startDate") || aMonthAgo.toISOString().slice(0, 10);
+    const dateTo = searchParams.get("endDate") || today.toISOString().slice(0, 10);
+    const orderBy = searchParams.get("orderBy") || "desc";
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const size = parseInt(searchParams.get("size") || "10");
+
+    const rawOption = searchParams.get("option");
+    const option = Object.values(searchFieldMap).includes(rawOption)
+        ? rawOption
+        : searchFieldMap[rawOption] || "progName";
+    const query = searchParams.get("query") || "";
+
+    const { data = { content: [], totalElements: 0 }, isLoading } = useQuery({
+        queryKey: ["programList", searchParams.toString()],
+        queryFn: () => {
+            const params = {
+                option: option,
+                query: query,
+                startDate: dateFrom,
+                endDate: dateTo,
+                sort: `${sortBy},${orderBy}`,
+                size,
+            };
+            if (query) {
+                params[option] = query;
+            }
+            return getProgramList(params);
+        },
+    });
+
+    const { renderPagination } = usePagination(data, searchParams, setSearchParams, isLoading);
+
+    const defaultCategory = useMemo(() => {
+        const entry = Object.entries(searchFieldMap).find(([label, field]) => field === option);
+        return entry ? entry[0] : "프로그램명";
+    }, [option]);
+
+    return (
+        <div className="container mx-auto px-4 py-8 w-full">
+            {isLoading && <Loading text="목록 불러오는 중..." />}
+
+            <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">프로그램 관리</h1>
+
+            {/* 검색 조건 헤더 */}
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-100 p-3 min-h-30">
+                <SearchSelectComponent
+                    options={searchOptions}
+                    defaultCategory={defaultCategory}
+                    input={query}
+                    handleSearch={handleSearch}
+                    selectClassName="mr-2 md:mr-5 whitespace-nowrap"
+                    dropdownClassName="w-28 md:w-32 whitespace-nowrap"
+                    className="w-full md:w-[50%] min-w-0"
+                    inputClassName="w-full bg-white"
+                />
+
+                <div className="flex items-center gap-3 text-sm">
+                    <label>등록일</label>
+                    <input
+                        type="date"
+                        name="startDate"
+                        value={dateFrom}
+                        onChange={(e) => {
+                            const p = new URLSearchParams(searchParams);
+                            p.set("startDate", e.target.value);
+                            setSearchParams(p);
+                        }}
+                        className="border rounded p-2"
+                    />
+                    <span>~</span>
+                    <input
+                        type="date"
+                        name="endDate"
+                        value={dateTo}
+                        onChange={(e) => {
+                            const p = new URLSearchParams(searchParams);
+                            p.set("endDate", e.target.value);
+                            setSearchParams(p);
+                        }}
+                        className="border rounded p-2"
+                    />
+                </div>
+            </div>
+
+            {/* 정렬 */}
+            <div className="flex justify-end items-center mb-5 gap-3">
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("sortBy", value);
+                    setSearchParams(p);
+                }} value={sortBy} options={sortByOption} />
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("orderBy", value);
+                    setSearchParams(p);
+                }} value={orderBy} options={orderByOption} />
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("size", value);
+                    setSearchParams(p);
+                }} value={size.toString()} options={sizeOption} />
+            </div>
+
+            {/* 테이블 */}
+            <div className="shadow-md rounded-lg overflow-x-auto">
+                <table className="w-full bg-white text-center">
+                    <thead className="bg-[#00893B] text-white text-ms">
+                        <tr>
+                            <th className="py-3 px-6">강사명</th>
+                            <th className="py-3 px-6">프로그램명</th>
+                            <th className="py-3 px-6">신청현황</th>
+                            <th className="py-3 px-6">강의상태</th>
+                            <th className="py-3 px-6">등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-sm text-gray-800">
+                        {!isLoading && data.content.length === 0 ? (
+                            <tr>
+                                <td colSpan="5" className="py-10 text-gray-500">등록된 프로그램이 없습니다.</td>
+                            </tr>
+                        ) : (
+                            data.content.map((item, idx) => (
+                                <tr key={idx} className="border-b">
+                                    <td className="py-3 px-4">{item.teachName}</td>
+                                    <td className="py-3 px-4">{item.progName}</td>
+                                    <td className="py-3 px-4">{item.current} / {item.capacity}</td>
+                                    <td className="py-3 px-4">{item.status}</td>
+                                    <td className="py-3 px-4">{item.createdAt}</td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* 등록 버튼 */}
+            <div className="flex justify-end mt-8">
+                <Button onClick={() => navigate("/admin/programregister")}>
+                    프로그램 등록
+                </Button>
+            </div>
+
+            {/* 페이지네이션 */}
+            <div className="mt-6">{renderPagination()}</div>
+        </div>
+    );
+};
+
+export default ProgramAdminComponent;

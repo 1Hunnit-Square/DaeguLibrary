@@ -85,7 +85,7 @@ const defaultMenuItems = [
         { name: '관심도서', link: '/mylibrary/interested?page=1&option=전체' },
         { name: '희망도서', link: `/mylibrary/request?year=${currentYear}` },
         { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
-        { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
+        { name: '시설이용 신청 내역', link: '/mylibrary/usedfacility' },
         { name: '맞춤정보', link: '/mylibrary/personalized' }
       ]
     }
@@ -105,7 +105,7 @@ const defaultMenuItems = [
         { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
         { name: '회원관리', link: '/admin/membermanagement?page=1' },
         { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
-
+        { name: '프로그램·시설 관리', link: '/admin/progmanagement' },
       ]
     }];
 

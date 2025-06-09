@@ -1,5 +1,7 @@
 package com.dglib.repository.program;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +14,9 @@ public interface ProgramUseRepository extends JpaRepository<ProgramUse, Long>{
 	
 	@Query("SELECT COUNT(p) FROM ProgramUse p WHERE p.programInfo.progNo = :progNo")
 	int countByProgram(@Param("progNo") Long progNo);
+	
+	List<ProgramUse> findByMember_Mid(String mid);
+
 
 
 }

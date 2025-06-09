@@ -33,7 +33,7 @@ public class WebConfig implements WebMvcConfigurer {
 						.codecs(configurer -> configurer.defaultCodecs()
 								.maxInMemorySize(-1))
 						.build())
-				.baseUrl("http://localhost:8000")
+				.baseUrl("https://dglib-python.fly.dev")
 				.build();
 	}
 	

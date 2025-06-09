@@ -93,6 +93,8 @@ const ProgramComponent = () => {
                 return <span className={`${base} bg-green-600 text-white`}>신청가능</span>;
             case '신청전':
                 return <span className={`${base} bg-blue-200 text-blue-800`}>신청전</span>;
+            case '모집마감':
+                return <span className={`${base} bg-gray-500 text-white`}>모집마감</span>
             case '신청마감':
                 return <span className={`${base} bg-gray-500 text-white`}>신청마감</span>;
             default:
@@ -163,7 +165,20 @@ const ProgramComponent = () => {
                                     <p className="text-sm mb-2"><strong>신청기간:</strong> {dayjs(program.applyStartAt).format('YYYY-MM-DD HH:mm')} ~ {dayjs(program.applyEndAt).format('YYYY-MM-DD HH:mm')}</p>
                                     <p className="text-sm mb-2"><strong>운영기간:</strong> {program.startDate} ~ {program.endDate}</p>
                                     <p className="text-sm mb-2"><strong>수강대상:</strong> {program.target}</p>
-                                    <p className="text-sm mb-2"><strong>모집인원:</strong> [선착순] {program.current} / {program.capacity}명</p>
+                                    <p className="text-sm mb-2">
+                                        <strong>모집인원:</strong> [선착순]{" "}
+                                        <span
+                                            className={`
+                                                font-semibold
+                                                ${program.current / program.capacity >= 0.8
+                                                    ? "text-red-600"
+                                                    : "text-blue-600"
+                                                }
+                                            `}
+                                        >
+                                            {program.current}
+                                        </span> / {program.capacity}명
+                                    </p>
                                 </div>
                                 <div className="ml-4 self-center">
                                     {renderStatusBadge(status)}

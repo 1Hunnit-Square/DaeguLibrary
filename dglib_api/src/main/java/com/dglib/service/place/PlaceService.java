@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.dglib.dto.place.PlaceDTO;
+import com.dglib.dto.place.PlaceSearchConditionDTO;
 import com.dglib.dto.place.ReservationStatusDTO;
 
 public interface PlaceService {
@@ -28,4 +31,8 @@ public interface PlaceService {
 	boolean isDuplicateReservation(String mid, String room, LocalDate date); // 동일 시설 중복 예약 여부
 
 	List<PlaceDTO> getReservedTimes(String room, LocalDate date); // 특정 날짜의 시간대별 예약 내역
+	
+	// ===== 관리자 =====
+	Page<PlaceDTO> getListByAdmin(PlaceSearchConditionDTO cond);
+
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationStatusDTO {
-	
+	//날짜별 예약 현황 (캘린더용)
 	private LocalDate date;
 	private boolean closed;              // 휴관 여부
 	private String reason;               // 사유 (공휴일/ 정기휴관일/ 개관일 등)

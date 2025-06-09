@@ -4,10 +4,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.place.PlaceDTO;
+import com.dglib.dto.place.PlaceSearchConditionDTO;
 import com.dglib.dto.place.ReservationStatusDTO;
 import com.dglib.service.place.PlaceService;
 
@@ -88,4 +98,12 @@ public class PlaceController {
 		List<PlaceDTO> list = placeService.getReservedTimes(room, useDate);
 		return ResponseEntity.ok(list);
 	}
+	
+	// 관리자 - 조건 검색 및 페이징
+	@GetMapping("/admin")
+	public ResponseEntity<Page<PlaceDTO>> getListByAdmin(@ModelAttribute PlaceSearchConditionDTO cond) {
+	    Page<PlaceDTO> list = placeService.getListByAdmin(cond);
+	    return ResponseEntity.ok(list);
+	}
+
 }

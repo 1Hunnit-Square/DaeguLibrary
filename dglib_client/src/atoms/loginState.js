@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
 import { getCookie } from "../util/cookieUtil";
 
 const loginState = atom({
@@ -37,6 +37,18 @@ export const memberRoleSelector = selector({
         return login?.roleName || null;
     }
 })
+
+export const checkAuthSelector = selectorFamily({
+  key: 'userDataSelector',
+  get: (userId) =>({ get }) => {
+    const mid = get(memberIdSelector);
+    const role = get(memberRoleSelector);
+    if((userId != null && userId == mid) || role == "ADMIN"){
+        return true;
+    } else
+    return false;
+  },
+});
 
 function loadCookie(){
     const memberInfo = getCookie("auth") ?? {};

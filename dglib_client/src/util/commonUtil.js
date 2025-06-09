@@ -13,8 +13,17 @@ export const fileSize = (bytes) => {
 
 export const imgReplace = (content) => {
     if(!content){
-    return;
+    return "";
   }
     const replaced = content.replace(/image:\/\//g,`${API_SERVER_HOST}${API_ENDPOINTS.view}/`);
+  return replaced;
+}
+
+export const contentReplace = (content) => {
+    if(!content){
+    return "";
+  }
+    const pattern = new RegExp(`${API_SERVER_HOST}${API_ENDPOINTS.view}/`, 'g');
+    const replaced = content.replace(pattern,"image://");
   return replaced;
 }

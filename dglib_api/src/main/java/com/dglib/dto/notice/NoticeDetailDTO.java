@@ -13,7 +13,9 @@ public class NoticeDetailDTO {
 	private boolean isPinned;
 	private int viewCount;
 	private String name;
+	private String writerMid;
 	private LocalDateTime postedAt;
+	private LocalDateTime modifiedAt;
 	private List<NoticeFileDTO> fileDTO;
 	
 

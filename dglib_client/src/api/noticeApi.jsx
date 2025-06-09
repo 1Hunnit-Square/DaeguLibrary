@@ -9,6 +9,11 @@ export const getNoticeList = async (params) => {
     return res.data;
 }
 
+export const getNoticePinnedList = async () => {
+    const res = await axiosClient.get(`${prefix}/listPinned`);
+    return res.data;
+}
+
 export const getNoticeDetail = async (path) => {
     const res = await axiosClient.get(`${prefix}/${path}`);
     return res.data;
@@ -16,6 +21,17 @@ export const getNoticeDetail = async (path) => {
 
 export const regNotice = async (params) => {
     const header = { headers: {"Content-Type": 'multipart/form-data'}};
-    const res = await axios.post(`${prefix}/register`, params, header);
+    const res = await axiosClient.post(`${prefix}/register`, params, header);
+    return res.data;
+}
+
+export const modNotice = async (path, params) => {
+    const header = { headers: {"Content-Type": 'multipart/form-data'}};
+    const res = await axiosClient.put(`${prefix}/${path}`, params, header);
+    return res.data;
+}
+
+export const delNotice = async (path) => {
+    const res = await axiosClient.delete(`${prefix}/${path}`);
     return res.data;
 }

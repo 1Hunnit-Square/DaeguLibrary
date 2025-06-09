@@ -5,14 +5,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Button from "../common/Button";
-import { getNoticeList } from "../../api/noticeApi";
+import { getNoticeList, getNoticePinnedList } from "../../api/noticeApi";
 import TableComponent from "../common/TableComponent";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
+import { memberRoleSelector } from "../../atoms/loginState";
+import { useRecoilValue } from "recoil";
 
 const NoticeListComponent = () => {
     const [ searchURLParams, setSearchURLParams] = useSearchParams();
     const navigate = useNavigate();
-
 
  const { data: noticeData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
         queryKey: ['noticeList', searchURLParams.toString()],
@@ -33,7 +34,10 @@ const NoticeListComponent = () => {
                         }
     });
 
-    
+ const { data: pinnedList } = useQuery({
+  queryKey: ['noticePinnedList', searchURLParams.toString()],
+  queryFn: () => getNoticePinnedList() 
+    });
 
 
     const { renderPagination } = usePagination(
@@ -79,7 +83,7 @@ const toDate = (dateTime) => {
           buttonClassName="right-2"
         />
       </div>
-        <TableComponent data={noticeData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"ano"} />
+        <TableComponent data={noticeData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"ano"} pinnedList ={pinnedList} />
       
       <div className="flex justify-end mt-4">
         <Button onClick={() => navigate("/community/notice/new")}>글쓰기</Button>

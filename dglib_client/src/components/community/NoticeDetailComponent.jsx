@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getNoticeDetail } from "../../api/noticeApi";
+import { delNotice, getNoticeDetail } from "../../api/noticeApi";
 import { useParams } from "react-router-dom";
 import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../routers/Loading";
-import { memberIdSelector } from "../../atoms/loginState";
-import { useRecoilValue } from "recoil";
+import { checkAuthSelector } from "../../atoms/loginState";
+import { useRecoilValue, useRecoilValueLoadable } from "recoil";
 import DOMPurify from 'dompurify';
 import { API_SERVER_HOST } from "../../api/config";
 import Download from "../common/Download";
@@ -21,7 +21,24 @@ const { data, isLoading, error, refetch } = useQuery({
         refetchOnWindowFocus: false,
     });
 const navigate = useNavigate();
-const mid = useRecoilValue(memberIdSelector);
+
+  const checkAuthLoadable = useRecoilValueLoadable(checkAuthSelector(data?.writerMid));
+
+  const checkAuth = useMemo(()=> checkAuthLoadable.contents, [checkAuthLoadable]);
+
+
+const handleDelete = () => {
+    const delCheck = confirm("글을 정말로 삭제하시겠습니까?");
+    delCheck && delNotice(ano).then(res =>{
+        alert("글 삭제가 완료되었습니다.");
+        navigate("/community/notice");
+    }
+    ).catch( error => {
+        console.log(error);
+        alert("글 삭제에 오류가 있습니다.");
+    })
+
+}
 
        return (
          <div className = "my-10">
@@ -76,11 +93,12 @@ const mid = useRecoilValue(memberIdSelector);
                    }
     
                 <div className="flex justify-end gap-2">
-                    {mid && (
+                    {checkAuth && (
                         <>
                             <Button onClick={() => navigate(`/community/notice/edit/${ano}`)}
                             className="bg-gray-500 hover:bg-gray-600">수정하기</Button>
-                            <Button className="bg-gray-500 hover:bg-gray-600">삭제하기</Button>
+                            <Button onClick={handleDelete} 
+                            className="bg-gray-500 hover:bg-gray-600">삭제하기</Button>
                         </>
                     )}
                     <Button onClick={() => navigate(-1)}>돌아가기</Button>

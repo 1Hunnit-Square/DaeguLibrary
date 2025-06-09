@@ -8,7 +8,8 @@ import com.dglib.entity.notice.Notice;
 public class NoticeSpecifications {
 	public static Specification<Notice> fromDTO(NoticeSearchDTO dto) {
         return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
-        		.and((root, query, cb) -> cb.equal(root.get("isHidden"), false));
+        		.and((root, query, cb) -> cb.equal(root.get("isHidden"), false))
+        		.and((root, query, cb) -> cb.equal(root.get("isPinned"), false));
     }
 
 

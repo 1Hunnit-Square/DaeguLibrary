@@ -68,10 +68,10 @@ const defaultMenuItems = [
       link: '/community/notice',
       subMenus: [
         { name: '공지사항', link: '/community/notice' },
-        { name: '새소식', link: '/community/news' },
+        { name: '새소식', link: '/community/event' },
         { name: '문의게시판', link: '/community/qna' },
         { name: '도서관갤러리', link: '/community/gallery' },
-        { name: '보도자료', link: '/community/press' },
+        { name: '보도자료', link: '/community/news' },
         { name: '도서기증', link: '/community/donation' }
       ]
     },

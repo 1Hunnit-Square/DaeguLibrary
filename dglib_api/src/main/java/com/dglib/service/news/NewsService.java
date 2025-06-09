@@ -10,6 +10,7 @@ import com.dglib.dto.news.NewsDTO;
 import com.dglib.dto.news.NewsDetailDTO;
 import com.dglib.dto.news.NewsListDTO;
 import com.dglib.dto.news.NewsSearchDTO;
+import com.dglib.dto.news.NewsUpdateDTO;
 
 public interface NewsService {
 
@@ -17,7 +18,7 @@ public interface NewsService {
 	void register(NewsDTO dto, List<MultipartFile> images, String dirName);
 	
 	//수정
-	void update(Long nno, NewsDTO dto);
+	void update(Long nno, NewsUpdateDTO dto, List<MultipartFile> files);
 	
 	//상세 조회
 	NewsDetailDTO getDetail(Long nno);

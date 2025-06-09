@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dglib.entity.news.News;
 import com.dglib.entity.news.NewsImage;
 
 public interface NewsImageRepository extends JpaRepository<NewsImage, Long> {
@@ -18,4 +23,8 @@ public interface NewsImageRepository extends JpaRepository<NewsImage, Long> {
 	// 파일 번호로 단일 조회 (필요 시)
 	Optional<NewsImage> findByIno(Long ino);
 
+	@Modifying
+	@Transactional
+	@Query("DELETE FROM NewsImage ni WHERE ni.news = :news")
+	void deleteByNews(@Param("news") News news);
 }

@@ -9,6 +9,7 @@ import CheckBox from "./CheckBox";
 import { fileSize } from "../../util/commonUtil";
 import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
+import { contentReplace } from "../../util/commonUtil";
 
 const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, upload = ["file", "image"], modMap}) => {
   const quillRef = useRef(null);
@@ -155,7 +156,7 @@ const handleClick = () => {
   const paramData = new FormData();
 
   useTitle && paramData.append("title", title.trim());
-  paramData.append("content", content);
+  paramData.append("content", contentReplace(content));
   files.forEach((file) => {
     paramData.append("files", file);
   });
@@ -163,7 +164,7 @@ const handleClick = () => {
     paramData.append("urlList", url);
   });
   oldfileList.forEach((file) => {
-    paramData.append("oldfiles", file);
+    paramData.append("oldFiles", file.file.path);
   });
 
   usePinned && paramData.append("pinned", pinned);

@@ -23,7 +23,7 @@ const LoginPage = () => {
     return (
         <Layout sideOn={false}>
         <SubHeader subTitle="로그인" mainTitle="기타" />
-        <div className="mx-auto text-center">
+        <div className="mx-auto text-center border border-gray-300 rounded-lg w-100 my-10">
         <div className="mt-10 mb-3">
         대구 도서관에 오신 것을 환영합니다.
         </div>

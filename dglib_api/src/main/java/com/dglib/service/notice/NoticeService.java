@@ -19,6 +19,7 @@ public interface NoticeService {
 	NoticeDetailDTO getDetail(Long ano); //상세 조회
 	Page<NoticeListDTO> findAll (NoticeSearchDTO searchDTO, Pageable pageable);
 	List<NoticeListDTO> findPinned();
+	List<NoticeListDTO> findTop(int count);
 	void delete(Long ano); //삭제
 	
 }

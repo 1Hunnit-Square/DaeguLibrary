@@ -77,6 +77,11 @@ public class NoticeController {
 		return ResponseEntity.ok(noticeService.findAll(searchDTO, pageable));
 	}
 	
+	@GetMapping("/listTop")
+	public ResponseEntity<List<NoticeListDTO>> listTopNotice(@RequestParam int count){	
+		return ResponseEntity.ok(noticeService.findTop(count));
+	}
+	
 	@GetMapping("/listPinned")
 	public ResponseEntity<List<NoticeListDTO>> listPinNotice(){
 		return ResponseEntity.ok(noticeService.findPinned());

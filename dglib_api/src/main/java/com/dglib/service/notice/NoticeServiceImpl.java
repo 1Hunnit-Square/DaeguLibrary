@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -247,6 +248,21 @@ public class NoticeServiceImpl implements NoticeService {
 					NoticeListDTO noticeListDTO = new NoticeListDTO();
 					modelMapper.map(notice, noticeListDTO);
 					noticeListDTO.setName(notice.getMember().getName());
+					return noticeListDTO;
+					})
+				.collect(Collectors.toList());
+		
+		return dtoList;
+	}
+
+	@Override
+	public List<NoticeListDTO> findTop(int count) {
+		Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "postedAt"));
+		List<Notice> noticeList = noticeRepository.findAll(pageable).getContent();
+		List<NoticeListDTO> dtoList = noticeList.stream()
+				.map(notice -> {
+					NoticeListDTO noticeListDTO = new NoticeListDTO();
+					modelMapper.map(notice, noticeListDTO);
 					return noticeListDTO;
 					})
 				.collect(Collectors.toList());

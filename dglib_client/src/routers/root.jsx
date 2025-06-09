@@ -32,6 +32,7 @@ const LibraryBookSearch = lazy(()=> import ("../components/admin/LibraryBookSear
 const FindAccount = lazy(()=> import ("../pages/FindAccountPage"));
 const InfoMod = lazy(()=> import ("../pages/InfoModPage"));
 const EbookViewer = lazy(() => import("../components/books/EbookViewerComponent"));
+const KakaoRedirect = lazy(() => import("../pages/KakaoRedirectPage"));
 
 
 
@@ -121,6 +122,10 @@ const root = createBrowserRouter([
     {
         path: "viewer",
         element: <Suspense fallback={<Loading />}><EbookViewer /></Suspense>
+    },
+    {
+        path: "login/kakao",
+        element: <Suspense fallback={<Loading />}><KakaoRedirect /></Suspense>
     }
 
 

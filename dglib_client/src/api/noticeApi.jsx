@@ -14,6 +14,11 @@ export const getNoticePinnedList = async () => {
     return res.data;
 }
 
+export const getNoticeTopList = async (param) => {
+    const res = await axiosClient.get(`${prefix}/listTop`, { params : param });
+    return res.data;
+}
+
 export const getNoticeDetail = async (path) => {
     const res = await axiosClient.get(`${prefix}/${path}`);
     return res.data;

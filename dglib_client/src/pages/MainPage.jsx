@@ -3,6 +3,7 @@ import QMenuComponent from "../components/main/QMenuComponent";
 import GenreMenu from "../menus/GenreMenu";
 import GenreComponent from "../components/main/GenreComponent";
 import ClosedInfoComponent from "../components/main/ClosedInfoComponent";
+import BoardMenu from "../menus/BoardMenu";
 
 const MainPage = () => {
     return (
@@ -21,7 +22,7 @@ const MainPage = () => {
                         <div className="w-[55%]">
                             <div className="flex flex-col space-y-4">
                                 <div className="bg-white rounded-lg shadow-sm h-[200px]">
-                                    공지사항
+                                <BoardMenu />
                                 </div>
                                 <div className="bg-white rounded-lg shadow-sm h-[120px]">
                                     독서 마라톤 대회

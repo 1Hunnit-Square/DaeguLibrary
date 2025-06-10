@@ -1,4 +1,4 @@
-package com.dglib.dto.news;
+package com.dglib.dto.gallery;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,14 +6,13 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class NewsDetailDTO {
+public class GalleryDetailDTO {
+
 	private String title;
 	private String content;
-	private boolean isPinned;
 	private int viewCount;
 	private String name;
 	private LocalDateTime postedAt;
 	private LocalDateTime modifiedAt;
-	private List<NewsImageDTO> imageDTO;
-	
+	private List<GalleryImageDTO> imageDTO;
 }

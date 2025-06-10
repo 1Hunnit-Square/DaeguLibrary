@@ -1,9 +1,7 @@
 import { usePagination } from "../../hooks/usePage";
-import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import SelectComponent from "../common/SelectComponent";
 import Button from "../common/Button";
 import { getNewsList } from "../../api/newsApi";
 import TableComponent from "../common/TableComponent";
@@ -61,16 +59,16 @@ const NewsListComponent = () => {
     }
 
     return (
-        <div className="p-10">
+        <div className="p-4 md:p-10">
             <div className="mb-4 flex justify-end">
                 <SearchSelectComponent
-                    options={["제목", "내용", "작성자"]}
+                    options={["제목", "내용"]}
                     handleSearch={handleSearch}
                     input={searchURLParams.get("query") || ""}
                     defaultCategory={searchURLParams.get("option") || "제목"}
                     selectClassName="w-20 md:w-28"
                     dropdownClassName="w-24 md:w-28"
-                    className="w-full md:w-[50%] mx-end"
+                    className="w-full md:w-[50%] ml-auto"
                     inputClassName="w-full"
                     buttonClassName="right-2"
                 />

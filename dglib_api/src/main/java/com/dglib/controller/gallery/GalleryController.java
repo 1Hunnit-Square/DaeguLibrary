@@ -1,4 +1,4 @@
-package com.dglib.controller.news;
+package com.dglib.controller.gallery;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,36 +19,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dglib.dto.news.NewsDTO;
-import com.dglib.dto.news.NewsDetailDTO;
-import com.dglib.dto.news.NewsListDTO;
-import com.dglib.dto.news.NewsSearchDTO;
-import com.dglib.dto.news.NewsUpdateDTO;
-import com.dglib.service.news.NewsService;
+import com.dglib.dto.gallery.GalleryDTO;
+import com.dglib.dto.gallery.GalleryDetailDTO;
+import com.dglib.dto.gallery.GalleryListDTO;
+import com.dglib.dto.gallery.GallerySearchDTO;
+import com.dglib.dto.gallery.GalleryUpdateDTO;
+import com.dglib.service.gallery.GalleryService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/news")
-public class NewsController {
-	private final NewsService newsService;
-	private final String DIRNAME = "news";
+@RequestMapping("/api/gallery")
+public class GalleryController {
+	private final GalleryService galleryService;
+	private final String DIRNAME = "gallery";
 
 	@PostMapping("/register")
-	public ResponseEntity<String> manageMember(@ModelAttribute NewsDTO newsDTO,
+	public ResponseEntity<String> managerMember(@ModelAttribute GalleryDTO galleryDTO,
 			@RequestParam(required = false) List<MultipartFile> files) {
-		newsService.register(newsDTO, files, DIRNAME);
+		galleryService.register(galleryDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("/{nno}")
-	public ResponseEntity<NewsDetailDTO> getDetail(@PathVariable Long nno) {
-		return ResponseEntity.ok(newsService.getDetail(nno));
+	@GetMapping("/{gno}")
+	public ResponseEntity<GalleryDetailDTO> getDetail(@PathVariable Long gno) {
+		return ResponseEntity.ok(galleryService.getDetail(gno));
 	}
 
 	@GetMapping("/list")
-	public ResponseEntity<Page<NewsListDTO>> manageMember(@ModelAttribute NewsSearchDTO searchDTO) {
+	public ResponseEntity<Page<GalleryListDTO>> manageMember(@ModelAttribute GallerySearchDTO searchDTO) {
 		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
 		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
 		String sortBy = Optional.ofNullable(searchDTO.getSortBy()).orElse("postedAt");
@@ -57,20 +57,21 @@ public class NewsController {
 		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		return ResponseEntity.ok(newsService.findAll(searchDTO, pageable));
+		return ResponseEntity.ok(galleryService.findAll(searchDTO, pageable));
 	}
 
-	@PutMapping("/{nno}")
-	public ResponseEntity<String> updateNews(@PathVariable Long nno, @ModelAttribute NewsUpdateDTO newsUpdateDTO,
+	@PutMapping("/{gno}")
+	public ResponseEntity<String> updateGallery(@PathVariable Long gno, 
+			@ModelAttribute GalleryUpdateDTO galleryUpdateDTO,
 			@RequestParam(required = false) List<MultipartFile> images) {
-		System.out.println("지금 받은 데이터들" + newsUpdateDTO);
-		newsService.update(nno, newsUpdateDTO, images, DIRNAME);
+		System.out.println("지금 받은 데이터들" + galleryUpdateDTO);
+		galleryService.update(gno, galleryUpdateDTO, images, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 
-	@DeleteMapping("/{nno}")
-	public ResponseEntity<NewsDetailDTO> deleteNews(@PathVariable Long nno) {
-		newsService.delete(nno);
+	@DeleteMapping("/{gno}")
+	public ResponseEntity<GalleryDetailDTO> deleteGallery(@PathVariable Long gno) {
+		galleryService.delete(gno);
 		return ResponseEntity.noContent().build();
 	}
 }

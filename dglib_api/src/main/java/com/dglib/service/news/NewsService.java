@@ -20,7 +20,7 @@ public interface NewsService {
 	//수정
 	void update(Long nno, NewsUpdateDTO dto, List<MultipartFile> images, String dirName);
 	
-	//상세 조회
+	//상세보기
 	NewsDetailDTO getDetail(Long nno);
 	
 	//검색

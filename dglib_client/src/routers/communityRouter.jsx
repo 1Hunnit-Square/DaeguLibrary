@@ -8,20 +8,24 @@ import QnaNewComponent from "../components/community/QnaNewComponent";
 import QnaEditComponent from "../components/community/QnaEditComponent";
 import AnswerNewComponent from "../components/community/AnswerNewComponent";
 import AnswerEditComponent from "../components/community/AnswerEditComponent";
-import NewsListComponent from "../components/community/NewsListComponent";
-import NewsNewComponent from "../components/community/NewsNewComponent";
+
 
 const Notice = lazy(() => import("../components/community/NoticeListComponent"));
+const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
+const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
+const NoticeMod = lazy(() => import("../components/community/NoticeModComponent"));
 const News = lazy(() => import("../components/community/NewsListComponent"));
 const NewsNew = lazy(() => import("../components/community/NewsNewComponent"));
 const NewsDetail = lazy(() => import("../components/community/NewsDetailComponent"));
 const NewsMod = lazy(() => import("../components/community/NewsModComponent"));
 const Qna = lazy(() => import("../components/community/QnaComponent"));
-const Gallery = lazy(() => import("../components/community/GalleryComponent"));
+const Gallery = lazy(() => import("../components/community/GalleryListComponent"));
+const GalleryDetail = lazy(()=>import("../components/community/GalleryDetailComponent"));
+const GalleryNew = lazy(()=>import("../components/community/GalleryNewComponent"));
+const GalleryMod = lazy(()=>import("../components/community/GalleryModComponent"));
+
 const Donation = lazy(() => import("../components/community/DonationComponent"));
-const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
-const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
-const NoticeMod = lazy(() => import("../components/community/NoticeModComponent"));
+
 
 const communityRouter = () => ([
 
@@ -96,6 +100,18 @@ const communityRouter = () => ([
         path: "gallery",
         element: <Suspense fallback={<Loading />}><Gallery /></Suspense>
 
+    },
+      {
+        path: "gallery/:gno",
+        element: <Suspense fallback={<Loading />}><GalleryDetail /></Suspense>
+    },
+    {
+        path: "gallery/new",
+        element: <Suspense fallback={<Loading />}><GalleryNew /></Suspense>
+    },
+    {
+        path: "gallery/edit/:gno",
+        element: <Suspense fallback={<Loading />}><GalleryMod /></Suspense>
     },
     {
         path: "donation",

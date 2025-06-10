@@ -90,7 +90,7 @@ public class NewsServiceImpl implements NewsService {
 		newsRepository.save(news);
 	}
 
-	// 상세 조회
+	// 상세보기
 	public NewsDetailDTO getDetail(Long nno) {
 		News news = newsRepository.findById(nno).orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
 

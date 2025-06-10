@@ -1,6 +1,5 @@
 package com.dglib.entity.program;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,8 +9,6 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +42,7 @@ public class ProgramInfo {
 	private String teachName; // 강사명
 
 	@Column(nullable = false)
-	private LocalDateTime createdAt; // 동록일
+	private LocalDateTime createdAt = LocalDateTime.now(); // 동록일
 
 	@Column(nullable = false)
 	private LocalDateTime applyStartAt; // 신청시작기간
@@ -57,11 +54,9 @@ public class ProgramInfo {
 	private String status; // 신청전 / 신청중 / 신청마감 등
 
 	@ElementCollection
-	@Enumerated(EnumType.STRING)
-	@CollectionTable(name = "program_days", joinColumns = @JoinColumn(name = "program_id"))
+	@CollectionTable(name = "program_days", joinColumns = @JoinColumn(name = "prog_no"))
 	@Column(name = "day_of_week", nullable = false)
-	private List<DayOfWeek> daysOfWeek;
-	// 수강요일(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
+	private List<Integer> daysOfWeek;
 
 	@Column(nullable = false, length = 20)
 	private String room; // 장소
@@ -92,7 +87,9 @@ public class ProgramInfo {
 
 	@PrePersist
 	public void prePersist() {
-		this.createdAt = LocalDateTime.now();
+		if (this.createdAt == null) {
+			this.createdAt = LocalDateTime.now();
+		}
 	}
 
 }

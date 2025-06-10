@@ -1,49 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { getProgramDetail, getApplicantsByProgram, deleteProgram, cancelProgram } from "../../api/programApi";
 import Button from "../common/Button";
 import Download from "../common/Download";
 import dayjs from "dayjs";
+import { usePagination } from "../../hooks/usePage";
 
 const ProgramAdminDetailComponent = () => {
     const { progNo } = useParams();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [program, setProgram] = useState(null);
     const [applicants, setApplicants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    // 페이지네이션 상태
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-
-    const totalPages = Math.ceil(applicants.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = applicants.slice(startIndex, startIndex + itemsPerPage);
-
-    const renderPagination = () => (
-        <div className="flex justify-center mt-4 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                >
-                    {i + 1}
-                </button>
-            ))}
-        </div>
-    );
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [programRes, applicantsRes] = await Promise.all([
                     getProgramDetail(progNo),
-                    getApplicantsByProgram(progNo)
+                    getApplicantsByProgram(progNo),
                 ]);
                 setProgram(programRes);
                 setApplicants(applicantsRes);
+                console.log(programRes);
             } catch (error) {
                 console.error("데이터 로딩 오류:", error);
             } finally {
@@ -71,13 +52,34 @@ const ProgramAdminDetailComponent = () => {
             try {
                 await cancelProgram(progUseNo);
                 alert("취소되었습니다.");
-                setApplicants(prev => prev.filter(a => a.progUseNo !== progUseNo));
+                setApplicants((prev) =>
+                    prev.filter((a) => a.progUseNo !== progUseNo)
+                );
             } catch (err) {
                 console.error(err);
                 alert("취소 중 오류 발생");
             }
         }
     };
+
+    const currentPage = Number(searchParams.get("page")) || 1;
+    const pageSize = 10;
+    const totalPages = Math.ceil(applicants.length / pageSize);
+    const paginatedData = applicants.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    const { renderPagination, pageClick } = usePagination(
+        {
+            content: applicants,
+            totalPages,
+            pageable: { pageNumber: currentPage - 1 },
+        },
+        searchParams,
+        setSearchParams,
+        isLoading
+    );
 
     if (isLoading || !program) return <p>불러오는 중...</p>;
 
@@ -88,9 +90,11 @@ const ProgramAdminDetailComponent = () => {
                 <Button onClick={() => navigate(`/admin/programedit/${progNo}`)}>수정</Button>
                 <Button onClick={handleDelete} className="bg-red-500 hover:bg-red-600">삭제</Button>
             </div>
+
             <div className="flex justify-center font-bold mb-4">
                 <p className="text-xl text-green-800">{program.progName}</p>
             </div>
+
             <div className="bg-white p-6 rounded-xl shadow-md space-y-2 mb-10">
                 {[
                     ["운영기간", `${program.startDate} ~ ${program.endDate}`],
@@ -124,7 +128,7 @@ const ProgramAdminDetailComponent = () => {
             {/* 신청자 목록 */}
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold mb-4">신청 회원</h3>
-                {currentData.length > 0 ? (
+                {Array.isArray(applicants) && applicants.length > 0 ? (
                     <>
                         <table className="w-full text-sm border">
                             <thead>
@@ -133,25 +137,19 @@ const ProgramAdminDetailComponent = () => {
                                     <th className="border p-2">회원ID</th>
                                     <th className="border p-2">이름</th>
                                     <th className="border p-2">이메일</th>
-                                    <th className="border p-2">주소</th>
-                                    <th className="border p-2">성별</th>
-                                    <th className="border p-2">전화번호</th>
-                                    <th className="border p-2">생년월일</th>
+                                    <th className="border p-2">연락처</th>
                                     <th className="border p-2">신청일</th>
                                     <th className="border p-2">신청 취소</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map((a, i) => (
+                                {paginatedData.map((a, i) => (
                                     <tr key={a.progUseNo} className="text-center border-t">
-                                        <td className="border p-2">{startIndex + i + 1}</td>
+                                        <td className="border p-2">{(currentPage - 1) * pageSize + i + 1}</td>
                                         <td className="border p-2">{a.mid}</td>
                                         <td className="border p-2">{a.name}</td>
                                         <td className="border p-2">{a.email}</td>
-                                        <td className="border p-2">{a.addr}</td>
-                                        <td className="border p-2">{a.gender}</td>
                                         <td className="border p-2">{a.phone}</td>
-                                        <td className="border p-2">{a.birthDate}</td>
                                         <td className="border p-2">
                                             {a.applyAt ? dayjs(a.applyAt).format("YYYY-MM-DD HH:mm") : "-"}
                                         </td>
@@ -171,7 +169,7 @@ const ProgramAdminDetailComponent = () => {
                                 ))}
                             </tbody>
                         </table>
-                        {renderPagination()}
+                        <div className="mt-6">{renderPagination()}</div>
                     </>
                 ) : (
                     <p>신청한 회원이 없습니다.</p>

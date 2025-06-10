@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getProgramList } from "../../api/programApi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getProgramList, deleteProgram } from "../../api/programApi";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
 import { usePagination } from "../../hooks/usePage";
 import SearchSelectComponent from "../common/SearchSelectComponent";
@@ -32,6 +32,7 @@ const ProgramAdminComponent = () => {
     const dateTo = searchParams.get("endDate") || today.toISOString().slice(0, 10);
     const orderBy = searchParams.get("orderBy") || "desc";
     const sortBy = searchParams.get("sortBy") || "createdAt";
+    const page = parseInt(searchParams.get("page") || "1");
     const size = parseInt(searchParams.get("size") || "10");
 
     const rawOption = searchParams.get("option");
@@ -64,6 +65,19 @@ const ProgramAdminComponent = () => {
         const entry = Object.entries(searchFieldMap).find(([label, field]) => field === option);
         return entry ? entry[0] : "프로그램명";
     }, [option]);
+
+    // 삭제 기능
+    const queryClient = useQueryClient();
+    const deleteMutation = useMutation({
+        mutationFn: deleteProgram,
+        onSuccess: () => {
+            alert("삭제가 완료되었습니다.");
+            queryClient.invalidateQueries(["programList"]);
+        },
+        onError: () => {
+            alert("삭제 중 오류가 발생했습니다.");
+        },
+    });
 
     return (
         <div className="container mx-auto px-4 py-8 w-full">
@@ -136,26 +150,58 @@ const ProgramAdminComponent = () => {
                 <table className="w-full bg-white text-center">
                     <thead className="bg-[#00893B] text-white text-ms">
                         <tr>
+                            <th className="py-3 px-6">번호</th>
                             <th className="py-3 px-6">강사명</th>
                             <th className="py-3 px-6">프로그램명</th>
                             <th className="py-3 px-6">신청현황</th>
                             <th className="py-3 px-6">강의상태</th>
                             <th className="py-3 px-6">등록일</th>
+                            <th className="py-3 px-6">등록삭제</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm text-gray-800">
                         {!isLoading && data.content.length === 0 ? (
                             <tr>
-                                <td colSpan="5" className="py-10 text-gray-500">등록된 프로그램이 없습니다.</td>
+                                <td colSpan="7" className="py-10 text-gray-500">등록된 프로그램이 없습니다.</td>
                             </tr>
                         ) : (
                             data.content.map((item, idx) => (
                                 <tr key={idx} className="border-b">
-                                    <td className="py-3 px-4">{item.teachName}</td>
-                                    <td className="py-3 px-4">{item.progName}</td>
-                                    <td className="py-3 px-4">{item.current} / {item.capacity}</td>
-                                    <td className="py-3 px-4">{item.status}</td>
-                                    <td className="py-3 px-4">{item.createdAt}</td>
+                                    <td className="py-3">{idx + 1 + (page - 1) * size}</td>
+                                    <td className="py-3 px-4 font-semibold">{item.teachName}</td>
+                                    <td
+                                        className="py-4 px-4 font-semibold cursor-pointer hover:underline"
+                                        onClick={() => navigate(`/admin/programdetail/${item.progNo}`)}
+                                    >
+                                        {item.progName}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        <span
+                                            className={`font-bold ${item.capacity > 0 && item.current / item.capacity >= 0.8
+                                                ? "text-red-600"
+                                                : "text-blue-700"
+                                                }`}
+                                        >
+                                            {item.current}
+                                        </span>
+                                        {" / "}
+                                        {item.capacity}
+                                    </td>
+                                    <td className="py-3 px-4 font-semibold">{item.status}</td>
+                                    <td className="py-3 px-4 font-semibold">{item.createdAt}</td>
+                                    <td className="py-3 px-4">
+                                        <Button
+                                            className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                                            onClick={() => {
+                                                const confirmed = window.confirm("정말 삭제하시겠습니까?");
+                                                if (confirmed) {
+                                                    deleteMutation.mutate(item.progNo);
+                                                }
+                                            }}
+                                        >
+                                            삭제
+                                        </Button>
+                                    </td>
                                 </tr>
                             ))
                         )}
@@ -163,7 +209,6 @@ const ProgramAdminComponent = () => {
                 </table>
             </div>
 
-            {/* 등록 버튼 */}
             <div className="flex justify-end mt-8">
                 <Button onClick={() => navigate("/admin/programregister")}>
                     프로그램 등록

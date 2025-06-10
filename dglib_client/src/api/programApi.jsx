@@ -31,7 +31,7 @@ export const getAvailableRooms = async (payload) => {
 
 // 등록
 export const registerProgram = async (formData) => {
-  const response = await axios.post(PROGRAM_URL, formData, {
+  const response = await axios.post(`${PROGRAM_URL}/register`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
@@ -47,16 +47,8 @@ export const updateProgram = async (progNo, formData) => {
 
 // 삭제
 export const deleteProgram = async (progNo) => {
-  const response = await axios.delete(`${PROGRAM_URL}/${progNo}`);
+  const response = await axios.delete(`${PROGRAM_URL}/delete/${progNo}`);
   return response.data;
-};
-
-// 첨부파일 다운로드
-export const downloadProgramFile = async (progNo) => {
-  const response = await axios.get(`${PROGRAM_URL}/file/${progNo}`, {
-    responseType: 'blob',
-  });
-  return response;
 };
 
 // 프로그램 신청(회원용)
@@ -84,6 +76,12 @@ export const getProgramUseList = async (mid) => {
 // 프로그램 신청 취소(회원용)
 export const cancelProgram = async (progUseNo) => {
   const response = await axios.delete(`${API_SERVER_HOST}/api/programs/cancel/${progUseNo}`);
+  return response.data;
+};
+
+// 특정 프로그램의 신청자 목록 조회(관리자)
+export const getApplicantsByProgram = async (progNo) => {
+  const response = await axios.get(`${API_SERVER_HOST}/api/programs/${progNo}/applicants`);
   return response.data;
 };
 

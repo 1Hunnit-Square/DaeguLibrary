@@ -1,6 +1,5 @@
 package com.dglib.service.program;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -9,11 +8,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,41 +74,37 @@ public class ProgramServiceImpl implements ProgramService {
 			int applicants = useRepository.countByProgram(program.getProgNo());
 			dto.setCurrent(applicants);
 			dto.setOriginalName(program.getFileName());
-
 			dto.setStatus(calculateStatus(program.getApplyStartAt(), program.getApplyEndAt()));
+			dto.setCreatedAt(program.getCreatedAt());
 
 			return dto;
 		});
 	}
-	
+
 	// 프로그램 목록 검색
 	@Override
 	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
-	    // 검색 타입에 따라 searchType 설정
-		
-	    String searchType = null;
-	    if ("progName".equals(option) || "teachName".equals(option)) {
-	        searchType = option;
-	    }
-	    
-	    Page<ProgramInfo> result = infoRepository.searchAdminPrograms(
-	        searchType,
-	        query,
-	        status,
-	        null,
-	        null,
-	        pageable
-	    );
+		// 검색 타입에 따라 searchType 설정
+		option = (option != null && !option.isBlank()) ? option : "all";
+		query = (query != null && !query.isBlank()) ? query : null;
+		status = (status != null && !status.isBlank()) ? status : null;
 
-	    return result.map(p -> {	    	
-	        ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
-	        dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-	        dto.setOriginalName(p.getFileName());
-	        dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
-	        return dto;
-	    });
+		String searchType = null;
+		if ("progName".equals(option) || "teachName".equals(option)) {
+			searchType = option;
+		}
+
+		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, status, null, null, pageable);
+
+		return result.map(p -> {
+			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+			dto.setOriginalName(p.getFileName());
+			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
+
+			return dto;
+		});
 	}
-
 
 	// 배너 리스트 조회
 	@Override
@@ -121,12 +113,21 @@ public class ProgramServiceImpl implements ProgramService {
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	public ProgramInfo getProgramEntity(Long progNo) {
+		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+	}
+
 	// 프로그램 리스트 조회
 	@Override
 	public List<ProgramInfoDTO> getAllPrograms() {
 		LocalDate today = LocalDate.now();
 		return infoRepository.findAll().stream().filter(info -> !info.getApplyEndAt().toLocalDate().isBefore(today))
-				.map(info -> modelMapper.map(info, ProgramInfoDTO.class)).collect(Collectors.toList());
+				.map(info -> {
+					ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
+
+					return dto;
+				}).collect(Collectors.toList());
 	}
 
 	// 프로그램 상세 조회
@@ -136,23 +137,21 @@ public class ProgramServiceImpl implements ProgramService {
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
 		ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
+
 		dto.setOriginalName(info.getFileName());
 
 		dto.setStatus(calculateStatus(info.getApplyStartAt(), info.getApplyEndAt()));
 
+		dto.setCurrent(useRepository.countByProgram(progNo));
+
 		return dto;
-	}
-
-	@Override
-	public ProgramInfo getProgramEntity(Long progNo) {
-		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-
 	}
 
 	// 프로그램 등록
 	@Override
 	public void registerProgram(ProgramInfoDTO dto, MultipartFile file) {
 		ProgramInfo info = modelMapper.map(dto, ProgramInfo.class);
+
 		setFileInfo(info, file);
 		infoRepository.save(info);
 	}
@@ -180,12 +179,11 @@ public class ProgramServiceImpl implements ProgramService {
 
 		modelMapper.map(dto, origin);
 
-		// 파일이 없으면 기존 파일 정보 유지
 		if (file == null || file.isEmpty()) {
 			origin.setFilePath(originalFilePath);
 			origin.setFileName(originalFilename);
 		} else {
-			setFileInfo(origin, file); // 새로운 파일 정보 반영
+			setFileInfo(origin, file);
 		}
 
 		infoRepository.save(origin);
@@ -195,6 +193,19 @@ public class ProgramServiceImpl implements ProgramService {
 	private void setFileInfo(ProgramInfo info, MultipartFile file) {
 
 		if (file != null && !file.isEmpty()) {
+			// 새롭게 추가된 파일 확장자 직접 검사 로직
+			String originalFilename = file.getOriginalFilename();
+			if (originalFilename == null || originalFilename.isEmpty()) {
+				throw new IllegalArgumentException("파일 이름이 존재하지 않습니다.");
+			}
+
+			String lowerCaseFilename = originalFilename.toLowerCase();
+			boolean isAllowedDocument = lowerCaseFilename.endsWith(".hwp") || lowerCaseFilename.endsWith(".pdf");
+
+			if (!isAllowedDocument) {
+				throw new IllegalArgumentException("hwp 또는 pdf 파일만 업로드 가능합니다.");
+			}
+			// 여기까지 파일 확장자 검사 로직 추가
 
 			String oldPath = info.getFilePath();
 
@@ -210,8 +221,9 @@ public class ProgramServiceImpl implements ProgramService {
 
 			List<Object> uploaded = fileUtil.saveFiles(List.of(file), "program");
 
+			@SuppressWarnings("unchecked")
 			Map<String, String> fileInfo = (Map<String, String>) uploaded.get(0);
-			System.out.println("✔ 업로드된 파일 originalName: " + fileInfo.get("originalName"));
+			System.out.println("업로드된 파일 originalName: " + fileInfo.get("originalName"));
 			info.setFileName(fileInfo.get("originalName"));
 			info.setFilePath(fileInfo.get("filePath"));
 		}
@@ -222,14 +234,24 @@ public class ProgramServiceImpl implements ProgramService {
 	public void deleteProgram(Long progNo) {
 		ProgramInfo programToDelete = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+
+		if (programToDelete.getCreatedAt() == null) {
+			programToDelete.setCreatedAt(LocalDateTime.now());
+		}
+
+		// 신청자 데이터 삭제
+		List<ProgramUse> uses = useRepository.findByProgramInfo_ProgNo(progNo);
+		useRepository.deleteAll(uses);
+
+		// 파일 삭제
 		if (programToDelete.getFilePath() != null && !programToDelete.getFilePath().isEmpty()) {
 			try {
 				fileUtil.deleteFiles(List.of(programToDelete.getFilePath()));
 			} catch (RuntimeException e) {
-				System.err.println("파일 삭제 실패: " + programToDelete.getFilePath() + " - " + e.getMessage());
-				throw e;
+				throw new RuntimeException("파일 삭제 중 문제가 발생했습니다. 관리자에게 문의해주세요.");
 			}
 		}
+
 		infoRepository.delete(programToDelete);
 	}
 
@@ -279,37 +301,53 @@ public class ProgramServiceImpl implements ProgramService {
 		useRepository.save(programUse);
 
 	}
-	
-	// 모든 강의실(문화교실1~3)이 해당 기간과 요일에 이미 예약되어 있는지 확인
+
+	// 관리자용 신청자 목록 조회
+	@Override
+	public List<ProgramUseDTO> getApplicantsByProgram(Long progNo) {
+		List<ProgramUse> list = useRepository.findWithMemberByProgramInfo_ProgNo(progNo); // join fetch 사용
+
+		return list.stream().map(use -> {
+			ProgramInfo info = use.getProgramInfo();
+			Member member = use.getMember();
+
+			String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
+
+			List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
+
+			return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt())
+					.progName(info.getProgName()).teachName(info.getTeachName()).startDate(info.getStartDate())
+					.endDate(info.getEndDate()).startTime(info.getStartTime().toString())
+					.endTime(info.getEndTime().toString()).daysOfWeek(dayOfWeekIntList).room(info.getRoom())
+					.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
+					.progNo(info.getProgNo()).mid(member != null ? member.getMid() : null)
+					.name(member != null ? member.getName() : null).email(member != null ? member.getEmail() : null)
+					.phone(member != null ? member.getPhone() : null).build();
+		}).collect(Collectors.toList());
+	}
+
+	// 모든 시설이 해당 기간과 요일에 이미 예약되어 있는지 확인
 	@Override
 	public boolean isAllRoomsOccupied(ProgramRoomCheckDTO request) {
-	    List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
 
-	    long count = rooms.stream()
-	        .filter(room -> infoRepository.existsByRoomAndOverlap(
-	            room,
-	            request.getStartDate(),
-	            request.getEndDate(),
-	            request.getDaysOfWeek()
-	        ))
-	        .count();
+		List<Integer> dayInts = request.getDaysOfWeek();
 
-	    return count >= 3;
+		long count = rooms.stream().filter(room -> infoRepository.existsByRoomAndOverlap(room, request.getStartDate(),
+				request.getEndDate(), dayInts)).count();
+
+		return count >= 3;
 	}
-	
+
 	// 가능한 강의실 목록 리턴
 	@Override
 	public List<String> getAvailableRooms(ProgramRoomCheckDTO request) {
-	    List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
 
-	    return rooms.stream()
-	        .filter(room -> !infoRepository.existsByRoomAndOverlap(
-	            room,
-	            request.getStartDate(),
-	            request.getEndDate(),
-	            request.getDaysOfWeek()
-	        ))
-	        .toList();
+		List<Integer> dayInts = request.getDaysOfWeek();
+
+		return rooms.stream().filter(room -> !infoRepository.existsByRoomAndOverlap(room, request.getStartDate(),
+				request.getEndDate(), dayInts)).toList();
 	}
 
 	// 신청 대상자 여부 판단
@@ -359,47 +397,18 @@ public class ProgramServiceImpl implements ProgramService {
 		return list.stream().map(use -> {
 			ProgramInfo info = use.getProgramInfo();
 
-			// 상태 계산: 현재 날짜 기준 강의종료 여부 판단
 			String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
 
-			// 요일 리스트 → 문자열
-			String dayOfWeekStr = info.getDaysOfWeek() != null
-					? info.getDaysOfWeek().stream().map(Enum::name).collect(Collectors.joining(", "))
-					: "";
+			List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
 
 			return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt())
-					.progNo(info.getProgNo()).mid(mid).progName(info.getProgName()).teachName(info.getTeachName())
-					.startDate(info.getStartDate()).endDate(info.getEndDate()).startTime(info.getStartTime().toString())
-					.endTime(info.getEndTime().toString()).dayOfWeek(dayOfWeekStr).room(info.getRoom())
-					.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
-					.build();
+					.progNo(info.getProgNo()).mid(use.getMember().getMid()).progName(info.getProgName())
+					.teachName(info.getTeachName()).startDate(info.getStartDate()).endDate(info.getEndDate())
+					.startTime(info.getStartTime().toString()).endTime(info.getEndTime().toString())
+					.daysOfWeek(dayOfWeekIntList).room(info.getRoom()).capacity(info.getCapacity())
+					.current(useRepository.countByProgram(info.getProgNo())).status(status).build();
 		}).collect(Collectors.toList());
+
 	}
 
-	// 파일 다운로드 로직 구현
-	@Override
-	public FileDownloadInfo downloadProgramFile(Long progNo) throws IOException {
-		ProgramInfo info = infoRepository.findById(progNo)
-				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-
-		ResponseEntity<Resource> fileUtilResponse = fileUtil.getFile(info.getFilePath(), null); // type은 null로 전달 (썸네일이
-																								// 아니므로)
-
-		if (!fileUtilResponse.getStatusCode().is2xxSuccessful()) {
-			throw new IOException("파일 다운로드 실패: " + fileUtilResponse.getStatusCode());
-		}
-
-		Resource resource = fileUtilResponse.getBody();
-		if (resource == null || !resource.exists()) {
-			throw new IllegalArgumentException("파일을 찾을 수 없거나 접근할 수 없습니다: " + info.getFilePath());
-		}
-
-		// Content-Type 추출 (FileUtil의 ResponseEntity에서 가져옴)
-		String contentType = fileUtilResponse.getHeaders().getContentType() != null
-				? fileUtilResponse.getHeaders().getContentType().toString()
-				: MediaType.APPLICATION_OCTET_STREAM_VALUE;
-
-		// FileDownloadInfo 객체를 생성하여 반환
-		return new FileDownloadInfo(resource, info.getFileName(), contentType);
-	}
 }

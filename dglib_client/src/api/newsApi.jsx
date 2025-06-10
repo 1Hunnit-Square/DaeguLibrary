@@ -23,14 +23,26 @@ export const regNews = async (params) => {
     return res.data;
 }
 
-// 수정
-export const updateNews = (nno, formData) => {
-    return axios.put(`${prefix}/${nno}`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-};
+// // 수정
+// export const modNews = (nno, formData) => {
+//   const accessToken = localStorage.getItem("accessToken");
+//   if (!accessToken) {
+//     throw new Error("accessToken이 존재하지 않습니다.");
+//   }
+
+//   return axiosClient.put(`/api/news/${nno}`, formData, {
+//     headers: {
+//       Authorization: `Bearer ${accessToken}`,
+//       "Content-Type": "multipart/form-data"
+//     }
+//   });
+// };
+
+export const modNews = async (path, params) => {
+    const header = { headers: {"Content-Type": 'multipart/form-data'}};
+    const res = await axiosClient.put(`${prefix}/${path}`, params, header);
+    return res.data;
+}
 
 // 삭제
 export const deleteNews = (nno) => {

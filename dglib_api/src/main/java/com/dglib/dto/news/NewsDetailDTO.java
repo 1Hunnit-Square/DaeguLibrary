@@ -13,6 +13,6 @@ public class NewsDetailDTO {
 	private int viewCount;
 	private String name;
 	private LocalDateTime postedAt;
-	private List<NewsFileDTO> fileDTO;
+	private List<NewsImageDTO> imageDTO;
 	
 }

@@ -67,9 +67,9 @@ const handleDelete=()=>{
                                 <td className="p-2 pl-3">{data.modifiedAt}</td></>}
                             </tr>
                         
-                        {!!data.fileDTO.length && (
+                        {!!data.imageDTO?.length && (
                             
-                                data.fileDTO.map((file, index) => 
+                                data.imageDTO.map((file, index) => 
                                         <tr key={index} className="border-b border-gray-300">
                                         <td className="p-2 font-semibold text-center">첨부 파일 ({index+1})</td>
                                         <td className="p-2 pl-3">

@@ -11,8 +11,8 @@ public class NewsUpdateDTO {
     private String content;
     private boolean pinned;
     private boolean hidden;
-    private Long mid;
+    private String mid;
 
     private List<String> urlList;
-    private List<NewsFileDTO> oldfiles;
+    private List<String> oldFiles;
 }

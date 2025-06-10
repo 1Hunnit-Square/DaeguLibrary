@@ -3,7 +3,7 @@ package com.dglib.dto.news;
 import lombok.Data;
 
 @Data
-public class NewsFileDTO {
+public class NewsImageDTO {
 
 	private String originalName;
 

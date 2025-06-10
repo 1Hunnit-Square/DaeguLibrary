@@ -1,7 +1,6 @@
 package com.dglib.service.news;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -18,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dglib.dto.news.NewsDTO;
 import com.dglib.dto.news.NewsDetailDTO;
-import com.dglib.dto.news.NewsFileDTO;
+import com.dglib.dto.news.NewsImageDTO;
 import com.dglib.dto.news.NewsListDTO;
 import com.dglib.dto.news.NewsSearchDTO;
 import com.dglib.dto.news.NewsUpdateDTO;
@@ -26,7 +25,6 @@ import com.dglib.entity.member.Member;
 import com.dglib.entity.news.News;
 import com.dglib.entity.news.NewsImage;
 import com.dglib.repository.member.MemberRepository;
-import com.dglib.repository.news.NewsImageRepository;
 import com.dglib.repository.news.NewsRepository;
 import com.dglib.repository.news.NewsSpecifications;
 import com.dglib.security.jwt.JwtFilter;
@@ -43,7 +41,6 @@ public class NewsServiceImpl implements NewsService {
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final FileUtil fileUtil;
-	private final NewsImageRepository newsImageRepository;
 
 	// 등록
 	@Override
@@ -95,24 +92,23 @@ public class NewsServiceImpl implements NewsService {
 
 	// 상세 조회
 	public NewsDetailDTO getDetail(Long nno) {
-		News news = newsRepository.findById(nno)
-				.orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
+		News news = newsRepository.findById(nno).orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
 
 		news.setViewCount(news.getViewCount() + 1);
 
 		NewsDetailDTO dto = new NewsDetailDTO();
 		modelMapper.map(news, dto);
 		dto.setName(news.getMember().getName());
-		
+
 		List<NewsImage> imageList = news.getImages();
 		if (imageList != null && !imageList.isEmpty()) {
-			List<NewsFileDTO> fileDTOList = imageList.stream().map(image -> {
-				NewsFileDTO fileDTO = new NewsFileDTO();
+			List<NewsImageDTO> fileDTOList = imageList.stream().map(image -> {
+				NewsImageDTO fileDTO = new NewsImageDTO();
 				modelMapper.map(image, fileDTO);
 				return fileDTO;
 			}).collect(Collectors.toList());
 
-			dto.setFileDTO(fileDTOList);
+			dto.setImageDTO(fileDTOList);
 		}
 
 		return dto;
@@ -120,58 +116,77 @@ public class NewsServiceImpl implements NewsService {
 
 	// 수정
 	@Override
-	public void update(Long nno, NewsUpdateDTO dto, List<MultipartFile> files) {
-
+	public void update(Long nno, NewsUpdateDTO dto, List<MultipartFile> images, String dirName) {
 	    News news = newsRepository.findById(nno)
 	            .orElseThrow(() -> new IllegalArgumentException("해당 보도자료가 존재하지 않습니다."));
 
-	    if(dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
-	         throw new IllegalArgumentException("제목을 입력해주세요.");         
-	      }
-	      
-	      if(dto.getContent() == null || dto.getContent().trim().isEmpty()) {
-	         throw new IllegalArgumentException("내용을 입력해주세요.");         
-	      }
-	      
-	      Pattern phonePattern = Pattern.compile("01[016789]-?\\d{3,4}-?\\d{4}");
-	      Matcher matcher = phonePattern.matcher(dto.getContent());
-	      if(matcher.find()) {
-	         throw new IllegalArgumentException("휴대폰 번호는 입력할 수 없습니다.");
-	      }
-	      
-	      if(!JwtFilter.checkAuth(news.getMember().getMid())) {
-	         throw new IllegalArgumentException("수정 권한이 없습니다.");
-	      }
-	      
-	    modelMapper.map(dto, news); // title, content, hidden, pinned 매핑
+	    if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
+	        throw new IllegalArgumentException("제목을 입력해주세요.");
+	    }
+
+	    if (dto.getContent() == null || dto.getContent().trim().isEmpty()) {
+	        throw new IllegalArgumentException("내용을 입력해주세요.");
+	    }
+
+	    Pattern phonePattern = Pattern.compile("01[016789]-?\\d{3,4}-?\\d{4}");
+	    Matcher matcher = phonePattern.matcher(dto.getContent());
+	    if (matcher.find()) {
+	        throw new IllegalArgumentException("휴대폰 번호는 입력할 수 없습니다.");
+	    }
+
+	    if (!JwtFilter.checkAuth(news.getMember().getMid())) {
+	        throw new IllegalArgumentException("수정 권한이 없습니다.");
+	    }
+
+	    modelMapper.map(dto, news);
 	    news.setModifiedAt(LocalDateTime.now());
 
-	    // 기존 이미지 제거
-	    List<NewsImage> oldImages = newsImageRepository.findByNews_Nno(nno);
-	    newsImageRepository.deleteAll(oldImages);
+	    // 기존 이미지 삭제
+	    List<NewsImage> delImages = null;
 
-	    // 새 이미지 저장 및 URL 반영
-	    List<NewsImage> imageList = new ArrayList<>();
-	    if (files != null && !files.isEmpty()) {
-	        List<Object> saved = fileUtil.saveFiles(files, "news");
+		if(dto.getOldFiles() != null) {
+			delImages = news.getImages().stream().filter(entity ->
+		!dto.getOldFiles().contains(entity.getFilePath())
+		).collect(Collectors.toList());
+		
+		
+		} else {
+			delImages = news.getImages();
+		}
+		
+		if(delImages != null && !delImages.isEmpty()) {
+		news.getImages().removeAll(delImages);
+		
+		List<String> filePaths = delImages.stream().map(NewsImage::getFilePath)
+	    .collect(Collectors.toList());
+		
+		fileUtil.deleteFiles(filePaths);
+		}
 
+	    // 새로운 이미지 저장
+	    if (images != null && !images.isEmpty()) {
 	        AtomicInteger index = new AtomicInteger(0);
-	        for (Object obj : saved) {
-	            NewsImage img = modelMapper.map(obj, NewsImage.class);
-	            img.setNews(news);
-	            
+	        List<Object> fileMap = fileUtil.saveFiles(images, dirName);
+	        List<NewsImage> fileList = fileMap.stream().map(obj -> {
 	            int i = index.getAndIncrement();
+	            NewsImage file = new NewsImage();
+	            modelMapper.map(obj, file);
+	            file.setNews(news);
+
 	            if (dto.getUrlList() != null && i < dto.getUrlList().size()) {
 	                String url = dto.getUrlList().get(i);
 	                if (!"null".equals(url)) {
-	                    news.setContent(news.getContent().replace(url, "image://" + img.getFilePath()));
+	                    String updatedContent = news.getContent().replace(url, "image://" + file.getFilePath());
+	                    news.setContent(updatedContent);
 	                }
 	            }
-	            imageList.add(img);
-	        }
+
+	            return file;
+	        }).collect(Collectors.toList());
+
+	        news.getImages().addAll(fileList);
 	    }
 
-	    news.setImages(imageList);
 	    newsRepository.save(news);
 	}
 
@@ -181,25 +196,42 @@ public class NewsServiceImpl implements NewsService {
 	public Page<NewsListDTO> findAll(NewsSearchDTO searchDTO, Pageable pageable) {
 		Specification<News> spec = NewsSpecifications.fromDTO(searchDTO);
 		Page<News> newsList = newsRepository.findAll(spec, pageable);
-		
+
 		Page<NewsListDTO> result = newsList.map(news -> {
 			NewsListDTO newsListDTO = new NewsListDTO();
 			modelMapper.map(news, newsListDTO);
 			newsListDTO.setName(news.getMember().getName());
-			
+
 			return newsListDTO;
 		});
-		
+
 		return result;
 	}
 
 	// 삭제
 	@Override
 	public void delete(Long nno) {
-	    News news = newsRepository.findById(nno)
-	            .orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
+		
+		News news = newsRepository.findById(nno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
+		
+		if(!JwtFilter.checkAuth(news.getMember().getMid())) {
+			throw new IllegalArgumentException("삭제 권한이 없습니다.");
+		}
+		
+		newsRepository.deleteById(nno);	
 
-	    newsImageRepository.deleteByNews(news);
-	    newsRepository.delete(news);
+		List<NewsImage> delImages = null; // 기존 파일 전부 삭제
+
+		delImages = news.getImages();
+		
+		if(delImages != null && !delImages.isEmpty()) {
+		news.getImages().removeAll(delImages);
+		
+		List<String> filePaths = delImages.stream().map(NewsImage::getFilePath)
+	    .collect(Collectors.toList());
+		
+		fileUtil.deleteFiles(filePaths);
+		}
 	}
 }

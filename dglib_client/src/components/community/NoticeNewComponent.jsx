@@ -41,11 +41,12 @@ useEffect(() => {
   
   if(!mid){
    moveToLogin();
-  }
+   return;
+  } 
 
   if(role != "ADMIN"){
     alert("글쓰기 권한이 없습니다.");
-    navigate(-1, {replace : true});
+    navigate("/community/notice",{replace: true});
   }
 
 },[]);

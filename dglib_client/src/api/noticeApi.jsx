@@ -5,22 +5,22 @@ import axiosClient from '../util/axiosClient';
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.notice}`;
 
 export const getNoticeList = async (params) => {
-    const res = await axiosClient.get(`${prefix}/list`, { params : params });
+    const res = await axios.get(`${prefix}/list`, { params : params });
     return res.data;
 }
 
 export const getNoticePinnedList = async () => {
-    const res = await axiosClient.get(`${prefix}/listPinned`);
+    const res = await axios.get(`${prefix}/listPinned`);
     return res.data;
 }
 
 export const getNoticeTopList = async (param) => {
-    const res = await axiosClient.get(`${prefix}/listTop`, { params : param });
+    const res = await axios.get(`${prefix}/listTop`, { params : param });
     return res.data;
 }
 
 export const getNoticeDetail = async (path) => {
-    const res = await axiosClient.get(`${prefix}/${path}`);
+    const res = await axios.get(`${prefix}/${path}`);
     return res.data;
 }
 

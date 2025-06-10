@@ -10,6 +10,10 @@ export const useMoveTo = () => {
     navigate({pathname: path}, {replace:true})
     }
 
+    const moveToReturn = () => {
+    navigate(-1);
+    }
+
     const moveToLogin = (message = "로그인이 필요합니다.", { replace = false } = {}) => {
         const currentPath = location.pathname;
         navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace });
@@ -29,5 +33,5 @@ export const useMoveTo = () => {
     };
 
 
-return {moveToPath, moveToLogin, moveToSaved};
+return {moveToPath, moveToLogin, moveToSaved, moveToReturn};
 }

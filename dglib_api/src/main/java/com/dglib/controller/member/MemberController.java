@@ -11,7 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -37,6 +39,7 @@ import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
+import com.dglib.dto.member.MemberDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
 import com.dglib.dto.member.MemberFindAccountDTO;
 import com.dglib.dto.member.MemberFindIdDTO;
@@ -51,8 +54,10 @@ import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.security.jwt.JwtFilter;
+import com.dglib.security.jwt.JwtProvider;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberCardService;
+import com.dglib.service.member.MemberDetailService;
 import com.dglib.service.member.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -64,6 +69,7 @@ public class MemberController {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberController.class);
 	private final MemberService memberService;
+	private final MemberDetailService memberDetailService;
 	private final MemberCardService cardService;
 	private final BookService bookService;
 
@@ -148,6 +154,22 @@ public class MemberController {
 		System.out.println(mid);
 		memberService.modifyMember(mid, modMemberDTO);
 		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("/kakaoAuth")
+	public ResponseEntity<Map<String, Object>> kakaoAuth(@RequestParam String accessToken) {
+		HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        String email = memberService.getKakaoEmail(headers);
+        try {
+        MemberDTO memberDTO = (MemberDTO) memberDetailService.loadUserByKakao(email);
+        	return ResponseEntity.ok(JwtProvider.responseToken(memberDTO));
+        } catch(UsernameNotFoundException e) {
+        	Map<String, Object> result = Map.of("error", e.getMessage());
+        	return ResponseEntity.ok(result);
+        }
+        
+		
 	}
 
 	@GetMapping("/interestedbook")

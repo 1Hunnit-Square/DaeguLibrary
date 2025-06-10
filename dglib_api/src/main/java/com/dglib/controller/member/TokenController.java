@@ -4,15 +4,24 @@ import java.util.Date;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dglib.dto.member.MemberDTO;
 import com.dglib.security.jwt.JwtException;
+import com.dglib.security.jwt.JwtFilter;
 import com.dglib.security.jwt.JwtProvider;
+import com.dglib.service.member.MemberDetailService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class TokenController {
+	
+	private final MemberDetailService memberDetailService;
 	
 	@PostMapping("/api/member/refresh")
 	public ResponseEntity<Map<String, Object>> refresh(@RequestHeader("Authorization") String authHeader, String refreshToken){
@@ -33,11 +42,23 @@ public class TokenController {
 		
 		Map<String, Object> claims = JwtProvider.validateToken(refreshToken);
 	
-		String newAccessToken = JwtProvider.generateToken(claims, 10);
+		String newAccessToken = JwtProvider.generateToken(claims, JwtProvider.accessExp);
 		String newRefreshToken = checkHourTime((Integer) claims.get("exp")) == true ? 
-				JwtProvider.generateToken(claims, 60*24) : refreshToken;
+				JwtProvider.generateToken(claims, JwtProvider.refreshExp) : refreshToken;
 		
 		return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken));
+	}
+	
+	
+	@GetMapping("/api/member/updateClaims")
+	public ResponseEntity<Map<String, Object>> reclaims(){
+		String mid = JwtFilter.getMid();
+		if(mid == null)
+			throw new JwtException("NULL_ID");
+		
+		MemberDTO memberDTO = (MemberDTO) memberDetailService.loadUserByUsername(mid);
+		
+		return ResponseEntity.ok(JwtProvider.responseToken(memberDTO));
 	}
 	
 	

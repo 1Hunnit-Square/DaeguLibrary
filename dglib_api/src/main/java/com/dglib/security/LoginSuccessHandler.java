@@ -19,16 +19,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException, ServletException {
 	MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal();
-	Map<String, Object> claims = memberDTO.getClaims();
-	
-	String accessToken = JwtProvider.generateToken(claims, 10);
-    String refreshToken = JwtProvider.generateToken(claims,60*24);
-    
-    claims.put("accessToken", accessToken);
-    claims.put("refreshToken", refreshToken);
-	
+	Map<String, Object> tokenMap = JwtProvider.responseToken(memberDTO);
 	Gson gson = new Gson();
-	String json = gson.toJson(claims);
+	String json = gson.toJson(tokenMap);
 	response.setContentType("application/json;charset=UTF-8");
 	response.getWriter().println(json);
 	

@@ -5,11 +5,12 @@ import PageModal from "../../components/common/PageModal";
 import { useState, useCallback } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
 import PhoneCheckComponent from "../../components/member/PhoneCheckComponent";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
 const navigate  = useNavigate();
+const location = useLocation();
 
 const handleAuth = useCallback(() => {
 setIsOpen(true);
@@ -22,7 +23,8 @@ setIsOpen(false);
 
 
 const handleSuccess = (pageData) => {
-navigate("/signup/join", { state: pageData });
+const prev = location.state || {};
+navigate("/signup/join", { state: { ...prev ,...pageData} });
 }
 
 const pageMap = {

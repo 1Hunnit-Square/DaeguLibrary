@@ -17,9 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
@@ -73,6 +78,7 @@ public class MemberServiceImpl implements MemberService {
 	private final EbookRepository ebookRepository;
 	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 	private LocalDate lastSuccessOverdueCheckDate;
+	private final String KAKAO_URL = "https://kapi.kakao.com/v2/user/me";
 
 	@Override
 	public Page<MemberSearchByMnoDTO> searchByMno(String mno, Pageable pageable) {
@@ -176,6 +182,31 @@ public class MemberServiceImpl implements MemberService {
 		}
 		memberRepository.save(member);
 	}
+	
+	@Override
+	public String getKakaoEmail(HttpHeaders headers) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+		
+		@SuppressWarnings("rawtypes")
+		ResponseEntity<Map> response = restTemplate.exchange(
+                KAKAO_URL,
+                HttpMethod.GET,
+                requestEntity,
+                Map.class
+        );
+		@SuppressWarnings("unchecked")
+		Map<String, Object> body = response.getBody();
+		
+		if(body == null)
+			throw new IllegalArgumentException("Response Not Exist");
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
+		String email = (String) kakaoAccount.get("email");
+		return email;
+	}
+	
 
 	public String setMno() {
 		String result = null;
@@ -207,11 +238,12 @@ public class MemberServiceImpl implements MemberService {
 			LOGGER.info("Member ID: {}, Overdue Count: {}", member.getMid(), count);
 			member.setPenaltyDate(LocalDate.now().plusDays(count - 1));
 			member.setState(MemberState.OVERDUE);
-			List<Member> releasedMember = memberRepository.findMembersWithPenaltyDateButNotOverdue();
-			releasedMember.forEach(m -> {
-				m.setPenaltyDate(null);
-				m.setState(MemberState.NORMAL);
-			});
+			
+		});
+		List<Member> releasedMember = memberRepository.findMembersWithPenaltyDateButNotOverdue();
+		releasedMember.forEach(m -> {
+			m.setPenaltyDate(null);
+			m.setState(MemberState.NORMAL);
 		});
 
 	}

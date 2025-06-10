@@ -17,6 +17,7 @@ const toDate = (dateTime) => {
 
     return(<div className="px-5">
     <table className="table-fixed w-full">
+        <tbody>
     { Array.isArray(pinnedList) && pinnedList.length !== 0 && pinnedList.map((data, index) => {
         return (
         <tr key = {index} onClick={()=> navigate(`/community/notice/${data.ano}`)} className="cursor-pointer hover:text-green-700">
@@ -28,6 +29,7 @@ const toDate = (dateTime) => {
         </tr>
         )})
     }
+    </tbody>
      </table>
      </div>);
 

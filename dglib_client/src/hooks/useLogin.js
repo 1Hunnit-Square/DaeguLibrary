@@ -1,7 +1,8 @@
-import { loginPost } from "../api/memberApi";
+import { loginPost, updateClaims } from "../api/memberApi";
 import { setCookie, removeCookie } from "../util/cookieUtil";
 import { useResetRecoilState, useRecoilState } from "recoil";
 import RecoilLoginState from "../atoms/loginState";
+import { loginKakao } from "../api/kakaoApi";
 
 export const useLogin = () => {
 
@@ -22,7 +23,26 @@ const doLogout = () => {
             localStorage.setItem('logout', Date.now());
         }
 
+        
+const doLoginKakao = async (token) => {
+    const paramData = new FormData();
+    paramData.append("accessToken", token);
+    const result = await loginKakao(paramData);
+    if(!result.error){
+    setCookie("auth",JSON.stringify(result), 1);
+    setLoginState(result);
+    }
+    return result;
+    }
 
-return{doLogin, doLogout};
+const loginUpdate = async () => {
+    const result = await updateClaims();
+    setCookie("auth",JSON.stringify(result), 1);
+    setLoginState(result);
+    return result;
+}
+
+
+return{doLogin, doLogout, loginUpdate, doLoginKakao};
 
 }

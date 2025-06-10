@@ -6,6 +6,10 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
+
+import com.dglib.dto.member.MemberDTO;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +18,10 @@ import io.jsonwebtoken.security.Keys;
 
 public class JwtProvider {
 
+	public static int accessExp = 10;
+	
+	public static int refreshExp = 60*24;
+	
 	private static String KEY = "We!@#Are!@#The!@#Awesome!@#Developers!@#Who!@#Conquered!@#The!@#World";
 	
 	public static String generateToken(Map<String, Object> claims, int min) {
@@ -62,6 +70,18 @@ public class JwtProvider {
 		return claims;
 	}
 	
+	
+	public static Map<String, Object> responseToken(MemberDTO memberDTO){
+		Map<String, Object> claims = memberDTO.getClaims();
+		
+		String accessToken = JwtProvider.generateToken(claims, accessExp);
+	    String refreshToken = JwtProvider.generateToken(claims, refreshExp);
+	    
+	    claims.put("accessToken", accessToken);
+	    claims.put("refreshToken", refreshToken);
+	    
+	    return claims;
+	}
 
 	
 }

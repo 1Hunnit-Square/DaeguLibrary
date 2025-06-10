@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import Button from "../common/Button";
 import SelectComponent from "../common/SelectComponent";
 import { postMemberManage } from "../../api/memberApi";
+import { memberIdSelector } from "../../atoms/loginState";
+import { useRecoilValue } from "recoil";
 
 const MemberModifyComponent = ({data, refetch}) => {
 
@@ -70,8 +72,8 @@ const MemberModifyComponent = ({data, refetch}) => {
         paramData.append("penaltyDate", modData.penaltyDate);
         }
 
-        postMemberManage(paramData).then(data => {
-            alert("적용되었습니다.");
+        postMemberManage(paramData).then(res => {
+            alert("완료 되었습니다. 해당 회원에 대한 설정은 현재 시점 이후 로그인 시 적용됩니다.");
             refetch();
         }).catch(e => {
             alert("오류가 발생하였습니다.");

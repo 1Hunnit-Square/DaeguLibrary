@@ -36,6 +36,8 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	
 	Optional<Member> findByMno(String mno);
 	
+	Optional<Member> findByKakao(String kakao);
+	
 	Long countByMnoLike(String mno);
 	
 	boolean existsByPhone(String phone);

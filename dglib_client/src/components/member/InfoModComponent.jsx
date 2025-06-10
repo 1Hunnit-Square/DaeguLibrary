@@ -150,7 +150,7 @@ const InfoModComponent = ({data, handleSuccess}) => {
       const params = toJsonParams(form);
     await modPost(params)
     .then(res => {
-      handleSuccess(params.mid, params.pw);
+      handleSuccess();
       
       }).catch(e => {
         if(e.response?.data.message == "ID Different"){

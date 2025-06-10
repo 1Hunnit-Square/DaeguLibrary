@@ -30,5 +30,16 @@ public class MemberDetailService implements UserDetailsService {
 		
 		return memberDTO;
 	}
+	
+	public UserDetails loadUserByKakao(String kakaoEmail) throws UsernameNotFoundException {
+		Optional<Member> optionalMember = memberRepository.findByKakao(kakaoEmail);
+		
+		Member member = optionalMember.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+		
+		MemberDTO memberDTO = new MemberDTO(member.getMid(), member.getPw(), member.getName(), member.getMno(), member.getRole().name());
+		
+		return memberDTO;
+	}
+	
 
 }

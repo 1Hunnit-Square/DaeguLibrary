@@ -13,6 +13,11 @@ export const loginPost = async (params) => {
     return res.data;
 }
 
+export const updateClaims = async () => {
+    const res = await axiosClient.get(`${prefix}/updateClaims`);
+    return res.data;
+}
+
 export const regPost = async (params) => {
     const header = { headers: {'Content-Type': 'application/json'}};
     const res = await axios.post(`${prefix}/register`, params, header);

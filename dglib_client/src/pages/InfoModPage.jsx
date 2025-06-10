@@ -16,7 +16,7 @@ const [ pwVerify , setPwVerify ] = useState("");
 const [ modPage, setModPage ] = useState(false);
 const [ memberData, setMemberData ] = useState({});
 const navigate = useNavigate();
-const { doLogin, doLogout } = useLogin();
+const { doLogout, loginUpdate } = useLogin();
 
 const handleChange = (e) => {
     setPwVerify(e.target.value);
@@ -52,22 +52,18 @@ useEffect(()=>{
 pwRef.current?.focus();
 },[])
 
-const handleSuccess = (id, pw) => {
- if(!pw)
-    pw = pwVerify;
+const handleSuccess = () => {
 
- doLogin({id : id, pw: pw}).then(data => {
-            console.log(data);
-            if(data.error){
-                alert("업데이트 된 정보를 불러오는데 실패했습니다. 다시 로그인해주세요.");
-                doLogout();
-                navigate("/");
-            }
-            else {
-                alert("정보 수정 완료");
-                navigate("/");
-            }
-        });
+loginUpdate().then(res => {
+        alert("정보 수정 완료");
+        navigate("/");
+    }).catch(error => {
+        console.error(error);
+        alert("업데이트 된 정보를 불러오는데 실패했습니다. 다시 로그인해주세요.");
+        doLogout();
+        navigate("/");
+
+    });
 
 }
 

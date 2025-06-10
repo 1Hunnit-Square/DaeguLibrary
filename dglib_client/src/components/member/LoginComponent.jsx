@@ -36,10 +36,10 @@ const LoginComponent = () =>{
             else {
                 moveToSaved();
             }
-        },[loginParam, savedId])
+        })
 
 
-        });
+        },[loginParam, savedId]);
 
     const handleChange = (e) => {
         setLoginParam(prev => ({
@@ -58,7 +58,7 @@ const LoginComponent = () =>{
     }
 
     return(
-        <div className= "w-60 mx-auto mb-10">
+        <div className= "w-60 mx-auto mb-12">
            <input type="text" required
            className="block w-55 mx-auto mt-5 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-500"
            name = {"id"} value = {loginParam.id} onChange={handleChange} placeholder="아이디를 입력하세요"
@@ -74,10 +74,10 @@ const LoginComponent = () =>{
                 <Link to="/find/account?tab=pw" className="hover:text-green-800">비밀번호 찾기</Link>
                 <Link to="/signup" className="hover:text-green-800">회원가입</Link>
                 </div>
-            <div class="flex items-center w-full my-5">
-            <div class="flex-grow border-t border-gray-300"></div>
-            <span class="px-4 text-sm text-gray-500">OR</span>
-            <div class="flex-grow border-t border-gray-300"></div>
+            <div className="flex items-center w-full my-5">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="px-4 text-sm text-gray-500">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
             </div>
             <Link to={kakaoURL()} className="w-full">
             <img src="./kakao_login.png" className="mx-auto" /></Link>

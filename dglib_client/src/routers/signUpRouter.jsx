@@ -5,6 +5,7 @@ import Loading from "./Loading";
 const TermsPage = lazy(()=> import ("../pages/signup/TermsPage"));
 const AuthPage = lazy(()=> import ("../pages/signup/AuthPage"));
 const JoinPage = lazy(()=> import ("../pages/signup/JoinPage"));
+const KakaoAccount = lazy(() => import("../pages/KakaoAccountPage"));
 
 const signUpRouter = () => ([
 
@@ -23,6 +24,10 @@ const signUpRouter = () => ([
     {
         path : "join",
         element: <Suspense fallback={<Loading />}><JoinPage /></Suspense>
+    },
+    {
+        path: "kakao",
+        element: <Suspense fallback={<Loading />}><KakaoAccount /></Suspense>
     }
 
 ])

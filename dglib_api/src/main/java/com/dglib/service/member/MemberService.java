@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
@@ -79,7 +80,7 @@ public interface MemberService {
 	
 	MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid);
 	
-	
+	public String getKakaoEmail(HttpHeaders headers);
 	
 
 

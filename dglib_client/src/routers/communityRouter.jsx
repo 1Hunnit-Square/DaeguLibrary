@@ -46,7 +46,7 @@ const communityRouter = () => ([
         element: <Suspense fallback={<Loading />}><NoticeNew /></Suspense>
     },
     {
-        path: "notice/edit/:nno",
+        path: "notice/edit/:ano",
         element: <Suspense fallback={<Loading />}><NoticeMod /></Suspense>
     },
     {

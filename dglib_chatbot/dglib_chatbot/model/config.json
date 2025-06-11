@@ -1,0 +1,20 @@
+{
+  "intent_labels": [
+    "기타",
+    "도서검색",
+    "작가검색",
+    "대출베스트",
+    "신간추천",
+    "봇소개"
+  ],
+  "ner_tags": [
+    "O",
+    "B-BOOK",
+    "I-BOOK",
+    "B-AUTHOR",
+    "I-AUTHOR",
+    "B-FORMAT",
+    "I-FORMAT"
+  ],
+  "max_length": 128
+}

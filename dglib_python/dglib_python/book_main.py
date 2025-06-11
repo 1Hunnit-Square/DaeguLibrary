@@ -8,16 +8,27 @@ from dglib_python.schedulers.book_updater import start_scheduler, stop_scheduler
 from dglib_python.services.aladin import get_total_results_count, get_books_by_page, get_aladin_keyword_by_isbn
 from dglib_python.services.info_naru import get_member_reco_books
 from pydantic import BaseModel
+import httpx
+from dglib_python.utils.client import set_client
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("서버 시작")
+    client = httpx.AsyncClient(timeout=10.0)
+    set_client(client)
+    
+    
+    
     await run_update_with_retry()
     start_scheduler()
 
     logger.info("도서 데이터 로드 완료")
 
     yield
+    
+    await client.aclose()
     stop_scheduler()
     logger.info("서버 종료")
 

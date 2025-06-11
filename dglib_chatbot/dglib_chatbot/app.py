@@ -6,6 +6,7 @@ import uuid
 from dglib_chatbot.session_manager import start_scheduler
 from contextlib import asynccontextmanager
 from dglib_chatbot.nlp import analyze_text
+from dglib_chatbot.response_prompt import client
 
 
 
@@ -15,14 +16,17 @@ class ChatRequest(BaseModel):
 class resetRequest(BaseModel):
     clientId: str
 
-app = FastAPI()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("챗봇 서버 시작")
     start_scheduler()
     yield
+    await client.aclose()
     logger.info("챗봇 서버 종료")
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/chatbot")

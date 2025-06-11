@@ -1,7 +1,7 @@
 from dglib_chatbot.config import logger, web_config
 import httpx
 
-
+client = httpx.AsyncClient(timeout=30.0)
 
 async def response_prompt(parts: str, nlp: dict) -> str:
 
@@ -39,17 +39,21 @@ async def response_prompt(parts: str, nlp: dict) -> str:
 
 
 
+
+
+
+
 async def generate_book_title_response(book_title: list) -> str:
     if not book_title:
         return  "넌 사용자의 응답에서 아무 정보도 얻지 못했어. 사용자가 요청한 책 제목을 응답에 포함시키지 마. 책 제목을 다시 정확히 알려달라고 귀엽게 응답해."
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"{web_config.API_GATE_URL}{web_config.API_GATE_ENDPOINT}/booktitle/{book_title[0]}")
+
+    response = await client.get(f"{web_config.API_GATE_URL}{web_config.API_GATE_ENDPOINT}/booktitle/{book_title[0]}")
 
    
     
     try:
         if not response.text.strip():
-            return f"책을 찾을 수 없다고 책 이름이 명확한지 다시 확인해 달라고 다채롭게 응답하세요. 책 제목은 '{book_title[0]}'이야. 이 제목 그대로 '' 안에 출력해 책 이외에 다른 글자는 절대 넣지마"
+            return f"책을 도서관에서 찾을수 없다고 반드시 말하고 책 이름이 명확한지 다시 확인해 달라고 다채롭게 응답하세요. 책 제목은 '{book_title[0]}'이야. 이 제목 그대로 '' 안에 출력해 책 이외에 다른 글자는 절대 넣지마"
         if response:
             logger.info(f"Book Title Response: {response.text}")
             data = response.json() 
@@ -71,9 +75,20 @@ async def generate_book_title_response(book_title: list) -> str:
 
     return response_text
 
+
+
+
 async def generate_author_response(author: list) -> str:
+    if not author:
+        return "넌 사용자의 응답에서 아무 정보도 얻지 못했어. 사용자가 요청한 작가 이름을 응답에 포함시키지 마. 작가 이름을 다시 정확히 알려달라고 귀엽게 응답해."
+    
+    response = await client.get(f"{web_config.API_GATE_URL}{web_config.API_GATE_ENDPOINT}/booktitle/{book_title[0]}")
+
     response_text = f"현재 데이터베이스에 연결 전이라 '{author}'작가에 대한 정보를 제공할 수 없다고 다채롭게 응답하세요. 데이터베이스 얘기 빼먹지마. 작가 이름은 {author}이야. 니 마음대로 바꾸지마"
     return response_text
+
+
+
 
 async def generate_default_response() -> str:
     response_text = f"자유롭게 응답하세요"

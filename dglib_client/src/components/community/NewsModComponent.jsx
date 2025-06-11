@@ -32,7 +32,7 @@ const NewsModComponent = () => {
     modNews(nno, paramData)
       .then(res => {
         alert("글을 수정하였습니다.");
-        navigate("/community/news");
+        navigate(`/community/news/${nno}`);
       })
       .catch((error) => {
         alert("글 수정에 실패했습니다.");

@@ -106,7 +106,7 @@ const handleDelete=()=>{
                             </Button>
                         </>
                     )}
-                    <Button onClick={() => navigate(-1)}>돌아가기</Button>
+                    <Button onClick={() => navigate("/community/gallery")}>돌아가기</Button>
                 </div>
                  </div>
            </div>

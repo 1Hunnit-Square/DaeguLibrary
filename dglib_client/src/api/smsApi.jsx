@@ -16,3 +16,25 @@ export const checkAuthCode = async (params) => {
     const res = await axios.get(`${prefix}/checkCode`, { params : params });
     return res.data;
 }
+
+export const regTemplate =  async (param) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    const res = await axios.post(`${prefix}/regTemplate`, param, header);
+    return res.data;
+}
+
+export const getTemplate = async (params) => {
+    const res = await axios.get(`${prefix}/getTemplate`, { params : params });
+    return res.data;
+}
+
+export const findTemplate = async (params) => {
+    const res = await axios.get(`${prefix}/findTemplate`, { params : params });
+    return res.data;
+}
+
+export const delTemplate = async (param) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    const res = await axios.post(`${prefix}/delTemplate`, param, header);
+    return res.data;
+}

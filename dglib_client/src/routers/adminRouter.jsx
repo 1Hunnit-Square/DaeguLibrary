@@ -10,7 +10,10 @@ const BookManagement = lazy(() => import("../components/admin/BookManagementComp
 const MemberManagement = lazy(() => import("../components/admin/MemberManagementComponent"));
 const EventManagement = lazy(() => import("../components/admin/EventManagementComponent"));
 const EbookManagement = lazy(() => import("../components/admin/EbookManagementComponent"));
-
+const BannerManagement = lazy(() => import("../components/admin/BannerManagementComponent"));
+const BoardManagement = lazy(() => import("../components/admin/BoardManagementComponent"));
+const SmsManagement = lazy(() => import("../components/admin/SmsManagementComponent"));
+const StatsManagement = lazy(() => import("../components/admin/StatsManagementComponent"));
 
 
 const adminRouter = () => ([
@@ -41,7 +44,23 @@ const adminRouter = () => ([
     {
         path: "ebookmanagement",
         element: <Suspense fallback={<Loading />}><EbookManagement /></Suspense>
-    }
+    },
+    {
+        path: "bannermanagement",
+        element: <Suspense fallback={<Loading />}><BannerManagement /></Suspense>
+    },
+    {
+        path: "boardmanagement",
+        element: <Suspense fallback={<Loading />}><BoardManagement /></Suspense>
+    },
+    {
+        path: "smsmanagement",
+        element: <Suspense fallback={<Loading />}><SmsManagement /></Suspense>
+    },
+    {
+        path: "statsmanagement",
+        element: <Suspense fallback={<Loading />}><StatsManagement /></Suspense>
+    },
 
 ])
 

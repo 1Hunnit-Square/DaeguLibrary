@@ -26,6 +26,10 @@ const AdminPage = () => {
         { id: "borrow", label: "대출예약관리", path: "/admin/borrow?tab=borrow&page=1" },
         { id: "member", label: "회원관리", path: "/admin/membermanagement?page=1" },
         { id: "eventcalendar", label: "이달의 행사 관리", path: "/admin/eventmanagement" },
+        { id: "banner", label: "배너관리", path: "/admin/bannermanagement" },
+        { id: "service", label: "게시판관리", path: "/admin/boardmanagement" },
+        { id: "sms", label: "SMS 관리", path: "/admin/smsmanagement" },
+        { id: "stats", label: "통계관리", path: "/admin/statsmanagement" },
         ], [getDateParams])
 
     useEffect(() => {

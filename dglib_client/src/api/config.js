@@ -11,10 +11,12 @@ export const API_ENDPOINTS = {
   place: '/api/places',
   qna: '/api/question',
   notice: '/api/notice',
+  news: '/api/news',
   chatbot: '/api/chatbot',
   bookapi: '/api/bookapi',
   view : '/api/view',
   program: '/api/programs',
+  gallery: '/api/gallery',
 };
 
 export const SMS_KEY = "CREATION";

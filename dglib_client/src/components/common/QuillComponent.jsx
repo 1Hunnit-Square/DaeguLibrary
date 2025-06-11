@@ -174,7 +174,7 @@ const handleClick = () => {
 }
 
 
-  const formats = useMemo(() => ["font", "size", "bold", "italic", "underline", "strike",
+  const formats = useMemo(() => ["font", "size", "bold", "italic", "underline", "strike", "align",
   "list", "bullet", "link", "image", "clean",
   "color", "background","file"
  ], []);

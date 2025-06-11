@@ -9,15 +9,22 @@ import QnaEditComponent from "../components/community/QnaEditComponent";
 import AnswerNewComponent from "../components/community/AnswerNewComponent";
 import AnswerEditComponent from "../components/community/AnswerEditComponent";
 
+
 const Notice = lazy(() => import("../components/community/NoticeListComponent"));
-const News = lazy(() => import("../components/community/NewsComponent"));
-const Qna = lazy(() => import("../components/community/QnaComponent"));
-const Gallery = lazy(() => import("../components/community/GalleryComponent"));
-const Press = lazy(() => import("../components/community/PressComponent"));
-const Donation = lazy(() => import("../components/community/DonationComponent"));
 const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
 const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
 const NoticeMod = lazy(() => import("../components/community/NoticeModComponent"));
+const News = lazy(() => import("../components/community/NewsListComponent"));
+const NewsNew = lazy(() => import("../components/community/NewsNewComponent"));
+const NewsDetail = lazy(() => import("../components/community/NewsDetailComponent"));
+const NewsMod = lazy(() => import("../components/community/NewsModComponent"));
+const Qna = lazy(() => import("../components/community/QnaComponent"));
+const Gallery = lazy(() => import("../components/community/GalleryListComponent"));
+const GalleryDetail = lazy(()=>import("../components/community/GalleryDetailComponent"));
+const GalleryNew = lazy(()=>import("../components/community/GalleryNewComponent"));
+const GalleryMod = lazy(()=>import("../components/community/GalleryModComponent"));
+
+const Donation = lazy(() => import("../components/community/DonationComponent"));
 
 
 const communityRouter = () => ([
@@ -39,13 +46,25 @@ const communityRouter = () => ([
         element: <Suspense fallback={<Loading />}><NoticeNew /></Suspense>
     },
     {
-        path: "notice/edit/:ano",
+        path: "notice/edit/:nno",
         element: <Suspense fallback={<Loading />}><NoticeMod /></Suspense>
     },
     {
         path: "news",
         element: <Suspense fallback={<Loading />}><News /></Suspense>
 
+    },
+    {
+        path: "news/:nno",
+        element: <Suspense fallback={<Loading />}><NewsDetail /></Suspense>
+    },
+    {
+        path: "news/new",
+        element: <Suspense fallback={<Loading />}><NewsNew /></Suspense>
+    },
+    {
+        path: "news/edit/:nno",
+        element: <Suspense fallback={<Loading />}><NewsMod /></Suspense>
     },
     {
         path: "qna",
@@ -82,10 +101,17 @@ const communityRouter = () => ([
         element: <Suspense fallback={<Loading />}><Gallery /></Suspense>
 
     },
+      {
+        path: "gallery/:gno",
+        element: <Suspense fallback={<Loading />}><GalleryDetail /></Suspense>
+    },
     {
-        path: "press",
-        element: <Suspense fallback={<Loading />}><Press /></Suspense>
-
+        path: "gallery/new",
+        element: <Suspense fallback={<Loading />}><GalleryNew /></Suspense>
+    },
+    {
+        path: "gallery/edit/:gno",
+        element: <Suspense fallback={<Loading />}><GalleryMod /></Suspense>
     },
     {
         path: "donation",

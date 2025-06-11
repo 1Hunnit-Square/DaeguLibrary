@@ -4,12 +4,15 @@ import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
 import Modal from "../components/common/Modal";
 import KakaoAccountComponent from "../components/member/KakaoAccountComponent";
+import { regKakao } from "../api/kakaoApi";
+import { useLogin } from "../hooks/useLogin";
 
 const KakaoAccountPage = () => {
 
 const [ isOpen, setIsOpen ] = useState(false);
 const location = useLocation();
 const navigate = useNavigate();
+const { doLogout } = useLogin();
 const { kakaoToken } = location.state || {};
 
     useEffect(()=>{
@@ -21,6 +24,29 @@ const { kakaoToken } = location.state || {};
 
 
     },[])
+
+    const successHandler = () => {
+      const paramData = new FormData();
+      paramData.append("accessToken", kakaoToken);
+      regKakao(paramData).then(res => {
+        doLogout();
+        alert("카카오 계정이 등록되었습니다. 다시 로그인 해주세요.");
+        navigate("/login",{replace:true});
+
+      }).catch(error => {
+        doLogout();
+
+        console.error(error);
+
+        if(error.response.data.message == "Expired Token")
+        alert("토큰이 만료되었습니다. 카카오 재인증 후 다시 시도해주세요");
+        else
+        alert("오류가 발생하였습니다. 카카오 재인증 후 다시 시도해주세요");
+
+        navigate("/login",{replace:true});
+      })
+
+    }
 
 
         return(
@@ -37,12 +63,12 @@ const { kakaoToken } = location.state || {};
         기존 계정과 연동
       </div>
       <div className="w-64 h-64 bg-green-400 rounded-2xl shadow-lg flex items-center justify-center text-2xl font-bold hover:bg-green-500 text-white cursor-pointer transition"
-       onClick = {()=> navigate("/signup",{state : { kakaoToken }})}>
+       onClick = {()=> navigate("/signup/terms?account=kakao",{state : { kakaoToken }})}>
         신규 회원가입
       </div>
       </div>
         </div>
-        <Modal isOpen={isOpen} title={"카카오 계정 연동"} onClose={(()=> setIsOpen(false))}><KakaoAccountComponent onClose={()=> setIsOpen(false)} /></Modal>
+        <Modal isOpen={isOpen} title={"카카오 계정 연동"} onClose={(()=> setIsOpen(false))}><KakaoAccountComponent onClose={()=> setIsOpen(false)} successHandler={successHandler} /></Modal>
         </Layout> 
         );
   }

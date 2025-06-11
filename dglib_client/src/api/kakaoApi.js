@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosClient from "../util/axiosClient";
 import { API_SERVER_HOST, API_ENDPOINTS } from "./config";
 
 const API_KEY =`aea7f764f199c88568ded7e2620f0622`
@@ -27,5 +28,16 @@ export const getAccessToken = async (authCode) => {
 export const loginKakao = async (param) => {
     const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" }}
     const res = await axios.post(`${prefix}/kakaoAuth`, param , header)
+    return res.data;
+    }
+
+export const regKakao = async (param) => {
+    const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" }}
+    const res = await axiosClient.post(`${prefix}/kakaoRegister`, param , header)
+    return res.data;
+    }
+
+export const getKakaoEmail = async (param) => {
+    const res = await axios.get(`${prefix}/getKakaoEmail`,{ params : param })
     return res.data;
     }

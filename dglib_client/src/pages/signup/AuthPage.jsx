@@ -2,15 +2,17 @@ import Button from "../../components/common/Button";
 import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
 import PageModal from "../../components/common/PageModal";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import PhoneAuthComponent from "../../components/member/PhoneAuthComponent";
 import PhoneCheckComponent from "../../components/member/PhoneCheckComponent";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 const AuthPage = () => {
 const [isOpen, setIsOpen] = useState(false);
+const [ searchURLParams, setSearchURLParams] = useSearchParams();
 const navigate  = useNavigate();
 const location = useLocation();
+const { kakaoToken } = location.state || {};
 
 const handleAuth = useCallback(() => {
 setIsOpen(true);
@@ -21,10 +23,23 @@ setIsOpen(false);
 },[]);
 
 
+useEffect(() => {
+if(searchURLParams.get("account") == "kakao"){
+  if(kakaoToken){
+    return;
+    } else{
+    alert("토큰이 존재하지않습니다. 카카오 인증을 다시 시도해주세요");
+    navigate("/login",{replace : true});
+  }
+
+}
+},[searchURLParams.toString()])
+
 
 const handleSuccess = (pageData) => {
 const prev = location.state || {};
-navigate("/signup/join", { state: { ...prev ,...pageData} });
+const urlParam = searchURLParams.get("account") == "kakao" ? "?account=kakao" : ""
+navigate(`/signup/join${urlParam}`, { state: { ...prev ,...pageData} });
 }
 
 const pageMap = {

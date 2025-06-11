@@ -80,7 +80,9 @@ public interface MemberService {
 	
 	MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid);
 	
-	public String getKakaoEmail(HttpHeaders headers);
+	String getKakaoEmail(HttpHeaders headers);
+	
+	void regKakao(String kakaoEmail);
 	
 
 

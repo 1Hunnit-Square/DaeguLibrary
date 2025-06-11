@@ -3,7 +3,7 @@ import Button from "../common/Button";
 import { Link } from "react-router-dom";
 import { useLogin } from "../../hooks/useLogin";
 
-const KakaoAccountComponent =({onClose}) => {
+const KakaoAccountComponent =({onClose, successHandler}) => {
 
     const [loginParam, setLoginParam ] = useState({id : "", pw :"" });
     const { doLogin, doLogout } = useLogin();
@@ -26,17 +26,16 @@ const KakaoAccountComponent =({onClose}) => {
             else {
                 const checkConfirm = confirm("현재 아이디를 카카오 계정과 연동하시겠습니까?");
                 if(checkConfirm){
-
-
+                   successHandler();
                 } else {
                 doLogout();
-                alert("취소가 선택되어 로그아웃되고 현재 창이 닫힙니다.");
+                alert("취소가 선택되어 현재 창이 닫히고 로그아웃 됩니다.");
                 onClose();
                 
                 }
             }
         })
-    }
+    }  
 
     const handleKeydown= (e) =>{
     if(e.key === "Enter")

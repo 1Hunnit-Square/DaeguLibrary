@@ -20,10 +20,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
@@ -61,6 +63,7 @@ import com.dglib.repository.book.WishBookRepository;
 import com.dglib.repository.book.WishBookSpecifications;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
+import com.dglib.security.jwt.JwtFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -189,15 +192,27 @@ public class MemberServiceImpl implements MemberService {
 		HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 		
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> response = restTemplate.exchange(
+		ResponseEntity<Map> response = null;
+		
+		
+		try {
+		response = restTemplate.exchange(
                 KAKAO_URL,
                 HttpMethod.GET,
                 requestEntity,
                 Map.class
         );
+		} catch(HttpClientErrorException e) {
+			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+				throw new IllegalArgumentException("Expired Token");
+		 } else {
+		        throw e;
+		    }
+		}
+
 		@SuppressWarnings("unchecked")
 		Map<String, Object> body = response.getBody();
-		
+
 		if(body == null)
 			throw new IllegalArgumentException("Response Not Exist");
 		
@@ -207,6 +222,15 @@ public class MemberServiceImpl implements MemberService {
 		return email;
 	}
 	
+	
+	@Override
+	public void regKakao(String kakaoEmail) {
+		String mid = JwtFilter.getMid();
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		member.setKakao(kakaoEmail);
+		memberRepository.save(member);
+	}
 
 	public String setMno() {
 		String result = null;

@@ -14,6 +14,7 @@ public class RegMemberDTO {
 	private String phone;
 	private String addr;
 	private String email;
+	private String kakao;
 	private boolean checkSms;
 	private boolean checkEmail;
 }

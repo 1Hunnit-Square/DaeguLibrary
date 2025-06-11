@@ -1,6 +1,6 @@
 import DaumPostcode from 'react-daum-postcode';
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
 import Button from "../../components/common/Button";
@@ -10,14 +10,21 @@ import PwCheckComponent from "../../components/member/PwCheckComponent";
 import PwEqualComponent from "../../components/member/PwEqualComponent";
 import Modal from '../../components/common/Modal';
 import { regPost } from '../../api/memberApi';
+import { getKakaoEmail } from '../../api/kakaoApi';
+
 
 const JoinPage = () => {
 
 const location = useLocation();
+const [ searchURLParams, setSearchURLParams] = useSearchParams();
 const navigate = useNavigate();
-const { phone } = location.state || {};
+const { phone, kakaoToken } = location.state || {};
 const [ isOpen, setIsOpen ] = useState(false);
-const [ joinForm, setJoinForm] = useState({id : "", pw1:"", pw2:"", name: "", phone : phone, emailId:"", emailAddr:"", checkEmail: false, checkSms: false});
+const [ joinForm, setJoinForm] = useState(
+  {id : "", pw1:"", pw2:"", name: "", phone : phone, emailId:"", emailAddr:"",
+     zonecode: "", address:"", addrDetail:"",
+    checkEmail: false, checkSms: false, birthDate : "", gender: ""
+  });
 const [ idCheck, setIdCheck ] = useState(false);
 const [ pwCheck, setPwCheck ] = useState(false);
 const [ pwEqual, setPwEqual ] = useState(false);
@@ -30,6 +37,18 @@ if(!joinForm.phone){
     }
 
 },[]);
+
+useEffect(() => {
+if(searchURLParams.get("account") == "kakao"){
+  if(kakaoToken){
+    return;
+    } else{
+    alert("토큰이 존재하지않습니다. 카카오 인증을 다시 시도해주세요");
+    navigate("/login",{replace : true});
+  }
+
+}
+},[searchURLParams.toString()])
 
 const handleChange = (e) => {
 if(e.target.name == "birthDate" && new Date(e.target.value) > new Date() ){
@@ -73,7 +92,7 @@ const onAddrCode = (data) => {
     {...prev,
         ["address"] : data.address,
         ["zonecode"] : data.zonecode,
-        ["emailAddr"] : ""
+        ["addrDetail"] : ""
     }
   ));
   };
@@ -124,15 +143,45 @@ const toJsonParams = (data) => {
         if(!data.emailId){
           dataParams.email = null;
         }
+        
     return dataParams;
-    }
+    };
 
 const regMember = async() => {
-await regPost(toJsonParams(joinForm))
+
+const params = toJsonParams(joinForm);
+
+if(searchURLParams.get("account") == "kakao"){
+const checkPost = await getKakaoEmail({"accessToken": kakaoToken})
+  .then(res => {
+    params.kakao = res;
+    return true;
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.response.data.message == "Expired Token"){
+      const checkConfirm = confirm("토큰이 만료되어 카카오 계정 연동에 실패했습니다. 카카오 연동을 제외하고 현재 입력한 정보로 회원가입하시겠습니까?");
+      return checkConfirm;
+    } else{
+      alert("회원 등록에 실패했습니다. 다시 시도해주세요.");
+      return false;
+    }
+  })
+
+  if(!checkPost)
+  return;
+}
+
+console.log(params);
+
+regPost(params)
 .then(res => {
   alert("회원 등록이 완료되었습니다. 로그인해주세요.");
   navigate("/login", { state: {}, replace: true });
-  }).catch(e => alert("회원 등록에 실패했습니다. 다시 시도해주세요."));
+  }).catch(error => {
+    console.error(error)
+    alert("회원 등록에 실패했습니다. 다시 시도해주세요.");});
+
 }
 
 const onClickJoin = () => {
@@ -146,7 +195,6 @@ const onClickJoin = () => {
     alert("이메일 형식이 올바르지 않습니다.");
   }
   else{
-    console.log(joinForm);
     regMember(joinForm);
   }
 }
@@ -169,6 +217,7 @@ return(
       <div className="flex flex-1 items-center gap-2 px-4 py-2">
         <input name="id" type="text" placeholder="아이디" value={joinForm.id} className="border px-3 py-2 rounded" onChange={handleChange} />
         <IdCheckComponent id={joinForm.id} handleForm={handleForm} check={idCheck} />
+        {kakaoToken && <CheckBox label = "카카오계정" checked={true} checkboxClassName="px-3 py-2 ml-2 font-semibold" inputClassName="accent-gray-300 w-4 h-4" onChange={()=>{}} />}
       </div>
     </div>
 

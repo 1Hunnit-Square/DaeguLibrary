@@ -171,6 +171,23 @@ public class MemberController {
         
 		
 	}
+	
+	@PostMapping("/kakaoRegister")
+	public ResponseEntity<String> kakaoReg(@RequestParam String accessToken){
+		HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        String email = memberService.getKakaoEmail(headers);
+        memberService.regKakao(email);
+        return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/getKakaoEmail")
+	public ResponseEntity<String> getkakaoEmail(@RequestParam String accessToken){
+		HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        String email = memberService.getKakaoEmail(headers);
+        return ResponseEntity.ok(email);
+	}
 
 	@GetMapping("/interestedbook")
 	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(

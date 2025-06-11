@@ -1,5 +1,5 @@
 import { useEffect, useState, memo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import CheckBox from "../common/CheckBox";
 import Button from "../common/Button";
 
@@ -8,12 +8,14 @@ const [libraryText, setLibaryText] = useState("");
 const [privacyText, setPrivacyText] = useState("");
 const [companyText, setCompanyText] = useState("");
 const [ checkTerms, setCheckTerms ] = useState({ library : false, privacy : false, company : false})
+const [ searchURLParams, setSearchURLParams] = useSearchParams();
 const navigate = useNavigate();
+const location = useLocation();
+const { kakaoToken } = location.state || {};
 
 const termStyle = "border p-3 pt-5 mb-10 h-48 overflow-y-scroll whitespace-pre-wrap bg-white-100 text-sm text-left";
 
 useEffect(() => {
-console.log("print terms");
 fetch("/terms/library.txt")
 .then((res) => res.text())
 .then((text) => setLibaryText(text));
@@ -27,6 +29,18 @@ fetch("/terms/company.txt")
 .then((text) => setCompanyText(text));
 
 },[]);
+
+useEffect(() => {
+if(searchURLParams.get("account") == "kakao"){
+  if(kakaoToken){
+    return;
+    } else{
+    alert("토큰이 존재하지않습니다. 카카오 인증을 다시 시도해주세요");
+    navigate("/login",{replace : true});
+  }
+
+}
+},[searchURLParams.toString()])
 
 const handleCheckBox = useCallback((e, value) => {
         if(value == "all"){
@@ -46,9 +60,12 @@ const handleCheckBox = useCallback((e, value) => {
     },[]);
 
 const handleNext = useCallback(() => {
-if(checkTerms.library&&checkTerms.privacy&&checkTerms.company)
-navigate("/signup/auth");
-else{
+if(checkTerms.library&&checkTerms.privacy&&checkTerms.company){
+const prev = location.state || {};
+const urlParam = searchURLParams.get("account") == "kakao" ? "?account=kakao" : ""
+navigate(`/signup/auth${urlParam}`, { state: { ...prev} });
+
+} else {
   alert("이용약관에 동의해주셔야 서비스 이용이 가능합니다.")
 }
 },[checkTerms]);

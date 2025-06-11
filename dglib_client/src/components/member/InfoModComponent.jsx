@@ -146,9 +146,9 @@ const InfoModComponent = ({data, handleSuccess}) => {
         return dataParams;
         }
     
-    const modMember = async(form) => {
+    const modMember = (form) => {
       const params = toJsonParams(form);
-    await modPost(params)
+    modPost(params)
     .then(res => {
       handleSuccess();
       
@@ -186,6 +186,7 @@ const InfoModComponent = ({data, handleSuccess}) => {
           </div>
           <div className="flex flex-1 items-center gap-2 px-4 py-2">
             <input name="id" type="text" placeholder="아이디" value={data.mid} className="bg-blue-100 border px-3 py-2 rounded" readOnly />
+            {data?.kakao && <CheckBox label = "카카오계정" checked={true} checkboxClassName="px-3 py-2 font-semibold" inputClassName="accent-gray-300 w-4 h-4" onChange={()=>{}} />}
           </div>
         </div>
     

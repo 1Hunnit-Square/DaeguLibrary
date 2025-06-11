@@ -1,4 +1,4 @@
-package com.dglib.controller.news;
+package com.dglib.controller.event;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,36 +19,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dglib.dto.news.NewsDTO;
-import com.dglib.dto.news.NewsDetailDTO;
-import com.dglib.dto.news.NewsListDTO;
-import com.dglib.dto.news.NewsSearchDTO;
-import com.dglib.dto.news.NewsUpdateDTO;
-import com.dglib.service.news.NewsService;
+import com.dglib.dto.event.EventDTO;
+import com.dglib.dto.event.EventDetailDTO;
+import com.dglib.dto.event.EventListDTO;
+import com.dglib.dto.event.EventSearchDTO;
+import com.dglib.dto.event.EventUpdateDTO;
+import com.dglib.service.event.EventService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/news")
-public class NewsController {
-	private final NewsService newsService;
-	private final String DIRNAME = "news";
+@RequestMapping("/api/event")
+public class EventController {
+	private final EventService eventService;
+	private final String DIRNAME = "event";
 
 	@PostMapping("/register")
-	public ResponseEntity<String> manageMember(@ModelAttribute NewsDTO newsDTO,
+	public ResponseEntity<String> manageMember(@ModelAttribute EventDTO eventDTO,
 			@RequestParam(required = false) List<MultipartFile> files) {
-		newsService.register(newsDTO, files, DIRNAME);
+		eventService.register(eventDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("/{nno}")
-	public ResponseEntity<NewsDetailDTO> getDetail(@PathVariable Long nno) {
-		return ResponseEntity.ok(newsService.getDetail(nno));
+	@GetMapping("/{eno}")
+	public ResponseEntity<EventDetailDTO> getDetail(@PathVariable Long eno) {
+		return ResponseEntity.ok(eventService.getDetail(eno));
 	}
 
 	@GetMapping("/list")
-	public ResponseEntity<Page<NewsListDTO>> manageMember(@ModelAttribute NewsSearchDTO searchDTO) {
+	public ResponseEntity<Page<EventListDTO>> manageMember(@ModelAttribute EventSearchDTO searchDTO) {
 		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
 		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
 		String sortBy = Optional.ofNullable(searchDTO.getSortBy()).orElse("postedAt");
@@ -57,30 +57,30 @@ public class NewsController {
 		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		return ResponseEntity.ok(newsService.findAll(searchDTO, pageable));
+		return ResponseEntity.ok(eventService.findAll(searchDTO, pageable));
 	}
 
-	@PutMapping("/{nno}")
-	public ResponseEntity<String> updateNews(@PathVariable Long nno, @ModelAttribute NewsUpdateDTO newsUpdateDTO,
+	@PutMapping("/{eno}")
+	public ResponseEntity<String> updateEvent(@PathVariable Long eno, @ModelAttribute EventUpdateDTO eventUpdateDTO,
 			@RequestParam(required = false) List<MultipartFile> files) {
-		System.out.println("지금 받은 데이터들" + newsUpdateDTO);
-		newsService.update(nno, newsUpdateDTO, files, DIRNAME);
+		System.out.println("지금 받은 데이터들" + eventUpdateDTO);
+		eventService.update(eno, eventUpdateDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 
-	@DeleteMapping("/{nno}")
-	public ResponseEntity<NewsDetailDTO> deleteNews(@PathVariable Long nno) {
-		newsService.delete(nno);
+	@DeleteMapping("/{eno}")
+	public ResponseEntity<EventDetailDTO> deleteEvent(@PathVariable Long eno) {
+		eventService.delete(eno);
 		return ResponseEntity.noContent().build();
 	}
 	
 	@GetMapping("/listTop")
-	public ResponseEntity<List<NewsListDTO>> listTopNews(@RequestParam int count){	
-		return ResponseEntity.ok(newsService.findTop(count));
+	public ResponseEntity<List<EventListDTO>> listTopEvent(@RequestParam int count){	
+		return ResponseEntity.ok(eventService.findTop(count));
 	}
 	
 	@GetMapping("/listPinned")
-	public ResponseEntity<List<NewsListDTO>> listPinNews(){
-		return ResponseEntity.ok(newsService.findPinned());
+	public ResponseEntity<List<EventListDTO>> listPinEvent(){
+		return ResponseEntity.ok(eventService.findPinned());
 	}
 }

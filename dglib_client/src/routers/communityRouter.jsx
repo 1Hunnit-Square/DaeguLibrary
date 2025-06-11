@@ -14,15 +14,23 @@ const Notice = lazy(() => import("../components/community/NoticeListComponent"))
 const NoticeDetail = lazy(() => import("../components/community/NoticeDetailComponent"));
 const NoticeNew = lazy(() => import("../components/community/NoticeNewComponent"));
 const NoticeMod = lazy(() => import("../components/community/NoticeModComponent"));
+
+const Event = lazy(()=>import("../components/community/EventListComponent"));
+const EventDetail = lazy(()=>import("../components/community/EventDetailComponent"));
+const EventNew = lazy(()=>import("../components/community/EventNewComponent"));
+const EventMod = lazy(()=>import("../components/community/EventModComponent"));
+
 const News = lazy(() => import("../components/community/NewsListComponent"));
 const NewsNew = lazy(() => import("../components/community/NewsNewComponent"));
 const NewsDetail = lazy(() => import("../components/community/NewsDetailComponent"));
 const NewsMod = lazy(() => import("../components/community/NewsModComponent"));
+
 const Qna = lazy(() => import("../components/community/QnaComponent"));
+
 const Gallery = lazy(() => import("../components/community/GalleryListComponent"));
-const GalleryDetail = lazy(()=>import("../components/community/GalleryDetailComponent"));
-const GalleryNew = lazy(()=>import("../components/community/GalleryNewComponent"));
-const GalleryMod = lazy(()=>import("../components/community/GalleryModComponent"));
+const GalleryDetail = lazy(() => import("../components/community/GalleryDetailComponent"));
+const GalleryNew = lazy(() => import("../components/community/GalleryNewComponent"));
+const GalleryMod = lazy(() => import("../components/community/GalleryModComponent"));
 
 const Donation = lazy(() => import("../components/community/DonationComponent"));
 
@@ -48,6 +56,23 @@ const communityRouter = () => ([
     {
         path: "notice/edit/:ano",
         element: <Suspense fallback={<Loading />}><NoticeMod /></Suspense>
+    },
+    {
+        path: "event",
+        element: <Suspense fallback={<Loading />}><Event /></Suspense>
+
+    },
+    {
+        path: "event/:eno",
+        element: <Suspense fallback={<Loading />}><EventDetail /></Suspense>
+    },
+    {
+        path: "event/new",
+        element: <Suspense fallback={<Loading />}><EventNew /></Suspense>
+    },
+    {
+        path: "event/edit/:eno",
+        element: <Suspense fallback={<Loading />}><EventMod /></Suspense>
     },
     {
         path: "news",
@@ -101,7 +126,7 @@ const communityRouter = () => ([
         element: <Suspense fallback={<Loading />}><Gallery /></Suspense>
 
     },
-      {
+    {
         path: "gallery/:gno",
         element: <Suspense fallback={<Loading />}><GalleryDetail /></Suspense>
     },

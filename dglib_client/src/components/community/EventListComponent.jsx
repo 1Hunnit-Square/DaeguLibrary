@@ -3,16 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import Button from "../common/Button";
-import { getNewsList, getNewsPinnedList } from "../../api/newsApi";
+import { getEventList, getEventPinnedList } from "../../api/eventApi";
 import TableComponent from "../common/TableComponent";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
 
-const NewsListComponent = () => {
+const EventListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const navigate = useNavigate();
 
-    const { data: newsData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
-        queryKey: ['newsList', searchURLParams.toString()],
+    const { data: eventData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
+        queryKey: ['eventList', searchURLParams.toString()],
         queryFn: () => {
             const params = {
                 page: parseInt(searchURLParams.get("page") || "1"),
@@ -26,17 +26,17 @@ const NewsListComponent = () => {
                 params.option = searchURLParams.get("option") || "제목";
             }
             console.log(params);
-            return getNewsList(params);
+            return getEventList(params);
         }
     });
 
     const { data: pinnedList } = useQuery({
-        queryKey: ['newsPinndeList', searchURLParams.toString()],
-        queryFn: () => getNewsPinnedList()
+        queryKey: ['eventPinndeList', searchURLParams.toString()],
+        queryFn: () => getEventPinnedList()
     });
 
     const { renderPagination } = usePagination(
-        newsData,
+        eventData,
         searchURLParams,
         setSearchURLParams,
         isLoading
@@ -59,8 +59,8 @@ const NewsListComponent = () => {
         noneMsg: "등록된 글이 없습니다."
     }
 
-    const handleDetail = (nno) => {
-        navigate(`/community/news/${nno}`);
+    const handleDetail = (eno) => {
+        navigate(`/community/event/${eno}`);
     }
 
     return (
@@ -78,10 +78,10 @@ const NewsListComponent = () => {
                     buttonClassName="right-2"
                 />
             </div>
-            <TableComponent data={newsData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"nno"} pinnedList={pinnedList} />
+            <TableComponent data={eventData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"eno"} pinnedList={pinnedList} />
 
             <div className="flex justify-end mt-4">
-                <Button onClick={() => navigate("/community/news/new")}>글쓰기</Button>
+                <Button onClick={() => navigate("/community/event/new")}>글쓰기</Button>
             </div>
 
             {renderPagination()}
@@ -89,4 +89,4 @@ const NewsListComponent = () => {
     )
 }
 
-export default NewsListComponent;
+export default EventListComponent;

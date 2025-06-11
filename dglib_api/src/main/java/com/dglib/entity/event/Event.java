@@ -73,25 +73,10 @@ public class Event {
 
 	
 	//EventImage 메서드
-	public void addImage(EventImage image) {
-		images.add(image);
-		image.setEvent(this);
-	}
-	
-	//수정 사항(service 만들었을 때 삭제하세요)
-	public void updateTitleAndContent(String title, String content) {
-        this.title = title;
-        this.content = content;
-        this.modifiedAt = LocalDateTime.now(); // 수정일 업데이트 (선택 사항)
-    }
-
-    public void hide() {
-        this.isHidden = true;
-    }
-
-    public void pin() {
-        this.isPinned = true;
-    }
+//	public void addImage(EventImage image) {
+//		images.add(image);
+//		image.setEvent(this);
+//	}
 	
 
 }

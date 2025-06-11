@@ -4,7 +4,7 @@ import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 import Button from "../common/Button";
 import Loading from "../../routers/Loading";
-import { useDeleteQuestion, useUpdateQuestion } from "../../hooks/useQuestionMutation";
+import { useDeleteQuestion } from "../../hooks/useQuestionMutation";
 import { getQnaDetail } from "../../api/qnaApi";
 import { useDeleteAnswer } from "../../hooks/useAnswerMutation";
 
@@ -122,11 +122,9 @@ const QnaDetailComponent = () => {
       alert("해당하는 답변을 찾지 못 했습니다.");
       return;
     }
-    // if (window.confirm("답글을 삭제하시겠습니까?")) {
-    //   deleteAnswerMutation.mutate(ano);
-    // }
+  
     if (window.confirm("정말로 삭제하시겠습니까?")) {
-      deleteAnswerMutation.mutate({ ano, requesterMid: mid });
+      deleteAnswerMutation.mutate({ ano, requesterMid: mid, qno });
     }
   };
 

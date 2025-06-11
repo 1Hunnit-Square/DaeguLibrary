@@ -96,7 +96,6 @@ const QnaListComponent = () => {
     style: {
       title: "max-w-100 min-w-100",
     },
-    // leftKey: ["title"],
     overKey: ["title"],
     lineKey: ["title"],
     noneMsg: "등록된 글이 없습니다.",

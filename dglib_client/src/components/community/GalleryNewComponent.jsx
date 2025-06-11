@@ -13,10 +13,15 @@ const GalleryNewComponent = () => {
     const navigate = useNavigate();
     const mid = useRecoilValue(memberIdSelector);
 
+
     const sendParams = (paramData) => {
         paramData.append("mid", mid);
         console.log(paramData);
 
+        if (!paramData.get("files")){
+            alert("이미지를 반드시 첨부해야합니다.");
+            return ;
+        }
         regGallery(paramData).then(res => {
             alert("글을 등록하였습니다.");
             navigate("/community/gallery");

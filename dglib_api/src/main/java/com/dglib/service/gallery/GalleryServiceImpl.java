@@ -121,7 +121,8 @@ public class GalleryServiceImpl implements GalleryService {
 		List<GalleryImage> delImages = null;
 
 		if (dto.getOldFiles() != null) {
-			delImages = gallery.getImages().stream().filter(entity -> !dto.getOldFiles().contains(entity.getFilePath()))
+			delImages = gallery.getImages().stream().filter(entity -> 
+			!dto.getOldFiles().contains(entity.getFilePath()))
 					.collect(Collectors.toList());
 
 		} else {
@@ -131,7 +132,8 @@ public class GalleryServiceImpl implements GalleryService {
 		if (delImages != null && !delImages.isEmpty()) {
 			gallery.getImages().removeAll(delImages);
 
-			List<String> filePaths = delImages.stream().map(GalleryImage::getFilePath).collect(Collectors.toList());
+			List<String> filePaths = delImages.stream().map(GalleryImage::getFilePath)
+					.collect(Collectors.toList());
 
 			fileUtil.deleteFiles(filePaths);
 		}

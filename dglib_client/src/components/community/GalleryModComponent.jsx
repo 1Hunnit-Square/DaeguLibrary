@@ -23,34 +23,13 @@ const GalleryModComponent = () => {
     refetchOnWindowFocus: false,
   });
 
-  const dataMap = useMemo(() => ({
-    data: { ...data, content: imgReplace(data?.content) },
-    fileDTOName: "imageDTO"
-  }), [data]);
+  const dataMap = useMemo(() => ({ data: { ...data, content: imgReplace(data?.content) }, fileDTOName: "imageDTO" }), [data]);
 
   const sendParams = (paramData) => {
-    // ✅ paramData는 FormData 타입이므로, 새로운 FormData로 변환
-    const newFormData = new FormData();
 
-    // ✅ 기존 FormData의 key들을 순회하면서 서버에서 기대하는 이름으로 바꿔줌
-    for (let [key, value] of paramData.entries()) {
-      if (key === "files") {
-        // 새로 업로드된 파일은 imageDTO라는 이름으로 변경
-        newFormData.append("imageDTO", value); // ← 중요
-      } else if (key === "oldFiles") {
-        // 기존 파일 경로는 oldImagePaths로 변경
-        newFormData.append("oldImagePaths", value); // ← 중요
-      } else {
-        // 나머지는 그대로 유지 (title, content 등)
-        newFormData.append(key, value);
-      }
-    }
+    console.log(paramData);
 
-    // 요청 전 확인용 콘솔 출력
-    console.log("[수정 요청 전송]", ...newFormData.entries());
-
-    // 수정 요청 실행
-    modGallery(gno, newFormData)
+    modGallery(gno, paramData)
       .then(res => {
         alert("글을 수정하였습니다.");
         navigate(`/community/gallery/${gno}`);
@@ -77,6 +56,7 @@ const GalleryModComponent = () => {
           onParams={sendParams}
           onBack={onBack}
           useTitle={true}
+          usePinned={false}
           usePublic={false}
           upload={["image"]}
           modMap={dataMap}

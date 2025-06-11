@@ -62,9 +62,9 @@ public class NewsController {
 
 	@PutMapping("/{nno}")
 	public ResponseEntity<String> updateNews(@PathVariable Long nno, @ModelAttribute NewsUpdateDTO newsUpdateDTO,
-			@RequestParam(required = false) List<MultipartFile> images) {
+			@RequestParam(required = false) List<MultipartFile> files) {
 		System.out.println("지금 받은 데이터들" + newsUpdateDTO);
-		newsService.update(nno, newsUpdateDTO, images, DIRNAME);
+		newsService.update(nno, newsUpdateDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 

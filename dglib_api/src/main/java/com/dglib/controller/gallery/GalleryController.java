@@ -63,9 +63,9 @@ public class GalleryController {
 	@PutMapping("/{gno}")
 	public ResponseEntity<String> updateGallery(@PathVariable Long gno, 
 			@ModelAttribute GalleryUpdateDTO galleryUpdateDTO,
-			@RequestParam(required = false) List<MultipartFile> images) {
-		System.out.println("지금 받은 데이터들" + galleryUpdateDTO);
-		galleryService.update(gno, galleryUpdateDTO, images, DIRNAME);
+			@RequestParam(required = false) List<MultipartFile> files) {
+		System.out.println("지금 받은 데이터들-------------------------------" + galleryUpdateDTO);
+		galleryService.update(gno, galleryUpdateDTO, files, DIRNAME);
 		return ResponseEntity.ok().build();
 	}
 

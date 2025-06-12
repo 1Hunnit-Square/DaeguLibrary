@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -35,13 +36,13 @@ public class AnswerController {
 		return ResponseEntity.ok(answerService.getAnswer(ano));
 	}
 	
-	@PutMapping("/question/{qno}")
-	public ResponseEntity<Void> updateAnswer(
-			@PathVariable Long qno,
-			@RequestBody AnswerDTO dto) {
-		
-		answerService.updateAnswer(qno, dto);
-		return ResponseEntity.noContent().build();
+	@PutMapping(value = "/question/{qno}")
+	public ResponseEntity<?> updateAnswer(
+	        @PathVariable Long qno,
+	        @ModelAttribute AnswerDTO dto) {
+
+	    answerService.updateAnswer(qno, dto);
+	    return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/{ano}")

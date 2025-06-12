@@ -12,6 +12,7 @@ public class QuestionDetailDTO {
 	private String content; // 본문
 	private LocalDateTime postedAt; // 등록일
 	private LocalDateTime modifiedAt; // 수정일
+	private int viewCount;
 	private String name; // 작성자 이름
 	private String writerMid;	// 작성자 ID
 	private AnswerDTO answer; // 답변 DTO

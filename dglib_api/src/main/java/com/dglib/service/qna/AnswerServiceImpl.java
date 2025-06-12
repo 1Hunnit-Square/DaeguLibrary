@@ -11,6 +11,7 @@ import com.dglib.entity.qna.Question;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.AnswerRepository;
 import com.dglib.repository.qna.QuestionRepository;
+import com.dglib.security.jwt.JwtFilter;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,10 @@ public class AnswerServiceImpl implements AnswerService {
 		Member member = memberRepository.findById(dto.getAdminMid())
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
 
+		if(!"ROLE_ADMIN".equals(JwtFilter.getRoleName())) {
+			throw new IllegalArgumentException("작성 권한이 없습니다.");
+		}
+		
 		Question question = questionRepository.findById(dto.getQno())
 				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
@@ -57,19 +62,23 @@ public class AnswerServiceImpl implements AnswerService {
 	}
 
 	// 수정
+	@Override
 	public void updateAnswer(Long qno, AnswerDTO dto) {
-		Question question = questionRepository.findById(qno)
-				.orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다."));
 
-		Answer answer = question.getAnswer();
-		if (answer == null) {
-			throw new IllegalStateException("해당 질문에는 아직 답변이 존재하지 않습니다.");
+		Member member = memberRepository.findById(dto.getAdminMid())
+				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
+		
+		Answer answer = answerRepository.findByQuestion_Qno(qno)
+				.orElseThrow(() -> new RuntimeException("답변이 존재하지 않습니다."));
+
+		if (!JwtFilter.checkAuth(answer.getMember().getMid())) {
+			throw new IllegalArgumentException("수정 권한이 없습니다.");
 		}
 
-		if (dto.getContent() != null) {
-			answer.updateContent(dto.getContent());
-		}
 		answer.setContent(dto.getContent());
+		answer.setModifiedAt(LocalDateTime.now());
+
+		answerRepository.save(answer);
 	}
 
 	// 삭제
@@ -79,18 +88,15 @@ public class AnswerServiceImpl implements AnswerService {
 		System.out.println(">> 삭제 요청자: " + requesterMid);
 		System.out.println(">> 실제 작성자: " + answer.getMember().getMid());
 
-		boolean isAdmin = "admin".equals(requesterMid);
-		
-		if (!isAdmin) {
+		if (!JwtFilter.checkAuth(answer.getMember().getMid())) {
 			throw new IllegalArgumentException("삭제 권한이 없습니다.");
 		}
-		
+
 		// 양방향 관계 끊기
 		Question question = answer.getQuestion();
 		question.setAnswer(null); // Answer 제거
 		answer.setQuestion(null); // 반대편도 끊기
 
-		// 질문 저장 -> orphanRemoval 트리거
 		questionRepository.save(question);
 
 		System.out.println(">> 삭제 완료");

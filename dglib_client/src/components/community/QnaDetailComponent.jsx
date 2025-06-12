@@ -7,6 +7,8 @@ import Loading from "../../routers/Loading";
 import { useDeleteQuestion } from "../../hooks/useQuestionMutation";
 import { getQnaDetail } from "../../api/qnaApi";
 import { useDeleteAnswer } from "../../hooks/useAnswerMutation";
+import DOMPurify from 'dompurify';
+
 
 const QnaDetailComponent = () => {
   const { qno } = useParams();
@@ -27,7 +29,7 @@ const QnaDetailComponent = () => {
   });
 
   const renderAdminButtons = () => (
-    <div className="flex justify-end gap-2">
+    <>
       <Button
         className="bg-red-500 hover:bg-red-600"
         onClick={handleDelete}
@@ -39,13 +41,13 @@ const QnaDetailComponent = () => {
       >
         답변달기
       </Button>
-    </div>
+    </>
   );
 
   const renderAdminEditButtons = () => (
-    <div className="flex justify-end gap-2">
+    <>
       <Button
-        className="bg-red-500 hover:bg-red-600"
+        className="bg-gray-500 hover:bg-red-600"
         onClick={handleDelete}
       >
         전체삭제</Button>
@@ -55,22 +57,20 @@ const QnaDetailComponent = () => {
       >
         답변수정
       </Button>
-    </div>
+    </>
   )
 
   const renderAnswerDeleteButtons = () => (
-    <div className="gap-2">
-      <Button
-        className="bg-red-500 hover:bg-red-600"
-        onClick={handleAnswerDelete}
-      >
-        답글삭제
-      </Button>
-    </div>
+    <Button
+      className="bg-red-500 hover:bg-red-600"
+      onClick={handleAnswerDelete}
+    >
+      답글삭제
+    </Button>
   )
 
   const renderOwnerButtons = () => (
-    <div className="flex justify-end gap-2">
+    <>
       <Button
         className="bg-red-500 hover:bg-red-600"
         onClick={handleDelete}
@@ -83,27 +83,8 @@ const QnaDetailComponent = () => {
       >
         수정하기
       </Button>
-    </div>
+    </>
   );
-
-  const handleEdit = () => {
-    if (!title.trim()) {
-      alert("제목을 입력해주세요.");
-      return;
-    }
-    if (!content.trim()) {
-      alert("내용을 입력해주세요.");
-      return;
-    }
-
-    updateMutate({
-      qno,
-      title,
-      content,
-      checkPublic,
-      memberMid: mid,
-    });
-  };
 
   const handleDelete = () => {
     console.log("삭제 할 qno:", qno);
@@ -122,7 +103,7 @@ const QnaDetailComponent = () => {
       alert("해당하는 답변을 찾지 못 했습니다.");
       return;
     }
-  
+
     if (window.confirm("정말로 삭제하시겠습니까?")) {
       deleteAnswerMutation.mutate({ ano, requesterMid: mid, qno });
     }
@@ -137,8 +118,6 @@ const QnaDetailComponent = () => {
     alert("삭제되었습니다.");
     navigate(`/community/qna/${qno}`);
   })
-
-  if (isLoading) return <Loading text="QnA 정보를 불러오는 중입니다..." />;
 
   if (isError) {
     return (
@@ -161,67 +140,93 @@ const QnaDetailComponent = () => {
   const hasAnswer = !!question.answer;
   const isAdmin = roleName == "ADMIN";
 
-  return (
-    <div className="max-w-4xl mx-auto text-sm">
-      <h2 className="text-2xl font-bold text-center mb-6">{question.title}</h2>
 
-      <table className="w-full border border-gray-300 mb-8">
-        <tbody>
-          <tr className="border-b">
-            <td className="bg-gray-100 w-1/5 p-2 font-semibold">작성자</td>
-            <td className="p-2">{question.name}</td>
-          </tr>
-          <tr className="border-b">
-            <td className="bg-gray-100 p-2 font-semibold">작성일</td>
-            <td className="p-2">{question.postedAt?.substring(0, 10)}</td>
-          </tr>
-          {question.modifiedAt && (
-            <tr className="border-b">
-              <td className="bg-gray-100 p-2 font-semibold">수정일</td>
-              <td className="p-2">{question.modifiedAt.substring(0, 10)}</td>
-            </tr>
-          )}
+  return (
+    <div className="max-w-4xl mx-auto my-10">
+      {isLoading && <Loading />}
+
+      <table className="w-full mb-8 text-sm">
+        <thead>
           <tr>
-            <td className="bg-gray-100 p-2 font-semibold">내용</td>
-            <td className="p-2 whitespace-pre-wrap">{question.content}</td>
+            <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">
+              {question.title}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b border-gray-300">
+            <td className="w-1/6 p-2 font-semibold text-center">작성자</td>
+            <td className="w-2/6 p-2 pl-3">{question.name}</td>
+            <td className="p-2 w-1/6 font-semibold text-center">조회수</td>
+            <td className="w-2/6 p-2 pl-3">{question.viewCount}</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="p-2 font-semibold text-center">작성일</td>
+            <td className="p-2 pl-3">{question.postedAt}</td>
+            {question.modifiedAt &&
+              <>
+                <td className="p-2 font-semibold text-center">수정일</td>
+                <td className="p-2 pl-3">{question.modifiedAt}</td>
+              </>
+            }
+          </tr>
+          <tr><td className={"p-2"}></td></tr>
+          <tr>
+            <td colSpan={6} className="border w-full border-gray-300 p-3">
+              <div 
+              className="min-h-50" 
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(question.content) 
+                }} 
+                />
+                </td>
           </tr>
         </tbody>
       </table>
 
       {hasAnswer && (
-        <>
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="font-bold text-lg mb-2">답변</h3>
-            {hasAnswer && isAdmin && renderAnswerDeleteButtons()}
-          </div>
-          <table className="w-full border border-gray-300 mb-8">
-            <tbody>
-              <tr className="border-b">
-                <td className="bg-gray-100 w-1/5 p-2 font-semibold">답변자</td>
-                <td className="p-2">관리자</td>
-              </tr>
-              <tr className="border-b">
-                <td className="bg-gray-100 p-2 font-semibold">작성일</td>
-                <td className="p-2">{question.answer.postedAt?.substring(0, 10)}</td>
-              </tr>
-              {question.answer.modifiedAt && (
-                <tr className="border-b">
-                  <td className="bg-gray-100 p-2 font-semibold">수정일</td>
-                  <td className="p-2">{question.answer.modifiedAt.substring(0, 10)}</td>
-                </tr>
-              )}
+        <div>
+          <table className="w-full mb-8 text-sm">
+            <thead>
               <tr>
-                <td className="bg-gray-100 p-2 font-semibold">내용</td>
-                <td className="p-2 whitespace-pre-wrap">{question.answer.content}</td>
+                <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">답변</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-300">
+                <td className="w-1/6 p-2 font-semibold text-center">작성자</td>
+                <td className="w-2/6 p-2 pl-3">관리자</td>
+
+                <td className="p-2 w-1/6 font-semibold text-center"></td>
+                <td className="w-2/6 p-2 pl-3"></td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="p-2 font-semibold text-center">작성일</td>
+                <td className="p-2 pl-3">{question.answer.postedAt}</td>
+                {question.answer.modifiedAt && <>
+                  <td className="p-2 font-semibold text-center">수정일</td>
+                  <td className="p-2 pl-3">{question.answer.modifiedAt}</td></>}
+              </tr>
+              <tr><td className={"p-2"}></td></tr>
+              <tr>
+                <td colSpan={6} className="border w-full border-gray-300 p-3">
+                  <div className="min-h-50" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.answer.content) }} /></td>
               </tr>
             </tbody>
           </table>
-        </>
+        </div>
       )}
 
-      {!hasAnswer && isAdmin && renderAdminButtons()}
-      {hasAnswer && isAdmin && renderAdminEditButtons()}
-      {isOwner && renderOwnerButtons()}
+      <div className="flex justify-end flex-wrap gap-2 mb-6">
+        {isOwner && renderOwnerButtons()}
+        {!hasAnswer && isAdmin && renderAdminButtons()}
+        {hasAnswer && isAdmin && (
+          <>
+            {renderAdminEditButtons()}
+            {renderAnswerDeleteButtons()}
+          </>
+        )}
+      </div>
 
 
       <div className="flex justify-center gap-2">

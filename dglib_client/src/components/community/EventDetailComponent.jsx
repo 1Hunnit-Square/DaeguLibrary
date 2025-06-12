@@ -13,95 +13,98 @@ import Download from "../common/Download";
 import { imgReplace } from "../../util/commonUtil";
 import { API_ENDPOINTS } from "../../api/config";
 import { deleteEvent } from "../../api/eventApi";
+import ContentComponent from "../common/ContentComponent";
 
 const EventDetailComponent = () => {
-const { eno } = useParams();
-const { data, isLoading, error, refetch } = useQuery({
+    const { eno } = useParams();
+    const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['eventDetail', eno],
         queryFn: () => getEventDetail(eno),
         refetchOnWindowFocus: false,
     });
-const navigate = useNavigate();
-const mid = useRecoilValue(memberIdSelector);
+    const navigate = useNavigate();
+    const mid = useRecoilValue(memberIdSelector);
 
-const handleDelete=()=>{
-    if (window.confirm("정말 삭제하시겠습니까?")) {
-    deleteEvent(eno)
-      .then(() => {
-        alert("삭제가 완료되었습니다.");
-        navigate("/community/event");
-      })
-      .catch((error) => {
-        alert("삭제 중 오류가 발생했습니다.");
-        console.error(error);
-      });
-  }
-};
+    const handleDelete = () => {
+        if (window.confirm("정말 삭제하시겠습니까?")) {
+            deleteEvent(eno)
+                .then(() => {
+                    alert("삭제가 완료되었습니다.");
+                    navigate("/community/event");
+                })
+                .catch((error) => {
+                    alert("삭제 중 오류가 발생했습니다.");
+                    console.error(error);
+                });
+        }
+    };
 
- return (
-         <div className = "my-10">
-         {isLoading && <Loading />}
+    return (
+        <div className="my-10">
+            {isLoading && <Loading />}
             <div className="max-w-4xl mx-auto text-sm">
-                
-    
-                 {data && <table className="w-full mb-8">
+
+
+                {data && <table className="w-full mb-8">
                     <thead>
-                    <tr>
-                    <th colSpan ={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">{data.title}</th>
-                    </tr>
+                        <tr>
+                            <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">{data.title}</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr className="border-b border-gray-300">
                             <td className="w-1/6 p-2 font-semibold text-center">작성자</td>
                             <td className="w-2/6 p-2 pl-3">{data.name}</td>
-                               
+
                             <td className="p-2 w-1/6 font-semibold text-center">조회수</td>
                             <td className="w-2/6 p-2 pl-3">{data.viewCount}</td>
-                     
+
                         </tr>
                         <tr className="border-b border-gray-300">
                             <td className="p-2 font-semibold text-center">작성일</td>
                             <td className="p-2 pl-3">{data.postedAt}</td>
-                        {data.modifiedAt && <>
+                            {data.modifiedAt && <>
                                 <td className="p-2 font-semibold text-center">수정일</td>
                                 <td className="p-2 pl-3">{data.modifiedAt}</td></>}
-                            </tr>
-                        
+                        </tr>
+
                         {!!data.imageDTO?.length && (
-                            
-                                data.imageDTO.map((file, index) => 
-                                        <tr key={index} className="border-b border-gray-300">
-                                        <td className="p-2 font-semibold text-center">첨부 파일 ({index+1})</td>
-                                        <td className="p-2 pl-3">
-                                            <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${file.filePath}`} fileName={file.originalName} />
-                                        </td>
-                                        </tr>
-                                )
-                                
-                           
+
+                            data.imageDTO.map((file, index) =>
+                                <tr key={index} className="border-b border-gray-300">
+                                    <td className="p-2 font-semibold text-center">첨부 파일 ({index + 1})</td>
+                                    <td className="p-2 pl-3">
+                                        <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${file.filePath}`} fileName={file.originalName} />
+                                    </td>
+                                </tr>
+                            )
+
+
                         )}
                         <tr><td className={"p-2"}></td></tr>
                         <tr>
                             <td colSpan={6} className="border w-full border-gray-300 p-3">
-                                <div className="min-h-50" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(imgReplace(data.content)) }} /></td>
+                                <ContentComponent content={data.content} />
+                                {/* <div className="min-h-50" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(imgReplace(data.content)) }} /> */}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
 
-                   }
-    
+                }
+
                 <div className="flex justify-end gap-2">
                     {mid && (
                         <>
-                            <Button 
-                            onClick={() => navigate(`/community/event/edit/${eno}`)}
-                            className="bg-gray-500 hover:bg-gray-600"
+                            <Button
+                                onClick={() => navigate(`/community/event/edit/${eno}`)}
+                                className="bg-gray-500 hover:bg-gray-600"
                             >
                                 수정하기
                             </Button>
-                            <Button 
-                            onClick={handleDelete}
-                            className="bg-gray-500 hover:bg-gray-600"
+                            <Button
+                                onClick={handleDelete}
+                                className="bg-gray-500 hover:bg-gray-600"
                             >
                                 삭제하기
                             </Button>
@@ -109,8 +112,8 @@ const handleDelete=()=>{
                     )}
                     <Button onClick={() => navigate("/community/event")}>돌아가기</Button>
                 </div>
-                 </div>
-           </div>
-);
+            </div>
+        </div>
+    );
 }
 export default EventDetailComponent;

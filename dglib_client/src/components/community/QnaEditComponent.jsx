@@ -55,7 +55,7 @@ const QnaEditComponent = () => {
         useTitle={true}
         usePinned={false}
         usePublic={true}
-        upload={[]} // QnA 수정에는 파일 없음
+        upload={[]}
         modMap={modData}
       />
     </div>

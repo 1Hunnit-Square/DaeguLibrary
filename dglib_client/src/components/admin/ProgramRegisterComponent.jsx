@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 import CheckBox from "../common/CheckBox";
-import { checkRoomAvailability, getAvailableRooms, registerProgram } from "../../api/programApi";
+import { checkRoomAvailability, getRoomAvailabilityStatus, registerProgram } from "../../api/programApi";
 import { useMutation } from "@tanstack/react-query";
+import dayjs from "dayjs";
 
 const ProgramRegisterComponent = () => {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const ProgramRegisterComponent = () => {
         endDate: "",
         startTime: "",
         endTime: "",
-        daysOfWeek: [],
+        daysOfWeek: [], // 숫자 배열로 관리
         room: "",
         target: "전체",
         capacity: 0,
@@ -25,8 +26,12 @@ const ProgramRegisterComponent = () => {
         content: "",
     });
 
-    const [availableRooms, setAvailableRooms] = useState(["문화교실1", "문화교실2", "문화교실3"]);
+    const dayToNumber = { 월: 1, 화: 2, 수: 3, 목: 4, 금: 5, 토: 6, 일: 7 };
+
+    const [availableRooms, setAvailableRooms] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [roomCheckMessage, setRoomCheckMessage] = useState("");
+    const [roomCheckType, setRoomCheckType] = useState(""); // success, error
 
     const mutation = useMutation({
         mutationFn: registerProgram,
@@ -35,244 +40,273 @@ const ProgramRegisterComponent = () => {
             navigate("/admin/progmanagement");
         },
         onError: (error) => {
-            console.error("등록 실패", error);
-            alert("등록 중 오류가 발생했습니다.");
+            console.error("등록 오류:", error);
+            alert("등록에 실패했습니다: " + (error.response?.data || error.message));
+        },
+        onSettled: () => {
+            setIsSubmitting(false);
         },
     });
 
-    const fetchAvailableRooms = async () => {
+    const handleChange = (e) => {
+        const { name, value, type, checked, files } = e.target;
+
+        setForm((prev) => {
+            if (name === "daysOfWeek") {
+                const dayNumber = dayToNumber[value]; // '월' -> 1 으로 변환
+                const currentDays = prev.daysOfWeek;
+                if (checked) {
+                    // 체크박스 선택 시, 이미 있는 요일은 추가하지 않음
+                    return { ...prev, daysOfWeek: [...currentDays, dayNumber].sort((a, b) => a - b) };
+                } else {
+                    // 체크박스 해제 시, 해당 요일 제거
+                    return { ...prev, daysOfWeek: currentDays.filter((day) => day !== dayNumber) };
+                }
+            } else if (type === "file") {
+                return { ...prev, [name]: files[0] };
+            } else {
+                return { ...prev, [name]: value };
+            }
+        });
+    };
+
+    const handleRoomCheck = async () => {
+        const { room, startDate, endDate, daysOfWeek, startTime, endTime } = form;
+
+        if (!room || !startDate || !endDate || daysOfWeek.length === 0) {
+            setRoomCheckMessage("강의실, 시작/종료일, 요일을 모두 선택해주세요.");
+            setRoomCheckType("error");
+            return;
+        }
+
+        console.log("포맷된 시간:", {
+            startTimeFormatted: dayjs(`2000-01-01T${startTime}`).format("HH:mm"),
+            endTimeFormatted: dayjs(`2000-01-01T${endTime}`).format("HH:mm"),
+        });
+
+        // 날짜 순서 유효성 검사
+        if (dayjs(startDate).isAfter(endDate)) {
+            setRoomCheckMessage("시작일은 종료일보다 빠를 수 없습니다.");
+            setRoomCheckType("error");
+            return;
+        }
+
+        const payload = {
+            room,
+            startDate,
+            endDate,
+            daysOfWeek,
+            startTime: dayjs(`2000-01-01T${startTime}`).format("HH:mm"),
+            endTime: dayjs(`2000-01-01T${endTime}`).format("HH:mm"),
+        };
+
+
+        console.log("---강의실 중복 체크 요청 payload---:", payload);
+
         try {
-            const res = await getAvailableRooms({
-                startDate: form.startDate,
-                endDate: form.endDate,
-                daysOfWeek: form.daysOfWeek,
-            });
-            setAvailableRooms(res);
-        } catch (err) {
-            console.error("시설 목록 조회 실패", err);
-            setAvailableRooms(["문화교실1", "문화교실2", "문화교실3"]);
+            const result = await checkRoomAvailability(payload);
+            console.log("---checkRoomAvailability result---:", result);
+
+            if (result.full === true) {
+                setRoomCheckMessage("해당 강의실은 선택한 날짜/시간에 이미 예약되어 있습니다.");
+                setRoomCheckType("error");
+            } else {
+                setRoomCheckMessage("해당 강의실은 예약 가능합니다.");
+                setRoomCheckType("success");
+            }
+        } catch (error) {
+            console.error("강의실 확인 오류:", error);
+            setRoomCheckMessage("강의실 확인 중 오류가 발생했습니다.");
+            setRoomCheckType("error");
+        }
+    };
+
+    // 사용 가능한 강의실 목록을 가져오는 함수
+    const fetchAvailableRooms = async () => {
+        const { startDate, endDate, daysOfWeek, startTime, endTime } = form;
+        if (startDate && endDate && daysOfWeek.length > 0 && startTime && endTime) {
+            try {
+                const payload = {
+                    startDate,
+                    endDate,
+                    daysOfWeek,
+                    startTime: dayjs(`2000-01-01T${startTime}`).format("HH:mm"),
+                    endTime: dayjs(`2000-01-01T${endTime}`).format("HH:mm"),
+                };
+                const roomStatusMap = await getRoomAvailabilityStatus(payload);
+                setAvailableRooms(roomStatusMap); // roomName: true/false
+            } catch (error) {
+                console.error("강의실 상태 조회 오류:", error);
+                setAvailableRooms({});
+            }
+        } else {
+            setAvailableRooms({});
         }
     };
 
     useEffect(() => {
-        if (!form.startDate || !form.endDate || form.daysOfWeek.length === 0) {
-            setAvailableRooms(["문화교실1", "문화교실2", "문화교실3"]);
-            return;
-        }
         fetchAvailableRooms();
-    }, [form.startDate, form.endDate, form.daysOfWeek]);
+    }, [form.startDate, form.endDate, form.daysOfWeek]); // 날짜/요일 변경 시마다 가용 강의실 업데이트
 
-    const handleChange = (e) => {
-        const { name, value, type, checked, files } = e.target;
-        if (type === "checkbox") {
-            setForm((prev) => ({
-                ...prev,
-                daysOfWeek: checked
-                    ? [...prev.daysOfWeek, value]
-                    : prev.daysOfWeek.filter((v) => v !== value),
-            }));
-        } else if (type === "file") {
-            setForm((prev) => ({ ...prev, file: files[0] }));
-        } else {
-            setForm((prev) => ({ ...prev, [name]: value }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        if (isSubmitting || mutation.isLoading) return;
         setIsSubmitting(true);
 
-        if (!form.progName || !form.teachName || !form.room || !form.applyStartAt || !form.applyEndAt) {
-            alert("필수 항목을 모두 입력해주세요.");
-            setIsSubmitting(false);
-            return;
+        const formData = new FormData();
+
+        formData.append("progName", form.progName);
+        formData.append("applyStartAt", form.applyStartAt);
+        formData.append("applyEndAt", form.applyEndAt);
+        formData.append("startDate", form.startDate);
+        formData.append("endDate", form.endDate);
+        formData.append("startTime", form.startTime);
+        formData.append("endTime", form.endTime);
+        formData.append("room", form.room);
+        formData.append("target", form.target);
+        formData.append("capacity", form.capacity);
+        formData.append("teachName", form.teachName);
+        formData.append("content", form.content);
+
+        form.daysOfWeek.forEach(day => {
+            formData.append("daysOfWeek", day);
+        });
+
+        if (form.file) {
+            formData.append("file", form.file);
         }
 
-        try {
-            // 중복 체크
-            const res = await checkRoomAvailability({
-                startDate: form.startDate,
-                endDate: form.endDate,
-                daysOfWeek: form.daysOfWeek,
-            });
+        mutation.mutate(formData);
+    };
 
-            if (res.full) {
-                alert("모든 시설이 예약되어 있어 등록할 수 없습니다.");
-                setIsSubmitting(false);
-                return;
-            }
 
-            // FormData 구성
-            const data = new FormData();
+    // 날짜/시간 포맷팅 유틸 함수 (입력 필드의 value prop에 사용)
+    const formatDateTimeLocal = (value) => {
+        if (!value) return "";
+        const parsed = dayjs(value);
+        return parsed.isValid() ? parsed.format("YYYY-MM-DDTHH:mm") : "";
+    };
 
-            // LocalDateTime 조합 (input에서 분리된 경우)
-            const applyStartAt = `${form.applyStartAt}T${form.startTime}:00`;
-            const applyEndAt = `${form.applyEndAt}T${form.endTime}:00`;
+    // "yyyy-MM-dd" 형식 (date input용)
+    const formatDateLocal = (value) => {
+        if (!value) return "";
+        const parsed = dayjs(value);
+        return parsed.isValid() ? parsed.format("YYYY-MM-DD") : "";
+    };
 
-            // DTO 필드에 맞춰 append
-            data.append("progName", form.progName);
-            data.append("teachName", form.teachName);
-            data.append("room", form.room);
-            data.append("target", form.target);
-            data.append("capacity", Number(form.capacity));
-            data.append("content", form.content || "");
-            data.append("status", "신청전");
-
-            data.append("startDate", form.startDate);
-            data.append("endDate", form.endDate);
-            data.append("startTime", form.startTime);
-            data.append("endTime", form.endTime);
-            data.append("applyStartAt", applyStartAt); // LocalDateTime 형식
-            data.append("applyEndAt", applyEndAt);     // LocalDateTime 형식
-
-            // 요일 배열 (DayOfWeek enum 문자열로!)
-            form.daysOfWeek.forEach(day => data.append("daysOfWeek", day));
-
-            // 파일
-            if (form.file) {
-                data.append("file", form.file);
-            }
-
-            // 등록 요청
-            mutation.mutate(data);
-        } catch (err) {
-            console.error("사전 중복 확인 오류", err);
-            alert("시설 확인 중 오류 발생");
-            setIsSubmitting(false);
-        }
+    // "HH:mm" 형식 (time input용)
+    const formatTimeLocal = (value) => {
+        if (!value || typeof value !== "string" || value.length < 4) return "";
+        return dayjs(`2000-01-01T${value}`).isValid()
+            ? dayjs(`2000-01-01T${value}`).format("HH:mm")
+            : "";
     };
 
     return (
-        <div className="max-w-5xl mx-auto p-6">
-            <h2 className="text-3xl font-bold mb-8 text-center text-green-700">📋 프로그램 등록</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* 기본 정보 */}
-                <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-800">기본 정보</h3>
-                    <input type="text" name="progName" placeholder="프로그램명" className="w-full border p-2 rounded" onChange={handleChange} required />
-                    <input type="text" name="teachName" placeholder="강사명" className="w-full border p-2 rounded" onChange={handleChange} required />
-                    <select name="room" className="w-full border p-2 rounded" onChange={handleChange} required>
-                        <option value="">장소 선택</option>
-                        {availableRooms.map((room) => (
-                            <option key={room} value={room}>{room}</option>
-                        ))}
-                    </select>
-                    <select name="target" className="w-full border p-2 rounded" onChange={handleChange}>
-                        <option value="전체">전체</option>
-                        <option value="청소년">청소년</option>
-                        <option value="성인">성인</option>
-                    </select>
-                    <input type="number" name="capacity" placeholder="정원 (숫자)" min="1" className="w-full border p-2 rounded" onChange={handleChange} required />
-                </div>
-
-                {/* 일정 */}
-                <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-800">신청 및 강좌 일정</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* 신청 시작일 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">신청 시작일</label>
-                            <input
-                                type="date"
-                                name="applyStartAt"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {/* 신청 종료일 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">신청 종료일</label>
-                            <input
-                                type="date"
-                                name="applyEndAt"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {/* 강좌 시작일 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">강좌 시작일</label>
-                            <input
-                                type="date"
-                                name="startDate"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {/* 강좌 종료일 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">강좌 종료일</label>
-                            <input
-                                type="date"
-                                name="endDate"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {/* 강의 시작시간 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">강의 시작시간</label>
-                            <input
-                                type="time"
-                                name="startTime"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {/* 강의 종료시간 */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1">강의 종료시간</label>
-                            <input
-                                type="time"
-                                name="endTime"
-                                className="w-full border p-2 rounded"
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+        <div className="container mx-auto p-4 max-w-3xl">
+            <h2 className="text-2xl font-bold mb-6 text-center">프로그램 등록</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-gray-700">프로그램명</label>
+                        <input type="text" name="progName" value={form.progName} onChange={handleChange} className="w-full border p-2 rounded" required />
                     </div>
-                </div>
+                    <div>
+                        <label className="block text-gray-700">강사명</label>
+                        <input type="text" name="teachName" value={form.teachName} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
 
-                {/* 요일 */}
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3">수강 요일</h3>
-                    <div className="flex flex-wrap gap-3">
-                        {["월", "화", "수", "목", "금", "토", "일"].map((day) => {
-                            return (
+                    <div>
+                        <label className="block text-gray-700">신청 시작일</label>
+                        <input type="datetime-local" name="applyStartAt" value={formatDateTimeLocal(form.applyStartAt)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+                    <div>
+                        <label className="block text-gray-700">신청 종료일</label>
+                        <input type="datetime-local" name="applyEndAt" value={formatDateTimeLocal(form.applyEndAt)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700">수강 시작일</label>
+                        <input type="date" name="startDate" value={formatDateLocal(form.startDate)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+                    <div>
+                        <label className="block text-gray-700">수강 종료일</label>
+                        <input type="date" name="endDate" value={formatDateLocal(form.endDate)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700">수강 시작 시간</label>
+                        <input type="time" name="startTime" value={formatTimeLocal(form.startTime)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+                    <div>
+                        <label className="block text-gray-700">수강 종료 시간</label>
+                        <input type="time" name="endTime" value={formatTimeLocal(form.endTime)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                    </div>
+
+                    <div className="col-span-2">
+                        <label className="block text-gray-700 mb-2">수강 요일</label>
+                        <div className="flex gap-2">
+                            {Object.keys(dayToNumber).map((dayName) => (
                                 <CheckBox
-                                    key={day}
-                                    label={day}
-                                    checked={form.daysOfWeek.includes(day)}
+                                    key={dayName}
+                                    checked={form.daysOfWeek.includes(dayToNumber[dayName])}
+                                    label={dayName}
                                     onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        const updated = checked
-                                            ? [...form.daysOfWeek, day]
-                                            : form.daysOfWeek.filter((d) => d !== day);
-                                        const order = ["월", "화", "수", "목", "금", "토", "일"];
-                                        updated.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-                                        setForm((prev) => ({ ...prev, daysOfWeek: updated }));
+                                        const syntheticEvent = {
+                                            target: {
+                                                name: "daysOfWeek",
+                                                value: dayName,
+                                                checked: e.target.checked,
+                                                type: "checkbox",
+                                            },
+                                        };
+                                        handleChange(syntheticEvent);
                                     }}
                                 />
-                            );
-                        })}
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="col-span-2">
+                        <label className="block text-gray-700">강의실</label>
+                        <div className="flex items-center gap-2">
+                            <select name="room" value={form.room} onChange={handleChange} className="flex-grow border p-2 rounded" required>
+                                <option value="">선택</option>
+                                {Object.entries(availableRooms).map(([roomName, isAvailable]) => (
+                                    <option key={roomName} value={roomName} disabled={!isAvailable}>
+                                        {roomName}{!isAvailable ? " (사용불가)" : ""}
+                                    </option>
+                                ))}
+                            </select>
+                            <Button type="button" onClick={handleRoomCheck} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                                강의실 확인
+                            </Button>
+                        </div>
+                        {roomCheckMessage && (
+                            <p className={`mt-2 text-sm ${roomCheckType === "success" ? "text-green-600" : "text-red-600"}`}>
+                                {roomCheckMessage}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700">수강대상</label>
+                        <select name="target" value={form.target} onChange={handleChange} className="w-full border p-2 rounded">
+                            <option value="전체">전체</option>
+                            <option value="초등학생">초등학생</option>
+                            <option value="중학생">중학생</option>
+                            <option value="고등학생">고등학생</option>
+                            <option value="성인">성인</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-gray-700">모집인원</label>
+                        <input type="number" name="capacity" value={form.capacity} onChange={handleChange} className="w-full border p-2 rounded" min="1" required />
                     </div>
                 </div>
 
-                {/* 파일 및 설명 */}
-                <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-800">첨부파일 및 설명</h3>
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col space-y-4">
+                    <label className="block text-gray-700">첨부 파일</label>
+                    <div className="flex items-center gap-3">
                         <input type="file" id="file-upload" name="file" accept=".pdf,.hwp" className="hidden" onChange={handleChange} />
                         <label htmlFor="file-upload" className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-sm">
                             파일 선택
@@ -290,7 +324,7 @@ const ProgramRegisterComponent = () => {
                             )}
                         </span>
                     </div>
-                    <textarea name="content" placeholder="내용을 입력하세요" className="w-full border p-2 h-32 rounded" onChange={handleChange} />
+                    <textarea name="content" placeholder="내용을 입력하세요" value={form.content} onChange={handleChange} className="w-full border p-2 h-32 rounded" required />
                 </div>
 
                 {/* 버튼 */}
@@ -298,7 +332,9 @@ const ProgramRegisterComponent = () => {
                     <Button type="submit" disabled={isSubmitting || mutation.isLoading}>
                         {isSubmitting || mutation.isLoading ? "등록 중..." : "등록하기"}
                     </Button>
-                    <Button type="button" onClick={() => navigate(-1)} className="bg-gray-400 hover:bg-gray-500">취소</Button>
+                    <Button type="button" onClick={() => navigate(-1)} className="bg-gray-300 text-black hover:bg-gray-400 cursor-pointer">
+                        취소
+                    </Button>
                 </div>
             </form>
         </div>

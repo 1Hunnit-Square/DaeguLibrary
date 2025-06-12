@@ -31,7 +31,7 @@ const getDayColor = (day, base = 'text-gray-600') => {
   return base;
 };
 
-const EventManagementComponent = () => {
+const CalendarManagementComponent = () => {
   const calendarRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -327,4 +327,4 @@ const EventManagementComponent = () => {
   );
 };
 
-export default EventManagementComponent;
+export default CalendarManagementComponent;

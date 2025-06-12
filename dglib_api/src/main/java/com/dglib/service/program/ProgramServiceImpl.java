@@ -3,11 +3,15 @@ package com.dglib.service.program;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,6 +46,14 @@ public class ProgramServiceImpl implements ProgramService {
 	private final FileUtil fileUtil;
 	private final ModelMapper modelMapper;
 
+	private static final Logger log = LoggerFactory.getLogger(ProgramServiceImpl.class);
+
+	private static final String[] WEEK_KO = { "일", "월", "화", "수", "목", "금", "토" };
+
+	private List<String> convertToDayNames(List<Integer> days) {
+		return days.stream().map(num -> WEEK_KO[num % 7]).collect(Collectors.toList());
+	}
+
 	private String calculateStatus(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -54,29 +66,31 @@ public class ProgramServiceImpl implements ProgramService {
 		}
 	}
 
+	// 수업 날짜 생성 메서드 (요일 포함된 실제 수업일 계산)
+	private List<LocalDate> generateClassDates(LocalDate start, LocalDate end, List<Integer> daysOfWeek) {
+		List<LocalDate> dates = new ArrayList<>();
+		for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+			if (daysOfWeek.contains(date.getDayOfWeek().getValue())) {
+				dates.add(date);
+			}
+		}
+		return dates;
+	}
+
 	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
 	@Override
 	public Page<ProgramInfoDTO> getProgramList(Pageable pageable, String progName, String content, String status) {
-		// 모든 조건이 비어 있으면 전체 조회
 		boolean noFilter = (progName == null || progName.isBlank()) && (content == null || content.isBlank())
 				&& (status == null || status.isBlank());
-
-		Page<ProgramInfo> result;
-
-		if (noFilter) {
-			result = infoRepository.findAll(pageable);
-		} else {
-			result = infoRepository.searchProgram(progName, content, status, pageable);
-		}
-
+		Page<ProgramInfo> result = noFilter ? infoRepository.findAll(pageable)
+				: infoRepository.searchProgram(progName, content, status, pageable);
 		return result.map(program -> {
 			ProgramInfoDTO dto = modelMapper.map(program, ProgramInfoDTO.class);
-			int applicants = useRepository.countByProgram(program.getProgNo());
-			dto.setCurrent(applicants);
-			dto.setOriginalName(program.getFileName());
+			dto.setCurrent(useRepository.countByProgram(program.getProgNo()));
+			dto.setFileName(program.getFileName());
 			dto.setStatus(calculateStatus(program.getApplyStartAt(), program.getApplyEndAt()));
 			dto.setCreatedAt(program.getCreatedAt());
-
+			dto.setDayNames(convertToDayNames(program.getDaysOfWeek()));
 			return dto;
 		});
 	}
@@ -84,24 +98,17 @@ public class ProgramServiceImpl implements ProgramService {
 	// 프로그램 목록 검색
 	@Override
 	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
-		// 검색 타입에 따라 searchType 설정
 		option = (option != null && !option.isBlank()) ? option : "all";
 		query = (query != null && !query.isBlank()) ? query : null;
 		status = (status != null && !status.isBlank()) ? status : null;
-
-		String searchType = null;
-		if ("progName".equals(option) || "teachName".equals(option)) {
-			searchType = option;
-		}
-
+		String searchType = ("progName".equals(option) || "teachName".equals(option)) ? option : null;
 		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, status, null, null, pageable);
-
 		return result.map(p -> {
 			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
 			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-			dto.setOriginalName(p.getFileName());
+			dto.setFileName(p.getFileName());
 			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
-
+			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
 			return dto;
 		});
 	}
@@ -125,7 +132,7 @@ public class ProgramServiceImpl implements ProgramService {
 		return infoRepository.findAll().stream().filter(info -> !info.getApplyEndAt().toLocalDate().isBefore(today))
 				.map(info -> {
 					ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
-
+					dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
 					return dto;
 				}).collect(Collectors.toList());
 	}
@@ -135,25 +142,29 @@ public class ProgramServiceImpl implements ProgramService {
 	public ProgramInfoDTO getProgram(Long progNo) {
 		ProgramInfo info = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-
 		ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
-
-		dto.setOriginalName(info.getFileName());
-
+		dto.setFileName(info.getFileName());
 		dto.setStatus(calculateStatus(info.getApplyStartAt(), info.getApplyEndAt()));
-
 		dto.setCurrent(useRepository.countByProgram(progNo));
-
+		dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
 		return dto;
 	}
 
 	// 프로그램 등록
 	@Override
 	public void registerProgram(ProgramInfoDTO dto, MultipartFile file) {
+		if (dto.getDaysOfWeek() == null || dto.getDaysOfWeek().isEmpty()) {
+			throw new IllegalArgumentException("요일 정보가 누락되었습니다.");
+		}
+
 		ProgramInfo info = modelMapper.map(dto, ProgramInfo.class);
+		info.setCreatedAt(LocalDateTime.now());
+		info.setStatus(calculateStatus(dto.getApplyStartAt(), dto.getApplyEndAt()));
+		info.setDaysOfWeek(dto.getDaysOfWeek());
 
 		setFileInfo(info, file);
 		infoRepository.save(info);
+
 	}
 
 	// 프로그램 수정
@@ -163,70 +174,28 @@ public class ProgramServiceImpl implements ProgramService {
 		ProgramInfo origin = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
+		// 기존 파일 경로, 이름 백업
 		String originalFilePath = origin.getFilePath();
-		String originalFilename = origin.getFileName();
+		String originalFileName = origin.getFileName();
 
+		// DTO → 엔티티 매핑
+		LocalDateTime originalCreatedAt = origin.getCreatedAt();
+		modelMapper.map(dto, origin);
+		origin.setCreatedAt(originalCreatedAt);
+
+		// 파일이 비어있지 않다면 기존 파일 삭제 후 새 파일 저장
 		if (file != null && !file.isEmpty()) {
 			if (originalFilePath != null && !originalFilePath.isEmpty()) {
-				try {
-					fileUtil.deleteFiles(List.of(originalFilePath));
-				} catch (RuntimeException e) {
-					System.err.println("기존 파일 삭제 실패: " + originalFilePath);
-					throw e;
-				}
+				fileUtil.deleteFiles(List.of(originalFilePath));
 			}
-		}
-
-		modelMapper.map(dto, origin);
-
-		if (file == null || file.isEmpty()) {
-			origin.setFilePath(originalFilePath);
-			origin.setFileName(originalFilename);
-		} else {
 			setFileInfo(origin, file);
+
+		} else {
+			origin.setFilePath(dto.getFilePath() != null ? dto.getFilePath() : originalFilePath);
+			origin.setFileName(dto.getFileName() != null ? dto.getFileName() : originalFileName);
 		}
 
 		infoRepository.save(origin);
-	}
-
-	// 파일 처리 공통 메서드
-	private void setFileInfo(ProgramInfo info, MultipartFile file) {
-
-		if (file != null && !file.isEmpty()) {
-			// 새롭게 추가된 파일 확장자 직접 검사 로직
-			String originalFilename = file.getOriginalFilename();
-			if (originalFilename == null || originalFilename.isEmpty()) {
-				throw new IllegalArgumentException("파일 이름이 존재하지 않습니다.");
-			}
-
-			String lowerCaseFilename = originalFilename.toLowerCase();
-			boolean isAllowedDocument = lowerCaseFilename.endsWith(".hwp") || lowerCaseFilename.endsWith(".pdf");
-
-			if (!isAllowedDocument) {
-				throw new IllegalArgumentException("hwp 또는 pdf 파일만 업로드 가능합니다.");
-			}
-			// 여기까지 파일 확장자 검사 로직 추가
-
-			String oldPath = info.getFilePath();
-
-			if (oldPath != null && !oldPath.isEmpty()) {
-				try {
-					fileUtil.deleteFiles(List.of(oldPath));
-					System.out.println("기존 파일 삭제: " + oldPath);
-				} catch (RuntimeException e) {
-					System.err.println("기존 파일 삭제 실패: " + oldPath + " - " + e.getMessage());
-					throw e;
-				}
-			}
-
-			List<Object> uploaded = fileUtil.saveFiles(List.of(file), "program");
-
-			@SuppressWarnings("unchecked")
-			Map<String, String> fileInfo = (Map<String, String>) uploaded.get(0);
-			System.out.println("업로드된 파일 originalName: " + fileInfo.get("originalName"));
-			info.setFileName(fileInfo.get("originalName"));
-			info.setFilePath(fileInfo.get("filePath"));
-		}
 	}
 
 	// 프로그램 삭제
@@ -234,10 +203,6 @@ public class ProgramServiceImpl implements ProgramService {
 	public void deleteProgram(Long progNo) {
 		ProgramInfo programToDelete = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-
-		if (programToDelete.getCreatedAt() == null) {
-			programToDelete.setCreatedAt(LocalDateTime.now());
-		}
 
 		// 신청자 데이터 삭제
 		List<ProgramUse> uses = useRepository.findByProgramInfo_ProgNo(progNo);
@@ -305,62 +270,77 @@ public class ProgramServiceImpl implements ProgramService {
 	// 관리자용 신청자 목록 조회
 	@Override
 	public List<ProgramUseDTO> getApplicantsByProgram(Long progNo) {
-		List<ProgramUse> list = useRepository.findWithMemberByProgramInfo_ProgNo(progNo); // join fetch 사용
-
-		return list.stream().map(use -> {
-			ProgramInfo info = use.getProgramInfo();
-			Member member = use.getMember();
-
-			String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
-
-			List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
-
-			return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt())
-					.progName(info.getProgName()).teachName(info.getTeachName()).startDate(info.getStartDate())
-					.endDate(info.getEndDate()).startTime(info.getStartTime().toString())
-					.endTime(info.getEndTime().toString()).daysOfWeek(dayOfWeekIntList).room(info.getRoom())
-					.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
-					.progNo(info.getProgNo()).mid(member != null ? member.getMid() : null)
-					.name(member != null ? member.getName() : null).email(member != null ? member.getEmail() : null)
-					.phone(member != null ? member.getPhone() : null).build();
-		}).collect(Collectors.toList());
+		List<ProgramUse> list = useRepository.findWithMemberByProgramInfo_ProgNo(progNo);
+		return list.stream().map(this::toDTO).collect(Collectors.toList());
 	}
 
-	// 모든 시설이 해당 기간과 요일에 이미 예약되어 있는지 확인
+	// 강의실 중복 여부 판단 메서드 (날짜+요일+시간 기준)
+	@Override
+	public boolean isRoomAvailable(ProgramRoomCheckDTO request) {
+		List<LocalDate> classDates = generateClassDates(request.getStartDate(), request.getEndDate(),
+				request.getDaysOfWeek());
+
+		for (LocalDate date : classDates) {
+			int dayOfWeek = date.getDayOfWeek().getValue();
+			boolean conflict = infoRepository.existsByRoomAndDateTimeOverlap(request.getRoom(), date,
+					request.getStartTime(), request.getEndTime(), dayOfWeek);
+			if (conflict)
+				return false;
+		}
+		return true;
+	}
+
+	// 전체 강의실 사용 가능 여부
+	@Override
+	public Map<String, Boolean> getRoomAvailabilityStatus(ProgramRoomCheckDTO request) {
+		if (request.getStartDate().isAfter(request.getEndDate())) {
+			throw new IllegalArgumentException("시작일은 종료일보다 이전이어야 합니다.");
+		}
+
+		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+		Map<String, Boolean> result = new LinkedHashMap<>();
+
+		for (String room : rooms) {
+			request.setRoom(room); // 강의실 설정 후 검사
+			boolean isAvailable = isRoomAvailable(request);
+			result.put(room, isAvailable);
+		}
+		return result;
+	}
+
+	// 모든 강의실이 해당 기간에 모두 겹치는지 확인
 	@Override
 	public boolean isAllRoomsOccupied(ProgramRoomCheckDTO request) {
+		if (request.getDaysOfWeek() == null || request.getDaysOfWeek().isEmpty()) {
+			return false;
+		}
+
 		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+		long unavailableCount = rooms.stream().filter(room -> {
+			request.setRoom(room);
+			return !isRoomAvailable(request);
+		}).count();
 
-		List<Integer> dayInts = request.getDaysOfWeek();
-
-		long count = rooms.stream().filter(room -> infoRepository.existsByRoomAndOverlap(room, request.getStartDate(),
-				request.getEndDate(), dayInts)).count();
-
-		return count >= 3;
-	}
-
-	// 가능한 강의실 목록 리턴
-	@Override
-	public List<String> getAvailableRooms(ProgramRoomCheckDTO request) {
-		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
-
-		List<Integer> dayInts = request.getDaysOfWeek();
-
-		return rooms.stream().filter(room -> !infoRepository.existsByRoomAndOverlap(room, request.getStartDate(),
-				request.getEndDate(), dayInts)).toList();
+		return unavailableCount >= rooms.size();
 	}
 
 	// 신청 대상자 여부 판단
 	private boolean isEligible(String target, Member member) {
-		if (target == null || target.isBlank() || member.getBirthDate() == null) {
+		if (target == null || target.isBlank() || "전체".equals(target)) {
 			return true;
+		}
+
+		if (member.getBirthDate() == null) {
+			return false;
 		}
 
 		int age = Period.between(member.getBirthDate(), LocalDate.now()).getYears();
 
 		return switch (target) {
-		case "성인" -> age >= 19;
-		case "청소년" -> age >= 9 && age <= 18;
+		case "초등학생" -> age >= 9 && age <= 13;
+		case "중학생" -> age >= 14 && age <= 16;
+		case "고등학생" -> age >= 17 && age <= 19;
+		case "성인" -> age >= 20;
 		default -> false;
 		};
 	}
@@ -393,22 +373,78 @@ public class ProgramServiceImpl implements ProgramService {
 	@Override
 	public List<ProgramUseDTO> getUseListByMember(String mid) {
 		List<ProgramUse> list = useRepository.findByMember_Mid(mid);
-
-		return list.stream().map(use -> {
-			ProgramInfo info = use.getProgramInfo();
-
-			String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
-
-			List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
-
-			return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt())
-					.progNo(info.getProgNo()).mid(use.getMember().getMid()).progName(info.getProgName())
-					.teachName(info.getTeachName()).startDate(info.getStartDate()).endDate(info.getEndDate())
-					.startTime(info.getStartTime().toString()).endTime(info.getEndTime().toString())
-					.daysOfWeek(dayOfWeekIntList).room(info.getRoom()).capacity(info.getCapacity())
-					.current(useRepository.countByProgram(info.getProgNo())).status(status).build();
-		}).collect(Collectors.toList());
-
+		return list.stream().map(this::toDTO).collect(Collectors.toList());
 	}
 
+	// -------------------공통 메서드--------------------
+
+	// ProgramUse → ProgramUseDTO 변환 메서드(getApplicantsByProgram()과
+	// getUseListByMember()에서 중복)
+	private ProgramUseDTO toDTO(ProgramUse use) {
+		ProgramInfo info = use.getProgramInfo();
+		Member member = use.getMember();
+
+		String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
+		List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
+
+		return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt()).progNo(info.getProgNo())
+				.progName(info.getProgName()).teachName(info.getTeachName()).startDate(info.getStartDate())
+				.endDate(info.getEndDate()).startTime(info.getStartTime().toString())
+				.endTime(info.getEndTime().toString()).daysOfWeek(dayOfWeekIntList).room(info.getRoom())
+				.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
+				.mid(member != null ? member.getMid() : null).name(member != null ? member.getName() : null)
+				.email(member != null ? member.getEmail() : null).phone(member != null ? member.getPhone() : null)
+				.build();
+	}
+
+	// 파일 처리 공통 메서드
+	private void setFileInfo(ProgramInfo info, MultipartFile file) {
+		log.info("setFileInfo called. file is null: {}, file is empty: {}", (file == null),
+				(file != null && file.isEmpty()));
+
+		// 파일이 넘어온 경우 (새 파일이 업로드 되었거나 기존 파일을 변경하는 경우)
+		if (file != null && !file.isEmpty()) {
+			String originalFilename = file.getOriginalFilename();
+
+			if (originalFilename == null || originalFilename.isEmpty()) {
+				throw new IllegalArgumentException("파일 이름이 존재하지 않습니다.");
+			}
+
+			// 파일 확장자 검사: .hwp 또는 .pdf 파일만 허용
+			String lowerCaseFilename = originalFilename.toLowerCase();
+			boolean isAllowedDocument = lowerCaseFilename.endsWith(".hwp") || lowerCaseFilename.endsWith(".pdf");
+
+			if (!isAllowedDocument) { // .hwp 또는 .pdf 파일이 아닌 경우
+				throw new IllegalArgumentException("hwp 또는 pdf 파일만 업로드 가능합니다.");
+			}
+
+			// 기존 파일 삭제 (있으면)
+			String oldPath = info.getFilePath();
+			if (oldPath != null && !oldPath.isEmpty()) {
+				try {
+					fileUtil.deleteFiles(List.of(oldPath));
+					log.info("기존 파일 삭제 완료: {}", oldPath);
+				} catch (RuntimeException e) {
+					log.warn("기존 파일 삭제 실패: {}", oldPath, e);
+					throw e;
+				}
+			}
+
+			// 새 파일 저장
+			List<Object> uploaded = fileUtil.saveFiles(List.of(file), "program");
+			if (!uploaded.isEmpty()) {
+				@SuppressWarnings("unchecked")
+				Map<String, String> fileInfoMap = (Map<String, String>) uploaded.get(0);
+				info.setFileName(fileInfoMap.get("originalName"));
+				info.setFilePath(fileInfoMap.get("filePath"));
+				log.info("New file saved. OriginalName: {}, FilePath: {}", fileInfoMap.get("originalName"),
+						fileInfoMap.get("filePath"));
+			}
+
+		}
+		// 파일이 전달되지 않은 경우 (file == null || file.isEmpty()) -> 기존 파일 유지
+		else {
+			log.info("파일이 전달되지 않음 → 기존 파일 유지");
+		}
+	}
 }

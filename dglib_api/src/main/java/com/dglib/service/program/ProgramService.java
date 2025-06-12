@@ -1,6 +1,7 @@
 package com.dglib.service.program;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,8 +40,10 @@ public interface ProgramService {
 
 	boolean isAllRoomsOccupied(ProgramRoomCheckDTO request); // 모든 강의실이 예약되었는지 확인
 
+	boolean isRoomAvailable(ProgramRoomCheckDTO request);
+
 	// 사용 가능한 강의실 목록 조회
-	List<String> getAvailableRooms(ProgramRoomCheckDTO request);
+	Map<String, Boolean> getRoomAvailabilityStatus(ProgramRoomCheckDTO dto);
 
 	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
 	Page<ProgramInfoDTO> getProgramList(Pageable pageable, String title, String content, String status);

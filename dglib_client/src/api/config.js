@@ -1,6 +1,6 @@
 
 
-export const API_SERVER_HOST = 'http://localhost:8090';
+export const API_SERVER_HOST = '';
 
 export const API_ENDPOINTS = {
   member: '/api/member',
@@ -18,6 +18,3 @@ export const API_ENDPOINTS = {
 };
 
 export const SMS_KEY = "CREATION";
-
-
-

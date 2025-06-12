@@ -10,7 +10,6 @@ export const getProgramList = async (params) => {
   return response.data;
 };
 
-
 // 상세 조회
 export const getProgramDetail = async (progNo) => {
   const response = await axios.get(`${PROGRAM_URL}/${progNo}`);
@@ -19,15 +18,16 @@ export const getProgramDetail = async (progNo) => {
 
 // 장소 중복 확인 (등록 전)
 export const checkRoomAvailability = async (payload) => {
-  const response = await axios.post(`${API_SERVER_HOST}/api/programs/check-room`, payload);
+  const response = await axios.post(`${PROGRAM_URL}/check-room`, payload);
   return response.data;
 };
 
-// 사용 가능한 강의실 목록 조회
-export const getAvailableRooms = async (payload) => {
-  const response = await axios.post(`${API_SERVER_HOST}/api/programs/available-rooms`, payload);
+// 강의실 상태 확인
+export const getRoomAvailabilityStatus = async (payload) => {
+  const response = await axios.post(`${PROGRAM_URL}/room-status`, payload);
   return response.data;
 };
+
 
 // 등록
 export const registerProgram = async (formData) => {
@@ -54,12 +54,10 @@ export const deleteProgram = async (progNo) => {
 // 프로그램 신청(회원용)
 export const applyProgram = async (progNo, mid) => {
   const response = await axiosClient.post(
-    `${API_SERVER_HOST}/api/programs/apply`,
+    `${PROGRAM_URL}/apply`,
     { progNo, mid },
     {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' },
     }
   );
   return response.data;
@@ -67,7 +65,7 @@ export const applyProgram = async (progNo, mid) => {
 
 // 프로그램 신청 내역(회원용)
 export const getProgramUseList = async (mid) => {
-  const res = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.program}/use`, {
+  const res = await axios.get(`${PROGRAM_URL}/use`, {
     params: { mid },
   });
   return Array.isArray(res.data) ? res.data : [];
@@ -75,14 +73,12 @@ export const getProgramUseList = async (mid) => {
 
 // 프로그램 신청 취소(회원용)
 export const cancelProgram = async (progUseNo) => {
-  const response = await axios.delete(`${API_SERVER_HOST}/api/programs/cancel/${progUseNo}`);
+  const response = await axios.delete(`${PROGRAM_URL}/cancel/${progUseNo}`);
   return response.data;
 };
 
-// 특정 프로그램의 신청자 목록 조회(관리자)
+// 특정 프로그램의 신청자 목록 조회(관리자용)
 export const getApplicantsByProgram = async (progNo) => {
-  const response = await axios.get(`${API_SERVER_HOST}/api/programs/${progNo}/applicants`);
+  const response = await axios.get(`${PROGRAM_URL}/${progNo}/applicants`);
   return response.data;
 };
-
-

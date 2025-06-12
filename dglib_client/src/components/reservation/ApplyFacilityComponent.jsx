@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EventCalendarComponent from '../usage/EventCalendarComponent';
+import CalendarComponent from '../usage/CalendarComponent';
 import { useQuery } from '@tanstack/react-query';
 import { getClosedDays } from '../../api/closedDayApi';
 import { getReservationStatus } from '../../api/placeApi';
@@ -59,7 +59,7 @@ const ApplyFacilityComponent = () => {
         </div>
       </section>
 
-      <EventCalendarComponent
+      <CalendarComponent
         showYearSelect={false}
         onMonthChange={(year, month) => {
           setSelectedYear(year);

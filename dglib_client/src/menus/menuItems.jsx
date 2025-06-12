@@ -49,7 +49,7 @@ const defaultMenuItems = [
         { name: '자료실 이용', link: '/usage/readingroom' },
         { name: '회원가입 안내', link: '/usage/membership' },
         { name: '도서 대출 및 반납', link: '/usage/borrowreturn' },
-        { name: '이달의 행사 일정', link: '/usage/eventcalendar' }
+        { name: '이달의 행사 일정', link: '/usage/calendar' }
       ]
     },
     {
@@ -104,7 +104,7 @@ const defaultMenuItems = [
         { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
         { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
         { name: '회원관리', link: '/admin/membermanagement?page=1' },
-        { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
+        { name: '이달의 행사 관리', link: '/admin/calendarmanagement' },
         { name: '프로그램·시설 관리', link: '/admin/progmanagement' },
       ]
     }];

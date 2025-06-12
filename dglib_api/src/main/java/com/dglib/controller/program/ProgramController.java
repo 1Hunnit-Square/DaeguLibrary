@@ -3,7 +3,8 @@ package com.dglib.controller.program;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/programs")
 @RequiredArgsConstructor
 public class ProgramController {
+
+	private static final Logger log = LoggerFactory.getLogger(ProgramController.class);
 
 	private final ProgramService programService;
 	private final FileUtil fileUtil;
@@ -105,12 +108,12 @@ public class ProgramController {
 	public ResponseEntity<List<ProgramUseDTO>> getApplicantsByProgram(@PathVariable Long progNo) {
 		return ResponseEntity.ok(programService.getApplicantsByProgram(progNo));
 	}
-	
+
 	// 10. 관리자 - 프로그램 시설 등록
-	@PostMapping("/available-rooms")
-	public ResponseEntity<List<String>> getAvailableRooms(@RequestBody ProgramRoomCheckDTO dto){
-		List<String> available = programService.getAvailableRooms(dto);
-		return ResponseEntity.ok(available);
+	@PostMapping("/room-status")
+	public ResponseEntity<Map<String, Boolean>> getRoomAvailabilityStatus(@RequestBody ProgramRoomCheckDTO dto) {
+		Map<String, Boolean> status = programService.getRoomAvailabilityStatus(dto);
+		return ResponseEntity.ok(status);
 	}
 
 	// 파일 다운로드

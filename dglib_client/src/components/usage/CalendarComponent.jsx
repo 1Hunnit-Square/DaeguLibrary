@@ -8,7 +8,7 @@ import Loading from '../../routers/Loading';
 import { useQuery } from '@tanstack/react-query';
 import { getClosedDays, registerAutoAllEvents } from '../../api/closedDayApi';
 
-const EventCalendarComponent = ({
+const CalendarComponent = ({
   renderExtraCellContent = () => null,
   onMonthChange = () => {},
   showYearSelect = true
@@ -137,4 +137,4 @@ const EventCalendarComponent = ({
   );
 };
 
-export default EventCalendarComponent;
+export default CalendarComponent;

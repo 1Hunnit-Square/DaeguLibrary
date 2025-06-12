@@ -3,8 +3,11 @@ package com.dglib.entity.program;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -41,6 +44,7 @@ public class ProgramInfo {
 	@Column(nullable = false, length = 18)
 	private String teachName; // 강사명
 
+	@Builder.Default
 	@Column(nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now(); // 동록일
 
@@ -53,10 +57,11 @@ public class ProgramInfo {
 	@Column(nullable = false, length = 20)
 	private String status; // 신청전 / 신청중 / 신청마감 등
 
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(name = "program_days", joinColumns = @JoinColumn(name = "prog_no"))
-	@Column(name = "day_of_week", nullable = false)
-	private List<Integer> daysOfWeek;
+	@Column(nullable = false)
+	private List<Integer> daysOfWeek  = new ArrayList<>();
 
 	@Column(nullable = false, length = 20)
 	private String room; // 장소

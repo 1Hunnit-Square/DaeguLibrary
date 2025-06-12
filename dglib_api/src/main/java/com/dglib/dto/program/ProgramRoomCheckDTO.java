@@ -1,16 +1,25 @@
 package com.dglib.dto.program;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
 @Data
 public class ProgramRoomCheckDTO {
-	// 프로그램 등록 전, 해당 기간 및 요일에 모든 장소가 이미 예약되어 있는지 확인
+	private String room;
+	
 	private LocalDate startDate;
-    private LocalDate endDate;
-    private List<Integer> daysOfWeek;
+	private LocalDate endDate;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+	private LocalTime startTime;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+	private LocalTime endTime;
 
+	private List<Integer> daysOfWeek;
 }

@@ -1,184 +1,206 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getProgramDetail, getApplicantsByProgram, deleteProgram, cancelProgram } from "../../api/programApi";
-import Button from "../common/Button";
-import Download from "../common/Download";
+import React, { useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { usePagination } from "../../hooks/usePage";
+import { useSearchHandler } from "../../hooks/useSearchHandler";
+import SearchSelectComponent from "../common/SearchSelectComponent";
+import SelectComponent from "../common/SelectComponent";
+import Loading from "../../routers/Loading";
+import Button from "../common/Button";
+import { getReservationListByAdmin, cancelReservationByAdmin } from "../../api/placeApi";
 
-const ProgramAdminDetailComponent = () => {
-    const { progNo } = useParams();
+const PlaceAdminComponent = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    const [program, setProgram] = useState(null);
-    const [applicants, setApplicants] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // 날짜 기본값 (한 달 전 ~ 오늘)
+    const today = new Date();
+    const aMonthAgo = new Date(today);
+    aMonthAgo.setDate(today.getDate() - 30);
 
-    // 페이지네이션 상태
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const page = parseInt(searchParams.get("page") || "1");
+    const size = parseInt(searchParams.get("size") || "10");
+    const sortBy = searchParams.get("sortBy") || "appliedAt";
+    const orderBy = searchParams.get("orderBy") || "desc";
+    const query = searchParams.get("query") || "";
 
-    const totalPages = Math.ceil(applicants.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = applicants.slice(startIndex, startIndex + itemsPerPage);
+    const searchFieldMap = {
+        "회원ID": "mid",
+        "회원 이름": "name",
+        "장소": "room",
+    };
 
-    const renderPagination = () => (
-        <div className="flex justify-center mt-4 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                >
-                    {i + 1}
-                </button>
-            ))}
-        </div>
-    );
+    const validOptions = Object.values(searchFieldMap);
+    const rawOption = searchParams.get("option");
+    const option = Object.values(searchFieldMap).includes(rawOption)
+  ? rawOption
+  : searchFieldMap[rawOption] || "mid";
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [programRes, applicantsRes] = await Promise.all([
-                    getProgramDetail(progNo),
-                    getApplicantsByProgram(progNo)
-                ]);
-                setProgram(programRes);
-                setApplicants(applicantsRes);
-            } catch (error) {
-                console.error("데이터 로딩 오류:", error);
-            } finally {
-                setIsLoading(false);
-            }
+    const dateFrom = searchParams.get("startDate") || aMonthAgo.toISOString().slice(0, 10);
+    const dateTo = searchParams.get("endDate") || today.toISOString().slice(0, 10);
+
+    const { handleSearch } = useSearchHandler({ tab: "place", dateRange: { startDate: dateFrom, endDate: dateTo } });
+
+    const sortByOption = useMemo(() => ({ "신청일": "appliedAt" }), []);
+    const orderByOption = useMemo(() => ({ "오름차순": "asc", "내림차순": "desc" }), []);
+    const sizeOption = useMemo(() => ({ "10개씩": "10", "50개씩": "50", "100개씩": "100" }), []);
+
+    const fetchReservations = async () => {
+        const params = {
+            page: page - 1,
+            size,
+            startDate: dateFrom,
+            endDate: dateTo,
+            sortBy,
+            orderBy,
         };
-        fetchData();
-    }, [progNo]);
-
-    const handleDelete = async () => {
-        if (window.confirm("정말 이 프로그램을 삭제하시겠습니까?")) {
-            try {
-                await deleteProgram(progNo);
-                alert("삭제되었습니다");
-                navigate("/admin/progmanagement");
-            } catch (err) {
-                alert("삭제 중 오류 발생");
-                console.error(err);
-            }
+        if (option && query !== null && query !== undefined) {
+            params.option = option;
+            params.query = query;
         }
+        return await getReservationListByAdmin(params);
     };
 
-    const handleCancel = async (progUseNo) => {
-        if (window.confirm("이 신청을 취소하시겠습니까?")) {
-            try {
-                await cancelProgram(progUseNo);
-                alert("취소되었습니다.");
-                setApplicants(prev => prev.filter(a => a.progUseNo !== progUseNo));
-            } catch (err) {
-                console.error(err);
-                alert("취소 중 오류 발생");
-            }
-        }
-    };
+    const { data = { content: [], totalPages: 0 }, isLoading } = useQuery({
+        queryKey: ["adminReservations", dateFrom, dateTo, option, query, page, size, sortBy, orderBy],
+        queryFn: fetchReservations,
+    });
 
-    if (isLoading || !program) return <p>불러오는 중...</p>;
+    const cancelMutation = useMutation({
+        mutationFn: (id) => cancelReservationByAdmin(id),
+        onSuccess: () => {
+            alert("신청이 취소되었습니다.");
+            queryClient.invalidateQueries(["adminReservations"]);
+        },
+    });
+
+    const { renderPagination } = usePagination(data, searchParams, setSearchParams, isLoading);
+
+    const searchOptions = ["회원ID", "회원 이름", "장소"];
+
+    const defaultCategory = useMemo(() => {
+        const entry = Object.entries(searchFieldMap).find(([label, field]) => field === option);
+        return entry ? entry[0] : "회원ID";
+    }, [option]);
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-12">
-            {/* 프로그램 상세 정보 */}
-            <div className="flex gap-4 justify-end mt-4">
-                <Button onClick={() => navigate(`/admin/programedit/${progNo}`)}>수정</Button>
-                <Button onClick={handleDelete} className="bg-red-500 hover:bg-red-600">삭제</Button>
-            </div>
-            <div className="flex justify-center font-bold mb-4">
-                <p className="text-xl text-green-800">{program.progName}</p>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md space-y-2 mb-10">
-                {[
-                    ["운영기간", `${program.startDate} ~ ${program.endDate}`],
-                    ["운영시간", `${program.startTime} ~ ${program.endTime}`],
-                    ["수강요일", program?.daysOfWeek?.join(", ") ?? "없음"],
-                    ["신청기간", `${program.applyStartAt} ~ ${program.applyEndAt}`],
-                    ["수강대상", program.target],
-                    ["모집인원", `${program.current || 0} / ${program.capacity}`],
-                    ["장소", program.room],
-                    ["강사", program.teachName],
-                ].map(([label, value]) => (
-                    <div key={label} className="flex">
-                        <strong className="w-28 text-gray-800">{label}:</strong>
-                        <span>{value}</span>
-                    </div>
-                ))}
-                <div className="flex">
-                    <strong className="w-28 text-gray-800">첨부파일:</strong>
-                    {program.filePath ? (
-                        <Download
-                            link={`/api/programs/file/${program.progNo}`}
-                            fileName={program.originalName || "파일 다운로드"}
-                            className="text-blue-600 underline"
-                        />
-                    ) : (
-                        <span>첨부파일 없음</span>
-                    )}
+        <div className="container mx-auto px-4 py-8 w-full">
+            {isLoading && <Loading text="목록 불러오는 중..." />}
+            <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">시설대여 관리</h1>
+
+            {/* 검색 조건 헤더 */}
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-100 p-4 min-h-30">
+                <SearchSelectComponent
+                    options={searchOptions}
+                    defaultCategory={defaultCategory}
+                    input={query}
+                    handleSearch={handleSearch}
+                    selectClassName="mr-2 md:mr-5"
+                    dropdownClassName="w-28 md:w-32"
+                    className="w-full md:w-[50%] min-w-0"
+                    inputClassName="w-full bg-white"
+                />
+
+                <div className="flex items-center gap-3 text-sm">
+                    <label>신청기간</label>
+                    <input
+                        type="date"
+                        name="startDate"
+                        value={dateFrom}
+                        onChange={(e) => setSearchParams(prev => {
+                            const p = new URLSearchParams(prev);
+                            p.set("startDate", e.target.value);
+                            return p;
+                        })}
+                        className="border rounded p-2"
+                    />
+                    <span>~</span>
+                    <input
+                        type="date"
+                        name="endDate"
+                        value={dateTo}
+                        onChange={(e) => setSearchParams(prev => {
+                            const p = new URLSearchParams(prev);
+                            p.set("endDate", e.target.value);
+                            return p;
+                        })}
+                        className="border rounded p-2"
+                    />
                 </div>
             </div>
 
-            {/* 신청자 목록 */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="text-xl font-semibold mb-4">신청 회원</h3>
-                {currentData.length > 0 ? (
-                    <>
-                        <table className="w-full text-sm border">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="border p-2">번호</th>
-                                    <th className="border p-2">회원ID</th>
-                                    <th className="border p-2">이름</th>
-                                    <th className="border p-2">이메일</th>
-                                    <th className="border p-2">주소</th>
-                                    <th className="border p-2">성별</th>
-                                    <th className="border p-2">전화번호</th>
-                                    <th className="border p-2">생년월일</th>
-                                    <th className="border p-2">신청일</th>
-                                    <th className="border p-2">신청 취소</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentData.map((a, i) => (
-                                    <tr key={a.progUseNo} className="text-center border-t">
-                                        <td className="border p-2">{startIndex + i + 1}</td>
-                                        <td className="border p-2">{a.mid}</td>
-                                        <td className="border p-2">{a.name}</td>
-                                        <td className="border p-2">{a.email}</td>
-                                        <td className="border p-2">{a.addr}</td>
-                                        <td className="border p-2">{a.gender}</td>
-                                        <td className="border p-2">{a.phone}</td>
-                                        <td className="border p-2">{a.birthDate}</td>
-                                        <td className="border p-2">
-                                            {a.applyAt ? dayjs(a.applyAt).format("YYYY-MM-DD HH:mm") : "-"}
-                                        </td>
-                                        <td className="border p-2">
-                                            {a.status === "신청완료" ? (
-                                                <Button
-                                                    onClick={() => handleCancel(a.progUseNo)}
-                                                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                                                >
-                                                    취소
-                                                </Button>
-                                            ) : (
-                                                <span className="text-gray-400 text-xs">취소 불가</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {renderPagination()}
-                    </>
-                ) : (
-                    <p>신청한 회원이 없습니다.</p>
-                )}
+            {/* 정렬 */}
+            <div className="flex justify-end items-center mb-5 gap-3">
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("sortBy", value);
+                    setSearchParams(p);
+                }} value={sortBy} options={sortByOption} />
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("orderBy", value);
+                    setSearchParams(p);
+                }} value={orderBy} options={orderByOption} />
+                <SelectComponent onChange={(value) => {
+                    const p = new URLSearchParams(searchParams);
+                    p.set("size", value);
+                    setSearchParams(p);
+                }} value={size.toString()} options={sizeOption} />
             </div>
+
+            {/* 테이블 */}
+            <div className="shadow-md rounded-lg overflow-x-auto">
+                <table className="w-full bg-white text-center">
+                    <thead className="bg-[#00893B] text-white text-ms">
+                        <tr>
+                            <th className="py-3 px-2 w-12">번호</th>
+                            <th className="py-3 px-2 w-32">회원ID</th>
+                            <th className="py-3 px-2 w-28">이름</th>
+                            <th className="py-3 px-2 w-40">신청일시</th>
+                            <th className="py-3 px-2 w-32">이용일자</th>
+                            <th className="py-3 px-2 w-24">장소</th>
+                            <th className="py-3 px-2 w-36">이용시간</th>
+                            <th className="py-3 px-2 w-16">인원</th>
+                            <th className="py-3 px-2 w-24">신청취소</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-sm text-gray-800">
+                        {data.content.length === 0 ? (
+                            <tr>
+                                <td colSpan="9" className="py-10 text-gray-500">신청 내역이 없습니다.</td>
+                            </tr>
+                        ) : (
+                            data.content.map((item, index) => (
+                                <tr key={item.pno} className="border-b">
+                                    <td className="py-3">{index + 1 + (page - 1) * size}</td>
+                                    <td className="py-3">{item.memberMid}</td>
+                                    <td className="py-3">{item.memberName}</td>
+                                    <td className="py-3">{dayjs(item.appliedAt).format("YYYY-MM-DD HH:mm")}</td>
+                                    <td className="py-3">{item.useDate}</td>
+                                    <td className="py-3">{item.room}</td>
+                                    <td className="py-3">{item.startTime} ~ {item.endTime}</td>
+                                    <td className="py-3">{item.people}명</td>
+                                    <td className="py-3">
+                                        <Button
+                                            onClick={() => cancelMutation.mutate(item.pno)}
+                                            className="bg-red-500 hover:bg-red-600 text-white text-xs"
+                                        >
+                                            취소
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* 페이지네이션 */}
+            <div className="mt-6">{renderPagination()}</div>
         </div>
     );
 };
 
-export default ProgramAdminDetailComponent;
+export default PlaceAdminComponent;

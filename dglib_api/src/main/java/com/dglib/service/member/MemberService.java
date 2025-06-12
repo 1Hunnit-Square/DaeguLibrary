@@ -84,6 +84,8 @@ public interface MemberService {
 	
 	void regKakao(String kakaoEmail);
 	
+	List<MemberListDTO> getContactList (MemberSearchDTO searchDTO);
+	
 
 
 }

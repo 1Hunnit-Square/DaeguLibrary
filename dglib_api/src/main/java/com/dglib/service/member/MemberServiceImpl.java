@@ -125,6 +125,12 @@ public class MemberServiceImpl implements MemberService {
 
 		return result;
 	}
+	
+	@Override
+	public List<MemberListDTO> getContactList(MemberSearchDTO searchDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public void manageMember(MemberManageDTO memberManageDTO) {

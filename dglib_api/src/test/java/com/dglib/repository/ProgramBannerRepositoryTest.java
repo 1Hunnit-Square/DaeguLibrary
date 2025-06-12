@@ -1,6 +1,5 @@
 package com.dglib.repository;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -64,7 +63,7 @@ public class ProgramBannerRepositoryTest {
                 .teachName("강사1")
                 .applyStartAt(LocalDateTime.of(2025, 5, 1, 10, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 31, 18, 0))
-                .daysOfWeek(List.of(DayOfWeek.TUESDAY))
+                .daysOfWeek(List.of(3))
                 .room("1층 강의실")
                 .startDate(LocalDate.of(2025, 6, 1))
                 .endDate(LocalDate.of(2025, 6, 30))

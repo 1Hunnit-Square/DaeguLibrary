@@ -55,8 +55,8 @@ const MemberManagementComponent = () => {
     const stateMap = {
             "전체계정": "ALL",
             "일반계정": "NORMAL",
-            "연체계정" : "OVERDUE",
-            "제재계정" : "PUNISH",
+            "제재계정" : "OVERDUE",
+            "정지계정" : "PUNISH",
             "탈퇴계정" : "LEAVE"
         };
     const sizeMap = {
@@ -84,8 +84,8 @@ const MemberManagementComponent = () => {
         "MANAGER" : <span className={`text-blue-500 bg-amber-100 ${roundStyle}`}>사서</span>,
         "ADMIN" : <span className={`text-green-500 bg-amber-100 ${roundStyle}`}>관리자</span>,
         "NORMAL" : <span className={`text-black bg-blue-100 ${roundStyle}`}>일반</span>,
-        "OVERDUE" : <span className={`text-purple-500 bg-blue-100 ${roundStyle}`}>연체</span>,
-        "PUNISH" : <span className={`text-orange-800 bg-blue-100 ${roundStyle}`}>제재</span>,
+        "OVERDUE" : <span className={`text-purple-500 bg-blue-100 ${roundStyle}`}>제재</span>,
+        "PUNISH" : <span className={`text-orange-800 bg-blue-100 ${roundStyle}`}>정지</span>,
         "LEAVE" : <span className={`text-red-500 bg-blue-100 ${roundStyle}`}>탈퇴</span>
        }
 

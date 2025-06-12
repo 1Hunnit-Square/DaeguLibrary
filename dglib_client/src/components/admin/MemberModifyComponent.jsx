@@ -26,8 +26,8 @@ const MemberModifyComponent = ({data, refetch}) => {
         };
     const stateMap = {
             "일반계정": "NORMAL",
-            "연체계정" : "OVERDUE",
-            "제재계정" : "PUNISH",
+            "제재계정" : "OVERDUE",
+            "정지계정" : "PUNISH",
             "탈퇴계정" : "LEAVE"
         };
 

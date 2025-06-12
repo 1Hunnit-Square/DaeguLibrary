@@ -12,6 +12,7 @@ import { API_SERVER_HOST } from "../../api/config";
 import Download from "../common/Download";
 import { imgReplace } from "../../util/commonUtil";
 import { API_ENDPOINTS } from "../../api/config";
+import ContentComponent from "../common/ContentComponent";
 
 const NoticeDetailComponent = () => {
 const { ano } = useParams();
@@ -85,7 +86,7 @@ const handleDelete = () => {
                         <tr><td className={"p-2"}></td></tr>
                         <tr>
                             <td colSpan={6} className="border w-full border-gray-300 p-3">
-                                <div className="min-h-50" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(imgReplace(data.content)) }} /></td>
+                                <ContentComponent content={data.content} /></td>
                         </tr>
                     </tbody>
                 </table>

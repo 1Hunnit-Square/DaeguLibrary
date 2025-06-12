@@ -33,7 +33,7 @@ const FindAccount = lazy(()=> import ("../pages/FindAccountPage"));
 const InfoMod = lazy(()=> import ("../pages/InfoModPage"));
 const EbookViewer = lazy(() => import("../components/books/EbookViewerComponent"));
 const KakaoRedirect = lazy(() => import("../pages/KakaoRedirectPage"));
-
+const SmsSearch = lazy(() => import("../components/admin/SmsSearchComponent"));
 
 
 
@@ -127,7 +127,12 @@ const root = createBrowserRouter([
     {
         path: "login/kakao",
         element: <Suspense fallback={<Loading />}><KakaoRedirect /></Suspense>
-    }
+    },
+    {
+            path: "smssearch",
+            element: <Suspense fallback={<Loading />}><SmsSearch /></Suspense>
+     },
+    
 
 
 ]);

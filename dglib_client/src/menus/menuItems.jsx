@@ -102,9 +102,14 @@ const defaultMenuItems = [
       link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}`,
       subMenus: [
         { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
+        { name: "EBOOK 관리", link: `/admin/ebookmanagement?tab=ebooklist&page=1&option=도서명&${dateParams}` },
         { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
         { name: '회원관리', link: '/admin/membermanagement?page=1' },
         { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
+        { name: "배너관리", link: "/admin/bannermanagement" },
+        { name: "게시판관리", link: "/admin/boardmanagement" },
+        { name: "SMS 관리", link: "/admin/smsmanagement" },
+        { name: "통계관리", link: "/admin/statsmanagement" },
 
       ]
     }];

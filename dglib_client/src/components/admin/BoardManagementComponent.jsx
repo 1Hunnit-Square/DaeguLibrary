@@ -24,7 +24,7 @@ const BoardManagementComponent = () => {
     const myTabs = useMemo(() => [
         {
         id: 'board',
-        label: '일반 게시판',
+        label: '기본 게시판',
         content: <NormalBoardComponent />
         },
         {

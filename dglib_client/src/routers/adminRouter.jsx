@@ -15,7 +15,6 @@ const BoardManagement = lazy(() => import("../components/admin/BoardManagementCo
 const SmsManagement = lazy(() => import("../components/admin/SmsManagementComponent"));
 const StatsManagement = lazy(() => import("../components/admin/StatsManagementComponent"));
 
-
 const adminRouter = () => ([
     {
         path: "",
@@ -61,6 +60,7 @@ const adminRouter = () => ([
         path: "statsmanagement",
         element: <Suspense fallback={<Loading />}><StatsManagement /></Suspense>
     },
+
 
 ])
 

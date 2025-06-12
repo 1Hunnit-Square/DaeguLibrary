@@ -3,6 +3,7 @@ import Button from "../common/Button";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
+import SmsSendListComponent from "./SmsSendListComponent";
 
 const SmsManagementComponent = () =>{
     const [ content, setContent ] = useState("");
@@ -48,7 +49,6 @@ const SmsManagementComponent = () =>{
         setSelect(e.target.value);
 
         if(e.target.value == ""){
-            setContent("");
             return;
         }
 
@@ -89,6 +89,10 @@ const SmsManagementComponent = () =>{
 
     const handleDelete = () => {
         if(select){
+        if(!confirm("템플릿을 삭제하시겠습니까?")){
+            return;
+        }
+
         const param = new FormData();
         param.append("id",select);
         delTemplate(param).then(res =>{
@@ -107,7 +111,8 @@ const SmsManagementComponent = () =>{
    
 
     return(
-            <div className="w-80 h-130 my-10 border border-gray-400 rounded-4xl bg-white shadow-lg flex flex-col px-5 justify-center items-center ml-10">
+        <div className = "flex gap-20 m-20 p-20 justify-center border-1 border-gray-100 shadow-sm rounded-2xl w-fit mx-auto">
+            <div className="w-80 h-130 border border-gray-400 rounded-4xl bg-white shadow-lg flex flex-col px-5 justify-center items-center">
             <div className = "bg-black rounded h-2 w-25 my-5"></div>
             <div className="flex-1 border border-gray-200 rounded-lg p-3 bg-gray-200 w-full mb-10">
             <textarea className="border border-gray-200 p-5 bg-white w-full h-70 resize-none" value ={content} placeholder="문자를 입력해주세요."
@@ -138,6 +143,8 @@ const SmsManagementComponent = () =>{
             </>}
             </div>
             </div>
+            </div>
+            <SmsSendListComponent />
             </div>
     );
 }

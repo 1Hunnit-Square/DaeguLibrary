@@ -45,11 +45,11 @@ const MemberSearchComponent = () => {
             return;
       }
       if (searchResults[e].state === "PUNISH") {
-            alert("제재중인 회원입니다.");
+            alert("정지 상태인 회원입니다.");
             return;
       }
       if (searchResults[e].state === "OVERDUE") {
-            alert("연체중인 회원입니다.");
+            alert("제재 상태인 회원입니다.");
             return;
       }
       if (searchResults[e].rentalCount + searchResults[e].reserveCount >= 5) {
@@ -132,7 +132,7 @@ const MemberSearchComponent = () => {
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           member.state === "NORMAL" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
                         }`}>
-                          {member.state === "NORMAL" ? "정상" : member.state === "OVERDUE" ? "연체중" : member.state === "PUNISH" ? "제재중" : "탈퇴회원"}
+                          {member.state === "NORMAL" ? "정상" : member.state === "OVERDUE" ? "제재" : member.state === "PUNISH" ? "정지" : "탈퇴"}
                         </span>
                       </td>
                     </tr>

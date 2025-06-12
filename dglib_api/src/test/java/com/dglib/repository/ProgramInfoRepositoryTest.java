@@ -1,6 +1,5 @@
 package com.dglib.repository;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,7 +32,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("김선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 1, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 8, 18, 0))
-                .daysOfWeek(List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY))
+                .daysOfWeek(List.of(3, 5, 1))
                 .room("장소")
                 .startDate(LocalDate.of(2025, 6, 1))
                 .endDate(LocalDate.of(2025, 6, 8))
@@ -59,7 +58,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("홍선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 2, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 9, 18, 0))
-                .daysOfWeek(List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY))
+                .daysOfWeek(List.of(1, 6))
                 .room("강의실 2")
                 .startDate(LocalDate.of(2025, 6, 2))
                 .endDate(LocalDate.of(2025, 6, 9))
@@ -89,7 +88,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("최선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 3, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 10, 18, 0))
-                .daysOfWeek(List.of(DayOfWeek.SATURDAY))
+                .daysOfWeek(List.of(4))
                 .room("로비")
                 .startDate(LocalDate.of(2025, 6, 3))
                 .endDate(LocalDate.of(2025, 6, 10))
@@ -120,7 +119,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("이선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 4, 10, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 11, 18, 0))
-                .daysOfWeek(List.of(DayOfWeek.SUNDAY))
+                .daysOfWeek(List.of(5))
                 .room("강의실 1")
                 .startDate(LocalDate.of(2025, 6, 4))
                 .endDate(LocalDate.of(2025, 6, 11))

@@ -204,7 +204,7 @@ const handleClick = () => {
               onChangeSelection={handleChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              className = {`h-90 mb-3 border-0 ${isFocused ? 'border-2 rounded' : 'border-gray-300'}`}
+              className = {`h-90 mb-3 border-1 border-gray-300 ${isFocused ? 'outline-2 rounded' : ''}`}
               modules={modules}
               formats={formats}
             />

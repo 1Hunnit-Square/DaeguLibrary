@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,8 +36,8 @@ public class ProgramUse {
 	private LocalDateTime applyAt;	//프로그램 신청일
 	
 	//FK 프로그램 정보 id
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "programId", nullable = false)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "progNo", nullable = false)
 	private ProgramInfo programInfo;	
 	
 	

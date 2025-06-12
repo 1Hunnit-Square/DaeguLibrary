@@ -85,13 +85,26 @@ public class MemberController {
 
 	@GetMapping("/listMember")
 	public ResponseEntity<Page<MemberListDTO>> listMember(@ModelAttribute MemberSearchDTO searchDTO) {
-		System.out.println(searchDTO);
 		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
 		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
 		String sortBy = Optional.ofNullable(searchDTO.getSortBy()).orElse("mno");
 		String orderBy = Optional.ofNullable(searchDTO.getOrderBy()).orElse("desc");
 
 		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
+		Page<MemberListDTO> memberList = memberService.findAll(searchDTO, pageable);
+		return ResponseEntity.ok(memberList);
+	}
+	
+	@GetMapping("/listContact")
+	public ResponseEntity<Page<MemberListDTO>> listContact(@ModelAttribute MemberSearchDTO searchDTO) {
+		System.out.println(searchDTO);
+		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
+		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
+
+
+		Sort sort = Sort.by("mno").descending();
 
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<MemberListDTO> memberList = memberService.findAll(searchDTO, pageable);

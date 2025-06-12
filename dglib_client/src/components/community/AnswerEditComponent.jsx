@@ -82,7 +82,7 @@ const AnswerEditComponent = () => {
       </table>
 
 
-      <table className="w-full mb-8 text-sm">
+      <table className="w-full mt-20 mb-8 text-sm">
         <thead>
           <tr>
             <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">

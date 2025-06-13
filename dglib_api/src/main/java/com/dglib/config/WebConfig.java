@@ -44,7 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
 						.codecs(configurer -> configurer.defaultCodecs()
 								.maxInMemorySize(-1))
 						.build())
-				.baseUrl("http://localhost:1992")
+				.baseUrl("https://crisp-beloved-seasnail.ngrok-free.app")
 				.build();
 	}
 	

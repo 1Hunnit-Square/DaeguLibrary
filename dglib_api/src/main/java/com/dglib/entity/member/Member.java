@@ -1,7 +1,9 @@
 package com.dglib.entity.member;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Rental;
@@ -88,5 +90,12 @@ public class Member {
     @EqualsAndHashCode.Exclude
 	private List<InterestedBook> interestedBooks;
 	
-	
+	public List<Rental> getOverRentalList (){
+		if(this.rentals == null) {
+			return Collections.emptyList();
+		}
+		return this.rentals.stream()
+		.filter(rental -> LocalDate.now().isAfter(rental.getDueDate()) && rental.getReturnDate() == null)
+		.collect(Collectors.toList());
+	}
 }

@@ -37,6 +37,8 @@ import com.dglib.dto.book.PageSaveRequestDTO;
 import com.dglib.dto.book.RegWishBookDTO;
 import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ContactListDTO;
+import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberDTO;
@@ -98,16 +100,12 @@ public class MemberController {
 	}
 	
 	@GetMapping("/listContact")
-	public ResponseEntity<Page<MemberListDTO>> listContact(@ModelAttribute MemberSearchDTO searchDTO) {
+	public ResponseEntity<List<ContactListDTO>> listContact(@ModelAttribute ContactSearchDTO searchDTO) {
 		System.out.println(searchDTO);
-		int page = searchDTO.getPage() > 0 ? searchDTO.getPage() : 1;
-		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
-
 
 		Sort sort = Sort.by("mno").descending();
 
-		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		Page<MemberListDTO> memberList = memberService.findAll(searchDTO, pageable);
+		List<ContactListDTO> memberList = memberService.getContactList(searchDTO, sort);
 		return ResponseEntity.ok(memberList);
 	}
 

@@ -1,9 +1,16 @@
 package com.dglib.repository.member;
 
+import java.time.LocalDate;
+
 import org.springframework.data.jpa.domain.Specification;
 
+import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.entity.book.Rental;
 import com.dglib.entity.member.Member;
+
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 
 public class MemberSpecifications {
 
@@ -13,11 +20,17 @@ public class MemberSpecifications {
                 .and(searchRole(dto.getRole()));
     }
 	
+	public static Specification<Member> fromDTO(ContactSearchDTO dto) {
+        return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
+                .and((root, query, cb) -> dto.isCheckSms() ? cb.equal(root.get("checkSms"), true) : cb.conjunction())
+                .and(searchOverdue(dto.isCheckOverdue()));
+    }
+	
 	
 	public static Specification<Member> searchFilter(String option, String queryStr) {
         return (root, query, cb) -> {
         	if(option == null || queryStr == null) {
-        		return null;
+        		return cb.conjunction();
         	}
         	
             switch(option) {
@@ -31,7 +44,7 @@ public class MemberSpecifications {
             return cb.like(root.get("mno"), "%" + queryStr + "%");
             
             default:
-            return null;
+            return cb.conjunction();
             }
 
     };
@@ -42,7 +55,7 @@ public class MemberSpecifications {
             if(state != null && !state.equals("ALL"))
         	return cb.equal(root.get("state"), state);
             
-            return null;    	
+            return cb.conjunction();    	
     };
 	}
 	
@@ -51,7 +64,22 @@ public class MemberSpecifications {
             if(role != null && !role.equals("ALL"))
         	return cb.equal(root.get("role"), role);
             
-            return null;    	
+            return cb.conjunction();    	
+    };
+	}
+	
+	public static Specification<Member> searchOverdue(boolean checkOverdue) {
+        return (root, query, cb) -> {         
+            if(checkOverdue) {
+            query.distinct(true);  // Member 중복 제거해야 배열형태가 됨
+            Join<Member, Rental> rentalJoin = root.join("rentals", JoinType.INNER);
+            
+        	return cb.and(
+        			cb.lessThan(rentalJoin.get("dueDate"), LocalDate.now()),
+        			cb.isNull(rentalJoin.get("returnDate"))
+        			);
+            }
+            return cb.conjunction();    	
     };
 	}
 	

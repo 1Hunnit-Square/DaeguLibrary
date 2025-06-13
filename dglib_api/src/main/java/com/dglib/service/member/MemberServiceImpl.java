@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,8 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ContactListDTO;
+import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -71,6 +73,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 public class MemberServiceImpl implements MemberService {
+
 
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
@@ -127,10 +130,32 @@ public class MemberServiceImpl implements MemberService {
 	}
 	
 	@Override
-	public List<MemberListDTO> getContactList(MemberSearchDTO searchDTO) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ContactListDTO> getContactList(ContactSearchDTO searchDTO, Sort sort) {
+		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
+		List<Member> memberList = memberRepository.findAll(spec, sort);
+		
+		List<ContactListDTO> result = memberList.stream().map(member -> {
+			
+			List<LocalDate> overDateList = member.getOverRentalList()
+					.stream().map(Rental::getDueDate).collect(Collectors.toList());
+			
+			LocalDate DueStartDate = null;
+			if (!overDateList.isEmpty()) {
+				DueStartDate = Collections.min(overDateList).plusDays(1L);
+			}
+			
+			ContactListDTO listDTO = new ContactListDTO();
+			modelMapper.map(member, listDTO);
+			
+			listDTO.setOverdueCount(overDateList.size());
+			listDTO.setOverdueDate(DueStartDate);
+			return listDTO;
+		}).collect(Collectors.toList());
+	
+		return result;
 	}
+	
+	
 
 	@Override
 	public void manageMember(MemberManageDTO memberManageDTO) {

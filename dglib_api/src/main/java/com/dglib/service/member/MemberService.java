@@ -5,9 +5,12 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ContactListDTO;
+import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -84,7 +87,7 @@ public interface MemberService {
 	
 	void regKakao(String kakaoEmail);
 	
-	List<MemberListDTO> getContactList (MemberSearchDTO searchDTO);
+	List<ContactListDTO> getContactList (ContactSearchDTO searchDTO, Sort sort);
 	
 
 

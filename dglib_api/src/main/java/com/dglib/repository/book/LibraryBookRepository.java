@@ -72,8 +72,8 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	
 	
-	@EntityGraph(attributePaths = {"book"})
-	List<LibraryBook> findAllByBookIsbn(String isbn);
+	@EntityGraph(attributePaths = {"book", "rentals"})
+	List<LibraryBook> findAllByBookIsbnAndIsDeletedFalse(String isbn);
 	
 	
 	boolean existsByBookIsbnAndIsDeletedFalse(String isbn);
@@ -113,13 +113,13 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@Query(value = """
 		    SELECT b.book_title, b.author, b.publisher, b.pub_date, b.cover,
-		           lb.library_book_id, COUNT(r.rent_id) as borrow_count, b.isbn
+		           COUNT(r.rent_id) as borrow_count, b.isbn
 		    FROM library_book lb
 		    JOIN book b ON lb.isbn = b.isbn
 		    JOIN rental r ON lb.library_book_id = r.library_book_id
 		    WHERE r.rent_start_date BETWEEN :startDate AND :endDate
 		    AND lb.is_deleted = false
-		    GROUP BY lb.library_book_id, b.book_title, b.author, b.publisher, b.pub_date, b.cover
+		    GROUP BY b.isbn
 		    ORDER BY borrow_count DESC
 		    LIMIT 100
 		    """,
@@ -134,7 +134,25 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	@EntityGraph(attributePaths = {"book", "book.libraryBooks", "rentals"})
 	@Query("SELECT lb FROM LibraryBook lb WHERE REPLACE(LOWER(lb.book.bookTitle), ' ', '') LIKE CONCAT('%', REPLACE(LOWER(:bookTitle), ' ', ''), '%') AND lb.isDeleted = false")
 	List<LibraryBook> findByBookTitleIgnoringSpacesAndCase(@Param("bookTitle") String book_title);
-
+	
+	@Query("SELECT COUNT(lb) FROM LibraryBook lb WHERE REPLACE(LOWER(lb.book.author), ' ', '') LIKE CONCAT('%', REPLACE(LOWER(:author), ' ', ''), '%') AND lb.isDeleted = false")
+	Long countByAuthorIgnoringSpacesAndCase(@Param("author") String author);
+	
+	@Query(value = """
+			SELECT b.isbn
+			FROM library_book lb
+			JOIN book b ON lb.isbn = b.isbn
+			LEFT JOIN rental r ON lb.library_book_id = r.library_book_id
+			WHERE lb.is_deleted = false
+			AND REPLACE(LOWER(b.author), ' ', '') LIKE CONCAT('%', REPLACE(LOWER(:author), ' ', ''), '%')
+			GROUP BY b.isbn
+			ORDER BY COUNT(r.rent_id) DESC
+			LIMIT 5
+			""", nativeQuery = true)
+	List<String> findTop5BorrowedBooksByAuthor(
+	   @Param("author") String author);
+	
+	
 	
 	
 	

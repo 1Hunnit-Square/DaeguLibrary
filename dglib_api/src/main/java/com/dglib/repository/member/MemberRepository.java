@@ -4,6 +4,7 @@ package com.dglib.repository.member;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.dglib.dto.member.MemberSearchByMnoDTO;
+import com.dglib.entity.book.RentalState;
 import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberState;
 
 public interface MemberRepository extends JpaRepository<Member, String>, JpaSpecificationExecutor<Member>{
 	
@@ -34,6 +37,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	Page<MemberSearchByMnoDTO> findByMno(String mno, Pageable pageable);
 
 	
+	@EntityGraph(attributePaths = {"rentals", "reserves"})
 	Optional<Member> findByMno(String mno);
 	
 	Long countByMnoLike(String mno);
@@ -89,6 +93,13 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 			    nativeQuery = true)
 		List<String> find5borrowedIsbn(
 		 @Param("mid") String mid);
+	
+	List<Member> findByMidInAndPenaltyDateGreaterThanEqual(Set<String> memberIds, LocalDate date);
+	
+	List<Member> findByMidInAndState(Set<String> memberIds, MemberState state);
+	
+	
+
 
 
 	

@@ -4,7 +4,7 @@ import { useMoveTo } from "../hooks/useMoveTo";
 import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }) => {
-    const mid = useRecoilValue(memberIdSelector);
+  const mid = useRecoilValue(memberIdSelector);
   const { moveToLogin } = useMoveTo();
 
 

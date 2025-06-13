@@ -11,7 +11,7 @@ export const useMoveTo = () => {
     }
 
     const moveToLogin = (message = "로그인이 필요합니다.", { replace = false } = {}) => {
-        const currentPath = location.pathname;
+        const currentPath = location.pathname + location.search;;
         navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace });
         if (message) {
             alert(message);

@@ -57,4 +57,7 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book", "libraryBook.rentals", "libraryBook.reserves"})
 	List<Reserve> findReservesByMemberMidAndState(String mid, ReserveState reserved, Sort sort);
 	
+	@Query("SELECT rs FROM Reserve rs WHERE rs.member.mid = :mid AND rs.state = :state")
+	List<Reserve> findActiveReserves(String mid, ReserveState state);
+	
 }

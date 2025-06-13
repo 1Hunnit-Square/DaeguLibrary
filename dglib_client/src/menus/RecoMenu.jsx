@@ -4,29 +4,22 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 
-const GenreMenu = ({ Component }) => {
+const RecoMenu = ({ Component }) => {
 
-    const [ genre , setGenre ] = useState("literature");
+    const [ type , setType ] = useState("topborrow");
     const category = {
-        "literature":"문학",
-        "philosophy":"철학",
-        "religion":"종교",
-        "history":"역사",
-        "language":"언어",
-        "art":"예술",
-        "social-sciences":"사회과학",
-        "natural-sciences":"자연과학",
-        "technology":"기술과학"
+        "topborrow":"베스트셀러",
+        "new":"신착도서"
     }
 
     const getNavLinkClass = (key) => {
-        return genre == key
+        return type == key
             ? "text-black font-bold border-b-2 border-[#00893B] pb-1"
             : "text-gray-500 hover:text-black cursor-pointer hover:border-b-2 hover:border-gray-300 pb-1 transition-all duration-200";
     };
 
     function menuHandler(key){
-        setGenre(key);
+        setType(key);
     }
 
     return (
@@ -69,9 +62,9 @@ const GenreMenu = ({ Component }) => {
             
             <div className="w-full h-[1px] bg-[#00893B] mt-1 sm:mt-2"></div>
         </div>
-        <Component genre={genre} />
+        <Component type={type} />
         </>
     );
 }
 
-export default GenreMenu;
+export default RecoMenu;

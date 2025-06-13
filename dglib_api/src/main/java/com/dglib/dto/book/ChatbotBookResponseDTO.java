@@ -6,7 +6,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class ChatbotTitleResponseDTO {
+public class ChatbotBookResponseDTO {
 	
 	String bookTitle;
 	
@@ -18,8 +18,9 @@ public class ChatbotTitleResponseDTO {
 	
 	String isbn;
 	
-	Long count;
+	Long allCount;
 	
+	Long count;
 	
 
 }

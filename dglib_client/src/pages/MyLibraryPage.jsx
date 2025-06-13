@@ -1,12 +1,15 @@
 import Layout from "../layouts/Layout"
 import { Outlet, useLocation } from "react-router-dom"
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
+import { useReactToPrint } from "react-to-print";
 
 const MyLibraryPage = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
   const location = useLocation();
   const currentYear = new Date().getFullYear();
+  const contentRef = useRef(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
     const LSideMenu = useMemo(() => [
         { id: "borrowstatus", label: "대출관리", path: "/mylibrary/borrowstatus" },
@@ -50,8 +53,10 @@ const MyLibraryPage = () => {
 
     return (
         <Layout LMainMenu={"내서재"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="내서재" />
-            <Outlet />
+            <SubHeader subTitle={activeMenuItem?.label} print={reactToPrintFn}  mainTitle="내서재" />
+            <div ref={contentRef}>
+              <Outlet />
+            </div>
         </Layout>
     )
 }

@@ -1,18 +1,22 @@
 from fastapi import FastAPI
-from dglib_chatbot.config import logger
+from dglib_chatbot.config import logger, web_config
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dglib_chatbot.chatbot_response import chatbot_ai, chatbot_history_delete
 import uuid
 from dglib_chatbot.session_manager import start_scheduler
 from contextlib import asynccontextmanager
 from dglib_chatbot.nlp import analyze_text
-from dglib_chatbot.response_prompt import client
+from dglib_chatbot.utils.client import set_client
+import httpx
+from typing import Optional
 
 
 
 class ChatRequest(BaseModel):
     parts: str
     clientId: str = ""
+    mid: Optional[str] = ""
 class resetRequest(BaseModel):
     clientId: str
 
@@ -20,6 +24,13 @@ class resetRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    client = httpx.AsyncClient(timeout=30.0,
+                               headers={
+            "Content-Type": "application/json",
+            "X-API-Key": web_config.SECRET_KEY, 
+        }
+                               )
+    set_client(client)
     logger.info("챗봇 서버 시작")
     start_scheduler()
     yield
@@ -27,6 +38,14 @@ async def lifespan(app: FastAPI):
     logger.info("챗봇 서버 종료")
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[web_config.API_GATE_URL],  
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/chatbot")
@@ -38,8 +57,9 @@ async def chatbot(request: ChatRequest):
     if is_new_client:
         clientId = str(uuid.uuid4())
     nlp = analyze_text(request.parts)
+    logger.info(f"NLP 분석 결과: {nlp}")
    
-    response = await chatbot_ai(clientId, request.parts, nlp)
+    response = await chatbot_ai(clientId, request.parts, nlp, request.mid)
     logger.info(f"챗봇 응답: {response}")
 
     response["clientId"] = clientId

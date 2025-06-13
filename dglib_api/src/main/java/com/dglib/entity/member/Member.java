@@ -2,6 +2,7 @@ package com.dglib.entity.member;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Rental;
@@ -76,12 +77,12 @@ public class Member {
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
-	private List<Rental> rentals;
+	private Set<Rental> rentals;
 	
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
-	private List<Reserve> reserves;
+	private Set<Reserve> reserves;
 	
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude

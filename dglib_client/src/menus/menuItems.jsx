@@ -80,7 +80,7 @@ const defaultMenuItems = [
       title: '내서재',
       link: '/mylibrary/borrowstatus',
       subMenus: [
-        { name: '대출현황', link: '/mylibrary/borrowstatus' },
+        { name: '대출관리', link: '/mylibrary/borrowstatus' },
         { name: '도서예약', link: '/mylibrary/bookreservation' },
         { name: '관심도서', link: '/mylibrary/interested?page=1&option=전체' },
         { name: '희망도서', link: `/mylibrary/request?year=${currentYear}` },

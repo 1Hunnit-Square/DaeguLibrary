@@ -16,16 +16,32 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
+import lombok.RequiredArgsConstructor;
+
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 	
+	private final Intercepter intercepter;
+	
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
+	
+	
+	
+	@Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(intercepter)
+                .addPathPatterns("/api/chatbotpy/**");
+                
+    }
 	
 	@Bean
 	WebClient webClient() {
@@ -45,7 +61,7 @@ public class WebConfig implements WebMvcConfigurer {
 						.codecs(configurer -> configurer.defaultCodecs()
 								.maxInMemorySize(-1))
 						.build())
-				.baseUrl("http://localhost:1992")
+				.baseUrl("https://crisp-beloved-seasnail.ngrok-free.app")
 				.build();
 	}
 	

@@ -13,6 +13,7 @@ import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopNewResponseDTO;
 import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
@@ -27,7 +28,7 @@ import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
-import com.dglib.dto.book.ChatbotTitleResponseDTO;
+import com.dglib.dto.book.ChatbotBookResponseDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookMemberRequestDTO;
 import com.dglib.dto.book.EbookMemberResponseDTO;
@@ -87,7 +88,9 @@ public interface BookService {
 	Page<EbookSummaryDTO> getEbookAdminList(Pageable pageable, EbookSearchDTO dto);
 	void updateEbook(EbookUpdateDTO dto);
 	void deleteEbook(Long ebookId);
-	ChatbotTitleResponseDTO getBookInfoByBookTitle(String book_title);
+	ChatbotBookResponseDTO getBookInfoByBookTitle(String book_title);
+	ChatbotBookResponseDTO getBookInfoByAuthor(String author);
+	List<BookTopNewResponseDTO> getTopNewBookList(String type);
 	
 	
 	

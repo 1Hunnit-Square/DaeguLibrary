@@ -1,13 +1,17 @@
 import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
 import { useSearchParams, useLocation } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Outlet } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 
 const BooksPage = () => {
 
   const [activeMenuItem, setActiveMenuItem] = useState(null);
   const location = useLocation();
+  const contentRef = useRef(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
+
 
   const currentDate = new Date().toDateString();
   const getDateParams = useMemo(() => {
@@ -59,8 +63,11 @@ const BooksPage = () => {
 
   return (
     <Layout LMainMenu={"도서정보"} LSideMenu={LSideMenu}>
-      <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서정보" />
-      <Outlet />
+      <SubHeader subTitle={activeMenuItem?.label} print={reactToPrintFn}  mainTitle="도서정보" />
+      <div ref={contentRef}>
+        <Outlet />
+      </div>
+      
     </Layout>
   );
 }

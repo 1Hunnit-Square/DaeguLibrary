@@ -42,76 +42,91 @@ const RequestComponent = () => {
     }, [cancelMutation]);
 
     return (
-        <div className="mx-auto">
-            <div className="flex-1 flex mx-20 justify-end mt-10">
-                <SelectComponent onChange={(value) => handleSelectChange('year', value)}  value={searchURLParams.get("year") || "2025"}  options={year}/>
-            </div>
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 mt-10">
             {isLoading && (
                 <Loading />
             )}
+            
+            <div className="w-full max-w-4xl mx-auto mb-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+                    <SelectComponent 
+                        onChange={(value) => handleSelectChange('year', value)}  
+                        value={searchURLParams.get("year") || "2025"}  
+                        options={year}
+                        selectClassName="w-full sm:w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]"
+                    />
+                </div>
+            </div>
 
-                    <div className="mt-5 border border-green-700 rounded-lg overflow-hidden max-w-[90%] mx-auto min-h-[100px]">
+            <div className="w-full max-w-4xl mx-auto border border-green-700 rounded-lg overflow-hidden min-h-[100px] mb-6">
                 {isLoading ? (
-                    <div className="text-center text-gray-500 text-xl my-10">
+                    <div className="text-center text-gray-500 text-lg sm:text-xl py-10">
                        희망도서 신청 목록을 불러오는 중입니다...
                     </div>
                 ) : data.length === 0 ? (
-                    <div className="text-center text-gray-500 text-xl my-10">
+                    <div className="text-center text-gray-500 text-lg sm:text-xl py-10">
                         신청한 희망도서가 없습니다.
                     </div>
                 ) : (
                     data.map((book, index) => (
                         <div key={book.wishNo}>
-                            <div className="flex items-center p-4">
+                            <div className="p-4 sm:p-6">
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <div className="flex-1 space-y-4">
+                                        <div className={
+                                               book.state === "ACCEPTED" ? "text-green-500 font-medium text-sm sm:text-base" :
+                                               book.state === "REJECTED" ? "text-red-500 font-medium text-sm sm:text-base" :
+                                                "text-gray-500 font-medium text-sm sm:text-base"} >
+                                            <span>{book.state === "ACCEPTED" ? `비치완료` : book.state === "REJECTED" ? `반려`  : "처리중" }</span>
+                                        </div>
+                                        
+                                        <div className="text-lg sm:text-xl font-semibold">
+                                            <span className="break-words">{book.bookTitle}</span>
+                                        </div>
 
-                                <div className={`flex-grow mx-5`}>
-                                    <div className={
-                                           book.state === "ACCEPTED" ? "text-green-500 text-sm mb-1" :
-                                           book.state === "REJECTED" ? "text-red-500 text-sm mb-1" :
-                                            "text-gray-500 text-sm mb-1"} >
-                                        <span>{book.state === "ACCEPTED" ? `비치완료` : book.state === "REJECTED" ? `반려`  : "처리중" }</span>
-                                    </div>
-                                    <div className="text-1xl mb-1 mt-2">
-                                        <div className="text-xl font-semibold mb-4">
-                                            <div  className="inline">
-                                                <span className="">{book.bookTitle}</span>
+                                        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">저자</span>
+                                                <span className="truncate" title={book.author}>
+                                                    {book.author && book.author.length > 20 ? `${book.author.substring(0, 20)}...` : book.author}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">출판사</span>
+                                                <span className="truncate" title={book.publisher}>
+                                                    {book.publisher && book.publisher.length > 20 ? `${book.publisher.substring(0, 20)}...` : book.publisher}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">신청일</span>
+                                                <span className="truncate" title={book.appliedAt}>{book.appliedAt}</span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">처리일</span>
+                                                <span className="truncate" title={book.processedAt || '-'}>
+                                                    {book.processedAt || '-'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">저자</span>
-                                            <span className="truncate max-w-40" title={book.author}>{book.author}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">출판사</span>
-                                            <span className="truncate max-w-40"  title={book.publisher}>{book.publisher}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">신청일</span>
-                                            <span className="truncate" title={book.appliedAt}>{book.appliedAt}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">처리일</span>
-                                            <span className="truncate" title={book.processedAt || '-'}>
-                                                {book.processedAt || '-'}
-                                            </span>
-                                        </div>
+                                    
+                                    <div className="flex flex-col justify-center items-center gap-3 sm:ml-4">
+                                        {book.state === "APPLIED" && (
+                                            <Button 
+                                                children="취소" 
+                                                className="bg-red-500 hover:bg-red-600 text-white text-sm w-full sm:w-auto px-4 py-2" 
+                                                onClick={() => handleDeleteButton(book.wishNo)} 
+                                            />
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center min-w-[60px]">
-                                    { book.state === "APPLIED" && (
-                                        <Button children="취소" className="bg-red-500 hover:bg-red-600 text-white text-sm w-15 h-9" onClick={() => handleDeleteButton(book.wishNo)} />
-                                    )}
-                                </div>
                             </div>
-                            <div className={`border-b ${index === data.length - 1 ? "border-b-0" : "border-b border-gray-200 mx-auto w-[90%]"}`}></div>
+                            {index !== data.length - 1 && (
+                                <div className="border-b border-gray-200 mx-4 sm:mx-6"></div>
+                            )}
                         </div>
                     ))
                 )}
-            </div>
-            <div className="mt-10">
-
             </div>
         </div>
     )

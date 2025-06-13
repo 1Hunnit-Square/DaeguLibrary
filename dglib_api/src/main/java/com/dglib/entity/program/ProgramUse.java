@@ -36,7 +36,7 @@ public class ProgramUse {
 	
 	//FK 프로그램 정보 id
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "programId", nullable = false)
+	@JoinColumn(name = "progNo", nullable = false)
 	private ProgramInfo programInfo;	
 	
 	

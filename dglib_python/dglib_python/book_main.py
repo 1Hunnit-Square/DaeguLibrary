@@ -51,14 +51,13 @@ async def bookreco(genre: str):
     if not data:
         raise HTTPException(status_code=404, detail=f"{genre} 장르의 책 데이터가 아직 준비되지 않았습니다.")
 
-    if "response" in data and "docs" in data["response"]:
-        data = {
-            "response": {
-                "docs": data["response"]["docs"][:5]
-            }
-        }
+    all_books = data.get("response", {}).get("docs", [])
+    flattened_books = [item.get("doc", item) for item in all_books[:5]]
 
-    return data
+    return {
+        "genre": genre,
+        "content": flattened_books
+    }
 
 @app.get("/bookrecolist/{genre}")
 async def bookrecolist(genre: str, page: int = Query(default=1, ge=1), size: int = Query(default=10, ge=10, le=100)):

@@ -27,6 +27,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopNewResponseDTO;
 import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
 import com.dglib.dto.book.EbookSumDTO;
@@ -139,6 +140,13 @@ public class BookController {
 		Page<EbookSumDTO> ebookList = bookService.getEbookList(dto);
 		return ResponseEntity.ok(ebookList);
 		
+	}
+	
+	@GetMapping("/topnew/{type}")
+	public ResponseEntity<List<BookTopNewResponseDTO>> getTopNewBookList(@PathVariable String type) {
+		LOGGER.info("대출베스트 신간 도서 요청: {}", type);
+		List<BookTopNewResponseDTO> bookList = bookService.getTopNewBookList(type);
+		return ResponseEntity.ok(bookList);
 	}
 	
 

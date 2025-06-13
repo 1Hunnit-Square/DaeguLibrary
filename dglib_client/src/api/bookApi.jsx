@@ -91,6 +91,10 @@ export const getEbookList = async (params = {}) => {
     return res.data;
 }
 
+export const getTopNewBooks = async (type) => {
+    const res = await axiosClient.get(`${prefix}/topnew/${type}`);
+    return res.data;
+}
 
 
 

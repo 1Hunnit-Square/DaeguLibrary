@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, memo } from "react";
 import ReactMarkdown from 'react-markdown';
-
+import ChatActionComponent from "./ChatActionComponent";
 const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
+    
 
 
     useEffect(() => {
@@ -35,52 +36,63 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
     };
 
     return (
-        <div className="fixed bottom-5 right-40 w-80 md:w-160 h-[700px] bg-white rounded-xl shadow-xl z-999 overflow-hidden flex flex-col">
-            <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
-                <h3 className="font-bold">도서관 도우미 꿈틀이</h3>
-                <div className="flex items-center gap-2">
-                    <img src="/reset.png" title="초기화"  className="w-4 h-4 hover:cursor-pointer mt-1.5" onClick={resetChat} />
+        <div className="fixed bottom-23 sm:bottom-5 right-4 sm:right-5 md:right-10 lg:right-20 xl:right-40 
+                        w-[calc(100vw-32px)] sm:w-80 md:w-96 lg:w-[400px] 
+                        h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
+                        bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col">
+            
+            <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
+                <h3 className="font-bold text-sm sm:text-base">도서관 도우미 꿈틀이</h3>
+                <div className="flex items-center gap-4">
+                    <img src="/reset.png" title="초기화" className="w-4 h-4 mt-1.5 items-center hover:cursor-pointer" onClick={resetChat} />
                     <button
                         onClick={onClose}
-                        className="text-white text-xl hover:text-gray-200 hover:cursor-pointer"
+                        className="text-white text-3xl sm:text-xl hover:text-gray-200 hover:cursor-pointer "
                     >
                         &times;
                     </button>
+                </div>
             </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
-                {chatHistory.map((chat, index) => (
-                    <div key={index}
-                    className={`mb-5 flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
-                        <div
-                            className={`max-w-[90%] px-4 py-2 rounded-lg ${
-                                chat.role === "user"
-                                    ? "bg-green-500 text-white rounded-br-none"
-                                    : "bg-white text-gray-800 rounded-bl-none shadow"
-                            }`}
-                        >
-                            <ReactMarkdown
-                                breaks={true}
-                                components={{
-                                    p: ({children}) => <p className="whitespace-pre-line break-words">{children}</p>,
-                                     code: ({node, inline, className, children, ...props}) => {
-                                        return inline
-                                            ? <code className="bg-opacity-25 bg-black text-white px-1 rounded text-sm break-words" {...props}>{children}</code>
-                                            : <div className="bg-gray-800 text-white bg-opacity-10 p-2 rounded-md overflow-x-auto">
-                                                <code className="text-sm break-words whitespace-pre-wrap">{children}</code>
-                                            </div>
-                                    },
-                                    pre: ({children}) => <pre className="overflow-x-auto max-w-full">{children}</pre>
-                                }}
+
+            <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-gray-100">
+            {chatHistory.map((chat, index) => { 
+                    return(
+                    <div key={index}>
+                        
+                        <div className={`mb-3 sm:mb-4 flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
+                            <div
+                                className={`max-w-[85%] sm:max-w-[90%] px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base ${
+                                    chat.role === "user"
+                                        ? "bg-green-500 text-white rounded-br-none"
+                                        : "bg-white text-gray-800 rounded-bl-none shadow"
+                                }`}
                             >
-                                {chat.parts}
-                            </ReactMarkdown>
+                                <ReactMarkdown
+                                    breaks={true}
+                                    components={{
+                                        p: ({children}) => <p className="whitespace-pre-line break-words">{children}</p>,
+                                        code: ({node, inline, className, children, ...props}) => {
+                                            return inline
+                                                ? <code className="bg-opacity-25 bg-black text-white px-1 rounded text-xs sm:text-sm break-words" {...props}>{children}</code>
+                                                : <div className="bg-gray-800 text-white bg-opacity-10 p-2 rounded-md overflow-x-auto">
+                                                    <code className="text-xs sm:text-sm break-words whitespace-pre-wrap">{children}</code>
+                                                </div>
+                                        },
+                                        pre: ({children}) => <pre className="overflow-x-auto max-w-full">{children}</pre>
+                                    }}
+                                >
+                                    {chat.parts}
+                                </ReactMarkdown>
+                            </div>
                         </div>
+                        
+                        
+                        <ChatActionComponent chat={chat} />
                     </div>
-                ))}
+                )})}
                 {isTyping && (
                     <div className="mb-3">
-                        <div className="inline-block px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
+                        <div className="inline-block px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
                             <div className="flex items-center space-x-1">
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-bounce"></div>
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-bounce" style={{animationDelay: '0.15s'}}></div>
@@ -91,7 +103,8 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
                 )}
                 <div ref={chatEndRef} />
             </div>
-            <form onSubmit={handleSendMessage} className="p-3 bg-white border-t flex">
+
+            <form onSubmit={handleSendMessage} className="p-2 sm:p-3 bg-white border-t flex gap-2">
                 <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -104,15 +117,16 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
                     rows="1"
                     style={{ resize: 'none' }}
                     placeholder="메시지를 입력하세요..."
-                    className="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-500 min-h-[40px] max-h-[120px] overflow-y-auto
-                    [&::-webkit-scrollbar]:w-2
-                    [&::-webkit-scrollbar-thumb]:bg-gray-400
-                    [&::-webkit-scrollbar-thumb]:rounded-md
-                    [&::-webkit-scrollbar-track]:bg-transparent"
+                    className="flex-1 border rounded-lg px-2 sm:px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-500 
+                             min-h-[36px] sm:min-h-[40px] max-h-[100px] sm:max-h-[120px] overflow-y-auto text-base
+                             [&::-webkit-scrollbar]:w-2
+                             [&::-webkit-scrollbar-thumb]:bg-gray-400
+                             [&::-webkit-scrollbar-thumb]:rounded-md
+                             [&::-webkit-scrollbar-track]:bg-transparent"
                 />
                 <button
                     type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700"
+                    className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 text-sm sm:text-base whitespace-nowrap"
                 >
                     전송
                 </button>

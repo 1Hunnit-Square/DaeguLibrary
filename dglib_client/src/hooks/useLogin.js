@@ -13,6 +13,7 @@ const doLogin = async (loginParam) => {
         setCookie("auth",JSON.stringify(result), 1);
         setLoginState(result);
     }
+    
     return result;
     }
 

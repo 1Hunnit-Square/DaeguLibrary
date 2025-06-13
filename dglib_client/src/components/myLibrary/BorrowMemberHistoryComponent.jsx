@@ -38,85 +38,100 @@ const BorrowMemberHistoryComponent = () => {
 
     const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading);
     return (
-        <div className="mx-auto">
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
             {isLoading && (
                 <Loading />
             )}
-                     <div className="flex-1 flex max-w-[90%] justify-end gap-3">
-                        <SelectComponent onChange={(value) => handleSelectChange('year', value)}  value={searchURLParams.get("year") || "2025"}  options={year}/>
-                        <SelectComponent onChange={(value) => handleSelectChange('month', value)}  value={searchURLParams.get("month") || "allmonth"}    options={month} />
-                    </div>
-                    <div className="mt-5 border border-green-700 rounded-lg overflow-hidden max-w-[90%] mx-auto min-h-[100px]">
+            
+            <div className="w-full max-w-4xl mx-auto mb-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+                    <SelectComponent 
+                        onChange={(value) => handleSelectChange('year', value)}  
+                        value={searchURLParams.get("year") || "2025"}  
+                        options={year}
+                        selectClassName="w-full sm:w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]"
+                    />
+                    <SelectComponent 
+                        onChange={(value) => handleSelectChange('month', value)}  
+                        value={searchURLParams.get("month") || "allmonth"}    
+                        options={month}
+                        selectClassName="w-full sm:w-32 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#00893B]"
+                    />
+                </div>
+            </div>
 
+            <div className="w-full max-w-4xl mx-auto border border-green-700 rounded-lg overflow-hidden min-h-[100px] mb-6">
                 {isLoading ? (
-                    <div className="text-center text-gray-500 text-xl my-10">
+                    <div className="text-center text-gray-500 text-lg sm:text-xl py-10">
                        대출이력을 불러오는 중입니다...
                     </div>
                 ) : data.content.length === 0 ? (
-                    <div className="text-center text-gray-500 text-xl my-10">
+                    <div className="text-center text-gray-500 text-lg sm:text-xl py-10">
                        대출하신 도서가 없습니다.
                     </div>
                 ) : (
                     <>
-
-                    {data.content.map((book, index) => (
-
-                        <div key={book.rentId}>
-                            <div className="flex items-center p-4">
-                                <div className={`flex-grow mx-5`}>
-                                    <div className={
+                        {data.content.map((book, index) => (
+                            <div key={book.rentId}>
+                                <div className="p-4 sm:p-6">
+                                    <div className="space-y-4">
+                                        <div className={
                                             (book.rentStartDate > book.dueDate)
-                                            ? "text-red-500"
-                                                : "text-green-600"
+                                            ? "text-red-500 font-medium text-sm sm:text-base"
+                                            : "text-green-600 font-medium text-sm sm:text-base"
                                         }>
-                                        <span>{book.rentalState === "RETURNED" ? "반납완료" : (book.rentStartDate > book.dueDate) ? `연체중`  : `대출중` }</span>
-                                    </div>
-                                    <div className="text-1xl mb-1 mt-2">
-
-                                        <div className="text-xl font-semibold mb-4">
-                                            {book.deleted ?  <>
-                                        <div className="block text-xl font-semibold mb-4">
-                                            <span className="line-through hover:cursor-default">{book.bookTitle}</span>
-                                            {book.deleted && <span className="text-red-500 no-underline hover:text-red-500 hover:no-underline "> (분실 및 훼손된 도서입니다)</span>}
+                                            <span>{book.rentalState === "RETURNED" ? "반납완료" : (book.rentStartDate > book.dueDate) ? `연체중`  : `대출중` }</span>
                                         </div>
-                                        </> :  <>
-                                        <div className="text-xl font-semibold mb-4">
-                                            <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="inline">
-                                                <span className="hover:text-green-700 hover:underline hover:cursor-pointer">{book.bookTitle}</span>
-                                            </Link>
-                                        </div>
-                                        </>}
-                                        </div>
-
-                                    </div>
-                                    <div className="grid grid-cols-4 text-xs mt-5 text-gray-500">
-                                        <div className="flex gap-2 items-center">
-                                            <span className="border px-2 py-1 w-20 text-center">저자</span>
-                                            <span className="truncate max-w-40" title={book.author}>{book.author}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">대출일</span>
-                                            <span className="truncate" title={book.rentStartDate}>{book.rentStartDate}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">반납예정일</span>
-                                            <span className="truncate" title={book.dueDate}>{book.dueDate}</span>
-                                        </div>
-                                        <div className="flex gap-2 items-center ">
-                                            <span className="border px-2 py-1 w-20 text-center">반납일</span>
-                                            <span className="truncate" title={book.returnDate}>{book.returnDate}</span>
+                                        
+                                        <div className="text-lg sm:text-xl font-semibold">
+                                            {book.deleted ? (
+                                                <>
+                                                    <span className="line-through">{book.bookTitle}</span>
+                                                    <span className="text-red-500 text-sm sm:text-base block sm:inline sm:ml-2 mt-1 sm:mt-0">
+                                                        (분실 및 훼손된 도서입니다)
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <Link to={`/mylibrary/detail/${book.isbn}?from=interested`} className="inline">
+                                                    <span className="hover:text-green-700 hover:underline hover:cursor-pointer break-words">
+                                                        {book.bookTitle}
+                                                    </span>
+                                                </Link>
+                                            )}
                                         </div>
 
+                                        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">저자</span>
+                                                <span className="truncate break-words" title={book.author}>{book.author}</span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">대출일</span>
+                                                <span className="truncate" title={book.rentStartDate}>{book.rentStartDate}</span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">반납예정일</span>
+                                                <span className="truncate" title={book.dueDate}>{book.dueDate}</span>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
+                                                <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">반납일</span>
+                                                <span className="truncate" title={book.returnDate}>{book.returnDate || '-'}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                {index !== data.content.length - 1 && (
+                                    <div className="border-b border-gray-200 mx-4 sm:mx-6"></div>
+                                )}
                             </div>
-                            <div className={`border-b ${index === data.length - 1 ? "border-b-0" : "border-b border-gray-200 mx-auto w-[90%]"}`}></div>
-                        </div>
-                    ))}
-                 </>
+                        ))}
+                    </>
                 )}
             </div>
-            {renderPagination()}
+            
+            <div className="w-full max-w-4xl mx-auto">
+                {renderPagination()}
+            </div>
         </div>
     )
 }

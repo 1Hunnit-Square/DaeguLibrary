@@ -3,7 +3,7 @@ import time
 import requests
 import asyncio
 import httpx
-from dglib_python.utils.client import getclient
+from dglib_python.utils.client import get_client
 
 from dglib_python.config import logger, MAX_RETRIES, RETRY_DELAY
 

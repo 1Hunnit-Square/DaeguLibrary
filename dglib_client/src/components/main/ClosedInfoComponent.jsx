@@ -38,17 +38,17 @@ const ClosedInfoComponent = () => {
     };
 
     return (
-        <div className="flex flex-wrap justify-center bg-white rounded-lg shadow-md px-6 py-5 min-h-[120px] text-sm">
+        <div className="flex flex-col sm:flex-row h-full p-2 sm:p-3 lg:p-4">
             {/* 왼쪽: 휴관일 */}
-            <div className="basis-full md:basis-1/2 flex flex-col items-center justify-center border-t md:border-t-0 pt-4 md:pt-0 text-[13px] text-gray-800">
-                <div className="flex items-center gap-4 mb-2 font-semibold text-[17px]">
+            <div className="flex-1 flex flex-col items-center justify-center pb-2 sm:pb-0 sm:pr-2 lg:pr-3">
+                <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1 sm:mb-2 font-semibold text-xs sm:text-sm lg:text-base">
                     <span>🌷 휴관일</span>
-                    <button onClick={handlePrevMonth} className="text-green-600 hover:text-green-800 cursor-pointer">〈</button>
-                    <span>{`${year}년 ${month}월`}</span>
-                    <button onClick={handleNextMonth} className="text-green-600 hover:text-green-800 cursor-pointer">〉</button>
+                    <button onClick={handlePrevMonth} className="text-green-600 hover:text-green-800 cursor-pointer text-xs sm:text-sm">〈</button>
+                    <span className="text-xs sm:text-sm">{`${year}년 ${month}월`}</span>
+                    <button onClick={handleNextMonth} className="text-green-600 hover:text-green-800 cursor-pointer text-xs sm:text-sm">〉</button>
                 </div>
 
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[15px] font-semibold text-gray-800 mb-3">
+                <div className="flex flex-wrap gap-x-1 sm:gap-x-2 lg:gap-x-3 gap-y-1 text-xs sm:text-sm font-semibold text-gray-800 mb-1 sm:mb-2 justify-center">
                     {formattedDates.length > 0 ? (
                         formattedDates.map((d, i) => (
                             <span key={i} className="whitespace-nowrap">{d}</span>
@@ -58,20 +58,19 @@ const ClosedInfoComponent = () => {
                     )}
                 </div>
 
-                <div className="text-xs text-gray-700 flex items-center gap-3">
-                    <span className="text-xs">🔔</span>
-                    <span>매주 월요일은 정기휴관일입니다.</span>
+                <div className="text-xs sm:text-xs lg:text-sm text-gray-700 flex items-center gap-1 text-center">
+                    <span>🔔</span>
+                    <span className="hidden sm:inline">매주 월요일은 정기휴관일입니다.</span>
+                    <span className="sm:hidden">매주 월요일 휴관</span>
                 </div>
             </div>
 
             {/* 오른쪽: 이용시간 */}
-            <div className="basis-full md:basis-1/2 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-gray-400 pt-4 md:pt-0 pl-0 md:pl-1 text-[13px] text-gray-800">
-                <div className="font-semibold text-[17px] mb-3">🕒 이용 시간</div>
-                <div className="flex items-start gap-2 text-[16px]">
-                    <div className="leading-tight">
-                        <p>평일: 09:00 ~ 21:00</p>
-                        <p>주말: 09:00 ~ 18:00</p>
-                    </div>
+            <div className="flex-1 flex flex-col items-center justify-center border-t sm:border-t-0 sm:border-l border-gray-300 pt-2 sm:pt-0 sm:pl-2 lg:pl-3">
+                <div className="font-semibold text-xs sm:text-sm lg:text-base mb-1 sm:mb-2">🕒 이용시간</div>
+                <div className="text-xs sm:text-sm text-center">
+                    <p>평일: 09:00 ~ 21:00</p>
+                    <p>주말: 09:00 ~ 18:00</p>
                 </div>
             </div>
         </div>

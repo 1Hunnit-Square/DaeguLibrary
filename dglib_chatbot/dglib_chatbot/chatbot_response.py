@@ -19,9 +19,9 @@ from dglib_chatbot.response_prompt import response_prompt
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
-async def chatbot_ai(clientId: str, parts: str, nlp: dict) -> dict:
+async def chatbot_ai(clientId: str, parts: str, nlp: dict, mid: str) -> dict:
 
-    text = await response_prompt(parts, nlp)
+    generate = await response_prompt(parts, nlp, mid)
 
     if clientId not in chat_sessions:
         model = genai.GenerativeModel('gemma-3n-e4b-it')
@@ -34,12 +34,12 @@ async def chatbot_ai(clientId: str, parts: str, nlp: dict) -> dict:
         update_session_activity(clientId)
 
     session = chat_sessions[clientId]
-    response = session["chat"].send_message(text)
+    response = session["chat"].send_message(generate.get("text"))
 
-    save_chat_log(parts, response.text)
+    save_chat_log(parts, response.text, nlp)
 
 
-    return {"parts": response.text}
+    return {"parts": response.text, "service": generate.get("service"), "to": generate.get("to")}
 
 
 
@@ -54,7 +54,7 @@ async def chatbot_history_delete(client_id: str):
     return {"status": "error", "message": "클라이언트 ID를 찾을 수 없습니다."}
 
 
-def save_chat_log(user_message: str, bot_response: str):
+def save_chat_log(user_message: str, bot_response: str, nlp: dict):
     today = datetime.now().strftime("%Y-%m-%d")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -63,10 +63,18 @@ def save_chat_log(user_message: str, bot_response: str):
 
     log_file = log_dir / f"chat_log_{today}.jsonl"
 
+    cleaned_entities = [
+        {"type": ent.get("type", ""), "text": ent.get("text", "")}
+        for ent in nlp.get("entities", [])
+    ]
+
     log_entry = {
         "time": timestamp,
         "user": user_message,
-        "model": bot_response
+        "model": bot_response,
+        "intent": nlp.get('intent', ''),
+        "intent_confidence": nlp.get('intent_confidence', 0.0),
+        "entities": cleaned_entities,
     }
 
     with open(log_file, 'a', encoding='utf-8') as f:

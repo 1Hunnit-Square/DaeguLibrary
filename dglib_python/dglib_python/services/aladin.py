@@ -3,7 +3,8 @@ from dglib_python.utils.http import safe_request
 import html
 from typing import List
 import asyncio
-from dglib_python.book_main import client
+from dglib_python.utils.client import get_client
+
 
 aladin_semaphore = asyncio.Semaphore(3)
 
@@ -50,6 +51,7 @@ async def get_aladin_book_info(isbn: str) -> dict:
 
 
 async def get_total_results_count(query):
+    client = get_client()
 
     
     params = {
@@ -76,6 +78,7 @@ async def get_total_results_count(query):
         return 0
 
 async def get_books_by_page(query, page=1, items_per_page=10):
+    client = get_client()
     start = ((page - 1) * items_per_page) + 1
 
     
@@ -112,6 +115,7 @@ async def get_books_by_page(query, page=1, items_per_page=10):
         return []
 
 async def get_aladin_keyword_by_isbn(isbn_list: List[str]) -> list:
+    client = get_client()
 
     async def process_single_isbn(isbn):
         

@@ -345,44 +345,47 @@ const MyReadingComponent = () => {
 
 
 
-  return (
-    <div>
-      <div className="border min-h-20 flex items-center justify-center max-w-[50%] mx-auto rounded-lg">
-        <p>{name}님께서 대출하신 도서에 대한 분석 자료입니다.</p>
-      </div>
-
-    <div className="flex flex-col item-center justifi-center text-center mt-20">
-      <p>연간 독서량</p>
-      <div className="mt-5">
-        {borrowListLoading ? (
-          <div id="loadingracediv" className="w-[70%] h-[400px] mx-auto border flex justify-center items-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-2"></div>
-              <p className="text-gray-600">독서량 데이터를 분석중입니다...</p>
-            </div>
-          </div>
-        ) : (
-          <div id="racediv" className="w-[70%] h-[400px] mx-auto border"></div>
-        )}
-      </div>
-    </div>
-     <div className="flex flex-col item-center justifi-center text-center mt-20">
-        <p>관심 도서 장르</p>
-        <div className="mt-5">
-        {iwWordCloudLoading ? (
-        <div id="loadingdiv" className="w-[70%] h-[400px] mx-auto border flex justify-center items-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-2"></div>
-            <p className="text-gray-600">사용자의 대출 정보를 분석중입니다...</p>
+    return (
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="border border-gray-300 min-h-20 flex items-center justify-center w-full sm:w-full md:max-w-[80%] lg:max-w-[60%] xl:max-w-[50%] mx-auto rounded-lg px-4 py-3 bg-white shadow-sm">
+          <p className="text-sm sm:text-base md:text-sm text-center text-gray-700 font-medium">
+            <span className="text-[#00893B] font-semibold">{name}</span>님께서 대출하신 도서에 대한 분석 자료입니다.
+          </p>
+        </div>
+  
+        <div className="flex flex-col items-center justify-center text-center mt-16 mb-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">연간 독서량</h2>
+          <div className="w-full sm:w-[90%] md:w-[80%] lg:w-[75%] xl:w-[70%]">
+            {borrowListLoading ? (
+              <div id="loadingracediv" className="h-[400px] mx-auto border border-gray-200 rounded-lg bg-gray-50 flex justify-center items-center shadow-sm">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00893B] mx-auto mb-4"></div>
+                  <p className="text-gray-600 font-medium">독서량 데이터를 분석중입니다...</p>
+                </div>
+              </div>
+            ) : (
+              <div id="racediv" className="h-[400px] mx-auto border border-gray-200 rounded-lg bg-white shadow-sm"></div>
+            )}
           </div>
         </div>
-        ) : (
-          <div id="chartdiv" className="w-[70%] h-[400px] mx-auto border"></div>
-        )}
+  
+        <div className="flex flex-col items-center justify-center text-center mt-16 mb-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">관심 도서 장르</h2>
+          <div className="w-full sm:w-[90%] md:w-[80%] lg:w-[75%] xl:w-[70%]">
+            {iwWordCloudLoading ? (
+              <div id="loadingdiv" className="h-[400px] mx-auto border border-gray-200 rounded-lg bg-gray-50 flex justify-center items-center shadow-sm">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00893B] mx-auto mb-4"></div>
+                  <p className="text-gray-600 font-medium">사용자의 대출 정보를 분석중입니다...</p>
+                </div>
+              </div>
+            ) : (
+              <div id="chartdiv" className="h-[400px] mx-auto border border-gray-200 rounded-lg bg-white shadow-sm"></div>
+            )}
+          </div>
+        </div>
       </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default MyReadingComponent;

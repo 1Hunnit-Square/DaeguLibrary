@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 class Web_config:
     API_GATE_URL: str = "http://localhost:8090"
-    API_GATE_ENDPOINT: str = "/api/chatbot"
+    API_GATE_ENDPOINT: str = "/api/chatbotpy"
+    SECRET_KEY = 'gumtlegumtle_gumtlegumtle_gumtlegumtle_gumtlegumtle'
     
 
 web_config = Web_config()
@@ -31,7 +32,7 @@ initial_history = [
         - Never include or mix any foreign language.
         - Explicitly prohibit English, German, French, Spanish, and Russian.
         - Do not use any other language except Korean.
-        - Do not use ['préstamo'] in your responses.
+        - Do not use ['préstamo', 'poquito'] in your responses.
         - Do not use Chinese characters under any circumstances.
         - Always end your responses with "꿈틀꿈틀🌱".
         """
@@ -46,6 +47,8 @@ initial_history = [
 
 
 GOOGLE_API_KEY='AIzaSyA4tvuorA3qnbz4ImzyCtVFOJqi0JJefv0'
+
+
 
 
 

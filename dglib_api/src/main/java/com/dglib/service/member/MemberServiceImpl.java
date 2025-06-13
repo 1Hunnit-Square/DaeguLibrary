@@ -29,6 +29,7 @@ import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -587,6 +588,28 @@ public class MemberServiceImpl implements MemberService {
 		ebookReadingProgressRepository.deleteAll(readingProgressList);
 		
 		
+    }
+    
+    @Override
+    public ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid) {
+    	Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+    	List<Reserve> reserves = reserveRepository.findActiveReserves(mid, ReserveState.RESERVED);
+    	List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
+    	
+    	ChatMemberBorrowResposneDTO dto = new ChatMemberBorrowResposneDTO();
+		dto.setBorrowCount((long) rentals.size());
+		dto.setReservedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
+		dto.setUnmannedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned()).count());
+		dto.setCanBorrowCount(5L - dto.getBorrowCount() - dto.getReservedCount() - dto.getUnmannedCount());
+		dto.setCanReserveCount(dto.getCanBorrowCount() < 2 ? 0L : 2 - dto.getReservedCount());
+		dto.setState(member.getState());
+		dto.setOverdueCount(rentals.stream().filter(rental -> rental.getState() == RentalState.BORROWED && rental.getDueDate().isBefore(LocalDate.now())).count());
+
+    	return dto;
+    	
+    	
+    	
+    	
     }
 	
 

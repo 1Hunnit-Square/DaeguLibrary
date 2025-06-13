@@ -176,37 +176,9 @@ public class ProgramServiceImpl implements ProgramService {
 	}
 
 	// 사용자 검색 전용
-//	@Override
-//	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
-//		option = (option != null && !option.isBlank()) ? option : "all";
-//		query = (query != null && !query.isBlank()) ? query : null;
-//		status = (status != null && !status.isBlank()) ? status : null;
-//		String searchType = ("progName".equals(option) || "teachName".equals(option)) ? option : null;
-//
-//		LocalDateTime now = LocalDateTime.now();
-//
-//		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, null, now, null, pageable);
-//
-//		final String finalStatus = status;
-//
-//		List<ProgramInfoDTO> filteredList = result.getContent().stream().map(p -> {
-//			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
-//			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-//			dto.setFileName(p.getFileName());
-//			String calculatedStatus = calculateStatus(p.getApplyStartAt(), p.getApplyEndAt());
-//			dto.setStatus(calculatedStatus);
-//			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
-//			return dto;
-//		}).filter(dto -> finalStatus == null || finalStatus.equals(dto.getStatus())).toList();
-//
-//		return new PageImpl<>(filteredList, pageable, filteredList.size());
-//	}
-
-	// 사용자 검색 전용 (수정됨)
 	@Override
 	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
-		log.info("searchProgramList service called with option: {}, query: {}, status: {}, pageable: {}", option, query,
-				status, pageable);
+
 		option = (option != null && !option.isBlank()) ? option : "all";
 		query = (query != null && !query.isBlank()) ? query : null;
 		status = (status != null && !status.isBlank()) ? status : null;
@@ -334,7 +306,7 @@ public class ProgramServiceImpl implements ProgramService {
 		try {
 			useRepository.save(programUse);
 		} catch (DataIntegrityViolationException e) {
-			log.warn("❗중복 신청 시도 감지 - progNo={}, mid={}", progNo, mid);
+			log.warn("중복 신청 시도 감지 - progNo={}, mid={}", progNo, mid);
 			throw new IllegalStateException("이미 신청한 프로그램입니다.");
 		}
 
@@ -356,13 +328,8 @@ public class ProgramServiceImpl implements ProgramService {
 		for (LocalDate date : classDates) {
 			int dayOfWeek = date.getDayOfWeek().getValue();
 
-			log.info("[중복체크] 날짜: {}, 요일: {}, 시작시간: {}, 종료시간: {}, 강의실: {}", date, dayOfWeek, request.getStartTime(),
-					request.getEndTime(), request.getRoom());
-
 			boolean conflict = infoRepository.existsByRoomAndDateTimeOverlap(request.getRoom(), date,
 					request.getStartTime(), request.getEndTime(), dayOfWeek);
-
-			log.info("[중복체크] → 결과: {}", conflict ? "❌ 충돌 발생" : "✅ 사용 가능");
 
 			if (conflict)
 				return false;
@@ -428,7 +395,7 @@ public class ProgramServiceImpl implements ProgramService {
 	// 이미 신청 했는지 여부 확인
 	@Override
 	public boolean isAlreadyApplied(Long progNo, String mid) {
-		log.info("🧪 중복 확인 → progNo: {}, mid: {}", progNo, mid);
+		log.info("중복 확인 → progNo: {}, mid: {}", progNo, mid);
 		return useRepository.existsByProgramInfo_ProgNoAndMember_Mid(progNo, mid);
 	}
 

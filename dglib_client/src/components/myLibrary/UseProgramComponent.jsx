@@ -103,7 +103,13 @@ const UseProgramComponent = () => {
                                                     <span className="w-18 text-center font-semibold border border-gray-400 px-2 py-0.5 rounded text-xs">
                                                         강의시간
                                                     </span>
-                                                    <span>{item.startTime} ~ {item.endTime} ({item.dayOfWeek})</span>
+                                                    <span>
+                                                        {item.startTime} ~ {item.endTime} (
+                                                        {Array.isArray(item.daysOfWeek)
+                                                            ? item.daysOfWeek.map(num => ['일', '월', '화', '수', '목', '금', '토'][num % 7]).join(', ')
+                                                            : '없음'}
+                                                        )
+                                                    </span>
                                                 </div>
                                             </div>
                                         </td>

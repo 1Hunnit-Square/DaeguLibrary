@@ -1,6 +1,7 @@
 package com.dglib.repository.program;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -16,21 +17,30 @@ public interface ProgramInfoRepository extends JpaRepository<ProgramInfo, Long> 
 
 	// 사용자 검색
 	@Query("""
-			  SELECT p FROM ProgramInfo p
-			  WHERE
-			    (
-			      (:progName IS NULL OR :progName = '')
-			      OR LOWER(p.progName) LIKE LOWER(CONCAT('%', :progName, '%'))
-			    )
-			    OR
-			    (
-			      (:content IS NULL OR :content = '')
-			      OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))
-			    )
-			    AND (:status IS NULL OR :status = '' OR p.status = :status)
+				SELECT p FROM ProgramInfo p
+				WHERE
+				    (
+				        (:keyword IS NULL OR :keyword = '')
+				        OR
+				        (
+				            :searchType = 'progName' AND p.progName LIKE %:keyword%
+				        )
+				        OR
+				        (
+				            :searchType = 'content' AND p.content LIKE %:keyword%
+				        )
+				        OR
+				        (
+				            :searchType = 'all' AND (p.progName LIKE %:keyword% OR p.content LIKE %:keyword%)
+				        )
+				    )
+				    AND (:status IS NULL OR :status = '' OR p.status = :status)
+				    AND (:startDate IS NULL OR p.applyEndAt >= :startDate)
+				    AND (:endDate IS NULL OR p.applyEndAt <= :endDate)
 			""")
-	Page<ProgramInfo> searchProgram(@Param("progName") String progName, @Param("content") String content,
-			@Param("status") String status, Pageable pageable);
+	Page<ProgramInfo> searchPrograms(@Param("searchType") String searchType, @Param("keyword") String keyword,
+			@Param("status") String status, @Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// 관리자 조건 검색
 	@Query("""
@@ -44,12 +54,21 @@ public interface ProgramInfoRepository extends JpaRepository<ProgramInfo, Long> 
 			            (:searchType = 'teachName' AND p.teachName LIKE %:keyword%)
 			        )
 			        AND (:status IS NULL OR :status = '' OR p.status = :status)
-			        AND (:startDate IS NULL OR p.applyStartAt >= :startDate)
 			        AND (:endDate IS NULL OR p.applyEndAt <= :endDate)
 			""")
 	Page<ProgramInfo> searchAdminPrograms(@Param("searchType") String searchType, @Param("keyword") String keyword,
 			@Param("status") String status, @Param("startDate") java.time.LocalDateTime startDate,
 			@Param("endDate") java.time.LocalDateTime endDate, Pageable pageable);
+
+	// 관리자 복합 검색
+	@Query("""
+				SELECT p FROM ProgramInfo p
+				WHERE
+					(:progName IS NULL OR p.progName LIKE %:progName%)
+					AND (:content IS NULL OR p.content LIKE %:content%)
+			""")
+	Page<ProgramInfo> searchProgram(@Param("progName") String progName, @Param("content") String content,
+			Pageable pageable);
 
 	// 해당 기간 동안 장소 중복 체크
 	@Query("""

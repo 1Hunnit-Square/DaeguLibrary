@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProgramDetail, applyProgram } from "../../api/programApi";
+import { getProgramDetail, applyProgram, checkAlreadyApplied } from "../../api/programApi";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
@@ -17,11 +17,16 @@ const ProgramDetailComponent = () => {
     const { moveToLogin } = useMoveTo();
     const { progNo } = useParams();
     const [program, setProgram] = useState(null);
+    const [isApplied, setIsApplied] = useState(false);
 
     useEffect(() => {
         getProgramDetail(progNo).then(data => {
             setProgram(data);
         });
+
+        if (mid) {
+            checkAlreadyApplied(progNo, mid).then(setIsApplied).catch(() => { });
+        }
     }, [progNo]);
 
     const isBeforeStart = program?.applyStartAt
@@ -54,6 +59,11 @@ const ProgramDetailComponent = () => {
 
         if (!mid) {
             moveToLogin("로그인 후 이용해주세요.");
+            return;
+        }
+
+        if (isApplied) {
+            alert("이미 신청하신 프로그램입니다.");
             return;
         }
 
@@ -125,10 +135,10 @@ const ProgramDetailComponent = () => {
                     <tr className="border-t border-gray-200">
                         <td className="pr-2 py-2 font-bold border-r border-gray-300 text-center align-top">첨부파일</td>
                         <td className="pl-4 py-2 text-left">
-                            {program.originalName ? (
+                            {program.fileName ? (
                                 <Download
                                     link={`/api/programs/file/${program.progNo}`}
-                                    fileName={program.originalName}
+                                    fileName={program.fileName}
                                     className="text-blue-600"
                                 />
                             ) : (
@@ -156,13 +166,15 @@ const ProgramDetailComponent = () => {
                     disabled={isDisabled}
                     className={`${isDisabled ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" : "bg-[#00893B] hover:bg-[#006C2D]"} text-white px-4 py-2 rounded`}
                 >
-                    {isBeforeStart
-                        ? "신청 전"
-                        : isExpired
-                            ? "신청 마감"
-                            : isFull
-                                ? "모집 마감"
-                                : "신청하기"}
+                    {isApplied
+                        ? "신청완료"
+                        : isBeforeStart
+                            ? "신청전"
+                            : isExpired
+                                ? "신청마감"
+                                : isFull
+                                    ? "모집마감"
+                                    : "신청하기"}
                 </Button>
             </div>
         </div>

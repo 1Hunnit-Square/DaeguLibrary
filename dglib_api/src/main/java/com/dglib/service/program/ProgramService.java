@@ -12,6 +12,7 @@ import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
+import com.dglib.entity.member.Member;
 import com.dglib.entity.program.ProgramInfo;
 
 public interface ProgramService {
@@ -48,8 +49,13 @@ public interface ProgramService {
 	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
 	Page<ProgramInfoDTO> getProgramList(Pageable pageable, String title, String content, String status);
 
-	// 프로그램 목록 검색 (option + query 방식)
+	// 사용자용 목록 조회
 	Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status);
+	Page<ProgramInfoDTO> getUserProgramList(Member member, Pageable pageable);
+
+
+	// 관리자용 목록 조회
+	Page<ProgramInfoDTO> searchAdminProgramList(Pageable pageable, String option, String query, String status);
 
 	// 사용자 신청 리스트
 	List<ProgramUseDTO> getUseListByMember(String mid);

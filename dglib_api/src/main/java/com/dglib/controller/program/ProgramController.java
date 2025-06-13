@@ -26,7 +26,9 @@ import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
+import com.dglib.entity.member.Member;
 import com.dglib.entity.program.ProgramInfo;
+import com.dglib.repository.member.MemberRepository;
 import com.dglib.service.program.ProgramService;
 import com.dglib.util.FileUtil;
 
@@ -40,6 +42,7 @@ public class ProgramController {
 	private static final Logger log = LoggerFactory.getLogger(ProgramController.class);
 
 	private final ProgramService programService;
+	private final MemberRepository memberRepository;
 	private final FileUtil fileUtil;
 
 	// 관리자용 API
@@ -56,12 +59,12 @@ public class ProgramController {
 	}
 
 	// 3. 페이지네이션 + 검색 조건 포함 목록 조회
-	@GetMapping
-	public ResponseEntity<Page<ProgramInfoDTO>> getProgramList(@RequestParam(required = false) String option,
+	@GetMapping("/admin/list")
+	public ResponseEntity<Page<ProgramInfoDTO>> getAdminProgramList(@RequestParam(required = false) String option,
 			@RequestParam(required = false) String query, @RequestParam(required = false) String status,
 			Pageable pageable) {
 
-		Page<ProgramInfoDTO> result = programService.searchProgramList(pageable, option, query, status);
+		Page<ProgramInfoDTO> result = programService.searchAdminProgramList(pageable, option, query, status);
 		return ResponseEntity.ok(result);
 	}
 
@@ -120,7 +123,7 @@ public class ProgramController {
 	@GetMapping("/file/{progNo}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable Long progNo) {
 		ProgramInfo program = programService.getProgramEntity(progNo);
-		return fileUtil.getFile(program.getFilePath(), null);
+		return fileUtil.getFile(program.getFilePath(), program.getFileName());
 	}
 
 	// 사용자용 API
@@ -144,7 +147,7 @@ public class ProgramController {
 	}
 
 	// 6. 사용자 신청 리스트
-	@GetMapping("/use")
+	@GetMapping("/user/applied")
 	public ResponseEntity<List<ProgramUseDTO>> getProgramUseList(@RequestParam String mid) {
 		return ResponseEntity.ok(programService.getUseListByMember(mid));
 	}
@@ -154,6 +157,19 @@ public class ProgramController {
 	public ResponseEntity<Void> cancelProgram(@PathVariable Long progUseNo) {
 		programService.cancelProgram(progUseNo);
 		return ResponseEntity.noContent().build();
+	}
+
+	// 8. 사용자 프로그램 목록 조회
+	@GetMapping("/user/list")
+	public ResponseEntity<Page<ProgramInfoDTO>> getUserProgramList(
+	        @RequestParam(required = false) String option,
+	        @RequestParam(required = false) String query,
+	        @RequestParam(required = false) String status,
+	        Pageable pageable) {
+	    log.info("getUserProgramList called with option: {}, query: {}, status: {}, pageable: {}", option, query, status, pageable);
+	    Page<ProgramInfoDTO> result = programService.searchProgramList(pageable, option, query, status);
+	    log.info("Returned {} programs. Total elements: {}", result.getContent().size(), result.getTotalElements());
+	    return ResponseEntity.ok(result);
 	}
 
 }

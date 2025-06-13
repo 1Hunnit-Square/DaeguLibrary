@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProgramList, deleteProgram } from "../../api/programApi";
+import { getAdminProgramList, deleteProgram } from "../../api/programApi";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
 import { usePagination } from "../../hooks/usePage";
+import { useDateRangeHandler } from "../../hooks/useDateRangeHandler";
 import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
@@ -24,12 +25,16 @@ const ProgramAdminComponent = () => {
     const navigate = useNavigate();
     const { handleSearch } = useSearchHandler({ tab: "program" });
 
+    const { dateRange, handleDateChange } = useDateRangeHandler();
+
     const today = new Date();
     const aMonthAgo = new Date(today);
     aMonthAgo.setDate(today.getDate() - 30);
 
-    const dateFrom = searchParams.get("startDate") || aMonthAgo.toISOString().slice(0, 10);
-    const dateTo = searchParams.get("endDate") || today.toISOString().slice(0, 10);
+    const format = (d) => d.toLocaleDateString("sv-SE"); // YYYY-MM-DD
+    const startDate = dateRange.startDate || format(aMonthAgo);
+    const endDate = dateRange.endDate || format(today);
+
     const orderBy = searchParams.get("orderBy") || "desc";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const page = parseInt(searchParams.get("page") || "1");
@@ -42,20 +47,20 @@ const ProgramAdminComponent = () => {
     const query = searchParams.get("query") || "";
 
     const { data = { content: [], totalElements: 0 }, isLoading } = useQuery({
-        queryKey: ["programList", searchParams.toString()],
+        queryKey: ["programList", startDate, endDate, option, query, page, size, sortBy, orderBy],
         queryFn: () => {
             const params = {
                 option: option,
                 query: query,
-                startDate: dateFrom,
-                endDate: dateTo,
+                startDate,
+                endDate,
                 sort: `${sortBy},${orderBy}`,
                 size,
             };
             if (query) {
                 params[option] = query;
             }
-            return getProgramList(params);
+            return getAdminProgramList(params);
         },
     });
 
@@ -98,31 +103,13 @@ const ProgramAdminComponent = () => {
                     inputClassName="w-full bg-white"
                 />
 
-                <div className="flex items-center gap-3 text-sm">
-                    <label>등록일</label>
-                    <input
-                        type="date"
-                        name="startDate"
-                        value={dateFrom}
-                        onChange={(e) => {
-                            const p = new URLSearchParams(searchParams);
-                            p.set("startDate", e.target.value);
-                            setSearchParams(p);
-                        }}
-                        className="border rounded p-2"
-                    />
-                    <span>~</span>
-                    <input
-                        type="date"
-                        name="endDate"
-                        value={dateTo}
-                        onChange={(e) => {
-                            const p = new URLSearchParams(searchParams);
-                            p.set("endDate", e.target.value);
-                            setSearchParams(p);
-                        }}
-                        className="border rounded p-2"
-                    />
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <span className="w-50">신청기간</span>
+                        <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <span className="mx-4">-</span>
+                        <input type="date" name="endDate" value={endDate} onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                    </div>
                 </div>
             </div>
 

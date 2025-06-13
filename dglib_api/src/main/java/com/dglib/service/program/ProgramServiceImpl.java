@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ProgramServiceImpl implements ProgramService {
 
+	private static final Logger log = LoggerFactory.getLogger(ProgramServiceImpl.class);
+
 	private final ProgramBannerRepository bannerRepository;
 	private final ProgramInfoRepository infoRepository;
 	private final ProgramUseRepository useRepository;
@@ -46,9 +50,7 @@ public class ProgramServiceImpl implements ProgramService {
 	private final FileUtil fileUtil;
 	private final ModelMapper modelMapper;
 
-	private static final Logger log = LoggerFactory.getLogger(ProgramServiceImpl.class);
-
-	private static final String[] WEEK_KO = { "일", "월", "화", "수", "목", "금", "토" };
+	private static final String[] WEEK_KO = { "일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일" };
 
 	private List<String> convertToDayNames(List<Integer> days) {
 		return days.stream().map(num -> WEEK_KO[num % 7]).collect(Collectors.toList());
@@ -56,6 +58,8 @@ public class ProgramServiceImpl implements ProgramService {
 
 	private String calculateStatus(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
 		LocalDateTime now = LocalDateTime.now();
+		LocalDate applyStartDate = applyStartAt.toLocalDate();
+		LocalDate applyEndDate = applyEndAt.toLocalDate();
 
 		if (now.isBefore(applyStartAt)) {
 			return "신청전";
@@ -75,79 +79,6 @@ public class ProgramServiceImpl implements ProgramService {
 			}
 		}
 		return dates;
-	}
-
-	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
-	@Override
-	public Page<ProgramInfoDTO> getProgramList(Pageable pageable, String progName, String content, String status) {
-		boolean noFilter = (progName == null || progName.isBlank()) && (content == null || content.isBlank())
-				&& (status == null || status.isBlank());
-		Page<ProgramInfo> result = noFilter ? infoRepository.findAll(pageable)
-				: infoRepository.searchProgram(progName, content, status, pageable);
-		return result.map(program -> {
-			ProgramInfoDTO dto = modelMapper.map(program, ProgramInfoDTO.class);
-			dto.setCurrent(useRepository.countByProgram(program.getProgNo()));
-			dto.setFileName(program.getFileName());
-			dto.setStatus(calculateStatus(program.getApplyStartAt(), program.getApplyEndAt()));
-			dto.setCreatedAt(program.getCreatedAt());
-			dto.setDayNames(convertToDayNames(program.getDaysOfWeek()));
-			return dto;
-		});
-	}
-
-	// 프로그램 목록 검색
-	@Override
-	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
-		option = (option != null && !option.isBlank()) ? option : "all";
-		query = (query != null && !query.isBlank()) ? query : null;
-		status = (status != null && !status.isBlank()) ? status : null;
-		String searchType = ("progName".equals(option) || "teachName".equals(option)) ? option : null;
-		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, status, null, null, pageable);
-		return result.map(p -> {
-			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
-			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-			dto.setFileName(p.getFileName());
-			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
-			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
-			return dto;
-		});
-	}
-
-	// 배너 리스트 조회
-	@Override
-	public List<ProgramBannerDTO> getAllBanners() {
-		return bannerRepository.findAll().stream().map(banner -> modelMapper.map(banner, ProgramBannerDTO.class))
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public ProgramInfo getProgramEntity(Long progNo) {
-		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-	}
-
-	// 프로그램 리스트 조회
-	@Override
-	public List<ProgramInfoDTO> getAllPrograms() {
-		LocalDate today = LocalDate.now();
-		return infoRepository.findAll().stream().filter(info -> !info.getApplyEndAt().toLocalDate().isBefore(today))
-				.map(info -> {
-					ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
-					dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
-					return dto;
-				}).collect(Collectors.toList());
-	}
-
-	// 프로그램 상세 조회
-	@Override
-	public ProgramInfoDTO getProgram(Long progNo) {
-		ProgramInfo info = infoRepository.findById(progNo)
-				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
-		ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
-		dto.setFileName(info.getFileName());
-		dto.setStatus(calculateStatus(info.getApplyStartAt(), info.getApplyEndAt()));
-		dto.setCurrent(useRepository.countByProgram(progNo));
-		dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
-		return dto;
 	}
 
 	// 프로그램 등록
@@ -220,6 +151,143 @@ public class ProgramServiceImpl implements ProgramService {
 		infoRepository.delete(programToDelete);
 	}
 
+	// 관리자 페이지(복합 필터) - 관리자 일반 목록
+	@Override
+	public Page<ProgramInfoDTO> getProgramList(Pageable pageable, String progName, String content, String status) {
+		boolean noFilter = (progName == null || progName.isBlank()) && (content == null || content.isBlank());
+
+		Page<ProgramInfo> result = noFilter ? infoRepository.findAll(pageable)
+				: infoRepository.searchProgram(progName, content, pageable);
+
+		final String finalStatus = (status != null && !status.isBlank()) ? status : null;
+
+		List<ProgramInfoDTO> filteredList = result.getContent().stream().map(program -> {
+			ProgramInfoDTO dto = modelMapper.map(program, ProgramInfoDTO.class);
+			dto.setCurrent(useRepository.countByProgram(program.getProgNo()));
+			dto.setFileName(program.getFileName());
+			String calculatedStatus = calculateStatus(program.getApplyStartAt(), program.getApplyEndAt());
+			dto.setStatus(calculatedStatus);
+			dto.setCreatedAt(program.getCreatedAt());
+			dto.setDayNames(convertToDayNames(program.getDaysOfWeek()));
+			return dto;
+		}).filter(dto -> finalStatus == null || finalStatus.equals(dto.getStatus())).toList();
+
+		return new PageImpl<>(filteredList, pageable, filteredList.size());
+	}
+
+	// 사용자 검색 전용
+//	@Override
+//	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
+//		option = (option != null && !option.isBlank()) ? option : "all";
+//		query = (query != null && !query.isBlank()) ? query : null;
+//		status = (status != null && !status.isBlank()) ? status : null;
+//		String searchType = ("progName".equals(option) || "teachName".equals(option)) ? option : null;
+//
+//		LocalDateTime now = LocalDateTime.now();
+//
+//		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, null, now, null, pageable);
+//
+//		final String finalStatus = status;
+//
+//		List<ProgramInfoDTO> filteredList = result.getContent().stream().map(p -> {
+//			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+//			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+//			dto.setFileName(p.getFileName());
+//			String calculatedStatus = calculateStatus(p.getApplyStartAt(), p.getApplyEndAt());
+//			dto.setStatus(calculatedStatus);
+//			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
+//			return dto;
+//		}).filter(dto -> finalStatus == null || finalStatus.equals(dto.getStatus())).toList();
+//
+//		return new PageImpl<>(filteredList, pageable, filteredList.size());
+//	}
+
+	// 사용자 검색 전용 (수정됨)
+	@Override
+	public Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status) {
+		log.info("searchProgramList service called with option: {}, query: {}, status: {}, pageable: {}", option, query,
+				status, pageable);
+		option = (option != null && !option.isBlank()) ? option : "all";
+		query = (query != null && !query.isBlank()) ? query : null;
+		status = (status != null && !status.isBlank()) ? status : null;
+
+		String searchType = (query != null && !query.isBlank()
+				&& ("progName".equals(option) || "content".equals(option) || "all".equals(option))) ? option : null;
+
+		LocalDateTime now = LocalDateTime.now();
+
+		Page<ProgramInfo> result = infoRepository.searchPrograms(searchType, query, status, now, null, pageable);
+
+		return result.map(p -> {
+			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+			dto.setFileName(p.getFileName());
+			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
+			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
+			return dto;
+		});
+
+	}
+
+	@Override
+	public Page<ProgramInfoDTO> getUserProgramList(Member member, Pageable pageable) {
+		// 회원이 신청한 ProgramUse 목록을 기준으로 ProgramInfo 가져오기
+		Page<ProgramUse> uses = useRepository.findByMember(member, pageable);
+		Page<ProgramInfoDTO> dtoPage = uses.map(use -> modelMapper.map(use.getProgramInfo(), ProgramInfoDTO.class));
+
+		return dtoPage;
+	}
+
+	// 관리자 검색 전용
+	@Override
+	public Page<ProgramInfoDTO> searchAdminProgramList(Pageable pageable, String option, String query, String status) {
+		option = (option != null && !option.isBlank()) ? option : "all";
+		query = (query != null && !query.isBlank()) ? query : null;
+		status = (status != null && !status.isBlank()) ? status : null;
+		String searchType = ("progName".equals(option) || "teachName".equals(option)) ? option : null;
+
+		Page<ProgramInfo> result = infoRepository.searchAdminPrograms(searchType, query, status, null, null, pageable);
+
+		return result.map(p -> {
+			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+			dto.setFileName(p.getFileName());
+			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
+			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
+			return dto;
+		});
+	}
+
+	@Override
+	public ProgramInfo getProgramEntity(Long progNo) {
+		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+	}
+
+	// 프로그램 리스트 조회
+	@Override
+	public List<ProgramInfoDTO> getAllPrograms() {
+		LocalDate today = LocalDate.now();
+		return infoRepository.findAll().stream().filter(info -> !info.getApplyEndAt().toLocalDate().isBefore(today))
+				.map(info -> {
+					ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
+					dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
+					return dto;
+				}).collect(Collectors.toList());
+	}
+
+	// 프로그램 상세 조회
+	@Override
+	public ProgramInfoDTO getProgram(Long progNo) {
+		ProgramInfo info = infoRepository.findById(progNo)
+				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+		ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
+		dto.setFileName(info.getFileName());
+		dto.setStatus(calculateStatus(info.getApplyStartAt(), info.getApplyEndAt()));
+		dto.setCurrent(useRepository.countByProgram(progNo));
+		dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
+		return dto;
+	}
+
 	// 프로그램 중복 신청 방지 및 대상자 필터링
 	@Override
 	public void applyProgram(ProgramApplyRequestDTO dto) {
@@ -263,7 +331,12 @@ public class ProgramServiceImpl implements ProgramService {
 		ProgramUse programUse = ProgramUse.builder().programInfo(program).member(member).applyAt(LocalDateTime.now())
 				.build();
 
-		useRepository.save(programUse);
+		try {
+			useRepository.save(programUse);
+		} catch (DataIntegrityViolationException e) {
+			log.warn("❗중복 신청 시도 감지 - progNo={}, mid={}", progNo, mid);
+			throw new IllegalStateException("이미 신청한 프로그램입니다.");
+		}
 
 	}
 
@@ -282,12 +355,35 @@ public class ProgramServiceImpl implements ProgramService {
 
 		for (LocalDate date : classDates) {
 			int dayOfWeek = date.getDayOfWeek().getValue();
+
+			log.info("[중복체크] 날짜: {}, 요일: {}, 시작시간: {}, 종료시간: {}, 강의실: {}", date, dayOfWeek, request.getStartTime(),
+					request.getEndTime(), request.getRoom());
+
 			boolean conflict = infoRepository.existsByRoomAndDateTimeOverlap(request.getRoom(), date,
 					request.getStartTime(), request.getEndTime(), dayOfWeek);
+
+			log.info("[중복체크] → 결과: {}", conflict ? "❌ 충돌 발생" : "✅ 사용 가능");
+
 			if (conflict)
 				return false;
 		}
 		return true;
+	}
+
+	// 모든 강의실이 해당 기간에 모두 겹치는지 확인
+	@Override
+	public boolean isAllRoomsOccupied(ProgramRoomCheckDTO request) {
+		if (request.getDaysOfWeek() == null || request.getDaysOfWeek().isEmpty()) {
+			return false;
+		}
+
+		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
+		long unavailableCount = rooms.stream().filter(room -> {
+			request.setRoom(room);
+			return !isRoomAvailable(request);
+		}).count();
+
+		return unavailableCount >= rooms.size();
 	}
 
 	// 전체 강의실 사용 가능 여부
@@ -306,22 +402,6 @@ public class ProgramServiceImpl implements ProgramService {
 			result.put(room, isAvailable);
 		}
 		return result;
-	}
-
-	// 모든 강의실이 해당 기간에 모두 겹치는지 확인
-	@Override
-	public boolean isAllRoomsOccupied(ProgramRoomCheckDTO request) {
-		if (request.getDaysOfWeek() == null || request.getDaysOfWeek().isEmpty()) {
-			return false;
-		}
-
-		List<String> rooms = List.of("문화교실1", "문화교실2", "문화교실3");
-		long unavailableCount = rooms.stream().filter(room -> {
-			request.setRoom(room);
-			return !isRoomAvailable(request);
-		}).count();
-
-		return unavailableCount >= rooms.size();
 	}
 
 	// 신청 대상자 여부 판단
@@ -348,6 +428,7 @@ public class ProgramServiceImpl implements ProgramService {
 	// 이미 신청 했는지 여부 확인
 	@Override
 	public boolean isAlreadyApplied(Long progNo, String mid) {
+		log.info("🧪 중복 확인 → progNo: {}, mid: {}", progNo, mid);
 		return useRepository.existsByProgramInfo_ProgNoAndMember_Mid(progNo, mid);
 	}
 
@@ -376,6 +457,13 @@ public class ProgramServiceImpl implements ProgramService {
 		return list.stream().map(this::toDTO).collect(Collectors.toList());
 	}
 
+	// 배너 리스트 조회
+	@Override
+	public List<ProgramBannerDTO> getAllBanners() {
+		return bannerRepository.findAll().stream().map(banner -> modelMapper.map(banner, ProgramBannerDTO.class))
+				.collect(Collectors.toList());
+	}
+
 	// -------------------공통 메서드--------------------
 
 	// ProgramUse → ProgramUseDTO 변환 메서드(getApplicantsByProgram()과
@@ -387,11 +475,14 @@ public class ProgramServiceImpl implements ProgramService {
 		String status = info.getEndDate().isBefore(LocalDate.now()) ? "강의종료" : "신청완료";
 		List<Integer> dayOfWeekIntList = info.getDaysOfWeek();
 
+		String startTime = info.getStartTime() != null ? info.getStartTime().toString() : "";
+		String endTime = info.getEndTime() != null ? info.getEndTime().toString() : "";
+
 		return ProgramUseDTO.builder().progUseNo(use.getProgUseNo()).applyAt(use.getApplyAt()).progNo(info.getProgNo())
 				.progName(info.getProgName()).teachName(info.getTeachName()).startDate(info.getStartDate())
-				.endDate(info.getEndDate()).startTime(info.getStartTime().toString())
-				.endTime(info.getEndTime().toString()).daysOfWeek(dayOfWeekIntList).room(info.getRoom())
-				.capacity(info.getCapacity()).current(useRepository.countByProgram(info.getProgNo())).status(status)
+				.endDate(info.getEndDate()).startTime(startTime).endTime(endTime).daysOfWeek(dayOfWeekIntList)
+				.room(info.getRoom()).capacity(info.getCapacity())
+				.current(useRepository.countByProgram(info.getProgNo())).status(status)
 				.mid(member != null ? member.getMid() : null).name(member != null ? member.getName() : null)
 				.email(member != null ? member.getEmail() : null).phone(member != null ? member.getPhone() : null)
 				.build();

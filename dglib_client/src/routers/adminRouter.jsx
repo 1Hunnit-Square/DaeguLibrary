@@ -56,6 +56,10 @@ const adminRouter = () => ([
     {
         path: "programregister",
         element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
+    },
+    {
+        path: "programregister/:progNo",
+        element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
     }
 
 

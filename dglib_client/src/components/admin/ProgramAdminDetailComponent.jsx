@@ -16,13 +16,13 @@ const ProgramAdminDetailComponent = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const numberToDay = {
-    1: "월",
-    2: "화",
-    3: "수",
-    4: "목",
-    5: "금",
-    6: "토",
-    7: "일",
+    1: "월요일",
+    2: "화요일",
+    3: "수요일",
+    4: "목요일",
+    5: "금요일",
+    6: "토요일",
+    7: "일요일",
   };
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const ProgramAdminDetailComponent = () => {
     <div className="max-w-5xl mx-auto px-6 py-12">
       {/* 상단 버튼 */}
       <div className="flex gap-4 justify-end mt-4">
-        <Button onClick={() => navigate(`/admin/programedit/${progNo}`)}>
+        <Button onClick={() => navigate(`/admin/programregister/${progNo}?from=progmanagement`)}>
           수정
         </Button>
         <Button onClick={handleDelete} className="bg-red-500 hover:bg-red-600">

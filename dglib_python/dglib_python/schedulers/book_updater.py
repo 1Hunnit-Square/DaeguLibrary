@@ -13,6 +13,15 @@ scheduler = AsyncIOScheduler(
     }
 )
 
+async def daily_full_update():
+    logger.info("=== 일일 전체 업데이트 시작 ===")
+    if await update_selected_book_data(list(GENRE_MAP.keys())):
+        logger.info("일일 전체 업데이트 완료")
+    else:
+        logger.warning("일일 업데이트 중 일부 실패")
+        await schedule_retry()
+
+
 async def run_update_with_retry():
 
     try:
@@ -52,7 +61,7 @@ async def schedule_retry():
 
 def start_scheduler():
 
-    scheduler.add_job(run_update_with_retry, 'cron', hour=0, minute=0)
+    scheduler.add_job(daily_full_update, 'cron', hour=0, minute=0)
     scheduler.start()
     logger.info("스케줄러 시작됨")
 

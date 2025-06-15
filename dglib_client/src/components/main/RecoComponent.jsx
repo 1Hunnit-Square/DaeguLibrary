@@ -111,16 +111,16 @@ const RecoComponent = ({type}) => {
     return (
         <div className="p-2 sm:p-4"  ref={containerRef}>
            
-            <div className="hidden xl:flex xl:justify-between xl:gap-4">
+           <div className="hidden xl:flex xl:justify-between xl:gap-4">
                 {data.map((bookData) => (
                     <div 
                         key={bookData.isbn}
                         className='flex flex-col items-center group hover:scale-105 transition-transform duration-200 cursor-pointer flex-1 max-w-[200px]' 
                         onClick={() => handleBookClick(bookData.isbn)}
                     >
-                        <div className="w-full aspect-[3/4] mb-2">
+                        <div className="w-full aspect-[3/4] mb-2 overflow-hidden rounded-lg">
                             <img 
-                                className="w-full h-full object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-200" 
+                                className="w-full h-full object-cover shadow-md group-hover:shadow-lg transition-shadow duration-200" 
                                 src={bookData.cover} 
                                 alt={bookData.bookTitle}
                             />
@@ -135,7 +135,6 @@ const RecoComponent = ({type}) => {
                 ))}
             </div>
 
-            
             <div className="xl:hidden w-full flex justify-center">
                 <Swiper
                     modules={[Autoplay]}
@@ -169,9 +168,9 @@ const RecoComponent = ({type}) => {
                                 className='flex flex-col items-center group hover:scale-105 transition-transform duration-200 cursor-pointer' 
                                 onClick={() => handleBookClick(bookData.isbn)}
                             >
-                                <div className="w-full aspect-[3/4] mb-2">
+                                <div className="w-full aspect-[3/4] mb-2 overflow-hidden rounded-lg">
                                     <img 
-                                        className="w-full h-full object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-200" 
+                                        className="w-full h-full object-cover shadow-md group-hover:shadow-lg transition-shadow duration-200" 
                                         src={bookData.cover} 
                                         alt={bookData.bookTitle}
                                     />

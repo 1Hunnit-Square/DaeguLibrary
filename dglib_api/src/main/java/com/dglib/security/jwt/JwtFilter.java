@@ -85,8 +85,12 @@ public class JwtFilter extends OncePerRequestFilter {
 	    }
 	    
 	    
+	    
+	    
 	    return false;
 	    }
+	 
+	  
 	 
 
 		public static String getMid() {

@@ -7,10 +7,10 @@ from datetime import datetime
 import google.generativeai as genai
 from IPython.display import display
 from IPython.display import Markdown
-from dglib_chatbot.config import GOOGLE_API_KEY, initial_history
-from dglib_chatbot.session_manager import chat_sessions, update_session_activity
-from dglib_chatbot.config import logger
-from dglib_chatbot.response_prompt import response_prompt
+from dglib_chatbot.utils.config import GOOGLE_API_KEY, initial_history
+from dglib_chatbot.services.session_manager import chat_sessions, update_session_activity
+from dglib_chatbot.utils.config import logger
+from dglib_chatbot.services.response_prompt import response_prompt
 
 
 

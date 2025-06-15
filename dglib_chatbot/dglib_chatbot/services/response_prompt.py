@@ -1,4 +1,4 @@
-from dglib_chatbot.config import logger, web_config
+from dglib_chatbot.utils.config import logger, web_config
 import httpx
 from dglib_chatbot.utils.client import get_client
 
@@ -37,7 +37,7 @@ async def response_prompt(parts: str, nlp: dict, mid: str) -> dict:
 
 
     response_result = f"""사용자가 {parts}라고 입력했어요. 
-                        사용자의 말을 인용하지 말고, 'préstamo', 'poquito', '哼'을 사용하지 않은 채  자연스럽고 맥락에 맞는 응답을 생성하세요. 
+                        사용자의 말을 인용하지 말고, 'préstamo', 'poquito', '哼', 을 사용하지 않은 채 태국어를 사용하지 말고 자연스럽고 맥락에 맞는 응답을 생성하세요. 
                         {response.get("parts")}.
                         없는 내용은 절대 거짓말하지마세요, 추측하지 마세요."""
     return {"text": response_result, "service": response.get("service"), "to": response.get("to")}

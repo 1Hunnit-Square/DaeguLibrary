@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, memo } from "react";
 import ReactMarkdown from 'react-markdown';
 import ChatActionComponent from "./ChatActionComponent";
+import VoiceWebSocketComponent from "./VoiceWebSocketComponent";
 const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [isVoiceOpen, setIsVoiceOpen] = useState(false);
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
     
@@ -124,6 +126,8 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
                              [&::-webkit-scrollbar-thumb]:rounded-md
                              [&::-webkit-scrollbar-track]:bg-transparent"
                 />
+                <img src="/mic.png" className="w-8 border rounded-full border-green-700 hover:cursor-pointer"
+                onClick={() => setIsVoiceOpen(true)} />
                 <button
                     type="submit"
                     className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 text-sm sm:text-base whitespace-nowrap"
@@ -131,6 +135,7 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
                     전송
                 </button>
             </form>
+            {isVoiceOpen && <VoiceWebSocketComponent />}
         </div>
     );
 };

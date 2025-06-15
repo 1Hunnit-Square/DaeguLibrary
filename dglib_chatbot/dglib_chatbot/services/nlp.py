@@ -48,7 +48,7 @@ class JointIntentNERModel(nn.Module):
             return intent_logits, ner_preds
 
 
-MODEL_DIR = os.path.join(os.path.dirname(__file__), "model")
+MODEL_DIR = os.path.join(os.path.dirname(__file__), "..\model")
 
 with open(os.path.join(MODEL_DIR, "config.json"), "r", encoding="utf-8") as f:
     config = json.load(f)

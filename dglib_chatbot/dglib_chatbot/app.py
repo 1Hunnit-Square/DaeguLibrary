@@ -1,15 +1,18 @@
 from fastapi import FastAPI
-from dglib_chatbot.config import logger, web_config
+from dglib_chatbot.utils.config import logger, web_config
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dglib_chatbot.chatbot_response import chatbot_ai, chatbot_history_delete
+from dglib_chatbot.services.chatbot_response import chatbot_ai, chatbot_history_delete
 import uuid
-from dglib_chatbot.session_manager import start_scheduler
+from dglib_chatbot.services.session_manager import start_scheduler
 from contextlib import asynccontextmanager
-from dglib_chatbot.nlp import analyze_text
+from dglib_chatbot.services.nlp import analyze_text
 from dglib_chatbot.utils.client import set_client
 import httpx
 from typing import Optional
+from speech_recognition.voice_detect import start_tcp_server
+import asyncio
+
 
 
 
@@ -20,7 +23,7 @@ class ChatRequest(BaseModel):
 class resetRequest(BaseModel):
     clientId: str
 
-
+tcp_server_task = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,9 +35,18 @@ async def lifespan(app: FastAPI):
                                )
     set_client(client)
     logger.info("챗봇 서버 시작")
+    global tcp_server_task
+    loop = asyncio.get_running_loop()
+    tcp_server_task = loop.create_task(start_tcp_server())
     start_scheduler()
     yield
     await client.aclose()
+    if tcp_server_task:
+        tcp_server_task.cancel()
+        try:
+            await tcp_server_task
+        except asyncio.CancelledError:
+            logger.info("TCP 서버 작업이 취소되었습니다.")
     logger.info("챗봇 서버 종료")
 
 app = FastAPI(lifespan=lifespan)

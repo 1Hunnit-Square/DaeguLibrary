@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import 'react-quill/dist/quill.snow.css';
 import 'react-tooltip/dist/react-tooltip.css';
 import QuillComponent from "../common/QuillComponent";
-import { modGallery, getGalleryDetail } from "../../api/galleryApi";
+import { modEvent, getEventDetail } from "../../api/eventApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
@@ -11,15 +11,15 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
 import { imgReplace } from "../../util/commonUtil";
 
-const GalleryModComponent = () => {
+const EventModComponent = () => {
   const navigate = useNavigate();
   const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
-  const { gno } = useParams();
+  const { eno } = useParams();
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['galleryDetail', gno],
-    queryFn: () => getGalleryDetail(gno),
+    queryKey: ['eventDetail', eno],
+    queryFn: () => getEventDetail(eno),
     refetchOnWindowFocus: false,
   });
 
@@ -29,10 +29,10 @@ const GalleryModComponent = () => {
 
     console.log(paramData);
 
-    modGallery(gno, paramData)
+    modEvent(eno, paramData)
       .then(res => {
         alert("글을 수정하였습니다.");
-        navigate(`/community/gallery/${gno}`);
+        navigate(`/community/event/${eno}`);
       })
       .catch((error) => {
         alert("글 수정에 실패했습니다.");
@@ -56,7 +56,7 @@ const GalleryModComponent = () => {
           onParams={sendParams}
           onBack={onBack}
           useTitle={true}
-          usePinned={false}
+          usePinned={true}
           usePublic={false}
           upload={["image"]}
           modMap={dataMap}
@@ -66,4 +66,4 @@ const GalleryModComponent = () => {
   );
 };
 
-export default GalleryModComponent;
+export default EventModComponent;

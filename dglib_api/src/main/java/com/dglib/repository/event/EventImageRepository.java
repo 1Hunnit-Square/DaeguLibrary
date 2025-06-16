@@ -17,5 +17,4 @@ public interface EventImageRepository extends JpaRepository<EventImage, Long> {
 
 	// 파일 번호로 단일 조회 (필요 시)
 	Optional<EventImage> findByIno(Long ino);
-
 }

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getGalleryDetail, deleteGallery } from "../../api/galleryApi";
+import { getEventDetail } from "../../api/eventApi";
 import { useParams } from "react-router-dom";
 import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
@@ -11,13 +12,14 @@ import { API_SERVER_HOST } from "../../api/config";
 import Download from "../common/Download";
 import { imgReplace } from "../../util/commonUtil";
 import { API_ENDPOINTS } from "../../api/config";
+import { deleteEvent } from "../../api/eventApi";
 import ContentComponent from "../common/ContentComponent";
 
-const GalleryDetailComponent = () => {
-    const { gno } = useParams();
+const EventDetailComponent = () => {
+    const { eno } = useParams();
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ['galleryDetail', gno],
-        queryFn: () => getGalleryDetail(gno),
+        queryKey: ['eventDetail', eno],
+        queryFn: () => getEventDetail(eno),
         refetchOnWindowFocus: false,
     });
     const navigate = useNavigate();
@@ -25,10 +27,10 @@ const GalleryDetailComponent = () => {
 
     const handleDelete = () => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
-            deleteGallery(gno)
+            deleteEvent(eno)
                 .then(() => {
                     alert("삭제가 완료되었습니다.");
-                    navigate("/community/gallery");
+                    navigate("/community/event");
                 })
                 .catch((error) => {
                     alert("삭제 중 오류가 발생했습니다.");
@@ -95,7 +97,7 @@ const GalleryDetailComponent = () => {
                     {mid && (
                         <>
                             <Button
-                                onClick={() => navigate(`/community/gallery/edit/${gno}`)}
+                                onClick={() => navigate(`/community/event/edit/${eno}`)}
                                 className="bg-gray-500 hover:bg-gray-600"
                             >
                                 수정하기
@@ -108,10 +110,10 @@ const GalleryDetailComponent = () => {
                             </Button>
                         </>
                     )}
-                    <Button onClick={() => navigate("/community/gallery")}>돌아가기</Button>
+                    <Button onClick={() => navigate("/community/event")}>돌아가기</Button>
                 </div>
             </div>
         </div>
     );
 }
-export default GalleryDetailComponent;
+export default EventDetailComponent;

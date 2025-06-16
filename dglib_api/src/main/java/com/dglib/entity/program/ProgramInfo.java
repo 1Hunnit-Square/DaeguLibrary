@@ -83,7 +83,7 @@ public class ProgramInfo {
    private int capacity; // 수강정원
 
    @Column(length = 100)
-   private String fileName; // 계획서 파일명
+   private String originalName; // 계획서 파일명
 
    @Column(length = 200)
    private String filePath; // 계획서경로

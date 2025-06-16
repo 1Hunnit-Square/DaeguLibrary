@@ -1,54 +1,96 @@
-import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
-import useQuillEditor from "../../hooks/useQuillEditor";
 import { useCreateAnswer } from "../../hooks/useAnswerMutation";
+import Loading from "../../routers/Loading";
+import QuillComponent from "../common/QuillComponent";
+import { useQuery } from "@tanstack/react-query";
+import { getQnaDetail } from "../../api/qnaApi";
+import DOMPurify from "dompurify";
 
 const AnswerNewComponent = () => {
   const { qno } = useParams();
   const adminMid = useRecoilValue(memberIdSelector);
   const navigate = useNavigate();
 
-  const { content, setContent, QuillComponent } = useQuillEditor("", "답변 내용을 입력하세요...");
-  const createAnswerMutation = useCreateAnswer(() => navigate(`/community/qna/${qno}`));
+  const { data: question, isLoading } = useQuery({
+    queryKey: ["getQnaDetail", qno],
+    queryFn: () => getQnaDetail(qno, adminMid),
+    retry: false,
+  });
 
-  const handleSubmit = () => {
-    if (!content.trim()) {
-      alert("답변 내용을 입력해주세요.");
-      return;
-    }
+  const createAnswerMutation = useCreateAnswer(() => {
+    navigate(`/community/qna/${qno}`);
+  });
 
-    createAnswerMutation.mutate({
-      qno: parseInt(qno),
-      content,
-      adminMid,
-    });
+  const handleSubmit = (formData) => {
+    formData.append("qno", qno);
+    formData.append("adminMid", adminMid);
+    createAnswerMutation.mutate(formData);
   };
 
+  if (isLoading || !question) return <Loading text="질문 정보를 불러오는 중입니다..." />;
+
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-xl font-bold mb-6">답변 작성하기</h2>
+    <div className="max-w-4xl mx-auto my-10">
+      <table className="w-full mb-8 text-sm">
+        <thead>
+          <tr>
+            <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">
+              {question.title}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b border-gray-300">
+            <td className="w-1/6 p-2 font-semibold text-center">작성자</td>
+            <td className="w-2/6 p-2 pl-3">{question.name}</td>
+            <td className="w-1/6 p-2 font-semibold text-center">조회수</td>
+            <td className="w-2/6 p-2 pl-3">{question.viewCount}</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="w-1/6 p-2 font-semibold text-center">작성일</td>
+            <td className="w-2/6 p-2 pl-3">{question.postedAt}</td>
+            {question.modifiedAt &&
+              <>
+                <td className="w-1/6 p-2 font-semibold text-center">수정일</td>
+                <td className="w-2/6 p-2 pl-3">{question.modifiedAt}</td>
+              </>
+            }
+          </tr>
+          <tr><td className={"p-2"}></td></tr>
+          <tr>
+            <td colSpan={6} className="border w-full border-gray-300 p-3">
+              <div
+                className="min-h-50"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(question.content),
+                }}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div className="mb-4">
-        <label className="font-semibold">답변 내용</label>
-        {QuillComponent}
-      </div>
 
-      <div className="flex justify-end gap-2">
-        <button
-          className="px-4 py-2 bg-gray-400 text-white rounded"
-          onClick={() => navigate(-1)}
-        >
-          돌아가기
-        </button>
-        <button
-          className="px-4 py-2 bg-green-600 text-white rounded"
-          onClick={handleSubmit}
-        >
-          등록하기
-        </button>
-      </div>
+      <table className="w-full mt-20 mb-8 text-sm">
+        <thead>
+          <tr>
+            <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">
+              답변 작성
+            </th>
+          </tr>
+        </thead>
+      </table>
+
+      <QuillComponent
+        onParams={handleSubmit}
+        onBack={() => navigate(-1)}
+        useTitle={false}
+        usePinned={false}
+        usePublic={false}
+        upload={[]}
+      />
     </div>
   );
 };

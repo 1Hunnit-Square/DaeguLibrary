@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   place: '/api/places',
   qna: '/api/question',
   notice: '/api/notice',
+  event: '/api/event',
   news: '/api/news',
   chatbot: '/api/chatbot',
   bookapi: '/api/bookapi',

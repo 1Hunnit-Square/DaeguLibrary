@@ -60,7 +60,11 @@ export const createAnswer = async (answerData) => {
 
 //답변수정
 export const updateAnswer = async ({ qno, answerData }) => {
-  const response = await axiosClient.put(`${API_SERVER_HOST}/api/answer/question/${qno}`, answerData);
+  const response = await axiosClient.put(`${API_SERVER_HOST}/api/answer/question/${qno}`, answerData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // 꼭 넣어야 함
+    },
+  });
   return response.data;
 };
 

@@ -26,6 +26,13 @@ public interface NewsService {
 	//검색
 	Page<NewsListDTO> findAll (NewsSearchDTO searchDTO, Pageable pageable);
 	
+	
+	//상단고정
+	List<NewsListDTO> findPinned();
+	
+	//상위 n개
+	List<NewsListDTO> findTop(int count);
+	
 	//삭제
 	void delete(Long nno);
 }

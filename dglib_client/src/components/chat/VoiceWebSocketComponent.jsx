@@ -3,17 +3,76 @@ import SockJS from 'sockjs-client';
 import { v4 as uuidv4 } from 'uuid';
 import { Client } from '@stomp/stompjs';
 import { API_SERVER_HOST, API_ENDPOINTS } from '../../api/config';
+import { chatHistoryState, clientIdState } from '../../atoms/chatState';
+import { useRecoilState, useResetRecoilState } from 'recoil';
+import { type } from '@amcharts/amcharts5';
 
 
 const sockJsUrl = `${API_SERVER_HOST}${API_ENDPOINTS.chatbot}/voice`;
 
-const VoiceWebSocketComponent = () => {
+const VoiceWebSocketComponent = ({ onClose }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [serverMessages, setServerMessages] = useState([]);
+    const [saying, setSaying] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [clientId, setClientId] = useRecoilState(clientIdState);
     const clientRef = useRef({ 
         stompClient: null,
-        clientId: uuidv4(),
+        uuid: uuidv4(),
     });
+    const mediaRecorderRef = useRef(null);
+    const streamRef = useRef(null);
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    sampleRate: 16000,
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                } 
+            });
+            
+            streamRef.current = stream;
+            
+            mediaRecorderRef.current = new MediaRecorder(streamRef.current, {
+                mimeType: 'audio/webm;codecs=opus'
+            });
+            
+            mediaRecorderRef.current.ondataavailable = (event) => {
+                if (event.data.size > 0 && clientRef.current.stompClient && isConnected) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const base64Data = reader.result.split(',')[1];
+                        
+                        const message = {
+                            type: 'voice',
+                            uuid: clientRef.current.uuid,
+                            audioData: base64Data,
+                            timestamp: new Date().toISOString()
+                        };
+
+                        clientRef.current.stompClient.publish({
+                            destination: '/app/voice',
+                            body: JSON.stringify(message),
+                        });
+
+                        console.log("🎤 음성 데이터 전송");
+                    };
+                    reader.readAsDataURL(event.data);
+                }
+            };
+            
+            mediaRecorderRef.current.start(100);
+            setIsRecording(true);
+            console.log("🎤 녹음 자동 시작");
+            
+        } catch (error) {
+            console.error("마이크 접근 오류:", error);
+            alert("마이크 접근 권한이 필요합니다.");
+        }
+    };
 
     useEffect(() => {
         if (clientRef.current.stompClient) return;
@@ -34,10 +93,10 @@ const VoiceWebSocketComponent = () => {
         clientRef.current.stompClient.onConnect = () => {
 
             console.log("✅ STOMP 연결 성공!");
-            const destination = `/topic/response/${clientRef.current.clientId}`;
+            const destination = `/topic/response/${clientRef.current.uuid}`;
             setIsConnected(true);
             setServerMessages(prev => [...prev, { type: 'info', text: '서버에 성공적으로 연결되었습니다.' }]);
-
+            startRecording();
             clientRef.current.stompClient.subscribe(destination, (message) => {
                 console.log("📩 서버로부터 메시지 수신:", message.body);
                 const receivedData = JSON.parse(message.body);
@@ -57,69 +116,48 @@ const VoiceWebSocketComponent = () => {
             if (clientRef.current.stompClient) {
                 console.log("STOMP 연결을 비활성화합니다.");
                 clientRef.current.stompClient.deactivate();
+                if (mediaRecorderRef.current && isRecording) {
+                    mediaRecorderRef.current.stop();
+                }
+                if (streamRef.current) {
+                    streamRef.current.getTracks().forEach(track => track.stop());
+                }
             }
         };
     }, []); 
 
-    const sendTestMessage = () => {
-        if (!clientRef.current.stompClient || !isConnected) {
-            alert("서버에 연결되어 있지 않습니다.");
-            return;
-        }
-
-        const message = {
-            command: 'start',
-            clientId: clientRef.current.clientId,
-        };
-
-
-        clientRef.current.stompClient.publish({
-            destination: '/app/start',
-            body: JSON.stringify(message),
-        });
-
-        console.log("🚀 서버로 메시지 전송:", message);
-        setServerMessages(prev => [...prev, { type: 'client', data: message }]);
-    };
     
     
     return (
-        <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '800px', margin: 'auto' }}>
-            <h1>WebSocket 통신 테스트 (STOMP)</h1>
-            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <button 
-                    onClick={sendTestMessage}
-                    disabled={!isConnected}
-                    style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}
-                >
-                    'start' 메시지 전송
-                </button>
-                <strong>
-                    서버 상태:
-                    <span style={{ color: isConnected ? 'green' : 'red', marginLeft: '5px' }}>
-                        {isConnected ? '연결됨' : '연결 끊김'}
-                    </span>
-                </strong>
-            </div>
-            <div style={{ 
-                border: '1px solid #ccc', 
-                padding: '15px', 
-                minHeight: '300px', 
-                backgroundColor: '#f9f9f9',
-                borderRadius: '5px',
-                overflowY: 'auto',
-                maxHeight: '500px'
-            }}>
-                <h3>통신 기록:</h3>
-                {serverMessages.map((msg, index) => (
-                    <div key={index} style={{ marginBottom: '10px', padding: '5px', borderRadius: '3px',
-                        backgroundColor: msg.type === 'server' ? '#e1f5fe' : msg.type === 'client' ? '#e8f5e9' : (msg.type === 'info' ? '#fff9c4' : '#ffebee') }}>
-                        {msg.type === 'server' && <span><strong>[서버 응답]:</strong> {JSON.stringify(msg.data)}</span>}
-                        {msg.type === 'client' && <span><strong>[클라이언트 요청]:</strong> {JSON.stringify(msg.data)}</span>}
-                        {msg.type === 'info' && <span style={{color: '#333'}}><strong>[정보]:</strong> {msg.text}</span>}
-                        {msg.type === 'error' && <span style={{color: 'red'}}><strong>[오류]:</strong> {msg.text}</span>}
+        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">음성 대화</h3>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <img src="/gumtle.gif" className="w-50 mx-auto"/>
+                {isConnected ? (
+                    <div className="mb-3 mt-10 flex justify-center">
+                    <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
+                        <div className="flex items-center space-x-1">
+                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`}></div>
+                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`} style={{animationDelay: '0.15s'}}></div>
+                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`} style={{animationDelay: '0.3s'}}></div>
+                        </div>
                     </div>
-                ))}
+                </div>
+                ) : (
+                    <div className="mb-3 mt-10 flex justify-center">
+                        <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
+                            <p className="text-sm text-gray-500">서버에 연결 중...</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

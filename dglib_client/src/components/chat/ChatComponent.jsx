@@ -16,10 +16,6 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
     }, [chatHistory]);
 
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
-    }, []);
-
-    useEffect(() => {
         if (chatHistory.length > prevChatLengthRef.current &&
             chatHistory.length > 0 &&
             chatHistory[chatHistory.length - 1].role === "model") {
@@ -38,6 +34,7 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
     };
 
     return (
+        <>
         <div className="fixed bottom-23 sm:bottom-5 right-4 sm:right-5 md:right-10 lg:right-20 xl:right-40 
                         w-[calc(100vw-32px)] sm:w-80 md:w-96 lg:w-[400px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
@@ -135,8 +132,10 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
                     전송
                 </button>
             </form>
-            {isVoiceOpen && <VoiceWebSocketComponent />}
+            
         </div>
+        {isVoiceOpen && <VoiceWebSocketComponent onClose={() => setIsVoiceOpen(false)} />}
+        </>
     );
 };
 

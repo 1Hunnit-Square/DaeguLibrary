@@ -35,7 +35,6 @@ public interface ProgramInfoRepository extends JpaRepository<ProgramInfo, Long> 
 				        )
 				    )
 				    AND (:status IS NULL OR :status = '' OR p.status = :status)
-				    AND (:startDate IS NULL OR p.applyEndAt >= :startDate)
 				    AND (:endDate IS NULL OR p.applyEndAt <= :endDate)
 			""")
 	Page<ProgramInfo> searchPrograms(@Param("searchType") String searchType, @Param("keyword") String keyword,

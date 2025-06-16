@@ -83,8 +83,10 @@ const ProgramComponent = () => {
         const now = new Date();
         const start = new Date(applyStartAt);
         const end = new Date(applyEndAt);
+
         if (now < start) return '신청전';
-        if (now > end || current >= capacity) return '모집마감';
+        if (now > end) return '신청마감';
+        if (current >= capacity) return '모집마감';
         return '신청중';
     };
 
@@ -114,14 +116,19 @@ const ProgramComponent = () => {
 
     const finalPrograms = [...programs.content]
         .filter(program => {
-            if (!status || status === '신청상태') return true;
             const currentStatus = getProgramStatus(program.applyStartAt, program.applyEndAt, program.current, program.capacity);
+
+            // 아무 조건 없을 때는 모두 표시
+            if (!status || status === '신청상태') return true;
+
+            // 선택된 상태와 일치하는 것만 표시
             return currentStatus === status;
         })
         .sort((a, b) => {
             const aStatus = getProgramStatus(a.applyStartAt, a.applyEndAt, a.current, a.capacity);
             const bStatus = getProgramStatus(b.applyStartAt, b.applyEndAt, b.current, b.capacity);
 
+            // 정렬 우선순위 지정
             if (!status || status === '신청상태') {
                 const statusCompare = statusPriority[aStatus] - statusPriority[bStatus];
                 if (statusCompare !== 0) return statusCompare;

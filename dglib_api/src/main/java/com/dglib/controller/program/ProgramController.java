@@ -26,7 +26,6 @@ import com.dglib.dto.program.ProgramBannerDTO;
 import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
-import com.dglib.entity.member.Member;
 import com.dglib.entity.program.ProgramInfo;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.service.program.ProgramService;

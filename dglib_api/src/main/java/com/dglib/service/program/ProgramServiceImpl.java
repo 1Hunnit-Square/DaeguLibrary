@@ -186,9 +186,7 @@ public class ProgramServiceImpl implements ProgramService {
 		String searchType = (query != null && !query.isBlank()
 				&& ("progName".equals(option) || "content".equals(option) || "all".equals(option))) ? option : null;
 
-		LocalDateTime now = LocalDateTime.now();
-
-		Page<ProgramInfo> result = infoRepository.searchPrograms(searchType, query, status, now, null, pageable);
+		Page<ProgramInfo> result = infoRepository.searchPrograms(searchType, query, status, null, null, pageable);
 
 		return result.map(p -> {
 			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);

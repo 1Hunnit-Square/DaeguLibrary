@@ -123,7 +123,7 @@ public class ProgramController {
 	@GetMapping("/file/{progNo}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable Long progNo) {
 		ProgramInfo program = programService.getProgramEntity(progNo);
-		return fileUtil.getFile(program.getFilePath(), program.getFileName());
+		return fileUtil.getFile(program.getFilePath(), program.getOriginalName());
 	}
 
 	// 사용자용 API

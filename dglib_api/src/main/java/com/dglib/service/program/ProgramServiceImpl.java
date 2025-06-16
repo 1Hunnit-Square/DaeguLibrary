@@ -107,7 +107,7 @@ public class ProgramServiceImpl implements ProgramService {
 
 		// 기존 파일 경로, 이름 백업
 		String originalFilePath = origin.getFilePath();
-		String originalFileName = origin.getFileName();
+		String originalFileName = origin.getOriginalName();
 
 		// DTO → 엔티티 매핑
 		LocalDateTime originalCreatedAt = origin.getCreatedAt();
@@ -123,7 +123,7 @@ public class ProgramServiceImpl implements ProgramService {
 
 		} else {
 			origin.setFilePath(dto.getFilePath() != null ? dto.getFilePath() : originalFilePath);
-			origin.setFileName(dto.getFileName() != null ? dto.getFileName() : originalFileName);
+			origin.setOriginalName(dto.getOriginalName() != null ? dto.getOriginalName() : originalFileName);
 		}
 
 		infoRepository.save(origin);
@@ -164,7 +164,7 @@ public class ProgramServiceImpl implements ProgramService {
 		List<ProgramInfoDTO> filteredList = result.getContent().stream().map(program -> {
 			ProgramInfoDTO dto = modelMapper.map(program, ProgramInfoDTO.class);
 			dto.setCurrent(useRepository.countByProgram(program.getProgNo()));
-			dto.setFileName(program.getFileName());
+			dto.setOriginalName(program.getOriginalName());
 			String calculatedStatus = calculateStatus(program.getApplyStartAt(), program.getApplyEndAt());
 			dto.setStatus(calculatedStatus);
 			dto.setCreatedAt(program.getCreatedAt());
@@ -193,7 +193,7 @@ public class ProgramServiceImpl implements ProgramService {
 		return result.map(p -> {
 			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
 			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-			dto.setFileName(p.getFileName());
+			dto.setOriginalName(p.getOriginalName());
 			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
 			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
 			return dto;
@@ -223,7 +223,7 @@ public class ProgramServiceImpl implements ProgramService {
 		return result.map(p -> {
 			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
 			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
-			dto.setFileName(p.getFileName());
+			dto.setOriginalName(p.getOriginalName());
 			dto.setStatus(calculateStatus(p.getApplyStartAt(), p.getApplyEndAt()));
 			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
 			return dto;
@@ -253,7 +253,7 @@ public class ProgramServiceImpl implements ProgramService {
 		ProgramInfo info = infoRepository.findById(progNo)
 				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 		ProgramInfoDTO dto = modelMapper.map(info, ProgramInfoDTO.class);
-		dto.setFileName(info.getFileName());
+		dto.setOriginalName(info.getOriginalName());
 		dto.setStatus(calculateStatus(info.getApplyStartAt(), info.getApplyEndAt()));
 		dto.setCurrent(useRepository.countByProgram(progNo));
 		dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
@@ -493,7 +493,7 @@ public class ProgramServiceImpl implements ProgramService {
 			if (!uploaded.isEmpty()) {
 				@SuppressWarnings("unchecked")
 				Map<String, String> fileInfoMap = (Map<String, String>) uploaded.get(0);
-				info.setFileName(fileInfoMap.get("originalName"));
+				info.setOriginalName(fileInfoMap.get("originalName"));
 				info.setFilePath(fileInfoMap.get("filePath"));
 				log.info("New file saved. OriginalName: {}, FilePath: {}", fileInfoMap.get("originalName"),
 						fileInfoMap.get("filePath"));

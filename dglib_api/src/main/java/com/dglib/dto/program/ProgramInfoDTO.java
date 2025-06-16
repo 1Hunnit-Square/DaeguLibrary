@@ -43,7 +43,7 @@ public class ProgramInfoDTO {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime createdAt; // 등록일
 
-	private String fileName; // 파일 명
+	private String originalName; // 파일 명
 	private String filePath; // 파일 경로
 
 	private List<Integer> daysOfWeek; // 요일 (숫자)

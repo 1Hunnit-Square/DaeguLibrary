@@ -72,7 +72,7 @@ public class ProgramBannerRepositoryTest {
                 .endTime(LocalTime.of(12, 0))
                 .target("청소년")
                 .capacity(30)
-                .fileName("file.pdf")
+                .originalName("file.pdf")
                 .filePath("/files/file.pdf")
                 .build();
         programInfoRepository.save(testProgram);

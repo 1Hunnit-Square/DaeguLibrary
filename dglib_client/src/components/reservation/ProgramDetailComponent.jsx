@@ -135,10 +135,10 @@ const ProgramDetailComponent = () => {
                     <tr className="border-t border-gray-200">
                         <td className="pr-2 py-2 font-bold border-r border-gray-300 text-center align-top">첨부파일</td>
                         <td className="pl-4 py-2 text-left">
-                            {program.fileName ? (
+                            {program.originalName ? (
                                 <Download
                                     link={`/api/programs/file/${program.progNo}`}
-                                    fileName={program.fileName}
+                                    fileName={program.originalName}
                                     className="text-blue-600"
                                 />
                             ) : (

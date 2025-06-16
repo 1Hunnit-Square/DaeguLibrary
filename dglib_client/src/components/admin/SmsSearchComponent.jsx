@@ -9,12 +9,14 @@ import CheckNonLabel from "../common/CheckNonLabel";
 import Button from "../common/Button";
 import RadioBox from "../common/RadioBox";
 import { useMutation } from "@tanstack/react-query";
+import _ from "lodash";
 
 const SmsSearchComponent = () => {
     const role = useRecoilValue(memberRoleSelector);
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const [ searchKey , setSearchKey ] = useState({query: "", type: "전체"});
     const [ searchResults, setSearchResults ] = useState([]);
+    const [ addList, setAddList ] = useState([]);
     const tabStyle = "rounded-t-lg w-40 text-center border border-gray-300 py-2 px-2 bg-gray-200 text-gray-400 hover:bg-white hover:text-black";
     const tabClickStyle = "!border-b-white !bg-white !text-black !border-black";
 
@@ -93,8 +95,42 @@ const SmsSearchComponent = () => {
             now.setHours(0, 0, 0, 0);
             start.setHours(0, 0, 0, 0);
 		    const days = (now.getTime() - start.getTime()) / (1000*60*60*24);
-            return `${date} (D+${days})`;
+            return <>{date}<span className="text-red-500"> (D+{days})</span></>;
         }
+
+        const handleAddList = (e, number)=> {
+            if(e.target.checked){
+            setAddList(prev => [...prev, number]);
+            } else {
+            setAddList(prev => {
+                const updated = prev.filter(v => v != number);
+                return updated;
+            })
+            }
+
+        }
+
+
+        const handleAllClick = (e)=> {
+            if(searchResults?.length){
+                if(allCheck){
+                setAddList([]);
+                } else{
+                setAddList(searchResults.map(v => v.phone));
+                }
+            }
+
+        }
+
+        const allCheck = useMemo(() => {
+            if(searchResults?.length){
+                const phoneList = _.uniq(searchResults.map(v => v.phone));
+            return (_.isEqual(phoneList, addList));
+            }
+        },[addList]);
+
+        console.log(addList);
+        console.log(searchResults)
         
         return(
         <div className="flex flex-col p-10">
@@ -133,7 +169,7 @@ const SmsSearchComponent = () => {
                 <table className="w-full bg-white">
                     <thead className="bg-[#00893B] text-white sticky top-0 z-50">
                         <tr>
-                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap"><CheckNonLabel checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap"><CheckNonLabel onChange={handleAllClick} checked={allCheck} checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">회원ID</th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">회원번호</th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">이름</th>
@@ -155,14 +191,14 @@ const SmsSearchComponent = () => {
                             searchResults && [...searchResults, ...searchResults].map((item, index) => {
 
                                 return (
-                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=>handleClick(item)}>
-                                        <td className="py-4 px-3 whitespace-nowrap text-center"><CheckNonLabel checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></td>
-                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.mid}</td>
+                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`}>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center"><CheckNonLabel onChange={(e) => handleAddList(e, item.phone)} checked={addList.includes(item.phone)} checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></td>
+                                        <td className="py-4 px-3 max-w-20 min-w-20 whitespace-nowrap text-center">{item.mid}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.mno}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.name}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.phone}</td>
                                          <td className="py-4 px-3 whitespace-nowrap text-center">{smsCheckTo(item.checkSms)}</td>
-                                          <td className="py-4 px-3 whitespace-nowrap text-center">{overDateTo(item.overdueDate)}</td>
+                                          <td className="py-4 px-3 max-w-30 min-w-30 whitespace-nowrap text-center">{overDateTo(item.overdueDate)}</td>
                                            <td className="py-4 px-3 whitespace-nowrap text-center">{item.overdueCount}</td>
                                     </tr>
                                 );

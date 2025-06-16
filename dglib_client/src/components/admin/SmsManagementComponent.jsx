@@ -115,7 +115,7 @@ const SmsManagementComponent = () =>{
             <div className="w-80 h-130 border border-gray-400 rounded-4xl bg-white shadow-lg flex flex-col px-5 justify-center items-center">
             <div className = "bg-black rounded h-2 w-25 my-5"></div>
             <div className="flex-1 border border-gray-200 rounded-lg p-3 bg-gray-200 w-full mb-10">
-            <textarea className="border border-gray-200 p-5 bg-white w-full h-70 resize-none" value ={content} placeholder="문자를 입력해주세요."
+            <textarea className="border border-gray-200 p-5 bg-white w-full h-70 resize-none outline-blue-300" value ={content} placeholder="문자를 입력해주세요."
                 onChange={handleChange} />
                 <div className ="flex justify-between mt-2">
                     <div className ="text-xs ml-1">{getByteLength(content)} / 2000 Bytes</div>

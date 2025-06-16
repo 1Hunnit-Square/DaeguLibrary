@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.sms.SmsRequestDTO;
 import com.dglib.dto.sms.SmsTemplateDTO;
+import com.dglib.service.mail.MailService;
 import com.dglib.service.member.MemberService;
 import com.dglib.service.sms.AuthCodeService;
 import com.dglib.service.sms.SmsService;
@@ -83,5 +84,6 @@ public class SmsController {
 		return ResponseEntity.ok().build();
 		
 	}
+	
 	
 }

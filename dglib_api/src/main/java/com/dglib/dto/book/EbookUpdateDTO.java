@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data
-@ToString(exclude = "ebookCover")
 public class EbookUpdateDTO {
 	
 	private Long ebookId;
@@ -27,9 +26,10 @@ public class EbookUpdateDTO {
 
 	private MultipartFile ebookCover;
 	
-	private boolean isDelete;
+	private String isDelete;
 	
 	private String existingImagePath;
+
 
 
 

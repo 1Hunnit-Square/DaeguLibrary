@@ -1,24 +1,36 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { saveCurrentPage, getCurrentPage } from '../api/memberApi';
+import { toast } from 'react-toastify';
 
 
 
 const usePageSaver = (ebookId, currentLocation, viewerRef) => {
     const saveTimeoutRef = useRef(null);
     const lastSavedCfi = useRef(null);
+    const hasRestoredRef = useRef(false);
+    const isRestoring = useRef(false);
 
     const { data: savedPage } = useQuery({
         queryKey: ['currentPage', ebookId],
         queryFn: () => getCurrentPage(ebookId),
         enabled: !!ebookId,
         retry: false,
+        refetchOnWindowFocus: false,
+
     });
 
     const savePageMutation = useMutation({
         mutationFn: saveCurrentPage,
         onSuccess: () => {
             console.log('페이지 자동 저장됨');
+            toast.success('페이지가 자동으로 저장되었습니다.', {
+                position: 'top-center',
+                autoClose: 1000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                hideProgressBar: true,
+            });
         },
         onError: (error) => {
             console.error('페이지 저장 실패:', error);
@@ -29,35 +41,35 @@ const usePageSaver = (ebookId, currentLocation, viewerRef) => {
         if (!ebookId || !startCfi) return;
         if (lastSavedCfi.current === startCfi) return;
 
+        if (isRestoring.current || (savedPage && !hasRestoredRef.current)) {
+            return;
+        }
         const pageData = {
             ebookId,
             startCfi,
         };
-
         savePageMutation.mutate(pageData);
         lastSavedCfi.current = startCfi;
-    }, [ebookId, savePageMutation]);
+    }, [ebookId, savePageMutation, savedPage]);
 
     const restorePosition = useCallback(() => {
-    console.log('restorePosition 호출됨');
-    console.log('savedPage:', savedPage);
-    console.log('viewerRef.current:', viewerRef.current);
+        if (hasRestoredRef.current) {
+            return;
+        }
+
 
     if (savedPage && viewerRef.current) {
-        console.log('저장된 위치로 이동 시도:', savedPage);
-        console.log('viewerRef.current.setLocation 타입:', typeof viewerRef.current.setLocation);
+         isRestoring.current = true;
 
         try {
             const result = viewerRef.current.setLocation(savedPage);
-            console.log('setLocation 결과:', result);
+
+            hasRestoredRef.current = true;
+            isRestoring.current = false;
         } catch (error) {
-            console.error('setLocation 에러:', error);
+
+            isRestoring.current = false;
         }
-    } else {
-        console.log('조건 불만족:', {
-            hasSavedPage: !!savedPage,
-            hasViewerRef: !!viewerRef.current
-        });
     }
 }, [savedPage, viewerRef]);
 

@@ -8,16 +8,27 @@ from dglib_python.schedulers.book_updater import start_scheduler, stop_scheduler
 from dglib_python.services.aladin import get_total_results_count, get_books_by_page, get_aladin_keyword_by_isbn
 from dglib_python.services.info_naru import get_member_reco_books
 from pydantic import BaseModel
+import httpx
+from dglib_python.utils.client import set_client
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("서버 시작")
+    client = httpx.AsyncClient(timeout=10.0)
+    set_client(client)
+    
+    
+    
     await run_update_with_retry()
     start_scheduler()
 
     logger.info("도서 데이터 로드 완료")
 
     yield
+    
+    await client.aclose()
     stop_scheduler()
     logger.info("서버 종료")
 
@@ -40,14 +51,13 @@ async def bookreco(genre: str):
     if not data:
         raise HTTPException(status_code=404, detail=f"{genre} 장르의 책 데이터가 아직 준비되지 않았습니다.")
 
-    if "response" in data and "docs" in data["response"]:
-        data = {
-            "response": {
-                "docs": data["response"]["docs"][:5]
-            }
-        }
+    all_books = data.get("response", {}).get("docs", [])
+    flattened_books = [item.get("doc", item) for item in all_books[:5]]
 
-    return data
+    return {
+        "genre": genre,
+        "content": flattened_books
+    }
 
 @app.get("/bookrecolist/{genre}")
 async def bookrecolist(genre: str, page: int = Query(default=1, ge=1), size: int = Query(default=10, ge=10, le=100)):
@@ -135,6 +145,10 @@ async def member_reco_book(dto: MemberRecoBookDTO):
     logger.info(f"추천 도서 목록: {reco_book_list}")
 
     return reco_book_list
+
+@app.get("/")
+async def root():
+    return {"message": "App is running"}
 
 def main():
     import uvicorn

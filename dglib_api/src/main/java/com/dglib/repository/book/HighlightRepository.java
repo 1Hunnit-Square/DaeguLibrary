@@ -25,8 +25,8 @@ public interface HighlightRepository extends JpaRepository<Highlight, Long> {
     @EntityGraph(attributePaths = {"member", "ebook"})
     Optional<Highlight> findByMemberMidAndEbookEbookIdAndCfiRange(String mid, Long ebookId, String cfiRange);
     
-   
-	
-	
+    @EntityGraph(attributePaths = {"member", "ebook"})
+    List<Highlight> findByMemberMidAndEbookEbookIdIn(String mid, List<Long> ebookId);
+  	
 
 }

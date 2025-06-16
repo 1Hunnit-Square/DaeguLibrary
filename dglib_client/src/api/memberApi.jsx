@@ -244,3 +244,28 @@ export const getCurrentPage = async (ebookId) => {
     return response.data;
 };
 
+export const getMyEbook = async (param) => {
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.get(`${prefix}/myebook`, { params : param, headers });
+    return res.data;
+}
+
+export const deleteEbook = async (ebookIds) => {
+
+
+
+    const headers = {
+
+        'Content-Type': 'application/json'
+    };
+    const res = await axiosClient.delete(`${prefix}/deleteebook`, {
+        data: { ebookIds },
+        headers,
+    });
+    return res.data;
+}
+

@@ -1,11 +1,22 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Button from '../common/Button';
 import { API_ENDPOINTS, API_SERVER_HOST } from '../../api/config';
 import { updateEbook, deleteEbook } from '../../api/adminApi';
 import { useBookMutation } from "../../hooks/useBookMutation";
+import Loading from '../../routers/Loading';
 
 
 const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
+
+      useEffect(() => {
+        const dummyBlob = new Blob(['warmup'], { type: 'text/plain' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          console.log("FileReader 워밍업 완료.");
+        };
+        reader.readAsDataURL(dummyBlob);
+
+      }, []);
 
     const [formData, setFormData] = useState({
         ebookTitle: eBook.ebookTitle || '',
@@ -17,11 +28,15 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
     });
 
     const [selectedImage, setSelectedImage] = useState(eBook.ebookCover || null);
+    const [ selectedFile, setSelectedFile ] = useState(null);
     const fileInputRef = useRef(null);
-
+    const [isUploading, setIsUploading] = useState(false);
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    }
 
     const updateEbookMutation = useBookMutation(async (data) => await updateEbook(data), { successMessage: "EBOOK을 수정했습니다.", queryKeyToInvalidate: 'ebookList'} );
-    const deleteEbookMutation = useBookMutation(async (ebookId) => await deleteEbook(ebookId), { successMessage: "EBOOK을 수정했습니다.", queryKeyToInvalidate: 'ebookList'} );
+    const deleteEbookMutation = useBookMutation(async (ebookId) => await deleteEbook(ebookId), { successMessage: "EBOOK을 삭제했습니다.", queryKeyToInvalidate: 'ebookList', onReset: handleModalClose } );
 
 
     const handleInputChange = (field, value) => {
@@ -32,9 +47,9 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
     };
 
     const handleImageSelect = (event) => {
+        setIsUploading(true);
         const file = event.target.files[0];
         console.log('선택된 파일:', file);
-
         if (file) {
             console.log('파일 타입:', file.type);
             console.log('파일 크기:', file.size);
@@ -43,11 +58,16 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     setSelectedImage(event.target.result);
+                    setIsUploading(false);
                 };
                 reader.readAsDataURL(file);
+                setSelectedFile(file);
             } else {
                 alert('이미지 파일만 선택해주세요.');
+                setIsUploading(false);
             }
+        } else {
+            setIsUploading(false);
         }
     };
 
@@ -59,14 +79,17 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
     const handleImageRemove = (e) => {
         e.stopPropagation();
         setSelectedImage(null);
+        setSelectedFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
 
 
+
+
     const handleUpdate = () => {
-        const isImageChanged = selectedImage !== eBook.ebookCover;
+
         const updateFormData = new FormData();
         updateFormData.append('ebookTitle', formData.ebookTitle);
         updateFormData.append('ebookAuthor', formData.ebookAuthor);
@@ -74,20 +97,14 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
         updateFormData.append('ebookIsbn', formData.ebookIsbn);
         updateFormData.append('ebookPubDate', formData.ebookPubDate);
         updateFormData.append('ebookDescription', formData.ebookDescription);
-        if (isImageChanged) {
-        if (selectedImage === null) {
-
-            updateFormData.append('isDelete', 'true');
-            updateFormData.append('existingImagePath', eBook.ebookCover || '');
-        } else if (selectedImage.startsWith('data:')) {
-
-            updateFormData.append('ebookCover', selectedImage);
-            updateFormData.append('existingImagePath', eBook.ebookCover || '');
-        }
-    }
         updateFormData.append('ebookId', eBook.ebookId);
-
-
+        if (eBook.ebookCover && selectedImage !== eBook.ebookCover) {
+            updateFormData.append('isDelete', 'true');
+            updateFormData.append('existingImagePath', eBook.ebookCover);
+        }
+        if (selectedFile) {
+        updateFormData.append('ebookCover', selectedFile);
+        }
         updateEbookMutation.mutate(updateFormData);
 
     };
@@ -95,12 +112,15 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
     const handleDelete = () => {
         if (window.confirm("정말로 이 EBOOK을 삭제하시겠습니까?")) {
             deleteEbookMutation.mutate(eBook.ebookId);
-            setIsModalOpen(false);
+
         }
     }
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-9999 bg-black/50">
+            {isUploading && <Loading text="이미지 업로드 중..." />}
+            { updateEbookMutation.isPending && <Loading text="EBOOK 수정 중..." />}
+            { deleteEbookMutation.isPending && <Loading text="EBOOK 삭제 중..." />}
             <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-7xl overflow-hidden">
                 <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
                     <h3 className="font-bold">전자책 상세조회/수정</h3>
@@ -212,7 +232,7 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
                                                     <button
                                                         onClick={handleImageRemove}
                                                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
-                                                        title="새 이미지 제거"
+                                                        title="이미지 제거"
                                                     >
                                                         ×
                                                     </button>

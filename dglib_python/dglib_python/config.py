@@ -1,4 +1,5 @@
 import logging
+import os
 
 # 로깅 설정
 logging.basicConfig(
@@ -10,12 +11,15 @@ logger = logging.getLogger(__name__)
 # 정보나루 API 설정
 INFO_NARU_URL = 'http://data4library.kr/api/loanItemSrch'
 INFO_NARU_RECO = 'http://data4library.kr/api/recommandList'
-INFO_NARU_KEY = 'c1888c7a4825d9bd126707b7edf5314571ec8da864cd982b5eac20238ea88a5a'
+
+INFO_NARU_KEY = os.environ.get("INFO_NARU_KEY", "Not Found")
+
 
 # 알라딘 API 설정
 ALADIN_API_URL = 'http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx'
-ALADIN_KEY = 'ttbsk35021617001'
+
 ALADIN_API_SEARCH_URL = 'https://www.aladin.co.kr/ttb/api/ItemSearch.aspx'
+ALADIN_KEY = os.environ.get("ALADIN_KEY", "Not Found")
 
 # HTTP 요청 설정
 MAX_RETRIES = 3

@@ -3,6 +3,7 @@ package com.dglib.entity.member;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dglib.entity.book.InterestedBook;
@@ -78,18 +79,20 @@ public class Member {
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
-	private List<Rental> rentals;
+	private Set<Rental> rentals;
 	
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
-	private List<Reserve> reserves;
+	private Set<Reserve> reserves;
+
 	
 	@OneToMany(mappedBy = "member")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
 	private List<InterestedBook> interestedBooks;
 	
+
 	public List<Rental> getOverRentalList (){
 		if(this.rentals == null) {
 			return Collections.emptyList();

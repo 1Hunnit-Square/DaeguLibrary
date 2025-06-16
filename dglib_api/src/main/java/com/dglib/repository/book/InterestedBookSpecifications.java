@@ -13,8 +13,9 @@ public class InterestedBookSpecifications {
 		return (root, criteriaQuery, criteriaBuilder) -> {
 			Predicate predicate = criteriaBuilder.equal(root.get("member").get("mid"), mid);
 			
-			if (dto.getQuery() == null && dto.getQuery().isEmpty()) {
-				return criteriaBuilder.conjunction();
+			
+			if (dto.getQuery() == null || dto.getQuery().isEmpty()) {
+				return predicate;
 			}
 			Predicate queryPredicate;
 

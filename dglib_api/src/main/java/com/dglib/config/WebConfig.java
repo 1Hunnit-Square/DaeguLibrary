@@ -6,6 +6,7 @@ package com.dglib.config;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -15,16 +16,32 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
+import lombok.RequiredArgsConstructor;
+
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 	
+	private final Intercepter intercepter;
+	
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
+	
+	
+	
+	@Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(intercepter)
+                .addPathPatterns("/api/chatbotpy/**");
+                
+    }
 	
 	@Bean
 	WebClient webClient() {
@@ -76,6 +93,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     return new BCryptPasswordEncoder();
 
+    }
+    
+    @Bean
+    public LevenshteinDistance levenshteinDistance() {
+        return new LevenshteinDistance();
     }
 
 }

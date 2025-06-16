@@ -64,6 +64,15 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	List<Rental> findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(String mid, LocalDate startDate, LocalDate endDate);
 	
 	
+	@Query("SELECT r FROM Rental r WHERE r.member.mid IN :memberIds AND r.dueDate < :currentDate AND r.state = com.dglib.entity.book.RentalState.BORROWED")
+	@EntityGraph(attributePaths = {"member"})
+	List<Rental> findOverdueRentalsByMemberIds(@Param("memberIds") Set<String> memberIds, @Param("currentDate") LocalDate currentDate);
+	
+	
+	@Query("SELECT r FROM Rental r WHERE r.member.mid = :mid AND r.state = :state")
+	List<Rental> findActiveBorrowedRentals(String mid, RentalState state);
+	
+	
 	
 	
 

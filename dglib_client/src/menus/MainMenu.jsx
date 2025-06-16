@@ -68,7 +68,7 @@ const MainMenu = () => {
     return (
         <div className="relative w-full">
 
-            <div className="hidden md:block" onMouseLeave={handleMouseLeave}>
+            <div className="hidden lg:block" onMouseLeave={handleMouseLeave}>
                 <div className="flex justify-center py-3 bg-white relative">
                     <div className="flex items-end">
                         {menuItems.map((menu, index) => (
@@ -151,7 +151,7 @@ const MainMenu = () => {
             </div>
 
             {/* 햄버거 */}
-            <div className="md:hidden bg-white border-b border-gray-300 relative">
+            <div className="lg:hidden bg-white border-b border-gray-300 relative">
                 <div className="flex justify-between items-center px-4 py-3">
                     <span className=""></span>
                     <button

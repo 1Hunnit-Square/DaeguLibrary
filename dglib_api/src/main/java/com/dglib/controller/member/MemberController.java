@@ -21,12 +21,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.EbookMemberDeleteDTO;
+import com.dglib.dto.book.EbookMemberRequestDTO;
+import com.dglib.dto.book.EbookMemberResponseDTO;
 import com.dglib.dto.book.HighlightRequestDTO;
 import com.dglib.dto.book.HighlightResponseDTO;
 import com.dglib.dto.book.HighlightUpdateDTO;
@@ -98,6 +100,7 @@ public class MemberController {
 		Page<MemberListDTO> memberList = memberService.findAll(searchDTO, pageable);
 		return ResponseEntity.ok(memberList);
 	}
+
 	
 	@GetMapping("/listContact")
 	public ResponseEntity<List<ContactListDTO>> listContact(@ModelAttribute ContactSearchDTO searchDTO) {
@@ -200,15 +203,15 @@ public class MemberController {
         return ResponseEntity.ok(email);
 	}
 
+
 	@GetMapping("/interestedbook")
 	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(
-			@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto,
-			@RequestHeader(value = "Authorization", required = true) String authHeader) {
+			@ModelAttribute InterestedBookRequestDTO interestedBookRequestDto) {
 		String mid = JwtFilter.getMid();
 		LOGGER.info("관심도서 요청: {}, 회원 id : {}", interestedBookRequestDto, mid);
 		int page = Optional.ofNullable(interestedBookRequestDto.getPage()).orElse(1);
 		Pageable pageable = PageRequest.of(page - 1, 10);
-		Page<InterestedBookResponseDTO> interestedBookList = bookService.getInterestedBookList(pageable,
+		Page<InterestedBookResponseDTO> interestedBookList = memberService.getInterestedBookList(pageable,
 				interestedBookRequestDto, mid);
 
 		return ResponseEntity.ok(interestedBookList);
@@ -234,7 +237,7 @@ public class MemberController {
 		String mid = JwtFilter.getMid();
 		LOGGER.info(mid);
 		LOGGER.info("관심도서 추가 요청: {}", addInteredtedBookDto);
-		bookService.addInterestedBook(mid, addInteredtedBookDto);
+		memberService.addInterestedBook(mid, addInteredtedBookDto);
 		return ResponseEntity.ok().build();
 	}
 
@@ -243,8 +246,7 @@ public class MemberController {
 		LOGGER.info("관심도서 삭제 요청: {}", interesdtedBookDeleteDto);
 		String mid = JwtFilter.getMid();
 		LOGGER.info("관심도서 삭제 요청: {}", mid);
-		bookService.deleteInterestedBook(interesdtedBookDeleteDto, mid);
-
+		memberService.deleteInterestedBook(interesdtedBookDeleteDto, mid);
 		return ResponseEntity.ok().build();
 	}
 
@@ -408,6 +410,24 @@ public class MemberController {
 		String startCfi = bookService.getSavedPage(mid, ebookId);
 		LOGGER.info("저장된 페이지: {}", startCfi);
 		return ResponseEntity.ok(startCfi);
+	}
+	
+
+	@GetMapping("/myebook")
+	public ResponseEntity<Page<EbookMemberResponseDTO>> getMyEbookList(EbookMemberRequestDTO dto) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 전자책 목록 요청: {}, 페이지: {}, 사이즈: {}", mid, dto.getPage(), 10);
+		Pageable pageable = PageRequest.of(dto.getPage() - 1, 10);
+		Page<EbookMemberResponseDTO> ebookList = memberService.getMyEbookList(pageable, dto, mid);
+		return ResponseEntity.ok(ebookList);
+	}
+	
+	@DeleteMapping("/deleteebook")
+	public ResponseEntity<String> deleteEbooks(@RequestBody EbookMemberDeleteDTO dto) {
+		String mid = JwtFilter.getMid();
+		LOGGER.info("회원 전자책 삭제 요청: {}, 회원 id: {}", dto, mid);
+		memberService.deleteMyEbook(dto, mid);
+		return ResponseEntity.ok().build();
 	}
 	
 

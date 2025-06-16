@@ -47,7 +47,7 @@ public class Ebook {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String ebookFilePath;
 	
-	@Column(nullable = false, columnDefinition = "TEXT")
+	@Column(columnDefinition = "TEXT")
 	private String ebookCover;
 	
 	@Column(nullable = false)

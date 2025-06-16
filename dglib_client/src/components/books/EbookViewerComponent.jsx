@@ -34,11 +34,11 @@ const EbookViewerComponent = () => {
     const setBookToc = useSetRecoilState(bookTocState);
     const [currentLocation, setCurrentLocation] = useRecoilState(currentLocationState);
     const [isContextMenu, setIsContextMenu] = useState(false);
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
+    // const [isFirstLoad, setIsFirstLoad] = useState(true);
     const [showRestoreLoading, setShowRestoreLoading] = useState(false);
     // const [ isisloadoing , setIsLoading ] = useState(false);
     const { savedPage, restorePosition } = usePageSaver(ebookId, currentLocation, viewerRef);
-
+    const [hasRestoredOnce, setHasRestoredOnce] = useState(false);
     // useEffect(() => {
     //     setTimeout(() => {
     //         setIsLoading(false);
@@ -66,12 +66,20 @@ const EbookViewerComponent = () => {
     const { data = {}, isLoading, isError } = useQuery({
         queryKey: ['ebookInfo', ebookId],
         queryFn: () => getEbookInfo(ebookId),
+        refetchOnWindowFocus: false,
     });
     console.log(data);
 
     useEffect(() => {
-        if (data && !isLoading && viewerRef.current && savedPage) {
+        if (data && data.ebookId) {
+            setBookInfo(data);
+        }
+    }, [data, setBookInfo]);
+
+    useEffect(() => {
+        if (data && !isLoading && viewerRef.current && savedPage && !showRestoreLoading && !hasRestoredOnce) {
             setShowRestoreLoading(true);
+            setHasRestoredOnce(true);
             const timer = setTimeout(() => {
                 restorePosition();
                 setTimeout(() => {
@@ -84,24 +92,21 @@ const EbookViewerComponent = () => {
                 setShowRestoreLoading(false);
             }
         }
-    }, [data, isLoading, savedPage, restorePosition]);
+    }, [data, isLoading, restorePosition]);
 
 
+//     useEffect(() => {
+//     if (data && !isLoading && viewerRef.current && savedPage && isFirstLoad) {
+//         setShowRestoreLoading(true);
+//         const timer = setTimeout(() => {
+//             restorePosition();
+//         }, 2000);
 
-
-
-    useEffect(() => {
-    if (data && !isLoading && viewerRef.current && savedPage && isFirstLoad) {
-        setShowRestoreLoading(true);
-        const timer = setTimeout(() => {
-            restorePosition();
-        }, 2000);
-
-        return () => {
-            clearTimeout(timer);
-        }
-    }
-}, [data, isLoading, savedPage, restorePosition, isFirstLoad]);
+//         return () => {
+//             clearTimeout(timer);
+//         }
+//     }
+// }, [data, isLoading, savedPage, restorePosition, isFirstLoad]);
 
 
     useEffect(() => {
@@ -148,9 +153,6 @@ const EbookViewerComponent = () => {
         if (showRestoreLoading && savedPage && location.startCfi === savedPage) {
         console.log('저장된 페이지 이동 완료!');
         setShowRestoreLoading(false);
-    } else if (isFirstLoad) {
-        // 첫 로드 완료
-        setIsFirstLoad(false);
     }
     }, [setCurrentLocation]);
 
@@ -182,8 +184,11 @@ const EbookViewerComponent = () => {
 
     return (
         <>
-        {(isLoading || showRestoreLoading) && (
-            <Loading text={isLoading ? "전자책을 불러오는 중입니다..." : "저장된 페이지로 이동 중입니다..."} />
+        {(isLoading ) && (
+            <Loading text={"전자책을 불러오는 중입니다..." } />
+        )}
+        {(showRestoreLoading) && (
+            <Loading text={"저장된 위치로 이동 중입니다..."} />
         )}
         {!isLoading && data && data.ebookFilePath &&  (
         <div className="relative w-screen h-screen overflow-x-hidden flex flex-col scrollbar-hidden">

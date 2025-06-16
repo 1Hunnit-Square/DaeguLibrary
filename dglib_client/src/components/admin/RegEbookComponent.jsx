@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { regEbook,  } from "../../api/adminApi";
 import Button from "../common/Button";
 import { useMutation } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
-
-
 
 const initialEbookFormData = {
   ebookTitle: "",
@@ -21,8 +19,7 @@ const initialEbookFormData = {
 
 const RegEbookComponent = () => {
   const [bookFormData, setBookFormData] = useState(initialEbookFormData);
-
-
+  const [ isUploading, setIsUploading ] = useState(false);
 
   const regBookMutation = useMutation({
     mutationFn: async (eBookData) => {
@@ -32,13 +29,21 @@ const RegEbookComponent = () => {
     onSuccess: () => {
       alert("도서 등록이 완료되었습니다.");
       setBookFormData(initialEbookFormData);
-
-
     },
     onError: (error) => {
       alert(error.response.data.message);
     },
   });
+
+  useEffect(() => {
+    const dummyBlob = new Blob(['warmup'], { type: 'text/plain' });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      console.log("FileReader 워밍업 완료.");
+    };
+    reader.readAsDataURL(dummyBlob);
+
+  }, []);
 
 
   const sumbit = async () => {
@@ -52,26 +57,12 @@ const RegEbookComponent = () => {
       bookFormData.ebookDescription &&
       bookFormData.ebookFile;
 
-
-
     if (!isBookDataValid ) {
       alert("도서정보를 모두 입력해주세요.");
       return;
     }
     if (!bookFormData.ebookCover && !confirm("표지 이미지가 없습니다. 그대로 저장하시겠습니까?")) {
         return;
-    }
-
-    const formData = new FormData();
-    formData.append("ebookTitle", bookFormData.ebookTitle);
-    formData.append("ebookAuthor", bookFormData.ebookAuthor);
-    formData.append("ebookPublisher", bookFormData.ebookPublisher);
-    formData.append("ebookPubDate", bookFormData.ebookPubDate);
-    formData.append("ebookIsbn", bookFormData.ebookIsbn);
-    formData.append("ebookDescription", bookFormData.ebookDescription);
-    formData.append("ebookFile", bookFormData.ebookFile);
-    if (bookFormData.ebookCover) {
-        formData.append("ebookCover", bookFormData.ebookCover);
     }
 
     regBookMutation.mutate(bookFormData);
@@ -83,6 +74,9 @@ const RegEbookComponent = () => {
       {(regBookMutation.isPending ) && (
         <Loading text={ regBookMutation.isPending && "도서 등록중입니다.." } />
       )}
+      { isUploading && (
+        <Loading text={ regBookMutation.isPending && "파일 업로드중입니다.." } />
+        )}
       <div className="bg-white rounded-lg p-6 mb-6">
          <div className="flex flex-col">
             <label className="font-medium text-gray-700 mb-2">EPUB 업로드</label>
@@ -112,14 +106,21 @@ const RegEbookComponent = () => {
                 accept=".epub"
                 className="hidden"
                 onChange={(e) => {
+                    setIsUploading(true);
+                    console.log("epub 업로드 시작")
                     const file = e.target.files[0];
                     if (file) {
                         if (file.type === 'application/epub+zip' || file.name.toLowerCase().endsWith('.epub')) {
                             setBookFormData({...bookFormData, ebookFile: file});
+                            setIsUploading(false);
+                            console.log("epub 완료 시작")
                         } else {
                             alert('EPUB 파일만 업로드 가능합니다.');
                             e.target.value = '';
+                            setIsUploading(false);
                         }
+                    } else {
+                        setIsUploading(false);
                     }
                 }}
             />
@@ -222,11 +223,25 @@ const RegEbookComponent = () => {
                     onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
+                            if (!file.type.startsWith('image/')) {
+                                alert('이미지 파일만 업로드 가능합니다.');
+                                e.target.value = '';
+
+                                return;
+                            }
                             const reader = new FileReader();
                             reader.onload = (event) => {
                                 setBookFormData({...bookFormData, ebookCoverPreview: event.target.result, ebookCover: file});
+
+
+
+
+
                             };
                             reader.readAsDataURL(file);
+
+
+
                         }
                     }}
                 />

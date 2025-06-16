@@ -3,7 +3,7 @@ import { atom } from 'recoil';
 export const chatHistoryState = atom({
   key: 'chatHistoryState',
   default: [
-    { role: "model", parts: "안녕하세요! 대구도서관 챗봇 AI 꿈틀이예요! 🐾 무엇을 도와드릴까요?" }
+    { role: "model", parts: "안녕하세용! 책벌레, 꿈틀이에용! 무엇이든 궁금한 게 있다면 꿈틀이에게 물어봐주세용! 꿈틀꿈틀🌱" }
   ]
 });
 

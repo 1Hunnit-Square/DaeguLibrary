@@ -7,6 +7,8 @@ public class EbookListRequestDTO {
 	
 	private int page;
 	private int size;
+	private String query;
+	private String option;
 	
 
 }

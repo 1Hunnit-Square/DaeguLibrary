@@ -1,5 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+import 'swiper/css';
 
 const GenreMenu = ({ Component }) => {
 
@@ -18,8 +21,8 @@ const GenreMenu = ({ Component }) => {
 
     const getNavLinkClass = (key) => {
         return genre == key
-            ? "text-black font-bold"
-            : "text-gray-500 hover:text-black cursor-pointer";
+            ? "text-black font-bold border-b-2 border-[#00893B] pb-1"
+            : "text-gray-500 hover:text-black cursor-pointer hover:border-b-2 hover:border-gray-300 pb-1 transition-all duration-200";
     };
 
     function menuHandler(key){
@@ -28,15 +31,43 @@ const GenreMenu = ({ Component }) => {
 
     return (
         <>
-        <div className="p-4">
-            <ul className="flex space-x-10 ml-10">
-               {
-               Object.keys(category).map((key) => (
-                <li key={key} className={getNavLinkClass(key)} onClick={() => menuHandler(key)}>{category[key]}</li>
-                )
-            )}
-            </ul>
-            <div className="w-[100%] h-[1px] bg-[#00893B] mt-4"></div>
+        <div className="p-2 sm:p-4">
+           
+            <div className="hidden xl:flex ml-5 xl:gap-8">
+                {Object.keys(category).map((key) => (
+                    <div 
+                        key={key} 
+                        className={`${getNavLinkClass(key)} whitespace-nowrap text-base`} 
+                        onClick={() => menuHandler(key)}
+                    >
+                        {category[key]}
+                    </div>
+                ))}
+            </div>
+
+           
+            <div className="xl:hidden">
+                <Swiper
+                    
+                    spaceBetween={16}
+                    slidesPerView="auto"
+                    freeMode={true}
+                    className="w-full"
+                >
+                    {Object.keys(category).map((key) => (
+                        <SwiperSlide key={key} className="!w-auto">
+                            <div 
+                                className={`${getNavLinkClass(key)} whitespace-nowrap text-sm sm:text-base px-2`} 
+                                onClick={() => menuHandler(key)}
+                            >
+                                {category[key]}
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </div>
+            
+            <div className="w-full h-[1px] bg-[#00893B] mt-1 sm:mt-2"></div>
         </div>
         <Component genre={genre} />
         </>

@@ -240,7 +240,15 @@ public class AdminController {
 	
 	@PostMapping("/updateebook")
 	public ResponseEntity<String> updateEbook(@ModelAttribute EbookUpdateDTO dto) {
-		LOGGER.info("전자책 수정 요청: {}", dto);
+		LOGGER.info("전자책 수정 요청 {}", dto);
+		bookService.updateEbook(dto);
+		return ResponseEntity.ok().build();
+	}
+	
+	@DeleteMapping("/deleteebook/{ebookId}")
+	public ResponseEntity<String> deleteEbook(@PathVariable Long ebookId) {
+		LOGGER.info("전자책 삭제 요청: {}", ebookId);
+		bookService.deleteEbook(ebookId);
 		return ResponseEntity.ok().build();
 	}
 

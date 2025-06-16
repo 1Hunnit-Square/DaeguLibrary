@@ -8,7 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 
+import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.EbookMemberDeleteDTO;
+import com.dglib.dto.book.EbookMemberRequestDTO;
+import com.dglib.dto.book.EbookMemberResponseDTO;
+import com.dglib.dto.book.InteresdtedBookDeleteDTO;
+import com.dglib.dto.book.InterestedBookRequestDTO;
+import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
@@ -83,11 +91,26 @@ public interface MemberService {
 	
 	MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid);
 	
+
 	String getKakaoEmail(HttpHeaders headers);
 	
 	void regKakao(String kakaoEmail);
 	
 	List<ContactListDTO> getContactList (ContactSearchDTO searchDTO, Sort sort);
+
+	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
+	
+	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
+	
+	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
+	
+	Page<EbookMemberResponseDTO> getMyEbookList(Pageable pageable, EbookMemberRequestDTO dto, String mid);
+	
+	void deleteMyEbook(EbookMemberDeleteDTO dto, String mid);
+	
+	ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid);
+	
+	
 	
 
 

@@ -28,7 +28,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.EbookMemberDeleteDTO;
+import com.dglib.dto.book.EbookMemberRequestDTO;
+import com.dglib.dto.book.EbookMemberResponseDTO;
+import com.dglib.dto.book.InteresdtedBookDeleteDTO;
+import com.dglib.dto.book.InterestedBookRequestDTO;
+import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
+import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
@@ -48,6 +57,10 @@ import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.entity.book.Ebook;
+import com.dglib.entity.book.EbookReadingProgress;
+import com.dglib.entity.book.Highlight;
+import com.dglib.entity.book.InterestedBook;
+import com.dglib.entity.book.LibraryBook;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
@@ -57,7 +70,13 @@ import com.dglib.entity.book.WishBookState;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberRole;
 import com.dglib.entity.member.MemberState;
+import com.dglib.repository.book.EbookReadingProgressRepository;
 import com.dglib.repository.book.EbookRepository;
+import com.dglib.repository.book.EbookSpecifications;
+import com.dglib.repository.book.HighlightRepository;
+import com.dglib.repository.book.InterestedBookRepository;
+import com.dglib.repository.book.InterestedBookSpecifications;
+import com.dglib.repository.book.LibraryBookRepository;
 import com.dglib.repository.book.RentalRepository;
 import com.dglib.repository.book.RentalSpecifications;
 import com.dglib.repository.book.ReserveRepository;
@@ -67,6 +86,7 @@ import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
 import com.dglib.security.jwt.JwtFilter;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -75,16 +95,24 @@ import lombok.RequiredArgsConstructor;
 public class MemberServiceImpl implements MemberService {
 
 
+
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
+	private final LibraryBookRepository libraryBookRepository;
+
 	private final PasswordEncoder passwordEncoder;
 	private final RentalRepository rentalRepository;
 	private final ReserveRepository reserveRepository;
 	private final WishBookRepository wishBookRepository;
-	private final EbookRepository ebookRepository;
-	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
-	private LocalDate lastSuccessOverdueCheckDate;
+
 	private final String KAKAO_URL = "https://kapi.kakao.com/v2/user/me";
+
+	private final InterestedBookRepository interestedBookRepository;
+	private final EbookRepository ebookRepository;
+	private final EbookReadingProgressRepository ebookReadingProgressRepository;
+	private final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
+	private final HighlightRepository highlightRepository;
+	private LocalDate lastSuccessOverdueCheckDate;
 
 	@Override
 	public Page<MemberSearchByMnoDTO> searchByMno(String mno, Pageable pageable) {
@@ -128,6 +156,7 @@ public class MemberServiceImpl implements MemberService {
 
 		return result;
 	}
+
 	
 	@Override
 	public List<ContactListDTO> getContactList(ContactSearchDTO searchDTO, Sort sort) {
@@ -216,6 +245,7 @@ public class MemberServiceImpl implements MemberService {
 		}
 		memberRepository.save(member);
 	}
+
 	
 	@Override
 	public String getKakaoEmail(HttpHeaders headers) {
@@ -263,6 +293,7 @@ public class MemberServiceImpl implements MemberService {
 		memberRepository.save(member);
 	}
 
+
 	public String setMno() {
 		String result = null;
 		LocalDate today = LocalDate.now();
@@ -293,7 +324,7 @@ public class MemberServiceImpl implements MemberService {
 			LOGGER.info("Member ID: {}, Overdue Count: {}", member.getMid(), count);
 			member.setPenaltyDate(LocalDate.now().plusDays(count - 1));
 			member.setState(MemberState.OVERDUE);
-			
+
 		});
 		List<Member> releasedMember = memberRepository.findMembersWithPenaltyDateButNotOverdue();
 		releasedMember.forEach(m -> {
@@ -552,5 +583,130 @@ public class MemberServiceImpl implements MemberService {
 		return dto;
 	}
 	
+
+	@Override
+    public void addInterestedBook(String mid, AddInterestedBookDTO addInterestedBookDto) {
+    	List<Long> libraryBookIds = addInterestedBookDto.getLibraryBookIds();
+    	List<LibraryBook> libraryBooks = libraryBookRepository.findByLibraryBookIdIn(libraryBookIds);
+    	Member member = memberRepository.findById(mid)
+    		    .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+    	List<InterestedBook> existingInterestedBooks = interestedBookRepository.findByLibraryBookInAndMemberMid(libraryBooks, mid);
+    	if (!existingInterestedBooks.isEmpty()) {
+    	    String duplicatedTitles = existingInterestedBooks.stream()
+    	        .map(ib -> ib.getLibraryBook().getBook().getBookTitle())  
+    	        .collect(Collectors.joining(", "));
+    	    throw new IllegalStateException("이미 관심 도서로 등록된 책이 포함되어 있습니다: " + duplicatedTitles);
+    	}
+    	List<InterestedBook> interestedBooks = libraryBooks.stream()
+    			.map(libraryBook -> {
+    				InterestedBook ib = new InterestedBook();
+    				ib.setLibraryBook(libraryBook);
+    				ib.setMember(member);
+    				return ib;
+    			}).collect(Collectors.toList());
+    	
+    	interestedBookRepository.saveAll(interestedBooks);
+    }
+    
+    @Override
+	public Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid) {
+		Specification<InterestedBook> spec = InterestedBookSpecifications.ibFilter(interestedBookRequestDto, mid);
+		Page<InterestedBook> interestedBooks = interestedBookRepository.findAll(spec, pageable);
+
+		return interestedBooks.map(interestedBook -> {
+			InterestedBookResponseDTO dto = new InterestedBookResponseDTO();
+			boolean isReserved = interestedBook.getLibraryBook().getReserves().stream()
+					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
+			boolean isUnmanned = interestedBook.getLibraryBook().getReserves().stream()
+					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
+			boolean isBorrowed = interestedBook.getLibraryBook().getRentals().stream()
+					.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
+			Long reserveCount = interestedBook.getLibraryBook().getReserves().stream()
+					.filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false)
+					.count();
+			modelMapper.map(interestedBook.getLibraryBook(), dto);
+			modelMapper.map(interestedBook.getLibraryBook().getBook(), dto);
+			modelMapper.map(interestedBook, dto);
+			dto.setReserved(isReserved);
+			dto.setUnmanned(isUnmanned);
+			dto.setBorrowed(isBorrowed);
+			dto.setReserveCount(reserveCount);
+			return dto;
+		});
+    	
+    }
+    
+    @Override
+	public void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid) {
+    	
+		List<Long> interestedBookIds = interesdtedBookDeleteDto.getIbIds();
+		List<InterestedBook> interestedBooks = interestedBookRepository.findByIbIdIn(interestedBookIds);
+		Map<Long, InterestedBook> interestedBookMap = interestedBooks.stream()
+				.collect(Collectors.toMap(InterestedBook::getIbId, interestedBook -> interestedBook));
+		for (Long ibId : interestedBookIds) {
+			InterestedBook interestedBook = interestedBookMap.get(ibId);
+			if (interestedBook == null) {
+				throw new IllegalStateException("해당 관심 도서 정보를 찾을 수 없습니다.");
+			}
+			if (!interestedBook.getMember().getMid().equals(mid)) {
+				throw new IllegalStateException("해당 관심 도서를 삭제할 권한이 없습니다.");
+			}
+		}
+		interestedBookRepository.deleteAll(interestedBooks);
+		
+	}
+    
+    
+    @Override
+    public Page<EbookMemberResponseDTO> getMyEbookList(Pageable pageable, EbookMemberRequestDTO dto, String mid) {
+    	LOGGER.info("Fetching eBooks for member: {}", mid);
+    	Specification<Ebook> spec = EbookSpecifications.meFilter(dto, mid);
+    	LOGGER.info("Specification created: {}", spec);
+    	Page<Ebook> ebookPage = ebookRepository.findAll(spec, pageable);
+    	LOGGER.info("Ebook page fetched: {}", ebookPage);
+    	
+    	
+    	return ebookPage.map(ebook -> {
+    	    EbookMemberResponseDTO responseDto = modelMapper.map(ebook, EbookMemberResponseDTO.class);
+			responseDto.setLastReadTime(ebook.getReadingProgressList().stream()
+					.filter(progress -> progress.getMember().getMid().equals(mid) && progress.getEbook().getEbookId().equals(ebook.getEbookId()))
+					.map(EbookReadingProgress::getLastReadTime).findFirst().orElse(null));
+    	    return responseDto;
+    	});
+    }
+    
+    @Override
+    public void deleteMyEbook(EbookMemberDeleteDTO dto, String mid) {
+		List<Long> ebookIds = dto.getEbookIds();
+		List<Highlight> highlights = highlightRepository.findByMemberMidAndEbookEbookIdIn(mid, ebookIds);
+		List<EbookReadingProgress> readingProgressList = ebookReadingProgressRepository.findByMemberMidAndEbookEbookIdIn(mid, ebookIds);
+		highlightRepository.deleteAll(highlights);
+		ebookReadingProgressRepository.deleteAll(readingProgressList);
+		
+		
+    }
+    
+    @Override
+    public ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid) {
+    	Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+    	List<Reserve> reserves = reserveRepository.findActiveReserves(mid, ReserveState.RESERVED);
+    	List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
+    	
+    	ChatMemberBorrowResposneDTO dto = new ChatMemberBorrowResposneDTO();
+		dto.setBorrowCount((long) rentals.size());
+		dto.setReservedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
+		dto.setUnmannedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned()).count());
+		dto.setCanBorrowCount(5L - dto.getBorrowCount() - dto.getReservedCount() - dto.getUnmannedCount());
+		dto.setCanReserveCount(dto.getCanBorrowCount() < 2 ? 0L : 2 - dto.getReservedCount());
+		dto.setState(member.getState());
+		dto.setOverdueCount(rentals.stream().filter(rental -> rental.getState() == RentalState.BORROWED && rental.getDueDate().isBefore(LocalDate.now())).count());
+
+    	return dto;
+    	
+    	
+    	
+    	
+    }
+
 
 }

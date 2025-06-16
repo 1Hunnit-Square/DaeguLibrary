@@ -6,9 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -142,6 +144,21 @@ public class FileUtil {
 		  return pathStr;
 	  }
 	  
+
+	  public void deleteFolder(String folderPath) {
+		    Path directoryPath = Paths.get(uploadPath, folderPath);
+		    if (Files.exists(directoryPath) && Files.isDirectory(directoryPath)) {
+		        try (Stream<Path> walk = Files.walk(directoryPath)) {
+		            walk.sorted(Comparator.reverseOrder())
+		                .map(Path::toFile)
+		                .forEach(File::delete);
+		        } catch (IOException e) {
+		            throw new RuntimeException("파일 폴더를 삭제하는 데 실패했습니다.", e);
+		        }
+		    }
+		}
+	  
+
 	  public boolean isImageFile(String filename) {
 		    return filename != null && filename.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|bmp|webp|tiff|svg)$");
 		}

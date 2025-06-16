@@ -363,6 +363,7 @@ const RegBookComponent = () => {
                   dropdownStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 - 1 }}
                   value={libraryBook.location || ""}
                   options={Location}
+                  disabled={libraryBook.deleted}
                   onChange={(value) => updateHolding(libraryBook.id, "location", value)} />
                 </div>
 
@@ -380,8 +381,8 @@ const RegBookComponent = () => {
               { libraryBook.libraryBookId ? <SelectComponent
                   selectClassName="bg-white border rounded-lg shadow-lg"
                   dropdownClassName="border-[#666666]"
-                  selectStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 }}
-                  dropdownStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 - 1 }}
+                  selectStyle={{ zIndex: 500 + (libraryBooks.length - index) * 2 }}
+                  dropdownStyle={{ zIndex: 500 + (libraryBooks.length - index) * 2 - 1 }}
                   value={libraryBook.deleted ? "부재" : "소장중"}
                   options={option}
                   onChange={(value) => handleSoftDeleteChange(libraryBook.libraryBookId, value)} /> : <Button onClick={() => removeHolding(libraryBook.id)} children="삭제" className="bg-red-700 hover:bg-red-800" />}

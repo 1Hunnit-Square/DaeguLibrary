@@ -10,6 +10,7 @@ const SelectComponent = ({
   dropdownStyle = {},
   onChange,
   value,
+  disabled = false,
   name = "",
 }) => {
 
@@ -43,8 +44,9 @@ const SelectComponent = ({
         <button
           type="button"
           style={selectStyle}
-          className={`flex z-101 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B]  ${selectClassName}`}
+          className={`flex z-101 relative items-center justify-between w-32 px-4 py-2 rounded-2xl bg-white border border-[#00893B] ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}  ${selectClassName}`}
           onClick={() => setIsOpen(!isOpen)}
+          disabled={disabled}
         >
           {objIsArray &&<span>{value}</span>}
           {!objIsArray && <span>{Object.keys(options).filter(key => options[key] === value)[0]}</span>}

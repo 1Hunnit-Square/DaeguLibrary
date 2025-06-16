@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
-import lombok.RequiredArgsConstructor;
+import com.dglib.security.jwt.JwtFilter;
+
+
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -23,17 +25,21 @@ public class ChatbotController {
 
 	private final WebClient webClient;
 	private final Logger LOGGER = LoggerFactory.getLogger(ChatbotController.class);
+
 	
 	public ChatbotController(@Qualifier("webClientChat") WebClient webClient) {
         this.webClient = webClient;
-    }
+	}
+        
 	
 	
 	@PostMapping("/chat")
 	public Mono<ResponseEntity<String>> chatbotRequest(@RequestBody Map<String, String> requestBody) {
 		String parts = requestBody.get("parts");
 		String clientId = requestBody.get("clientId");
-		LOGGER.info("Chatbot parts: {}, clientId: {}", parts, clientId);
+		String mid = JwtFilter.getMid();
+		requestBody.put("mid", mid);
+		LOGGER.info("Chatbot parts: {}, clientId: {}, mid: {}", parts, clientId, mid);
 		return webClient.post().uri("/chatbot").body(Mono.just(requestBody), Map.class).retrieve()
 				.bodyToMono(String.class).map(response -> {
 					LOGGER.info("Chatbot response: {}", response);
@@ -57,5 +63,9 @@ public class ChatbotController {
 					return new RuntimeException("api 서버와 통신 중 오류가 발생했습니다.", original);
 				});
 	}
+	
+	
+	
+	
 
 }

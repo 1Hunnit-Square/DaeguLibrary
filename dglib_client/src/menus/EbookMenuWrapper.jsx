@@ -1,6 +1,43 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useCallback } from 'react';
 
 const EbookMenuWrapper = ({ title, show, onClose, children }, ref) => {
+    const handleOutsideClick = useCallback((e) => {
+        if (ref?.current && !ref.current.contains(e.target)) {
+            onClose();
+        }
+    }, [ref, onClose]);
+
+    const handleIframeClick = useCallback(() => {
+        onClose();
+    }, [onClose]);
+
+    useEffect(() => {
+        if (show) {
+            document.addEventListener('mousedown', handleOutsideClick);
+            document.addEventListener('touchstart', handleOutsideClick);
+
+            const iframe = document.querySelector('iframe');
+            if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.addEventListener('mousedown', handleIframeClick);
+                    iframe.contentWindow.addEventListener('touchstart', handleIframeClick);
+            }
+        } else {
+            document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('touchstart', handleOutsideClick);
+
+            const iframe = document.querySelector('iframe');
+            if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.removeEventListener('mousedown', handleIframeClick);
+                    iframe.contentWindow.removeEventListener('touchstart', handleIframeClick);
+            }
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('touchstart', handleOutsideClick);
+        };
+    }, [show, handleOutsideClick, handleIframeClick]);
+
     return (
         <div
             ref={ref}

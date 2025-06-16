@@ -67,6 +67,7 @@ ENV/
 *.pth
 *.weights
 *.onnx
+*.safetensors
 
 # 환경설정
 .env

@@ -11,11 +11,14 @@ import { chatHistoryState, isChatOpenState, clientIdState } from '../atoms/chatS
 import { useCallback } from "react";
 
 
+
 const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
     const [isChatOpen, setIsChatOpen] = useRecoilState(isChatOpenState);
     const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
     const resetChatHistoryState = useResetRecoilState(chatHistoryState);
     const [clientId, setClientId] = useRecoilState(clientIdState);
+  
+
     const chatMutation = useMutation({
         mutationFn: async (param) => {
             const response = await getChatbotResponse(param);
@@ -23,7 +26,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
         },
         onSuccess: (data) => {
             console.log("Chatbot response:", data);
-            setChatHistory(prev => [...prev, { role: "model", parts: data.parts }]);
+            setChatHistory(prev => [...prev, { role: "model", parts: data.parts, service: data.service, to: data.to }]);
             setClientId(data.clientId);
         },
         onError: (error) => {
@@ -58,7 +61,8 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
         }]);
         const param = {
             parts: message,
-            clientId: clientId
+            clientId: clientId,
+           
         }
         chatMutation.mutate(param);
     }, [clientId, chatMutation, setChatHistory]);
@@ -75,8 +79,8 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
             <MainMenu />
             <div className="w-full bg-emerald-900 p-15"><Search /></div>
             <div className="flex flex-1 flex-col md:flex-row">
-                {sideOn && (
-                    <aside className="w-full md:w-72 md:min-w-72 border-r border-gray-200 shadow-sm">
+            {sideOn && (
+                    <aside className="hidden lg:block lg:w-72 lg:min-w-72 border-r border-gray-200 shadow-sm">
                         <LSide LMainMenu={LMainMenu} LSideMenu={LSideMenu} />
                     </aside>
                 )}
@@ -86,12 +90,12 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                     </div>
                 </main>
             </div>
-           <div className="fixed bottom-6 right-10 z-999 cursor-pointer hover:scale-105 transition-transform bg-white rounded-full p-2 shadow-lg"
+            <div className="fixed bottom-6 sm:bottom-6 right-6 sm:right-10 z-999 cursor-pointer hover:scale-105 transition-transform bg-white rounded-full p-1 sm:p-2 shadow-lg"
            onClick={toggleChat}>
             <img
                 src="/chaticon.png"
                 alt="꿈틀이AI"
-                className="w-20 h-20"
+                className="w-14 h-14 sm:w-20 sm:h-20"
             />
         </div>
         {isChatOpen && <ChatComponent onClose={() => setIsChatOpen(false)} chatHistory={chatHistory} addMessage={addMessage} resetChat={resetHandler} />}

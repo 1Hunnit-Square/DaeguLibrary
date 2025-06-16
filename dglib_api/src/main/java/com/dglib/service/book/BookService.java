@@ -13,6 +13,7 @@ import com.dglib.dto.book.BookDetailDTO;
 import com.dglib.dto.book.BookNewSumDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
 import com.dglib.dto.book.BookSummaryDTO;
+import com.dglib.dto.book.BookTopNewResponseDTO;
 import com.dglib.dto.book.BookTopSumDTO;
 import com.dglib.dto.book.LibraryBookDTO;
 import com.dglib.dto.book.LibraryBookFsDTO;
@@ -27,11 +28,15 @@ import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
+import com.dglib.dto.book.ChatbotBookResponseDTO;
 import com.dglib.dto.book.EbookListRequestDTO;
+import com.dglib.dto.book.EbookMemberRequestDTO;
+import com.dglib.dto.book.EbookMemberResponseDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.EbookSearchDTO;
 import com.dglib.dto.book.EbookSumDTO;
 import com.dglib.dto.book.EbookSummaryDTO;
+import com.dglib.dto.book.EbookUpdateDTO;
 import com.dglib.dto.book.HighlightRequestDTO;
 import com.dglib.dto.book.HighlightResponseDTO;
 import com.dglib.dto.book.HighlightUpdateDTO;
@@ -62,9 +67,6 @@ public interface BookService {
 	void changeLibraryBook(Long libraryBookId, String state);
 	Page<LibraryBookSummaryDTO> getLibraryBookList(Pageable pageable, LibraryBookSearchDTO libraryBookSearchDto);
 	void unMannedReserveBook(Long libraryBookId, String mid);
-	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
-	Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid);
-	void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid);
 	Page<BookTopSumDTO> getTopBorrowedBookList(Pageable pagebale, String check);
 	void checkOverdue();
 	void recordSearch(String keyword, String fingerprint);
@@ -84,6 +86,13 @@ public interface BookService {
 	String getSavedPage(String mid, Long ebookId);
 	void savePage(String mid, PageSaveRequestDTO dto);
 	Page<EbookSummaryDTO> getEbookAdminList(Pageable pageable, EbookSearchDTO dto);
+	void updateEbook(EbookUpdateDTO dto);
+	void deleteEbook(Long ebookId);
+	ChatbotBookResponseDTO getBookInfoByBookTitle(String book_title);
+	ChatbotBookResponseDTO getBookInfoByAuthor(String author);
+	List<BookTopNewResponseDTO> getTopNewBookList(String type);
+	
+	
 	
 	
 	

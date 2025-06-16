@@ -1,4 +1,39 @@
+import { useState, useEffect, useRef } from 'react';
+
+
+
 const GreetingComponent = () => {
+    const [isGifVisible, setIsGifVisible] = useState(false);
+    const gifRef = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            setIsGifVisible(true);
+                        }, 2000);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            }
+        );
+
+        if (gifRef.current) {
+            observer.observe(gifRef.current);
+        }
+
+        return () => {
+            if (gifRef.current) {
+                observer.unobserve(gifRef.current);
+            }
+        };
+    }, []);
 
     const timelineData = [
         {
@@ -44,7 +79,7 @@ const GreetingComponent = () => {
 
                 <div className="flex flex-row-reverse items-center gap-6 mt-12">
                     <div className="w-88 h-88 rounded-full overflow-hidden shadow-md">
-                        <img src="/director.png" alt="대구 도서관장" className="w-full h-full object-cover" />
+                        <img ref={gifRef} src={isGifVisible ? "/director.gif" : "/director.png"}  alt="대구 도서관장" className="w-full h-full object-cover" />
                     </div>
                     <div className="text-right">
                         <div className="text-gray-700 mb-1">대구 도서관장</div>

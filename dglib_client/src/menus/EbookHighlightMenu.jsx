@@ -65,7 +65,7 @@ const EbookHighlightMenu = ({control, onToggle, onClickHighlight, emitEvent, vie
                     <div name="layout" className="flex-1 flex box-border py-6 flex-col">
                       {highlightList.length > 0
                       ? highlightList
-                      : <div className="flex-1 h-auto flex items-center justify-center bg-blue-200 text-xs">책갈피가 없습니다.</div>
+                      : <div className="flex-1 h-auto flex items-center justify-center text-xs">책갈피가 없습니다.</div>
                     }
 
                     </div>

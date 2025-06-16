@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dglib.entity.program.ProgramBanner;
 
-public interface ProgramBannerRepository extends JpaRepository<ProgramBanner, Long>{
+public interface ProgramBannerRepository extends JpaRepository<ProgramBanner, Long> {
+
+	boolean existsByProgramInfo_ProgNo(Long progNo);
 
 }

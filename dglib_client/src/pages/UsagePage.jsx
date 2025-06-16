@@ -12,7 +12,7 @@ const UsagePage = () => {
         { id: "readingroom", label: "자료실 이용", path: "/usage/readingroom" },
         { id: "membership", label: "회원가입 안내", path: "/usage/membership" },
         { id: "borrowreturn", label: "도서 대출 및 반납", path: "/usage/borrowreturn" },
-        { id: "eventcalendar", label: "이달의 행사 일정", path: "/usage/eventcalendar" },], [])
+        { id: "calendar", label: "이달의 행사 일정", path: "/usage/calendar" },], [])
 
 
      useEffect(() => {

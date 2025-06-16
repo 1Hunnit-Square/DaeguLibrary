@@ -8,12 +8,17 @@ const BorrowBookList = lazy(() => import("../components/admin/BorrowBookListComp
 const Borrow = lazy(() => import("../components/admin/BorrowComponent"));
 const BookManagement = lazy(() => import("../components/admin/BookManagementComponent"));
 const MemberManagement = lazy(() => import("../components/admin/MemberManagementComponent"));
-const EventManagement = lazy(() => import("../components/admin/EventManagementComponent"));
+const CalendarManagement = lazy(() => import("../components/admin/CalendarManagementComponent"));
 const EbookManagement = lazy(() => import("../components/admin/EbookManagementComponent"));
 const BannerManagement = lazy(() => import("../components/admin/BannerManagementComponent"));
 const BoardManagement = lazy(() => import("../components/admin/BoardManagementComponent"));
 const SmsManagement = lazy(() => import("../components/admin/SmsManagementComponent"));
 const StatsManagement = lazy(() => import("../components/admin/StatsManagementComponent"));
+const ProgManagement = lazy(() => import("../components/admin/ProgManagementComponent"));
+const ProgramAdminDetail = lazy(() => import("../components/admin/ProgramAdminDetailComponent"));
+const ProgramRegister = lazy(() => import("../components/admin/ProgramRegisterComponent"));
+
+
 
 const adminRouter = () => ([
     {
@@ -37,8 +42,8 @@ const adminRouter = () => ([
         element: <Suspense fallback={<Loading />}><MemberManagement /></Suspense>
     },
     {
-        path: "eventmanagement",
-        element: <Suspense fallback={<Loading />}><EventManagement /></Suspense>
+        path: "calendarmanagement",
+        element: <Suspense fallback={<Loading />}><CalendarManagement /></Suspense>
     },
     {
         path: "ebookmanagement",
@@ -60,6 +65,23 @@ const adminRouter = () => ([
         path: "statsmanagement",
         element: <Suspense fallback={<Loading />}><StatsManagement /></Suspense>
     },
+    {
+
+        path: "progmanagement",
+        element: <Suspense fallback={<Loading />}><ProgManagement /></Suspense>
+    },
+    {
+        path: "programdetail/:progNo",
+        element: <Suspense fallback={<Loading />}><ProgramAdminDetail /></Suspense>
+    },
+    {
+        path: "programregister",
+        element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
+    },
+    {
+        path: "programregister/:progNo",
+        element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
+    }
 
 
 ])

@@ -49,7 +49,7 @@ const defaultMenuItems = [
         { name: '자료실 이용', link: '/usage/readingroom' },
         { name: '회원가입 안내', link: '/usage/membership' },
         { name: '도서 대출 및 반납', link: '/usage/borrowreturn' },
-        { name: '이달의 행사 일정', link: '/usage/eventcalendar' }
+        { name: '이달의 행사 일정', link: '/usage/calendar' }
       ]
     },
     {
@@ -85,7 +85,7 @@ const defaultMenuItems = [
         { name: '관심도서', link: '/mylibrary/interested?page=1&option=전체' },
         { name: '희망도서', link: `/mylibrary/request?year=${currentYear}` },
         { name: '프로그램 신청 내역', link: '/mylibrary/useprogram' },
-        { name: '이용 신청 내역', link: '/mylibrary/usedfacility' },
+        { name: '시설이용 신청 내역', link: '/mylibrary/usedfacility' },
         { name: '맞춤정보', link: '/mylibrary/personalized' }
       ]
     }
@@ -105,12 +105,12 @@ const defaultMenuItems = [
         { name: "EBOOK 관리", link: `/admin/ebookmanagement?tab=ebooklist&page=1&option=도서명&${dateParams}` },
         { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
         { name: '회원관리', link: '/admin/membermanagement?page=1' },
-        { name: '이달의 행사 관리', link: '/admin/eventmanagement' },
+       { name: '이달의 행사 관리', link: '/admin/calendarmanagement' },
+        { name: '프로그램·시설 관리', link: '/admin/progmanagement' },
         { name: "배너관리", link: "/admin/bannermanagement" },
         { name: "게시판관리", link: "/admin/boardmanagement" },
         { name: "SMS 관리", link: "/admin/smsmanagement" },
         { name: "통계관리", link: "/admin/statsmanagement" },
-
       ]
     }];
 

@@ -5,7 +5,7 @@ import Loading from "./Loading";
 const ReadingRoom = lazy(() => import("../components/usage/ReadingRoomComponent"));
 const MemberShip = lazy(() => import("../components/usage/MemberShipComponent"));
 const BorrowReturn = lazy(() => import("../components/usage/BorrowReturnComponent"));
-const EventCalendar = lazy(() => import("../components/usage/EventCalendarComponent"));
+const Calendar = lazy(() => import("../components/usage/CalendarComponent"));
 const MemberSearch = lazy(() => import("../components/admin/MemberSearchComponent"));
 
 
@@ -32,8 +32,8 @@ const usageRouter = () => ([
         element: <Suspense fallback={<Loading />}><BorrowReturn /></Suspense>
     },
     {
-        path : "eventcalendar",
-        element: <Suspense fallback={<Loading />}><EventCalendar /></Suspense>
+        path : "calendar",
+        element: <Suspense fallback={<Loading />}><Calendar /></Suspense>
     }
 
 

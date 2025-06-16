@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProgramDetail, applyProgram } from "../../api/programApi";
+import { getProgramDetail, applyProgram, checkAlreadyApplied } from "../../api/programApi";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 import Button from "../common/Button";
 import Loading from '../../routers/Loading';
+import Download from "../common/Download";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 dayjs.locale("ko");
@@ -16,21 +17,33 @@ const ProgramDetailComponent = () => {
     const { moveToLogin } = useMoveTo();
     const { progNo } = useParams();
     const [program, setProgram] = useState(null);
+    const [isApplied, setIsApplied] = useState(false);
 
     useEffect(() => {
         getProgramDetail(progNo).then(data => {
             setProgram(data);
         });
+
+        if (mid) {
+            checkAlreadyApplied(progNo, mid).then(setIsApplied).catch(() => { });
+        }
     }, [progNo]);
 
-    // program이 로드된 이후에만 계산하도록 방어 코드
-    const isExpired = program?.applyEndAt
-        ? dayjs(program.applyEndAt).isBefore(dayjs())
+    const isBeforeStart = program?.applyStartAt
+        ? dayjs().isBefore(dayjs(program.applyStartAt))
         : false;
 
+    const isExpired = program?.applyEndAt
+        ? dayjs().isAfter(dayjs(program.applyEndAt))
+        : false;
+
+    const isFull = program?.current >= program?.capacity;
+
+    const isDisabled = program?.status === "신청전" || isBeforeStart || isExpired || isFull;
+
     const handleApply = async () => {
-        if (program.status === "신청전") {
-            alert("신청 기간이 아닙니다.");
+        if (isBeforeStart) {
+            alert("신청 시작 전입니다.");
             return;
         }
 
@@ -39,20 +52,29 @@ const ProgramDetailComponent = () => {
             return;
         }
 
+        if (isFull) {
+            alert("모집 인원이 마감되었습니다.");
+            return;
+        }
+
         if (!mid) {
             moveToLogin("로그인 후 이용해주세요.");
+            return;
+        }
+
+        if (isApplied) {
+            alert("이미 신청하신 프로그램입니다.");
             return;
         }
 
         try {
             await applyProgram(program.progNo, mid);
             alert("신청이 완료되었습니다!");
-            // navigate("/my/applyList"); // 필요 시 이동
+            navigate("/myLibrary/useprogram");
         } catch (e) {
             alert(e.response?.data?.message || "신청 중 오류 발생");
         }
     };
-
 
     if (!program) return <Loading />;
 
@@ -114,13 +136,11 @@ const ProgramDetailComponent = () => {
                         <td className="pr-2 py-2 font-bold border-r border-gray-300 text-center align-top">첨부파일</td>
                         <td className="pl-4 py-2 text-left">
                             {program.originalName ? (
-                                <a
-                                    href={`/api/programs/file/${program.progNo}`}
-                                    className="text-blue-600 underline"
-                                    download
-                                >
-                                    {program.originalName}
-                                </a>
+                                <Download
+                                    link={`/api/programs/file/${program.progNo}`}
+                                    fileName={program.originalName}
+                                    className="text-blue-600"
+                                />
                             ) : (
                                 '없음'
                             )}
@@ -143,20 +163,22 @@ const ProgramDetailComponent = () => {
 
                 <Button
                     onClick={handleApply}
-                    className={`${program.status === "신청전" || isExpired
-                        ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed"
-                        : "bg-[#00893B] hover:bg-[#006C2D]"
-                        } text-white px-4 py-2 rounded`}
+                    disabled={isDisabled}
+                    className={`${isDisabled ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" : "bg-[#00893B] hover:bg-[#006C2D]"} text-white px-4 py-2 rounded`}
                 >
-                    {program.status === "신청전"
-                        ? "신청 불가"
-                        : isExpired
-                            ? "신청 마감"
-                            : "신청하기"}
+                    {isApplied
+                        ? "신청완료"
+                        : isBeforeStart
+                            ? "신청전"
+                            : isExpired
+                                ? "신청마감"
+                                : isFull
+                                    ? "모집마감"
+                                    : "신청하기"}
                 </Button>
             </div>
         </div>
-    )
+    );
 };
 
 export default ProgramDetailComponent;

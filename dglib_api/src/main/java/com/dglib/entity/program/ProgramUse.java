@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,22 +26,20 @@ import lombok.Setter;
 @Setter
 public class ProgramUse {
 
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long progUseNo;	//프로그램번호
-	
+	private Long progUseNo; // 프로그램번호
+
 	@Column(nullable = false)
-	private LocalDateTime applyAt;	//프로그램 신청일
-	
-	//FK 프로그램 정보 id
-	@OneToOne(fetch = FetchType.LAZY)
+	private LocalDateTime applyAt; // 프로그램 신청일
+
+	// FK 프로그램 정보 id
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "progNo", nullable = false)
-	private ProgramInfo programInfo;	
-	
-	
-	//FK 회원id
+	private ProgramInfo programInfo;
+
+	// FK 회원id
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "mid", nullable = false)
-	private Member member;	
+	private Member member;
 }

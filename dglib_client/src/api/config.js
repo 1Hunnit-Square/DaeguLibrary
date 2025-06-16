@@ -21,6 +21,3 @@ export const API_ENDPOINTS = {
 };
 
 export const SMS_KEY = "CREATION";
-
-
-

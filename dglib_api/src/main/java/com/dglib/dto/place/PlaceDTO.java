@@ -6,11 +6,17 @@ import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlaceDTO {
 
 	private Long pno; // 시설 신청 번호
@@ -24,7 +30,8 @@ public class PlaceDTO {
 	private String participants; // 참가자 명단
 	private String purpose; // 사용목적
 
-	private String memberMid; // 회원 id
+	private String memberMid;
+	private String memberName;
 
 	@JsonFormat(pattern = "HH:mm")
 	public LocalTime getEndTime() {

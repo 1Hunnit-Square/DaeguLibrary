@@ -1,5 +1,6 @@
 package com.dglib.repository;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -32,7 +33,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("김선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 1, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 8, 18, 0))
-                .daysOfWeek(List.of(3, 5, 1))
+                .daysOfWeek(List.of(DayOfWeek.MONDAY.getValue(), DayOfWeek.WEDNESDAY.getValue(), DayOfWeek.FRIDAY.getValue()))
                 .room("장소")
                 .startDate(LocalDate.of(2025, 6, 1))
                 .endDate(LocalDate.of(2025, 6, 8))
@@ -40,7 +41,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(17, 0))
                 .target("누구나")
                 .capacity(10)
-                .fileName("야외독서 피크닉 강의계획서")
+                .originalName("야외독서 피크닉 강의계획서")
                 .filePath("/programs/picnic")
                 .build();
 
@@ -58,7 +59,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("홍선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 2, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 9, 18, 0))
-                .daysOfWeek(List.of(1, 6))
+                .daysOfWeek(List.of(DayOfWeek.MONDAY.getValue(), DayOfWeek.WEDNESDAY.getValue(), DayOfWeek.FRIDAY.getValue()))
                 .room("강의실 2")
                 .startDate(LocalDate.of(2025, 6, 2))
                 .endDate(LocalDate.of(2025, 6, 9))
@@ -66,7 +67,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(12, 0))
                 .target("성인")
                 .capacity(20)
-                .fileName("조회계획서.pdf")
+                .originalName("조회계획서.pdf")
                 .filePath("/programs/query")
                 .build();
 
@@ -88,7 +89,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("최선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 3, 14, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 10, 18, 0))
-                .daysOfWeek(List.of(4))
+                .daysOfWeek(List.of(DayOfWeek.MONDAY.getValue(), DayOfWeek.WEDNESDAY.getValue(), DayOfWeek.FRIDAY.getValue()))
                 .room("로비")
                 .startDate(LocalDate.of(2025, 6, 3))
                 .endDate(LocalDate.of(2025, 6, 10))
@@ -96,7 +97,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(11, 0))
                 .target("아동")
                 .capacity(25)
-                .fileName("수정계획서.docx")
+                .originalName("수정계획서.docx")
                 .filePath("/programs/update")
                 .build();
 
@@ -119,7 +120,7 @@ public class ProgramInfoRepositoryTest {
                 .teachName("이선생")
                 .applyStartAt(LocalDateTime.of(2025, 5, 4, 10, 0))
                 .applyEndAt(LocalDateTime.of(2025, 5, 11, 18, 0))
-                .daysOfWeek(List.of(5))
+                .daysOfWeek(List.of(DayOfWeek.MONDAY.getValue(), DayOfWeek.WEDNESDAY.getValue(), DayOfWeek.FRIDAY.getValue()))
                 .room("강의실 1")
                 .startDate(LocalDate.of(2025, 6, 4))
                 .endDate(LocalDate.of(2025, 6, 11))
@@ -127,7 +128,7 @@ public class ProgramInfoRepositoryTest {
                 .endTime(LocalTime.of(12, 0))
                 .target("성인")
                 .capacity(20)
-                .fileName("삭제계획서.docx")
+                .originalName("삭제계획서.docx")
                 .filePath("/programs/delete")
                 .build();
 

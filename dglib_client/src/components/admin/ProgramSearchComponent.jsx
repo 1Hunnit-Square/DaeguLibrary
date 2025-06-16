@@ -47,8 +47,8 @@ const ProgramSearchComponent = ({ onSelect, onClose }) => {
             >
               <p className="font-semibold">{program.progName}</p>
               <p className="text-sm font-semibold">강사: {program.teachName}</p>
-              <p className="text-sm text-gray-600">
-                강의 기간: {program.startDate} ~ {program.endDate}
+              <p className="text-sm text-gray-700">
+                강의 기간: {program.startDate} - {program.endDate}
               </p>
             </div>
           ))}

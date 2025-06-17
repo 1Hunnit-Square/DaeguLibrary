@@ -165,7 +165,7 @@ const ProgramBannerComponent = () => {
                                 )}
                             </div>
 
-                            <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x600px</p>
+                            <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
                         </div>
 
                         {/* 가운데: 이미지 미리보기 */}

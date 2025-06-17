@@ -43,6 +43,8 @@ const ProgramBannerComponent = () => {
             return;
         }
 
+        const newForms = [...registerForms];
+
         // 이미 등록된 프로그램인지 확인
         const isDuplicate = banners.some(b => b.programInfoId === program.progNo) ||
             newForms.some((f, i) => i !== index && f.programInfoId === program.progNo);
@@ -68,7 +70,7 @@ const ProgramBannerComponent = () => {
         // 등록 제한: 최대 3개
         if (banners.length >= MAX_COUNT) {
             alert("이미 등록 개수를 초과 하였습니다.");
-            setRegisterForms(forms => forms.filter((_, i) => i !== index)); // 등록 폼 제거
+            setRegisterForms(forms => forms.filter((_, i) => i !== index));
             return;
         }
 
@@ -86,7 +88,7 @@ const ProgramBannerComponent = () => {
             await registerProgramBanner(formData);
             alert("등록 완료되었습니다.");
             fetchBanners();
-            setRegisterForms(forms => forms.filter((_, i) => i !== index)); // 등록 완료 후 폼 제거
+            setRegisterForms(forms => forms.filter((_, i) => i !== index));
         } catch (err) {
             console.error("배너 등록 실패", err);
 
@@ -163,7 +165,7 @@ const ProgramBannerComponent = () => {
                                 )}
                             </div>
 
-                            <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
+                            <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x600px</p>
                         </div>
 
                         {/* 가운데: 이미지 미리보기 */}

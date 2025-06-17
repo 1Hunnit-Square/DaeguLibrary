@@ -481,7 +481,7 @@ public class ProgramServiceImpl implements ProgramService {
 			if (imageUrl != null && imageUrl.contains("/")) {
 				String fileName = Paths.get(imageUrl).getFileName().toString();
 				String parent = Paths.get(imageUrl).getParent().toString();
-				dto.setThumbnailPath(parent + "/s_" + fileName);
+				dto.setThumbnailPath(imageUrl);
 			}
 			// 프로그램 정보 추가
 			dto.setProgName(info.getProgName());

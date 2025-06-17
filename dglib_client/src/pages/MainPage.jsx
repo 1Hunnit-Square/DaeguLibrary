@@ -19,7 +19,6 @@ const MainPage = () => {
                     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                         <div className="w-full lg:w-[45%]">
                             <div className="bg-white rounded-lg shadow-sm h-[300px] sm:h-[400px] lg:h-[472px] p-4">
-                                <h2 className="text-lg sm:text-xl font-bold mb-4">이달의 프로그램</h2>
                                 <ProgramMainBannerComponent />
                             </div>
                         </div>

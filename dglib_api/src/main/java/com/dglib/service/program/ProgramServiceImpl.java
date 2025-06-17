@@ -384,10 +384,9 @@ public class ProgramServiceImpl implements ProgramService {
 		int age = Period.between(member.getBirthDate(), LocalDate.now()).getYears();
 
 		return switch (target) {
-		case "초등학생" -> age >= 9 && age <= 13;
-		case "중학생" -> age >= 14 && age <= 16;
-		case "고등학생" -> age >= 17 && age <= 19;
-		case "성인" -> age >= 20;
+		case "어린이" -> age >= 0 && age <= 12;
+		case "청소년" -> age >= 13 && age <= 18;
+		case "성인" -> age >= 19;
 		default -> false;
 		};
 	}
@@ -428,6 +427,12 @@ public class ProgramServiceImpl implements ProgramService {
 	// 배너 등록
 	@Override
 	public void registerBanner(ProgramBannerDTO dto, MultipartFile file) {
+		LocalDate today = LocalDate.now();
+		long currentBannerCount = bannerRepository.countValidBanners(today);
+		if (currentBannerCount >= 3) {
+			throw new IllegalStateException("배너는 최대 3개까지만 등록할 수 있습니다.");
+		}
+
 		if (file == null || file.isEmpty()) {
 			throw new IllegalArgumentException("배너 이미지를 첨부해주세요.");
 		}
@@ -460,9 +465,16 @@ public class ProgramServiceImpl implements ProgramService {
 	// 배너 리스트 조회
 	@Override
 	public List<ProgramBannerDTO> getAllBanners() {
-		return bannerRepository.findAll().stream().map(banner -> {
-			ProgramBannerDTO dto = modelMapper.map(banner, ProgramBannerDTO.class);
-			dto.setProgramInfoId(banner.getProgramInfo().getProgNo());
+		LocalDate today = LocalDate.now();
+		List<ProgramBanner> result = bannerRepository.findValidBanners(today);
+
+		return result.stream().map(banner -> {
+			ProgramInfo info = banner.getProgramInfo();
+			ProgramBannerDTO dto = new ProgramBannerDTO();
+			dto.setBno(banner.getBno());
+			dto.setImageName(banner.getImageName());
+			dto.setImageUrl(banner.getImageUrl());
+			dto.setProgramInfoId(info.getProgNo());
 
 			// 썸네일 경로 생성 (s_ 접두사 방식)
 			String imageUrl = banner.getImageUrl();
@@ -471,6 +483,16 @@ public class ProgramServiceImpl implements ProgramService {
 				String parent = Paths.get(imageUrl).getParent().toString();
 				dto.setThumbnailPath(parent + "/s_" + fileName);
 			}
+			// 프로그램 정보 추가
+			dto.setProgName(info.getProgName());
+			dto.setTarget(info.getTarget());
+			dto.setStartDate(info.getStartDate());
+			dto.setEndDate(info.getEndDate());
+			dto.setStartTime(info.getStartTime());
+			dto.setEndTime(info.getEndTime());
+			dto.setDaysOfWeek(info.getDaysOfWeek());
+			dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
+
 			return dto;
 		}).collect(Collectors.toList());
 	}

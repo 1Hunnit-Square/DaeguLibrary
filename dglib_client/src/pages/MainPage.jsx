@@ -6,6 +6,7 @@ import ClosedInfoComponent from "../components/main/ClosedInfoComponent";
 import BoardMenu from "../menus/BoardMenu";
 import RecoMenu from "../menus/RecoMenu";
 import RecoComponent from "../components/main/RecoComponent";
+import ProgramMainBannerComponent from "../components/main/ProgramMainBannerComponent";
 
 const MainPage = () => {
     return (
@@ -19,7 +20,7 @@ const MainPage = () => {
                         <div className="w-full lg:w-[45%]">
                             <div className="bg-white rounded-lg shadow-sm h-[300px] sm:h-[400px] lg:h-[472px] p-4">
                                 <h2 className="text-lg sm:text-xl font-bold mb-4">이달의 프로그램</h2>
-                                {/* 프로그램 내용 */}
+                                <ProgramMainBannerComponent />
                             </div>
                         </div>
                         <div className="w-full lg:w-[55%]">

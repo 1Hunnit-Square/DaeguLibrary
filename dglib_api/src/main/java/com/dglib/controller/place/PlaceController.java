@@ -58,6 +58,13 @@ public class PlaceController {
 		return ResponseEntity.ok().build();
 	}
 
+	// 관리자 예약 취소
+	@DeleteMapping("/admin/delete/{pno}")
+	public ResponseEntity<?> cancelReservationByAdmin(@PathVariable Long pno) {
+		placeService.cancelByAdmin(pno);
+		return ResponseEntity.ok().build();
+	}
+
 	// 이미 예약된 시간대인지 확인 (버튼 비활성화용)
 	@GetMapping("/check")
 	public ResponseEntity<Boolean> checkSchedule(@RequestParam String room, @RequestParam String date,
@@ -98,12 +105,12 @@ public class PlaceController {
 		List<PlaceDTO> list = placeService.getReservedTimes(room, useDate);
 		return ResponseEntity.ok(list);
 	}
-	
+
 	// 관리자 - 조건 검색 및 페이징
 	@GetMapping("/admin")
 	public ResponseEntity<Page<PlaceDTO>> getListByAdmin(@ModelAttribute PlaceSearchConditionDTO cond) {
-	    Page<PlaceDTO> list = placeService.getListByAdmin(cond);
-	    return ResponseEntity.ok(list);
+		Page<PlaceDTO> list = placeService.getListByAdmin(cond);
+		return ResponseEntity.ok(list);
 	}
 
 }

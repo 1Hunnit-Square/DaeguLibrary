@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getAllPrograms } from "../../api/programApi";
 import Button from "../common/Button";
 
-const ProgramSearchComponent = ({ onSelect, onClose }) => {
+const ProgramBannerSearchComponent = ({ onSelect, onClose }) => {
   const [programs, setPrograms] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -64,4 +64,4 @@ const ProgramSearchComponent = ({ onSelect, onClose }) => {
   );
 };
 
-export default ProgramSearchComponent;
+export default ProgramBannerSearchComponent;

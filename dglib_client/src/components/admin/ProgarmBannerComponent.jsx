@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Button from "../common/Button";
-import ProgramSearchComponent from "../admin/ProgramSearchComponent";
+import ProgramBannerSearchComponent from "./ProgramBannerSearchComponent";
 import { getProgramBanners, registerProgramBanner, deleteProgramBanner, getProgramBannerImageUrl } from "../../api/programApi";
 
 const ProgramBannerComponent = () => {
@@ -38,7 +38,10 @@ const ProgramBannerComponent = () => {
 
 
     const handleProgramSelect = (index, program) => {
-        const newForms = [...registerForms];
+        if (banners.length >= MAX_COUNT) {
+            alert("배너는 최대 3개까지만 등록할 수 있습니다. 기존 배너를 삭제해주세요.");
+            return;
+        }
 
         // 이미 등록된 프로그램인지 확인
         const isDuplicate = banners.some(b => b.programInfoId === program.progNo) ||
@@ -62,8 +65,18 @@ const ProgramBannerComponent = () => {
     };
 
     const handleRegister = async (index) => {
+        // 등록 제한: 최대 3개
+        if (banners.length >= MAX_COUNT) {
+            alert("이미 등록 개수를 초과 하였습니다.");
+            setRegisterForms(forms => forms.filter((_, i) => i !== index)); // 등록 폼 제거
+            return;
+        }
+
         const { programInfoId, file } = registerForms[index];
-        if (!programInfoId || !file) return alert("프로그램과 이미지를 모두 선택해주세요.");
+        if (!programInfoId || !file) {
+            alert("프로그램과 이미지를 모두 선택해주세요.");
+            return;
+        }
 
         const formData = new FormData();
         formData.append("programInfoId", programInfoId);
@@ -73,9 +86,21 @@ const ProgramBannerComponent = () => {
             await registerProgramBanner(formData);
             alert("등록 완료되었습니다.");
             fetchBanners();
-            setRegisterForms(forms => forms.filter((_, i) => i !== index));
+            setRegisterForms(forms => forms.filter((_, i) => i !== index)); // 등록 완료 후 폼 제거
         } catch (err) {
             console.error("배너 등록 실패", err);
+
+            const errorMessage =
+                err.response?.data?.message ||
+                err.response?.data ||
+                "배너 등록 중 오류가 발생했습니다.";
+
+            alert(errorMessage);
+
+            // 서버에서도 최대 개수 초과로 거절될 수 있으니 폼 제거 추가
+            if (errorMessage.includes("최대 3")) {
+                setRegisterForms(forms => forms.filter((_, i) => i !== index));
+            }
         }
     };
 
@@ -190,7 +215,7 @@ const ProgramBannerComponent = () => {
                     {/* 검색 모달 */}
                     {showSearch === index && (
                         <div className="fixed inset-0 bg-white/40 backdrop-blur-sm z-50 flex items-center justify-center">
-                            <ProgramSearchComponent
+                            <ProgramBannerSearchComponent
                                 onSelect={program => handleProgramSelect(index, program)}
                                 onClose={() => setShowSearch(null)}
                             />
@@ -206,8 +231,10 @@ const ProgramBannerComponent = () => {
                             alt="banner"
                             className="w-full h-32 object-cover"
                         />
-                        <p className="text-sm mt-2">프로그램: {banner.programInfoId}</p>
-                        <Button className="mt-2" onClick={() => handleDelete(banner.bno)}>삭제</Button>
+                        <p className="text-sm text-center mt-2">프로그램: {banner.programInfoId}</p>
+                        <div className="flex justify-end mt-2">
+                            <Button onClick={() => handleDelete(banner.bno)}>삭제</Button>
+                        </div>
                     </div>
                 ))}
             </div>

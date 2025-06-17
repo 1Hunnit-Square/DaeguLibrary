@@ -1,0 +1,70 @@
+package com.dglib.config;
+
+import java.security.GeneralSecurityException;
+import java.util.Properties;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.sun.mail.util.MailSSLSocketFactory;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.mail.Folder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+
+@Component
+public class MailConfig {
+	@Value("${mail.smtp.host}")
+	private String HOST;
+	private final String USERNAME = "creation";  
+    private final String PASSWORD = "0601";
+    private final Properties props = new Properties();
+    
+    @PostConstruct
+	public void init() {
+	try {
+		MailSSLSocketFactory sf = new MailSSLSocketFactory();
+		sf.setTrustAllHosts(true);
+		props.put("mail.imaps.ssl.socketFactory", sf);
+	} catch (GeneralSecurityException e) {
+		throw new RuntimeException(e);
+	}
+    
+    props.put("mail.store.protocol", "imaps");
+    props.put("mail.imaps.host", HOST);
+    props.put("mail.imaps.port", "993");
+    props.put("mail.imaps.ssl.enable", "true");
+    props.put("mail.imaps.ssl.trust", "*"); // 모든 인증서 신뢰
+    props.put("mail.imaps.ssl.checkserveridentity", "false"); // 호스트네임 검증 비활성화
+    
+	}
+	
+	
+    public Folder getFolder() throws MessagingException{
+    	Session session = Session.getInstance(props);
+    	Folder inbox = null;
+			Store store = session.getStore("imaps");
+	    	store.connect(HOST, USERNAME, PASSWORD);
+			inbox = store.getFolder("INBOX");
+			inbox.open(Folder.READ_ONLY);
+
+       
+        return inbox;
+    }
+    
+    
+    public void closeFolder(Folder folder) throws MessagingException {
+
+            if (folder != null && folder.isOpen()) {
+                Store store = folder.getStore();
+                folder.close(false);
+                if (store != null && store.isConnected()) {
+                    store.close();
+                }
+            }
+    }
+
+    
+}

@@ -5,10 +5,15 @@ package com.dglib.config;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.simplejavamail.api.mailer.Mailer;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
+import org.simplejavamail.mailer.MailerBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
 	
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
-	
+
+
 	
 	
 	@Override
@@ -87,6 +93,21 @@ public class WebConfig implements WebMvcConfigurer {
 	        };
 	 }
 
+	 @Bean
+	    public Mailer mailer(@Value("${mail.smtp.host}") String smtpHost) {
+		 Properties props = new Properties();
+		 props.put("mail.smtp.starttls.enable", "false");
+		 props.put("mail.smtp.starttls.required", "false");
+		 props.put("mail.smtp.ssl.enable", "false");
+		 
+		 	return MailerBuilder
+		 			.withSMTPServerHost(smtpHost)
+		 		    .withSMTPServerPort(25)
+		 		    .withTransportStrategy(TransportStrategy.SMTP)
+		 		    .withDebugLogging(true)
+		 		    .withProperties(props)
+		 		    .buildMailer();
+	    }
     
     @Bean
     public PasswordEncoder passwordEncoder(){

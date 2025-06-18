@@ -7,7 +7,7 @@ const ProgramBannerComponent = () => {
     const [banners, setBanners] = useState([]);
     const [registerForms, setRegisterForms] = useState([]);
     const [showSearch, setShowSearch] = useState(null);
-    const MAX_COUNT = 3;
+    const MAX_COUNT = 6;
 
     useEffect(() => {
         fetchBanners();
@@ -30,7 +30,7 @@ const ProgramBannerComponent = () => {
 
     const handleAddForm = () => {
         if (registerForms.length + banners.length >= MAX_COUNT) {
-            alert("배너는 최대 3개까지 등록할 수 있습니다.");
+            alert("배너는 최대 6개까지 등록할 수 있습니다.");
             return;
         }
         setRegisterForms([...registerForms, { programInfoId: null, programName: '', file: null }]);
@@ -39,7 +39,7 @@ const ProgramBannerComponent = () => {
 
     const handleProgramSelect = (index, program) => {
         if (banners.length >= MAX_COUNT) {
-            alert("배너는 최대 3개까지만 등록할 수 있습니다. 기존 배너를 삭제해주세요.");
+            alert("배너는 최대 6개까지 등록할 수 있습니다. 기존 배너를 삭제해주세요.");
             return;
         }
 
@@ -67,7 +67,7 @@ const ProgramBannerComponent = () => {
     };
 
     const handleRegister = async (index) => {
-        // 등록 제한: 최대 3개
+        // 등록 제한: 최대 6개
         if (banners.length >= MAX_COUNT) {
             alert("이미 등록 개수를 초과 하였습니다.");
             setRegisterForms(forms => forms.filter((_, i) => i !== index));
@@ -100,7 +100,7 @@ const ProgramBannerComponent = () => {
             alert(errorMessage);
 
             // 서버에서도 최대 개수 초과로 거절될 수 있으니 폼 제거 추가
-            if (errorMessage.includes("최대 3")) {
+            if (errorMessage.includes("최대 6")) {
                 setRegisterForms(forms => forms.filter((_, i) => i !== index));
             }
         }

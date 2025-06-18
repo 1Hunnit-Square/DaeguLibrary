@@ -40,6 +40,7 @@ import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -94,8 +95,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class MemberServiceImpl implements MemberService {
 
-
-
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final LibraryBookRepository libraryBookRepository;
@@ -145,46 +144,42 @@ public class MemberServiceImpl implements MemberService {
 		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
 		Page<Member> memberList = memberRepository.findAll(spec, pageable);
 
-
 		Page<MemberListDTO> result = memberList.map(member -> {
 			MemberListDTO memberListDTO = new MemberListDTO();
 			modelMapper.map(member, memberListDTO);
-				
-			return memberListDTO;	
+
+			return memberListDTO;
 
 		});
 
 		return result;
 	}
 
-	
 	@Override
 	public List<ContactListDTO> getContactList(ContactSearchDTO searchDTO, Sort sort) {
 		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
 		List<Member> memberList = memberRepository.findAll(spec, sort);
-		
+
 		List<ContactListDTO> result = memberList.stream().map(member -> {
-			
-			List<LocalDate> overDateList = member.getOverRentalList()
-					.stream().map(Rental::getDueDate).collect(Collectors.toList());
-			
+
+			List<LocalDate> overDateList = member.getOverRentalList().stream().map(Rental::getDueDate)
+					.collect(Collectors.toList());
+
 			LocalDate DueStartDate = null;
 			if (!overDateList.isEmpty()) {
 				DueStartDate = Collections.min(overDateList).plusDays(1L);
 			}
-			
+
 			ContactListDTO listDTO = new ContactListDTO();
 			modelMapper.map(member, listDTO);
-			
+
 			listDTO.setOverdueCount(overDateList.size());
 			listDTO.setOverdueDate(DueStartDate);
 			return listDTO;
 		}).collect(Collectors.toList());
-	
+
 		return result;
 	}
-	
-	
 
 	@Override
 	public void manageMember(MemberManageDTO memberManageDTO) {
@@ -246,44 +241,36 @@ public class MemberServiceImpl implements MemberService {
 		memberRepository.save(member);
 	}
 
-	
 	@Override
 	public String getKakaoEmail(HttpHeaders headers) {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-		
+
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> response = null;
-		
-		
+
 		try {
-		response = restTemplate.exchange(
-                KAKAO_URL,
-                HttpMethod.GET,
-                requestEntity,
-                Map.class
-        );
-		} catch(HttpClientErrorException e) {
+			response = restTemplate.exchange(KAKAO_URL, HttpMethod.GET, requestEntity, Map.class);
+		} catch (HttpClientErrorException e) {
 			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
 				throw new IllegalArgumentException("Expired Token");
-		 } else {
-		        throw e;
-		    }
+			} else {
+				throw e;
+			}
 		}
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> body = response.getBody();
 
-		if(body == null)
+		if (body == null)
 			throw new IllegalArgumentException("Response Not Exist");
-		
+
 		@SuppressWarnings("unchecked")
 		Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
 		String email = (String) kakaoAccount.get("email");
 		return email;
 	}
-	
-	
+
 	@Override
 	public void regKakao(String kakaoEmail) {
 		String mid = JwtFilter.getMid();
@@ -292,7 +279,6 @@ public class MemberServiceImpl implements MemberService {
 		member.setKakao(kakaoEmail);
 		memberRepository.save(member);
 	}
-
 
 	public String setMno() {
 		String result = null;
@@ -308,11 +294,9 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void executeOverdueCheck() {
-        checkOverdue();
-        lastSuccessOverdueCheckDate = LocalDate.now();
-    }
-	
-	
+		checkOverdue();
+		lastSuccessOverdueCheckDate = LocalDate.now();
+	}
 
 	private void checkOverdue() {
 		List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());
@@ -386,27 +370,15 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public MemberInfoDTO getMemberInfo(String mid) {
+	public MemberBasicDTO getMemberBasicInfo(String mid) {
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
-
-		MemberInfoDTO dto = new MemberInfoDTO();
-		dto.setMid(member.getMid());
-		dto.setName(member.getName());
-		dto.setPhone(member.getPhone());
-		dto.setAddr(member.getAddr());
-		dto.setEmail(member.getEmail());
-		dto.setGender(member.getGender());
-		dto.setBirthDate(member.getBirthDate());
-		dto.setCheckSms(member.isCheckSms());
-		dto.setCheckEmail(member.isCheckEmail());
-
-		return dto;
+		return modelMapper.map(member, MemberBasicDTO.class);
 	}
 
-	
 	@Override
-	public Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable, BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
+	public Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable,
+			BorrowHistoryRequestDTO borrowHistoryRequestDTO) {
 		Specification<Rental> spec = RentalSpecifications.mrsFilter(borrowHistoryRequestDTO, mid);
 		Page<Rental> rentalPage = rentalRepository.findAll(spec, pageable);
 		return rentalPage.map(rental -> {
@@ -424,7 +396,7 @@ public class MemberServiceImpl implements MemberService {
 			return dto;
 		});
 	}
-	
+
 	@Override
 	public List<MemberReserveListDTO> getMemberReserveList(String mid) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "reserveId");
@@ -442,12 +414,12 @@ public class MemberServiceImpl implements MemberService {
 					.orElse(null));
 			dto.setReserveCount(reserve.getLibraryBook().getReserves().stream()
 					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned()).count());
-			dto.setReturned(reserve.getLibraryBook().getRentals().stream()
-					.anyMatch(r -> r.getState() == RentalState.RETURNED));
+			dto.setReturned(
+					reserve.getLibraryBook().getRentals().stream().anyMatch(r -> r.getState() == RentalState.RETURNED));
 			return dto;
 		}).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public void cancelReserve(Long reserveId) {
 		Reserve reserve = reserveRepository.findById(reserveId)
@@ -457,65 +429,64 @@ public class MemberServiceImpl implements MemberService {
 		}
 		reserve.setState(ReserveState.CANCELED);
 	}
-	
+
 	@Override
 	public List<String> getMemberBorrowedBookIsbns(String mid) {
 		return memberRepository.find40borrowedIsbn(mid);
-		
+
 	}
-	
+
 	@Override
 	public Map<String, Map<String, Integer>> getMemberYearBorrowList(String mid) {
-	    LocalDate today = LocalDate.now();
-	    LocalDate tenYearsAgo = LocalDate.of(today.getYear() - 10, 1, 1);
+		LocalDate today = LocalDate.now();
+		LocalDate tenYearsAgo = LocalDate.of(today.getYear() - 10, 1, 1);
 
-	    List<Rental> borrowList = rentalRepository.findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(mid, tenYearsAgo, today);
+		List<Rental> borrowList = rentalRepository.findByMemberMidAndRentStartDateBetweenOrderByRentStartDateAsc(mid,
+				tenYearsAgo, today);
 
-	    Map<String, Map<String, Integer>> monthlyYearlyCounts = new LinkedHashMap<>();
-	    int startYear = tenYearsAgo.getYear();
-	    int endYear = today.getYear();
+		Map<String, Map<String, Integer>> monthlyYearlyCounts = new LinkedHashMap<>();
+		int startYear = tenYearsAgo.getYear();
+		int endYear = today.getYear();
 
-	    for (int m = 1; m <= 12; m++) {
-	        String monthStr = m + "월";
-	        Map<String, Integer> yearMap = new LinkedHashMap<>();
-	        for (int y = startYear; y <= endYear; y++) {
-	            yearMap.put(y + "년", 0);
-	        }
-	        monthlyYearlyCounts.put(monthStr, yearMap);
-	    }
+		for (int m = 1; m <= 12; m++) {
+			String monthStr = m + "월";
+			Map<String, Integer> yearMap = new LinkedHashMap<>();
+			for (int y = startYear; y <= endYear; y++) {
+				yearMap.put(y + "년", 0);
+			}
+			monthlyYearlyCounts.put(monthStr, yearMap);
+		}
 
-	   
-	    for (Rental rental : borrowList) {
-	        LocalDate date = rental.getRentStartDate();
-	        String monthStr = date.getMonthValue() + "월";
-	        String yearStr = date.getYear() + "년";
+		for (Rental rental : borrowList) {
+			LocalDate date = rental.getRentStartDate();
+			String monthStr = date.getMonthValue() + "월";
+			String yearStr = date.getYear() + "년";
 
-	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
-	        yearMap.put(yearStr, yearMap.get(yearStr) + 1);
-	    }
+			Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+			yearMap.put(yearStr, yearMap.get(yearStr) + 1);
+		}
 
-	    
-	    Map<String, Integer> cumulativeYearly = new HashMap<>();
-	    for (int y = startYear; y <= endYear; y++) {
-	        cumulativeYearly.put(y + "년", 0);
-	    }
+		Map<String, Integer> cumulativeYearly = new HashMap<>();
+		for (int y = startYear; y <= endYear; y++) {
+			cumulativeYearly.put(y + "년", 0);
+		}
 
-	    for (int m = 1; m <= 12; m++) {
-	        String monthStr = m + "월";
-	        Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
+		for (int m = 1; m <= 12; m++) {
+			String monthStr = m + "월";
+			Map<String, Integer> yearMap = monthlyYearlyCounts.get(monthStr);
 
-	        for (int y = startYear; y <= endYear; y++) {
-	            String yearStr = y + "년";
-	            int currentCount = yearMap.get(yearStr);
-	            int cumulative = cumulativeYearly.get(yearStr) + currentCount;
-	            cumulativeYearly.put(yearStr, cumulative);
-	            yearMap.put(yearStr, cumulative);
-	        }
-	    }
+			for (int y = startYear; y <= endYear; y++) {
+				String yearStr = y + "년";
+				int currentCount = yearMap.get(yearStr);
+				int cumulative = cumulativeYearly.get(yearStr) + currentCount;
+				cumulativeYearly.put(yearStr, cumulative);
+				yearMap.put(yearStr, cumulative);
+			}
+		}
 
-	    return monthlyYearlyCounts;
+		return monthlyYearlyCounts;
 	}
-	
+
 	@Override
 	public MemberRecoBookDTO getMemberBorrowedBookIsbnForReco(String mid) {
 		List<String> isbns = memberRepository.find5borrowedIsbn(mid);
@@ -523,20 +494,20 @@ public class MemberServiceImpl implements MemberService {
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		MemberRecoBookDTO recoBookDTO = new MemberRecoBookDTO();
 		recoBookDTO.setIsbns(isbns);
-		if(member.getGender().equals("남")) {
+		if (member.getGender().equals("남")) {
 			recoBookDTO.setGender(0L);
-		}else {
+		} else {
 			recoBookDTO.setGender(1L);
 		}
 		LocalDate birthDate = member.getBirthDate();
-	   
-        int age = Period.between(birthDate, LocalDate.now()).getYears();
-        Long ageGroup = (long) ((age / 10) * 10);  
-        recoBookDTO.setAge(ageGroup);
-	    
+
+		int age = Period.between(birthDate, LocalDate.now()).getYears();
+		Long ageGroup = (long) ((age / 10) * 10);
+		recoBookDTO.setAge(ageGroup);
+
 		return recoBookDTO;
 	}
-	
+
 	@Override
 	public MemberPhoneDTO getMemberPhone(String mid) {
 		Member member = memberRepository.findById(mid)
@@ -544,10 +515,10 @@ public class MemberServiceImpl implements MemberService {
 		String phone = member.getPhone();
 		MemberPhoneDTO dto = new MemberPhoneDTO();
 		dto.setPhoneList(Arrays.asList(phone.split("-")));
-		
+
 		return dto;
 	}
-	
+
 	@Override
 	public List<MemberWishBookListDTO> getMemberWishBookList(String mid, int year) {
 		Specification<WishBook> spac = WishBookSpecifications.wbFilter(year, mid, WishBookState.CANCELED);
@@ -558,7 +529,7 @@ public class MemberServiceImpl implements MemberService {
 			return dto;
 		}).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public void cancelWishBook(Long wishId, String mid) {
 		WishBook wishBook = wishBookRepository.findByWishNoAndMemberMid(wishId, mid)
@@ -574,7 +545,7 @@ public class MemberServiceImpl implements MemberService {
 		}
 		wishBook.setState(WishBookState.CANCELED);
 	}
-	
+
 	@Override
 	public MemberEbookDetailDTO getMemberEbookDetail(Long ebookId, String mid) {
 		Ebook ebook = ebookRepository.findById(ebookId)
@@ -582,34 +553,32 @@ public class MemberServiceImpl implements MemberService {
 		MemberEbookDetailDTO dto = modelMapper.map(ebook, MemberEbookDetailDTO.class);
 		return dto;
 	}
-	
 
 	@Override
-    public void addInterestedBook(String mid, AddInterestedBookDTO addInterestedBookDto) {
-    	List<Long> libraryBookIds = addInterestedBookDto.getLibraryBookIds();
-    	List<LibraryBook> libraryBooks = libraryBookRepository.findByLibraryBookIdIn(libraryBookIds);
-    	Member member = memberRepository.findById(mid)
-    		    .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
-    	List<InterestedBook> existingInterestedBooks = interestedBookRepository.findByLibraryBookInAndMemberMid(libraryBooks, mid);
-    	if (!existingInterestedBooks.isEmpty()) {
-    	    String duplicatedTitles = existingInterestedBooks.stream()
-    	        .map(ib -> ib.getLibraryBook().getBook().getBookTitle())  
-    	        .collect(Collectors.joining(", "));
-    	    throw new IllegalStateException("이미 관심 도서로 등록된 책이 포함되어 있습니다: " + duplicatedTitles);
-    	}
-    	List<InterestedBook> interestedBooks = libraryBooks.stream()
-    			.map(libraryBook -> {
-    				InterestedBook ib = new InterestedBook();
-    				ib.setLibraryBook(libraryBook);
-    				ib.setMember(member);
-    				return ib;
-    			}).collect(Collectors.toList());
-    	
-    	interestedBookRepository.saveAll(interestedBooks);
-    }
-    
-    @Override
-	public Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable, InterestedBookRequestDTO interestedBookRequestDto, String mid) {
+	public void addInterestedBook(String mid, AddInterestedBookDTO addInterestedBookDto) {
+		List<Long> libraryBookIds = addInterestedBookDto.getLibraryBookIds();
+		List<LibraryBook> libraryBooks = libraryBookRepository.findByLibraryBookIdIn(libraryBookIds);
+		Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+		List<InterestedBook> existingInterestedBooks = interestedBookRepository
+				.findByLibraryBookInAndMemberMid(libraryBooks, mid);
+		if (!existingInterestedBooks.isEmpty()) {
+			String duplicatedTitles = existingInterestedBooks.stream()
+					.map(ib -> ib.getLibraryBook().getBook().getBookTitle()).collect(Collectors.joining(", "));
+			throw new IllegalStateException("이미 관심 도서로 등록된 책이 포함되어 있습니다: " + duplicatedTitles);
+		}
+		List<InterestedBook> interestedBooks = libraryBooks.stream().map(libraryBook -> {
+			InterestedBook ib = new InterestedBook();
+			ib.setLibraryBook(libraryBook);
+			ib.setMember(member);
+			return ib;
+		}).collect(Collectors.toList());
+
+		interestedBookRepository.saveAll(interestedBooks);
+	}
+
+	@Override
+	public Page<InterestedBookResponseDTO> getInterestedBookList(Pageable pageable,
+			InterestedBookRequestDTO interestedBookRequestDto, String mid) {
 		Specification<InterestedBook> spec = InterestedBookSpecifications.ibFilter(interestedBookRequestDto, mid);
 		Page<InterestedBook> interestedBooks = interestedBookRepository.findAll(spec, pageable);
 
@@ -633,12 +602,12 @@ public class MemberServiceImpl implements MemberService {
 			dto.setReserveCount(reserveCount);
 			return dto;
 		});
-    	
-    }
-    
-    @Override
+
+	}
+
+	@Override
 	public void deleteInterestedBook(InteresdtedBookDeleteDTO interesdtedBookDeleteDto, String mid) {
-    	
+
 		List<Long> interestedBookIds = interesdtedBookDeleteDto.getIbIds();
 		List<InterestedBook> interestedBooks = interestedBookRepository.findByIbIdIn(interestedBookIds);
 		Map<Long, InterestedBook> interestedBookMap = interestedBooks.stream()
@@ -653,60 +622,60 @@ public class MemberServiceImpl implements MemberService {
 			}
 		}
 		interestedBookRepository.deleteAll(interestedBooks);
-		
+
 	}
-    
-    
-    @Override
-    public Page<EbookMemberResponseDTO> getMyEbookList(Pageable pageable, EbookMemberRequestDTO dto, String mid) {
-    	LOGGER.info("Fetching eBooks for member: {}", mid);
-    	Specification<Ebook> spec = EbookSpecifications.meFilter(dto, mid);
-    	LOGGER.info("Specification created: {}", spec);
-    	Page<Ebook> ebookPage = ebookRepository.findAll(spec, pageable);
-    	LOGGER.info("Ebook page fetched: {}", ebookPage);
-    	
-    	
-    	return ebookPage.map(ebook -> {
-    	    EbookMemberResponseDTO responseDto = modelMapper.map(ebook, EbookMemberResponseDTO.class);
+
+	@Override
+	public Page<EbookMemberResponseDTO> getMyEbookList(Pageable pageable, EbookMemberRequestDTO dto, String mid) {
+		LOGGER.info("Fetching eBooks for member: {}", mid);
+		Specification<Ebook> spec = EbookSpecifications.meFilter(dto, mid);
+		LOGGER.info("Specification created: {}", spec);
+		Page<Ebook> ebookPage = ebookRepository.findAll(spec, pageable);
+		LOGGER.info("Ebook page fetched: {}", ebookPage);
+
+		return ebookPage.map(ebook -> {
+			EbookMemberResponseDTO responseDto = modelMapper.map(ebook, EbookMemberResponseDTO.class);
 			responseDto.setLastReadTime(ebook.getReadingProgressList().stream()
-					.filter(progress -> progress.getMember().getMid().equals(mid) && progress.getEbook().getEbookId().equals(ebook.getEbookId()))
+					.filter(progress -> progress.getMember().getMid().equals(mid)
+							&& progress.getEbook().getEbookId().equals(ebook.getEbookId()))
 					.map(EbookReadingProgress::getLastReadTime).findFirst().orElse(null));
-    	    return responseDto;
-    	});
-    }
-    
-    @Override
-    public void deleteMyEbook(EbookMemberDeleteDTO dto, String mid) {
+			return responseDto;
+		});
+	}
+
+	@Override
+	public void deleteMyEbook(EbookMemberDeleteDTO dto, String mid) {
 		List<Long> ebookIds = dto.getEbookIds();
 		List<Highlight> highlights = highlightRepository.findByMemberMidAndEbookEbookIdIn(mid, ebookIds);
-		List<EbookReadingProgress> readingProgressList = ebookReadingProgressRepository.findByMemberMidAndEbookEbookIdIn(mid, ebookIds);
+		List<EbookReadingProgress> readingProgressList = ebookReadingProgressRepository
+				.findByMemberMidAndEbookEbookIdIn(mid, ebookIds);
 		highlightRepository.deleteAll(highlights);
 		ebookReadingProgressRepository.deleteAll(readingProgressList);
-		
-		
-    }
-    
-    @Override
-    public ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid) {
-    	Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-    	List<Reserve> reserves = reserveRepository.findActiveReserves(mid, ReserveState.RESERVED);
-    	List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
-    	
-    	ChatMemberBorrowResposneDTO dto = new ChatMemberBorrowResposneDTO();
+
+	}
+
+	@Override
+	public ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+		List<Reserve> reserves = reserveRepository.findActiveReserves(mid, ReserveState.RESERVED);
+		List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
+
+		ChatMemberBorrowResposneDTO dto = new ChatMemberBorrowResposneDTO();
 		dto.setBorrowCount((long) rentals.size());
-		dto.setReservedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
-		dto.setUnmannedCount(reserves.stream().filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned()).count());
+		dto.setReservedCount(reserves.stream()
+				.filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
+		dto.setUnmannedCount(reserves.stream()
+				.filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned()).count());
 		dto.setCanBorrowCount(5L - dto.getBorrowCount() - dto.getReservedCount() - dto.getUnmannedCount());
 		dto.setCanReserveCount(dto.getCanBorrowCount() < 2 ? 0L : 2 - dto.getReservedCount());
 		dto.setState(member.getState());
-		dto.setOverdueCount(rentals.stream().filter(rental -> rental.getState() == RentalState.BORROWED && rental.getDueDate().isBefore(LocalDate.now())).count());
+		dto.setOverdueCount(rentals.stream().filter(
+				rental -> rental.getState() == RentalState.BORROWED && rental.getDueDate().isBefore(LocalDate.now()))
+				.count());
 
-    	return dto;
-    	
-    	
-    	
-    	
-    }
+		return dto;
 
+	}
 
 }

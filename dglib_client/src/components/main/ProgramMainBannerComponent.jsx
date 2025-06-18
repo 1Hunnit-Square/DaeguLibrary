@@ -16,7 +16,8 @@ const ProgramMainBannerComponent = () => {
         const fetchBanners = async () => {
             try {
                 const res = await getProgramBanners();
-                setBanners(res.slice(0, 3));
+                const sorted = res.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                setBanners(sorted.slice(0, 6));
             } catch (err) {
                 console.error("메인 배너 불러오기 실패", err);
             }
@@ -44,7 +45,7 @@ const ProgramMainBannerComponent = () => {
                     pagination={{ clickable: true }} // 페이지네이션을 클릭 가능하게 설정
                     autoplay={{ delay: 3000 }} // 슬라이드 간 지연 시간
                     loop
-                    className="rounded-lg overflow-hidden shadow"
+                    className="rounded-lg overflow-hidden shadow program-swiper"
                 >
                     {banners.map((banner) => (
                         <SwiperSlide key={banner.programInfoId}>
@@ -58,7 +59,7 @@ const ProgramMainBannerComponent = () => {
                                     className="w-full h-[240px] sm:h-[260px] lg:h-[280px] object-contain object-center mx-auto bg-white"
                                 />
                                 <div className="bg-white px-4 pt-3 pb-4 text-center mb-4">
-                                    <p className="text-base sm:text-lg font-bold text-green-800">【{banner.progName}】</p>
+                                    <p className="text-base sm:text-lg font-bold text-green-900">【{banner.progName}】</p>
                                     <p className="text-sm font-bold text-gray-700">{banner.startDate} ~ {banner.endDate}</p>
                                     <p className="text-sm font-bold text-gray-700 mt-1">
                                         {banner.dayNames?.join(', ')} {banner.startTime} ~ {banner.endTime}
@@ -72,6 +73,22 @@ const ProgramMainBannerComponent = () => {
             ) : (
                 <p className="text-sm text-gray-500 text-center">등록된 배너가 없습니다.</p>
             )}
+
+            <style>
+                {`
+                    .program-swiper {
+                        --swiper-navigation-color: #475569;
+                        --swiper-pagination-color: #00893B;
+                    }
+                    
+                    .swiper-button-next,
+                    .swiper-button-prev {
+                        width: 20px;
+                        height: 20px;
+                        font-size: 16px;
+                    }
+                `}
+            </style>
         </div>
     );
 };

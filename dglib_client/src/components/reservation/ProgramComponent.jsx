@@ -5,6 +5,7 @@ import { usePagination } from '../../hooks/usePage';
 import SearchSelectComponent from '../common/SearchSelectComponent';
 import SelectComponent from '../common/SelectComponent';
 import dayjs from 'dayjs';
+import Loading from '../../routers/Loading';
 
 const ProgramComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -168,7 +169,7 @@ const ProgramComponent = () => {
             </div>
 
             {isLoading ? (
-                <p>프로그램 목록을 불러오는 중입니다...</p>
+                <Loading />
             ) : error ? (
                 <p className="text-red-500">{error}</p>
             ) : finalPrograms.length === 0 ? (

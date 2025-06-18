@@ -1,6 +1,5 @@
 package com.dglib.controller.member;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +40,7 @@ import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberDTO;
@@ -101,7 +101,6 @@ public class MemberController {
 		return ResponseEntity.ok(memberList);
 	}
 
-	
 	@GetMapping("/listContact")
 	public ResponseEntity<List<ContactListDTO>> listContact(@ModelAttribute ContactSearchDTO searchDTO) {
 		System.out.println(searchDTO);
@@ -169,40 +168,38 @@ public class MemberController {
 		memberService.modifyMember(mid, modMemberDTO);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/kakaoAuth")
 	public ResponseEntity<Map<String, Object>> kakaoAuth(@RequestParam String accessToken) {
 		HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        String email = memberService.getKakaoEmail(headers);
-        try {
-        MemberDTO memberDTO = (MemberDTO) memberDetailService.loadUserByKakao(email);
-        	return ResponseEntity.ok(JwtProvider.responseToken(memberDTO));
-        } catch(UsernameNotFoundException e) {
-        	Map<String, Object> result = Map.of("error", e.getMessage());
-        	return ResponseEntity.ok(result);
-        }
-        
-		
-	}
-	
-	@PostMapping("/kakaoRegister")
-	public ResponseEntity<String> kakaoReg(@RequestParam String accessToken){
-		HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        String email = memberService.getKakaoEmail(headers);
-        memberService.regKakao(email);
-        return ResponseEntity.ok().build();
-	}
-	
-	@GetMapping("/getKakaoEmail")
-	public ResponseEntity<String> getkakaoEmail(@RequestParam String accessToken){
-		HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        String email = memberService.getKakaoEmail(headers);
-        return ResponseEntity.ok(email);
+		headers.set("Authorization", "Bearer " + accessToken);
+		String email = memberService.getKakaoEmail(headers);
+		try {
+			MemberDTO memberDTO = (MemberDTO) memberDetailService.loadUserByKakao(email);
+			return ResponseEntity.ok(JwtProvider.responseToken(memberDTO));
+		} catch (UsernameNotFoundException e) {
+			Map<String, Object> result = Map.of("error", e.getMessage());
+			return ResponseEntity.ok(result);
+		}
+
 	}
 
+	@PostMapping("/kakaoRegister")
+	public ResponseEntity<String> kakaoReg(@RequestParam String accessToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + accessToken);
+		String email = memberService.getKakaoEmail(headers);
+		memberService.regKakao(email);
+		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/getKakaoEmail")
+	public ResponseEntity<String> getkakaoEmail(@RequestParam String accessToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + accessToken);
+		String email = memberService.getKakaoEmail(headers);
+		return ResponseEntity.ok(email);
+	}
 
 	@GetMapping("/interestedbook")
 	public ResponseEntity<Page<InterestedBookResponseDTO>> getInterestedBookList(
@@ -266,23 +263,21 @@ public class MemberController {
 		return ResponseEntity.ok().build();
 	}
 
-
-	@GetMapping("/info/{mid}")
-	public ResponseEntity<MemberInfoDTO> fetchMemberInfo(@PathVariable String mid) {
-		return ResponseEntity.ok(memberService.getMemberInfo(mid));
+	@GetMapping("/info")
+	public ResponseEntity<MemberBasicDTO> fetchMemberInfo() {
+		String mid = JwtFilter.getMid();
+		return ResponseEntity.ok(memberService.getMemberBasicInfo(mid));
 	}
 
 	@PostMapping("/validate")
 	public ResponseEntity<Map<String, Object>> validateMemberIds(@RequestBody List<String> mids) {
-		List<String> notFound = mids.stream().filter(mid -> !memberService.existById(mid))
-				.toList();
+		List<String> notFound = mids.stream().filter(mid -> !memberService.existById(mid)).toList();
 
 		Map<String, Object> result = Map.of("valid", notFound.isEmpty(), "invalidIds", notFound);
 
 		return ResponseEntity.ok(result);
 	}
 
-	
 	@GetMapping("/memberborrowhistory")
 	public ResponseEntity<Page<MemberBorrowHistoryDTO>> getMemberBorrowHistory(
 			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
@@ -291,10 +286,11 @@ public class MemberController {
 		LOGGER.info(borrowHistoryRequestDTO + "");
 		LOGGER.info("회원 대출이력 요청: {}, 페이지: {}, 사이즈: {}", mid, page, size);
 		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("rentStartDate").descending());
-		Page<MemberBorrowHistoryDTO> borrowHistory = memberService.getMemberBorrowHistory(mid, pageable, borrowHistoryRequestDTO);
+		Page<MemberBorrowHistoryDTO> borrowHistory = memberService.getMemberBorrowHistory(mid, pageable,
+				borrowHistoryRequestDTO);
 		return ResponseEntity.ok(borrowHistory);
 	}
-	
+
 	@GetMapping("/memberreservelist")
 	public ResponseEntity<List<MemberReserveListDTO>> getMemberReserveList() {
 		String mid = JwtFilter.getMid();
@@ -302,7 +298,7 @@ public class MemberController {
 		List<MemberReserveListDTO> dto = memberService.getMemberReserveList(mid);
 		return ResponseEntity.ok(dto);
 	}
-	
+
 	@DeleteMapping("/cancelreservebook")
 	public ResponseEntity<String> cancelReserveBook(@RequestParam Long reserveId) {
 		String mid = JwtFilter.getMid();
@@ -310,7 +306,7 @@ public class MemberController {
 		memberService.cancelReserve(reserveId);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/yearborrowhistory")
 	public ResponseEntity<Map<String, Map<String, Integer>>> cencelReserveBook() {
 		String mid = JwtFilter.getMid();
@@ -319,7 +315,7 @@ public class MemberController {
 		LOGGER.info("연간 대출 이력: {}", yearBorrowList);
 		return ResponseEntity.ok(yearBorrowList);
 	}
-	
+
 	@GetMapping("/getmemberphone")
 	public ResponseEntity<MemberPhoneDTO> getMemberPhone() {
 		String mid = JwtFilter.getMid();
@@ -327,16 +323,16 @@ public class MemberController {
 		MemberPhoneDTO memberPhone = memberService.getMemberPhone(mid);
 		return ResponseEntity.ok(memberPhone);
 	}
-	
+
 	@PostMapping("/regwishbook")
 	public ResponseEntity<String> regWishBook(@RequestBody RegWishBookDTO dto) {
-        String mid = JwtFilter.getMid();
-        bookService.regWishBook(dto, mid);
-        LOGGER.info("회원 희망도서 회원 id: {}", mid);
-        LOGGER.info("희망도서 등록 요청: {}", dto);
-        return ResponseEntity.ok().build();
-    }
-	
+		String mid = JwtFilter.getMid();
+		bookService.regWishBook(dto, mid);
+		LOGGER.info("회원 희망도서 회원 id: {}", mid);
+		LOGGER.info("희망도서 등록 요청: {}", dto);
+		return ResponseEntity.ok().build();
+	}
+
 	@GetMapping("/memberwishbooklist/{year}")
 	public ResponseEntity<List<MemberWishBookListDTO>> memberWishBookList(@PathVariable int year) {
 		String mid = JwtFilter.getMid();
@@ -344,7 +340,7 @@ public class MemberController {
 		List<MemberWishBookListDTO> wishBookList = memberService.getMemberWishBookList(mid, year);
 		return ResponseEntity.ok(wishBookList);
 	}
-	
+
 	@PostMapping("/cancelwishbook/{wishId}")
 	public ResponseEntity<String> cancelWishBook(@PathVariable Long wishId) {
 		String mid = JwtFilter.getMid();
@@ -352,7 +348,7 @@ public class MemberController {
 		memberService.cancelWishBook(wishId, mid);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/ebookinfo/{ebookId}")
 	public ResponseEntity<MemberEbookDetailDTO> getEbookDetail(@PathVariable Long ebookId) {
 		String mid = JwtFilter.getMid();
@@ -360,7 +356,7 @@ public class MemberController {
 		MemberEbookDetailDTO ebookDetail = memberService.getMemberEbookDetail(ebookId, mid);
 		return ResponseEntity.ok(ebookDetail);
 	}
-	
+
 	@GetMapping("/highlights/{ebookId}")
 	public ResponseEntity<List<HighlightResponseDTO>> getHighlights(@PathVariable Long ebookId) {
 		String mid = JwtFilter.getMid();
@@ -368,7 +364,7 @@ public class MemberController {
 		List<HighlightResponseDTO> highlights = bookService.getHighlights(mid, ebookId);
 		return ResponseEntity.ok(highlights);
 	}
-	
+
 	@PostMapping("/addhighlight")
 	public ResponseEntity<HighlightResponseDTO> addHighlight(@RequestBody HighlightRequestDTO dto) {
 		String mid = JwtFilter.getMid();
@@ -376,7 +372,7 @@ public class MemberController {
 		bookService.addHighlight(mid, dto);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PutMapping("/updatehighlight")
 	public ResponseEntity<String> updateHighlight(@RequestBody HighlightUpdateDTO dto) {
 		String mid = JwtFilter.getMid();
@@ -384,7 +380,7 @@ public class MemberController {
 		bookService.updateHighlight(mid, dto);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@DeleteMapping("/deletehighlight/{highlightId}")
 	public ResponseEntity<String> deleteHighlight(@PathVariable Long highlightId) {
 		String mid = JwtFilter.getMid();
@@ -392,17 +388,17 @@ public class MemberController {
 		bookService.deleteHighlight(mid, highlightId);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/savepage")
 	public ResponseEntity<String> savePage(@RequestBody PageSaveRequestDTO dto) {
 		String mid = JwtFilter.getMid();
-		
+
 		bookService.savePage(mid, dto);
 		LOGGER.info("페이지 저장 완료");
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/currentpage/{ebookId}")
 	public ResponseEntity<String> getCurrentPage(@PathVariable Long ebookId) {
 		String mid = JwtFilter.getMid();
@@ -411,7 +407,6 @@ public class MemberController {
 		LOGGER.info("저장된 페이지: {}", startCfi);
 		return ResponseEntity.ok(startCfi);
 	}
-	
 
 	@GetMapping("/myebook")
 	public ResponseEntity<Page<EbookMemberResponseDTO>> getMyEbookList(EbookMemberRequestDTO dto) {
@@ -421,7 +416,7 @@ public class MemberController {
 		Page<EbookMemberResponseDTO> ebookList = memberService.getMyEbookList(pageable, dto, mid);
 		return ResponseEntity.ok(ebookList);
 	}
-	
+
 	@DeleteMapping("/deleteebook")
 	public ResponseEntity<String> deleteEbooks(@RequestBody EbookMemberDeleteDTO dto) {
 		String mid = JwtFilter.getMid();
@@ -429,6 +424,5 @@ public class MemberController {
 		memberService.deleteMyEbook(dto, mid);
 		return ResponseEntity.ok().build();
 	}
-	
 
 }

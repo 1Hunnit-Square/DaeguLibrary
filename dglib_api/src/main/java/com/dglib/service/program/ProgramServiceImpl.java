@@ -429,8 +429,8 @@ public class ProgramServiceImpl implements ProgramService {
 	public void registerBanner(ProgramBannerDTO dto, MultipartFile file) {
 		LocalDate today = LocalDate.now();
 		long currentBannerCount = bannerRepository.countValidBanners(today);
-		if (currentBannerCount >= 3) {
-			throw new IllegalStateException("배너는 최대 3개까지만 등록할 수 있습니다.");
+		if (currentBannerCount >= 6) {
+			throw new IllegalStateException("배너는 최대 6개까지 등록할 수 있습니다.");
 		}
 
 		if (file == null || file.isEmpty()) {

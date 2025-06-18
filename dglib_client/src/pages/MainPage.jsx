@@ -23,26 +23,27 @@ const MainPage = () => {
                             </div>
                         </div>
                         <div className="w-full lg:w-[55%]">
-                            <div className="flex flex-col space-y-3 sm:space-y-4">
+                            <div className="flex flex-col space-y-3 sm:space-y-4 h-[300px] sm:h-[400px] lg:h-[472px]">
                                 <div className="bg-white rounded-lg shadow-sm h-[150px] sm:h-[180px] lg:h-[200px] p-1">
-                                   <BoardMenu />
+                                    <BoardMenu />
                                 </div>
-                                <div className="bg-white rounded-lg shadow-sm h-[100px] sm:h-[110px] lg:h-[120px] p-4">
-                                    <h2 className="text-base sm:text-lg font-bold mb-2">독서 마라톤 대회</h2>
-                                    {/* 대회 내용 */}
-                                </div>
-                                <div className="bg-white rounded-lg shadow-sm h-[150px] sm:h-[140px] lg:h-[120px]">
-                                    <ClosedInfoComponent />
+                                <div className="flex flex-1 gap-x-4 min-h-0">
+                                    <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
+                                        <div className="p-3 font-bold">새소식 배너</div>
+                                    </div>
+                                    <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
+                                        <ClosedInfoComponent />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="mt-10 container mx-auto max-w-[80%]">
-                    <div className="mt-10 w-full bg-white rounded-lg shadow-sm min-h-[200px] mb-10">
+                <div className="mt-10 container mx-auto px-4 sm:px-6 lg:max-w-[90%] xl:max-w-[80%]">
+                    <div className="mt-10 w-full bg-white rounded-lg shadow-sm min-h-[200px] mb-10 p-1">
                         <RecoMenu Component={RecoComponent} />
                     </div>
-                    <div className="mt-10 w-full bg-white rounded-lg shadow-sm min-h-[200px] mb-10">
+                    <div className="mt-10 w-full bg-white rounded-lg shadow-sm min-h-[200px] mb-10 p-1">
                         <GenreMenu Component={GenreComponent} />
 
                     </div>

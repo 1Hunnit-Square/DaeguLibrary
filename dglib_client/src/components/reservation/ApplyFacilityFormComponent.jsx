@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { memberIdSelector } from '../../atoms/loginState';
+import { memberIdSelector ,memberNameSelector} from '../../atoms/loginState';
 import { registerPlace } from '../../api/placeApi';
 import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
 import Button from '../common/Button';
 import CheckNonLabel from '../common/CheckNonLabel';
 import { API_ENDPOINTS } from '../../api/config';
-
-// 회원 정보 가져오기
-const getMemberInfo = async (mid) => {
-    const res = await axios.get(`${API_SERVER_HOST}${API_ENDPOINTS.member}/info/${mid}`);
-    return res.data;
-};
+import { getMemberBasicInfo } from '../../api/memberApi';
 
 // 참가자 명단 아이디 검사
 const validateParticipantIds = async (mids) => {
@@ -38,6 +33,7 @@ const ApplyFacilityFormComponent = () => {
     const roomName = location.state?.roomName || '';
     const selectedDate = location.state?.date || '';
     const memberId = useRecoilValue(memberIdSelector);
+    const memberName = useRecoilValue(memberNameSelector);
 
     const [memberInfo, setMemberInfo] = useState({ name: '', phone: '', address: '' });
     const [durationTime, setDurationTime] = useState([]);
@@ -48,9 +44,9 @@ const ApplyFacilityFormComponent = () => {
 
     useEffect(() => {
         if (memberId) {
-            getMemberInfo(memberId).then((data) => {
+            getMemberBasicInfo().then((data) => {
                 setMemberInfo({
-                    name: data.name || '',
+                    name: memberName || '',
                     phone: data.phone || '',
                     address: data.addr || '',
                 });

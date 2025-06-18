@@ -19,6 +19,7 @@ import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -69,7 +70,7 @@ public interface MemberService {
 	
 	void extendMemberBorrow(List<Long> rentIds);
 	
-	MemberInfoDTO getMemberInfo(String mid);
+	MemberBasicDTO getMemberBasicInfo(String mid);
 
 	Page<MemberBorrowHistoryDTO> getMemberBorrowHistory(String mid, Pageable pageable, BorrowHistoryRequestDTO borrowHistoryRequestDTO);
 	

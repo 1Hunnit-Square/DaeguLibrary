@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dglib.dto.qna.AdminQnaDTO;
+import com.dglib.dto.qna.AdminQnaSearchDTO;
 import com.dglib.dto.qna.QuestionDetailDTO;
 import com.dglib.dto.qna.QuestionListDTO;
 import com.dglib.dto.qna.QuestionNewDTO;
 import com.dglib.dto.qna.QuestionSearchDTO;
 import com.dglib.dto.qna.QuestionUpdateDTO;
 import com.dglib.security.jwt.JwtFilter;
+import com.dglib.service.qna.AdminQnaService;
 import com.dglib.service.qna.QuestionService;
 
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class QuestionController {
 
 	private final QuestionService questionService;
-
+	private final AdminQnaService adminQnaService;
+	
 	// 등록
 	@PostMapping
 	public ResponseEntity<Long> createQuestion(@RequestBody QuestionNewDTO newDTO) {
@@ -90,4 +94,12 @@ public class QuestionController {
 		questionService.delete(qno, requesterMid);
 		return ResponseEntity.ok().build();
 	}
+	
+	
+	@GetMapping("/admin/qna")
+	public Page<AdminQnaDTO> getAdminQnaList(@ModelAttribute AdminQnaSearchDTO searchDTO, Pageable pageable) {
+	    return adminQnaService.findAll(searchDTO, pageable, null);
+	}
+	
+	
 }

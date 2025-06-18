@@ -56,7 +56,6 @@ const OrganizationComponent = () => {
                                 <th className="border px-4 py-3">직위</th>
                                 <th className="border px-4 py-3">담당업무</th>
                                 <th className="border px-4 py-3">전화번호</th>
-                                <th className="border px-4 py-3">이메일 (@dglib.kro.kr)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,7 +65,6 @@ const OrganizationComponent = () => {
                                 <td className="border px-4 py-3 text-center">도서관장</td>
                                 <td className="border px-4 py-3 text-center">도서관 업무 총괄</td>
                                 <td className="border px-4 py-3 text-center">053-269-0708</td>
-                                <td className="border px-4 py-3 text-center">bsm100100</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-3 text-center">지식문화팀</td>
@@ -74,7 +72,6 @@ const OrganizationComponent = () => {
                                 <td className="border px-4 py-3 text-center">지식문화팀장</td>
                                 <td className="border px-4 py-3 text-center">지식문화팀 업무 총괄</td>
                                 <td className="border px-4 py-3 text-center">053-269-0709</td>
-                                <td className="border px-4 py-3 text-center">kdh3502</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-3 text-center">문화사업팀</td>
@@ -82,7 +79,6 @@ const OrganizationComponent = () => {
                                 <td className="border px-4 py-3 text-center">문화사업팀장</td>
                                 <td className="border px-4 py-3 text-center">문화사업팀 업무 총괄</td>
                                 <td className="border px-4 py-3 text-center">053-269-0710</td>
-                                <td className="border px-4 py-3 text-center">jin0303</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-3 text-center">정보지원팀</td>
@@ -90,7 +86,6 @@ const OrganizationComponent = () => {
                                 <td className="border px-4 py-3 text-center">정보지원팀장</td>
                                 <td className="border px-4 py-3 text-center">정보지원팀 업무 총괄</td>
                                 <td className="border px-4 py-3 text-center">053-269-0711</td>
-                                <td className="border px-4 py-3 text-center">jimin123</td>
                             </tr>
                         </tbody>
                     </table>

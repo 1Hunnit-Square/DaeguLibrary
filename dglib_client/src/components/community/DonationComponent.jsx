@@ -66,8 +66,8 @@ const DonationComponent = () => {
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">기증필요서류</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
-                        <li>대구도서관 정보지원팀으로 기부서약서 제출</li>
-                        <span>✔ 기부서약서 양식은 아래 다운로드 버튼을 클릭하시어 사용해 주세요</span>
+                        <li>대구도서관 정보지원팀(admin@dglib.kro.kr)으로 기부서약서 제출</li>
+                        <span>✔ 기부서약서 서식은 아래 다운로드 버튼을 클릭하시어 사용해 주세요.</span>
                     </ul>
                 </div>
             </section>

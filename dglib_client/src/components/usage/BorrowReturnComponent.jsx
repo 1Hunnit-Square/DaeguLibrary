@@ -10,23 +10,6 @@ const BorrowReturnComponent = () => {
                     <p><span className="font-bold text-orange-600">대출자격:</span> 대구도서관 회원증 발급 회원</p>
                     <p><span className="font-bold text-orange-600">대출권수/기간:</span> 도서 1회 5권 / 최대 7일</p>
 
-                    <table className="mt-4 border border-gray-400 text-center text-sm">
-                        <thead className="bg-gray-100 font-semibold">
-                            <tr>
-                                <th className="border border-gray-400 px-12 py-2">구분</th>
-                                <th className="border border-gray-400 px-12 py-2">권수</th>
-                                <th className="border border-gray-400 px-12 py-2">기간</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td className="border border-gray-400 px-12 py-5">일반도서</td>
-                                <td className="border border-gray-400 px-12 py-5">1회 5권</td>
-                                <td className="border border-gray-400 px-12 py-5">7일 이내</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
                     <p className="mt-6 font-semibold">📌 대출이 불가능한 자료</p>
                     <ul className="list-disc list-inside mt-2 space-y-1 text-gray-800">
                         <li>참고도서, 정기간행물, 소책자</li>

@@ -40,6 +40,7 @@ import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberEbookDetailDTO;
@@ -386,22 +387,10 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public MemberInfoDTO getMemberInfo(String mid) {
+	public MemberBasicDTO getMemberBasicInfo(String mid) {
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
-
-		MemberInfoDTO dto = new MemberInfoDTO();
-		dto.setMid(member.getMid());
-		dto.setName(member.getName());
-		dto.setPhone(member.getPhone());
-		dto.setAddr(member.getAddr());
-		dto.setEmail(member.getEmail());
-		dto.setGender(member.getGender());
-		dto.setBirthDate(member.getBirthDate());
-		dto.setCheckSms(member.isCheckSms());
-		dto.setCheckEmail(member.isCheckEmail());
-
-		return dto;
+		return modelMapper.map(member, MemberBasicDTO.class);
 	}
 
 	

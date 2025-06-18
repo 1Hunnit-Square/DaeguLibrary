@@ -29,7 +29,7 @@ const AdminPage = () => {
         { id: "progplace", label: "프로그램 · 시설 관리", path: "/admin/progmanagement" },
         { id: "banner", label: "배너관리", path: "/admin/bannermanagement" },
         { id: "service", label: "게시판관리", path: "/admin/boardmanagement" },
-        { id: "sms", label: "SMS 관리", path: "/admin/smsmanagement" },
+        { id: "messenger", label: "메신저관리", path: "/admin/messengermanagement" },
         { id: "stats", label: "통계관리", path: "/admin/statsmanagement" },
         
         ], [getDateParams])

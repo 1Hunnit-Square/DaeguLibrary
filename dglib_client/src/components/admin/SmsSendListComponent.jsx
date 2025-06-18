@@ -1,19 +1,22 @@
 import Button from "../common/Button";
 import { useState, useEffect } from "react";
+import _ from 'lodash';
 
-const SmsSendListComponent = () => {
+const SmsSendListComponent = ({numList, setNumList}) => {
 
-    const [ numList, setNumList] = useState([]);
     const [ phone, setPhone ] = useState("");
 
 
     
     useEffect(() => {
         const handleMessage = (event) => {
-        if (event.data.type === "MEMBER_PHONE") {
-            //전화 번호 추가 event.data 객체
-        }
-        };
+        const { type, newList } = event.data;
+
+    if (type === 'CONTACT_SELECTED') {
+        console.log('연락처 선택됨:', newList);
+        setNumList(prev => _.uniq([...prev, ...newList]));
+    }
+    }
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
@@ -31,7 +34,8 @@ const SmsSendListComponent = () => {
             return;
         }
         
-        setNumList(prev => [...prev, phone]);
+        setNumList(prev => _.uniq([...prev, phone]));
+        setPhone("");
     }
 
     const handleListDel = (index) => {
@@ -60,7 +64,8 @@ const SmsSendListComponent = () => {
         </div>
         <div className ="border-4 border-emerald-700 w-80 h-100 rounded-lg overflow-y-auto py-5">
             <div className ="flex flex-col justify-center ml-10 w-60">
-            <div className="text-xl font-bold">수신자 명단 ✉ <span className="text-sm font-normal">({numList.length}명)</span></div>
+            <div className="text-xl font-bold">수신자 명단 ✉ <span className="text-sm font-normal">({numList.length}명)</span>
+            <Button className="text-sm w-fit !p-1.5 ml-5 bg-amber-600 hover:bg-amber-700" onClick={()=>setNumList([])}>초기화</Button></div>
             <table className = "my-5 table-fixed">
                 <thead className = "border-y-3 border-gray-400">
                     <tr>

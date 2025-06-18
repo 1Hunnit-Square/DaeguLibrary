@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { fileSize } from "../../util/commonUtil";
 
-const Download = ({link, fileName, className}) => {
+const Download = ({link, fileName, className, size = true, viewName = null}) => {
 
     const [ length, setLength ] = useState(null);
 
@@ -56,7 +56,7 @@ handleLength(link).then(result => setLength(result));
     onClick={() => downloadFile(link)}
     className={`hover:underline cursor-pointer ${className}`}
   >
-    {fileName} {fileSize(length)}
+    {viewName ?? fileName} {size && fileSize(length)}
   </button>
   );
 }

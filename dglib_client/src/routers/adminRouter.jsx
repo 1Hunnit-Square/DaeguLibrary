@@ -12,7 +12,7 @@ const CalendarManagement = lazy(() => import("../components/admin/CalendarManage
 const EbookManagement = lazy(() => import("../components/admin/EbookManagementComponent"));
 const BannerManagement = lazy(() => import("../components/admin/BannerManagementComponent"));
 const BoardManagement = lazy(() => import("../components/admin/BoardManagementComponent"));
-const SmsManagement = lazy(() => import("../components/admin/SmsManagementComponent"));
+const MessengerManagement = lazy(() => import("../components/admin/MessengerComponent"));
 const StatsManagement = lazy(() => import("../components/admin/StatsManagementComponent"));
 const ProgManagement = lazy(() => import("../components/admin/ProgManagementComponent"));
 const ProgramAdminDetail = lazy(() => import("../components/admin/ProgramAdminDetailComponent"));
@@ -59,8 +59,8 @@ const adminRouter = () => ([
         element: <Suspense fallback={<Loading />}><BoardManagement /></Suspense>
     },
     {
-        path: "smsmanagement",
-        element: <Suspense fallback={<Loading />}><SmsManagement /></Suspense>
+        path: "messengermanagement",
+        element: <Suspense fallback={<Loading />}><MessengerManagement /></Suspense>
     },
     {
         path: "statsmanagement",

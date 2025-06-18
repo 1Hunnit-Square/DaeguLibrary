@@ -12,6 +12,13 @@ export const sendAuthCode = async (param) => {
     return res.data;
 }
 
+export const sendSms = async (paramData) => {
+    const header = { headers: {"Content-Type": "x-www-form-urlencoded"}};
+    paramData.append("smsKey",SMS_KEY);
+    const res = await axios.post(`${prefix}/sendsms`, paramData, header);
+    return res.data;
+}
+
 export const checkAuthCode = async (params) => {
     const res = await axios.get(`${prefix}/checkCode`, { params : params });
     return res.data;

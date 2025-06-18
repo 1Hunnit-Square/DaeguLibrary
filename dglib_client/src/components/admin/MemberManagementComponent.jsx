@@ -113,7 +113,7 @@ const MemberManagementComponent = () => {
         penalty.setHours(0, 0, 0, 0);
 		const days = (penalty.getTime() - now.getTime()) / (1000*60*60*24) +1;
 		if(days <= 0) {
-			return <span className = "text-blue-500">(연체종료)</span>;
+			return <span className = "text-blue-500">(종료)</span>;
 		}
 		return <span className = "text-red-500">(D-{days})</span>
 	}

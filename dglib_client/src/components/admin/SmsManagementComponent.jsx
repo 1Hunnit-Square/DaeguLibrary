@@ -1,4 +1,4 @@
-import { delTemplate, findTemplate, getTemplate, regTemplate } from "../../api/smsApi";
+import { delTemplate, findTemplate, getTemplate, regTemplate, sendSms } from "../../api/smsApi";
 import Button from "../common/Button";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ const SmsManagementComponent = () =>{
     const [ content, setContent ] = useState("");
     const [ page, setPage ] = useState(1);
     const [ select, setSelect ] = useState("");
+    const [ numList, setNumList] = useState([]);
 
      const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['templateList', page],
@@ -49,6 +50,7 @@ const SmsManagementComponent = () =>{
         setSelect(e.target.value);
 
         if(e.target.value == ""){
+            setContent("");
             return;
         }
 
@@ -108,7 +110,34 @@ const SmsManagementComponent = () =>{
             alert("템플릿을 선택해주세요");
         }
     }
-   
+
+    const handleToSend = () => {
+        if(numList?.length == 0){
+            alert("수신자 명단에 번호가 없습니다.");
+            return;
+        }
+
+        if(!content){
+            alert("문자 내용을 입력해주세요");
+            return;
+        }
+
+        const paramData = new FormData();
+        numList.forEach(phone => 
+            paramData.append("phoneList",phone)
+        )
+        paramData.append("message", content);
+        
+        sendSms(paramData).then(res => {
+            alert("문자를 성공적으로 전송하였습니다.");
+
+        }).catch(error => {
+            console.error(error);
+            alert("문자 발신에 오류가 있습니다.");
+        })
+
+       
+    }
 
     return(
         <div className = "flex gap-20 m-20 p-20 justify-center border-1 border-gray-100 shadow-sm rounded-2xl w-fit mx-auto">
@@ -121,14 +150,14 @@ const SmsManagementComponent = () =>{
                     <div className ="text-xs ml-1">{getByteLength(content)} / 2000 Bytes</div>
                     <div className="flex gap-2">
                         <Button onClick={handleSave} className = "text-sm bg-blue-500 hover:bg-blue-600 !p-1.5">템플릿 저장</Button>
-                        <Button className = "text-sm !p-1.5">전송</Button>
+                        <Button onClick={handleToSend} className = "text-sm !p-1.5">전송</Button>
                     </div>
                 </div>
             <div className = "mt-5 px-3 flex justify-center items-center gap-2">
                 {isLoading && <Loading />}
                 
                 <select className = "w-50 border rounded p-1 bg-white text-sm" onChange={handleSelect} value={select} >
-                <option value = "">템플릿을 선택하세요</option>
+                <option value = "">템플릿을 선택해주세요</option>
                 {data && data.content.map((template, index) => 
                 <option key ={index} value={template.templateId}>{cutStrSize(template.content,20)}</option>
                 ) }
@@ -144,7 +173,7 @@ const SmsManagementComponent = () =>{
             </div>
             </div>
             </div>
-            <SmsSendListComponent />
+            <SmsSendListComponent numList={numList} setNumList={setNumList} />
             </div>
     );
 }

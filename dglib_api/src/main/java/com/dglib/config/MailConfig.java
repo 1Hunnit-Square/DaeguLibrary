@@ -18,7 +18,8 @@ import jakarta.mail.Store;
 public class MailConfig {
 	@Value("${mail.smtp.host}")
 	private String HOST;
-	private final String USERNAME = "creation";  
+	private final String RECIEVER = "creation";
+	private final String SENDER = "archive"; 
     private final String PASSWORD = "0601";
     private final Properties props = new Properties();
     
@@ -42,29 +43,35 @@ public class MailConfig {
 	}
 	
 	
-    public Folder getFolder() throws MessagingException{
+    public Folder getFolder(String type) throws MessagingException{
     	Session session = Session.getInstance(props);
     	Folder inbox = null;
 			Store store = session.getStore("imaps");
-	    	store.connect(HOST, USERNAME, PASSWORD);
+			
+			if(type.equals("SENDER"))
+	    	store.connect(HOST, SENDER, PASSWORD);
+			else
+			store.connect(HOST, RECIEVER, PASSWORD);
+	    	
 			inbox = store.getFolder("INBOX");
-			inbox.open(Folder.READ_ONLY);
+			inbox.open(Folder.READ_WRITE);
 
        
         return inbox;
     }
     
     
-    public void closeFolder(Folder folder) throws MessagingException {
+    public void closeFolder(Folder folder, boolean expunge) throws MessagingException {
 
             if (folder != null && folder.isOpen()) {
                 Store store = folder.getStore();
-                folder.close(false);
+                folder.close(expunge);
                 if (store != null && store.isConnected()) {
                     store.close();
                 }
             }
     }
-
+    
+ 
     
 }

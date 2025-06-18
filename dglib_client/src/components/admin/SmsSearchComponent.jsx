@@ -34,11 +34,11 @@ const SmsSearchComponent = () => {
 
 
     const searchMutation = useMutation({
-        mutationFn: async (memberNumber) => {
-            return await getContactList(memberNumber);
-        },
+        mutationFn: (memberNumber) => getContactList(memberNumber)
+        ,
         onSuccess: (res) => {
             console.log(res);
+            setAddList([]);
             setSearchResults(res);
         },
         onError: (error) => {
@@ -83,7 +83,7 @@ const SmsSearchComponent = () => {
                 searchMutation.mutate(paramData);
             }
         const smsCheckTo = (value) => {
-            return value == "true" ? "수신동의" : "수신거부"
+            return value == "true" ? <span className="text-blue-500">수신동의</span> : <span className="text-red-500">수신거부</span>
         }
 
         const overDateTo = (date) => {
@@ -129,8 +129,17 @@ const SmsSearchComponent = () => {
             }
         },[addList]);
 
-        console.log(addList);
-        console.log(searchResults)
+        const handlePost = () => {
+            const newList = addList.map(num => num.replace(/-/g,""));
+            if (window.opener) {
+            window.opener.postMessage({
+                type: 'CONTACT_SELECTED',
+                newList,
+
+            }, '*');
+            window.close();
+        }
+        }
         
         return(
         <div className="flex flex-col p-10">
@@ -188,10 +197,10 @@ const SmsSearchComponent = () => {
                                 </td>
                             </tr>
                         ) : (
-                            searchResults && [...searchResults, ...searchResults].map((item, index) => {
+                            searchResults && searchResults.map((item, index) => {
 
                                 return (
-                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`}>
+                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200`}>
                                         <td className="py-4 px-3 whitespace-nowrap text-center"><CheckNonLabel onChange={(e) => handleAddList(e, item.phone)} checked={addList.includes(item.phone)} checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></td>
                                         <td className="py-4 px-3 max-w-20 min-w-20 whitespace-nowrap text-center">{item.mid}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.mno}</td>
@@ -208,7 +217,10 @@ const SmsSearchComponent = () => {
                     
                 </table>
                 </Scrollbars>
-            </div>   
+            </div> 
+            <div className="flex justify-end items-center gap-3">
+            <Button onClick={handlePost} className={"disabled:bg-[#82c8a0] disabled:cursor-not-allowed"} disabled={addList?.length == 0} >번호 추가</Button>
+            </div>
                                      </>}
         </div>
         </div>

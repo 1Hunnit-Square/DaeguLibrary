@@ -41,6 +41,7 @@ import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
 import com.dglib.dto.member.MemberDTO;
@@ -154,6 +155,7 @@ public class MemberController {
 		memberService.modPwMember(mid, pw);
 		return ResponseEntity.ok().build();
 	}
+	
 
 	@GetMapping("/getMemberInfo")
 	public ResponseEntity<MemberInfoDTO> getMemberInfo(@RequestParam String pw) {
@@ -267,9 +269,10 @@ public class MemberController {
 	}
 
 
-	@GetMapping("/info/{mid}")
-	public ResponseEntity<MemberInfoDTO> fetchMemberInfo(@PathVariable String mid) {
-		return ResponseEntity.ok(memberService.getMemberInfo(mid));
+	@GetMapping("/info")
+	public ResponseEntity<MemberBasicDTO> fetchMemberInfo() {
+		String mid = JwtFilter.getMid();
+		return ResponseEntity.ok(memberService.getMemberBasicInfo(mid));
 	}
 
 	@PostMapping("/validate")

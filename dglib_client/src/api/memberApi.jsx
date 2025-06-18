@@ -71,6 +71,11 @@ export const modMemberPw = async (params) => {
     return res.data;
 }
 
+export const getMemberBasicInfo = async () => {
+    const res = await axiosClient.get(`${prefix}/info`);
+    return res.data;
+}
+
 export const getMemberInfo = async (params) => {
     const res = await axiosClient.get(`${prefix}/getMemberInfo`, { params : params });
     return res.data;

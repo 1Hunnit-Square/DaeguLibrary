@@ -139,8 +139,9 @@ const SmsManagementComponent = () =>{
        
     }
 
-    return(
-        <div className = "flex gap-20 m-20 p-20 justify-center border-1 border-gray-100 shadow-sm rounded-2xl w-fit mx-auto">
+    return(<>
+         <h1 className="text-3xl font-bold mt-7 mb-1 text-center text-[#00893B]">SMS 발신 서비스</h1>
+        <div className = "flex gap-20 m-10 p-20 justify-center border-1 border-gray-100 shadow-sm rounded-2xl w-fit mx-auto">
             <div className="w-80 h-130 border border-gray-400 rounded-4xl bg-white shadow-lg flex flex-col px-5 justify-center items-center">
             <div className = "bg-black rounded h-2 w-25 my-5"></div>
             <div className="flex-1 border border-gray-200 rounded-lg p-3 bg-gray-200 w-full mb-10">
@@ -175,6 +176,7 @@ const SmsManagementComponent = () =>{
             </div>
             <SmsSendListComponent numList={numList} setNumList={setNumList} />
             </div>
+            </>
     );
 }
 

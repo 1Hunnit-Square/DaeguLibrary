@@ -14,13 +14,18 @@ import org.simplejavamail.converter.EmailConverter;
 import org.simplejavamail.email.EmailBuilder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.dglib.config.MailConfig;
 import com.dglib.dto.mail.MailDTO;
+import com.dglib.dto.mail.MailListDTO;
+import com.dglib.security.jwt.JwtFilter;
+import com.dglib.util.EncryptUtil;
 
 import jakarta.mail.Address;
 import jakarta.mail.Flags;
@@ -30,7 +35,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMessage.RecipientType;
+import jakarta.mail.search.AndTerm;
 import jakarta.mail.search.FromTerm;
+import jakarta.mail.search.HeaderTerm;
 import jakarta.mail.search.RecipientTerm;
 import jakarta.mail.search.SearchTerm;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +53,7 @@ public class MailService {
     public void sendMail(String to, String subject, String content) {
     	
         	Email email = EmailBuilder.startingBlank()
-        			.from("test_admin@dglib.kro.kr")
+        			.from(JwtFilter.getName(), JwtFilter.getMid() + "@dglib.kro.kr")
                     .to(to)
                     .withSubject(subject)
                     .withHTMLText(content)
@@ -56,17 +63,27 @@ public class MailService {
     }
     
     
-    public List<MailDTO> getMailList(String type, String mailId){
-    		List<MailDTO> mailList = new ArrayList<>();
+    public Page<MailListDTO> getMailList(String type, String mailId, int page, int size){
+    		Page<MailListDTO> mailPage;
     		
         	try {
         		Folder inbox = mailConfig.getFolder(type);
-        		Message[] messages = filterMail(type, inbox, mailId);
+        		Message[] messages = filterMail(type, inbox, mailId, null);
         		
+        		int total = messages.length;
+        		int fromIndex = Math.min(page * size, total);
+        	    int toIndex = Math.min(fromIndex + size, total);
         		
-            for (int i = messages.length - 1; i > 0; i--) {
+        	    List<MailListDTO> mailList = new ArrayList<>();
+        	    
+            for (int i = messages.length - fromIndex - 1; i > messages.length - toIndex - 1; i--) {
             	Message msg = messages[i];
 
+            	 String[] header = msg.getHeader("Message-ID");
+            	 String eid = null;
+            	 if(header != null && header.length > 0) {
+            		 eid = EncryptUtil.base64Encode(header[0]);
+            	 }
                 Address[] fromList = msg.getFrom();
            
             	String fromName = ((InternetAddress) fromList[0]).getPersonal();
@@ -85,40 +102,45 @@ public class MailService {
                         .atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
                 
+                Flags flags = msg.getFlags();
+                boolean isRead = flags.contains(Flags.Flag.SEEN);
+                
             
-               MailDTO dto = MailDTO.builder()
+               MailListDTO dto = MailListDTO.builder()
+            		   		   .eid(eid)
 				               .subject(subject)
 				               .fromName(fromName)
 				               .fromEmail(fromEmail)
 				               .toName(toName)
 				               .toEmail(toEmail)
 				               .sentTime(sentTime)
+				               .isRead(isRead)
 				               .build();
                
                mailList.add(dto);
             }
+            
+            mailPage = new PageImpl<>(mailList, PageRequest.of(page, size), total);
             
             mailConfig.closeFolder(inbox, false);
             
         	} catch (MessagingException e) {
         		throw new RuntimeException(e); 
         	}
-        	return mailList;
+        	return mailPage;
     }
     
     
-    public MailDTO getContent(String type, String mailId, int num) {
+    public MailDTO getContent(String type, String mailId, String eid) {
     	MailDTO dto = null;
     	try {
     	Folder inbox = mailConfig.getFolder(type);
-		Message[] messages = filterMail(type, inbox, mailId);
-    	Message message = messages[messages.length - num];
+		Message[] messages = filterMail(type, inbox, mailId, eid);
+    	Message message = messages[0];
     	
     	Email email = EmailConverter.mimeMessageToEmail((MimeMessage) message, null, true);
-    	System.out.println(email.getHeaders().get("Message-ID").iterator().next());
+
     	String subject = email.getSubject();
-    	String htmlContent = email.getHTMLText();
-    	String content = (htmlContent == null) ? email.getPlainText() : htmlContent;
     	
     	
     	List<String> toName = new ArrayList<>();
@@ -137,14 +159,31 @@ public class MailService {
                  .toLocalDateTime();
 
 
-    	List<String> nameList = new ArrayList<>();
+    	List<String> fileList = new ArrayList<>();
 		
     	if (!email.getAttachments().isEmpty()) {
     		email.getAttachments().forEach(attach -> {
-    			nameList.add(attach.getName());
+    			fileList.add(attach.getName());
     		});
             
         }
+    	
+    	List<String> imgList = new ArrayList<>();
+		
+    	if (!email.getEmbeddedImages().isEmpty()) {
+    		email.getEmbeddedImages().forEach(attach -> {
+    			imgList.add(attach.getName());
+    		});
+            
+        }
+    	
+    	String htmlContent = email.getHTMLText();
+    	for(int i = 0; i < imgList.size(); i++) {
+    		htmlContent = htmlContent.replace("cid:"+imgList.get(i), "image://"+eid + "?mailType="+type+"&fileType=image&fileNum="+i);
+    	}
+    	
+    	String content = (htmlContent == null) ? email.getPlainText() : htmlContent;
+    	
     	
     	
     	dto = MailDTO.builder()
@@ -155,7 +194,8 @@ public class MailService {
 	               .toName(toName)
 	               .toEmail(toEmail)
 	               .sentTime(sentTime)
-	               .fileName(nameList)
+	               .fileName(fileList)
+	               .imgName(imgList)
 	               .build();
     
     	mailConfig.closeFolder(inbox, false);
@@ -167,12 +207,12 @@ public class MailService {
     
   
     
-    public void deleteMail(String type, String mailId, int num) {
+    public void deleteMail(String type, String mailId, String eid) {
     
     	try {
     		Folder inbox = mailConfig.getFolder(type);
-			Message[] messages = filterMail(type, inbox, mailId);
-			Message message = messages[messages.length - num];
+			Message[] messages = filterMail(type, inbox, mailId, eid);
+			Message message = messages[0];
 			message.setFlag(Flags.Flag.DELETED, true);
 			
 			mailConfig.closeFolder(inbox, true);
@@ -184,21 +224,20 @@ public class MailService {
     }
     
 
-	 public ResponseEntity<Resource> getFile(String type, String mailId, int num, int fileNum, String fileType){
+	 public ResponseEntity<Resource> getFile(String type, String eid, int fileNum, String fileType){
 		InputStreamResource resource;
 		
 		 try {
 		Folder inbox = mailConfig.getFolder(type);
-		Message[] messages = filterMail(type, inbox, mailId);
-	    Message message = messages[messages.length - num];
+		Message[] messages = filterMail(type, inbox, null, eid);
+	    Message message = messages[0];
 	    	
 	    Email email = EmailConverter.mimeMessageToEmail((MimeMessage) message, null, true);
 	    
 	    AttachmentResource attachment;
 	    
 	    attachment = fileType.equals("image") ? email.getEmbeddedImages().get(fileNum) : email.getAttachments().get(fileNum);
-	   
-		
+	  
 	    InputStream inputStream = attachment.getDataSource().getInputStream();
 		
         resource = new InputStreamResource(inputStream);
@@ -211,7 +250,7 @@ public class MailService {
         		 .body(resource);
      }
     
-    public Message[] filterMail (String type, Folder inbox, String mailId) throws MessagingException {
+    public Message[] filterMail (String type, Folder inbox, String mailId, String eid) throws MessagingException {
     	Message[] messages;
 
     	if(mailId != null) {
@@ -222,15 +261,24 @@ public class MailService {
     		else
     		searchTerm = new RecipientTerm(RecipientType.TO, new InternetAddress(mailId+"@dglib.kro.kr"));
     		
-            messages = inbox.search(searchTerm);
-            
+    			if(eid != null)
+    			messages = inbox.search(new AndTerm(searchTerm, new HeaderTerm("Message-ID", EncryptUtil.base64Decode(eid))));
+    		
+    			else
+    			messages = inbox.search(searchTerm);
+    		
             }else {
+            	
+            	if(eid != null)
+            	messages = inbox.search(new HeaderTerm("Message-ID", EncryptUtil.base64Decode(eid)));
+            	
+            	else
             	messages = inbox.getMessages();
             }
   
     	return messages;
     }
-
+    
 
     
     

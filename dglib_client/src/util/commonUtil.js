@@ -27,3 +27,12 @@ export const contentReplace = (content) => {
     const replaced = content.replace(pattern,"image://");
   return replaced;
 }
+
+
+export const emailReplace = (content) => {
+    if(!content){
+    return "";
+  }
+    const replaced = content.replace(/image:\/\//g,`${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/`);
+  return replaced;
+}

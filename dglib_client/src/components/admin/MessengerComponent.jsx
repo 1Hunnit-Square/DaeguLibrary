@@ -1,8 +1,9 @@
 import { useSearchParams } from "react-router-dom";
 import { useMemo, useCallback } from "react";
 import DynamicTab from "../../menus/DynamicTab";
-import EmailComponent from "./EmailComponent";
+import EmailManagementComponent from "./EmailManagementComponent";
 import SmsManagementComponent from "./SmsManagementComponent";
+
 
 const MessengerComponent = ()=> {
     
@@ -26,7 +27,7 @@ const MessengerComponent = ()=> {
         {
         id: 'email',
         label: '메일 관리',
-        content: <EmailComponent />
+        content: <EmailManagementComponent />
         },
         {
         id: 'sms',

@@ -105,6 +105,18 @@ public class JwtFilter extends OncePerRequestFilter {
 		      
 		   }
 		
+		public static String getName() {
+
+		      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		      Object principal = authentication.getPrincipal();
+		      if (principal == null || !(principal instanceof MemberDTO)) {
+		         return null;
+		      }
+		      
+		      return ((MemberDTO) principal).getName();
+		      
+		   }
+		
 		public static String getRoleName() {
 
 		      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

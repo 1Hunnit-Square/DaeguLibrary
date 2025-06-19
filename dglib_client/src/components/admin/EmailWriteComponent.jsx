@@ -27,7 +27,7 @@ const onBack = () => {
 
 return(<div className = "flex flex-col mt-10 items-center">
     <h1 className="text-3xl font-bold text-center text-[#00893B]">메일 쓰기</h1>
-    {(role == "ADMIN") &&<MailQuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={false} usePublic={false} />}
+    {(role == "ADMIN") &&<MailQuillComponent onParams={sendParams} onBack={onBack} />}
 </div>
 )
 

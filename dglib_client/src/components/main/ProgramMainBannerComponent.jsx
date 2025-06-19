@@ -19,7 +19,7 @@ const ProgramMainBannerComponent = () => {
                 const sorted = res.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
                 setBanners(sorted.slice(0, 6));
             } catch (err) {
-                console.error("메인 배너 불러오기 실패", err);
+                console.error("프로그램 배너 불러오기 실패", err);
             }
         };
 
@@ -36,29 +36,33 @@ const ProgramMainBannerComponent = () => {
 
     return (
         <div className="w-full h-full">
-            <h2 className="text-ms font-bold text-gray-800 mb-1">이달의 프로그램</h2>
+            <h2 className="text-ms font-bold text-gray-800">이달의 프로그램</h2>
             {banners.length > 0 ? (
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
                     slidesPerView={1} // 한 번에 보여질 슬라이드 수
                     navigation
                     pagination={{ clickable: true }} // 페이지네이션을 클릭 가능하게 설정
-                    autoplay={{ delay: 3000 }} // 슬라이드 간 지연 시간
+                    autoplay={{ delay: 5000 }} // 슬라이드 간 지연 시간
                     loop
-                    className="rounded-lg overflow-hidden shadow program-swiper"
+                    autoHeight={true} 
+                    className="program-swiper w-full h-full"
                 >
                     {banners.map((banner) => (
                         <SwiperSlide key={banner.programInfoId}>
                             <div
-                                className="w-full flex flex-col items-center overflow-hidden cursor-pointer px-4"
+                                className="w-full h-full cursor-pointer py-4"
                                 onClick={() => handleClick(banner.programInfoId)}
                             >
-                                <img
-                                    src={getProgramBannerImageUrl(banner.thumbnailPath)}
-                                    alt={banner.progName}
-                                    className="w-full h-[240px] sm:h-[260px] lg:h-[280px] object-contain object-center mx-auto bg-white"
-                                />
-                                <div className="bg-white px-4 pt-3 pb-4 text-center mb-4">
+                                <div className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-2xl shadow-lg mx-auto">
+                                    <img
+                                        src={getProgramBannerImageUrl(banner.thumbnailPath)}
+                                        alt={banner.progName}
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                                {/* 텍스트 영역 */}
+                                <div className="w-full pt-3 pb-4 text-center">
                                     <p className="text-base sm:text-lg font-bold text-green-900">【{banner.progName}】</p>
                                     <p className="text-sm font-bold text-gray-700">{banner.startDate} ~ {banner.endDate}</p>
                                     <p className="text-sm font-bold text-gray-700 mt-1">
@@ -80,15 +84,21 @@ const ProgramMainBannerComponent = () => {
                         --swiper-navigation-color: #475569;
                         --swiper-pagination-color: #00893B;
                     }
-                    
-                    .swiper-button-next,
-                    .swiper-button-prev {
+
+                    .program-swiper .swiper-button-next,
+                    .program-swiper .swiper-button-prev {
                         width: 20px;
                         height: 20px;
-                        font-size: 16px;
+                    }
+
+                    .program-swiper .swiper-button-next::after,
+                    .program-swiper .swiper-button-prev::after {
+                        font-size: 20px;
+                        color: #475569;
                     }
                 `}
             </style>
+
         </div>
     );
 };

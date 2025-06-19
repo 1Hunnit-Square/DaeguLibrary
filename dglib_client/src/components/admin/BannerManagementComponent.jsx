@@ -29,7 +29,7 @@ const BannerManagementComponent = () => {
         },
         {
         id: 'event',
-        label: '새 소식',
+        label: '새소식',
         content: <EventBannerComponent />
         },
     ], []);

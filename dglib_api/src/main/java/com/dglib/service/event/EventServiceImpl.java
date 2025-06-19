@@ -1,7 +1,10 @@
 package com.dglib.service.event;
 
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dglib.dto.event.EventBannerDTO;
 import com.dglib.dto.event.EventDTO;
 import com.dglib.dto.event.EventDetailDTO;
 import com.dglib.dto.event.EventImageDTO;
@@ -24,8 +28,10 @@ import com.dglib.dto.event.EventListDTO;
 import com.dglib.dto.event.EventSearchDTO;
 import com.dglib.dto.event.EventUpdateDTO;
 import com.dglib.entity.event.Event;
+import com.dglib.entity.event.EventBanner;
 import com.dglib.entity.event.EventImage;
 import com.dglib.entity.member.Member;
+import com.dglib.repository.event.EventBannerRepository;
 import com.dglib.repository.event.EventRepository;
 import com.dglib.repository.event.EventSpecifications;
 import com.dglib.repository.member.MemberRepository;
@@ -39,6 +45,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class EventServiceImpl implements EventService {
 	private final EventRepository eventRepository;
+	private final EventBannerRepository eventBannerRepository;
 	private final MemberRepository memberRepository;
 	private final ModelMapper modelMapper;
 	private final FileUtil fileUtil;
@@ -93,7 +100,8 @@ public class EventServiceImpl implements EventService {
 
 	// 상세보기
 	public EventDetailDTO getDetail(Long eno) {
-		Event event = eventRepository.findById(eno).orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
+		Event event = eventRepository.findById(eno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 뉴스가 존재하지 않습니다."));
 
 		event.setViewCount(event.getViewCount() + 1);
 
@@ -118,7 +126,8 @@ public class EventServiceImpl implements EventService {
 	// 수정
 	@Override
 	public void update(Long eno, EventUpdateDTO dto, List<MultipartFile> images, String dirName) {
-		Event event = eventRepository.findById(eno).orElseThrow(() -> new IllegalArgumentException("해당 보도자료가 존재하지 않습니다."));
+		Event event = eventRepository.findById(eno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 보도자료가 존재하지 않습니다."));
 
 		if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
 			throw new IllegalArgumentException("제목을 입력해주세요.");
@@ -236,7 +245,8 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public void delete(Long eno) {
 
-		Event event = eventRepository.findById(eno).orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
+		Event event = eventRepository.findById(eno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
 
 		if (!JwtFilter.checkAuth(event.getMember().getMid())) {
 			throw new IllegalArgumentException("삭제 권한이 없습니다.");
@@ -256,4 +266,76 @@ public class EventServiceImpl implements EventService {
 			fileUtil.deleteFiles(filePaths);
 		}
 	}
+
+	// 배너 목록 조회
+	@Override
+	public List<EventBannerDTO> getBannerList() {
+		List<EventBanner> list = eventBannerRepository.findAll();
+
+		return list.stream().map(b -> {
+			EventBannerDTO dto = new EventBannerDTO();
+			dto.setBno(b.getBno());
+			dto.setImageName(b.getImageName());
+			dto.setImageUrl(b.getImageUrl());
+			dto.setEno(b.getEvent().getEno());
+			return dto;
+		}).toList();
+	}
+
+	// 배너 등록
+	@Override
+	public Long registerBanner(Long eventNo, MultipartFile file) {
+		LocalDate today = LocalDate.now();
+		long currentBannerCount = eventBannerRepository.count();
+
+		if (currentBannerCount >= 6) {
+			throw new IllegalStateException("배너는 최대 6개까지 등록할 수 있습니다.");
+		}
+
+		if (file == null || file.isEmpty()) {
+			throw new IllegalArgumentException("배너 이미지를 첨부해주세요.");
+		}
+
+		if (!file.getContentType().startsWith("image")) {
+			throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
+		}
+
+		// 중복 검사
+		if (eventBannerRepository.existsByEvent_Eno(eventNo)) {
+			throw new IllegalStateException("해당 이벤트에는 이미 배너가 등록되어 있습니다.");
+		}
+
+		List<Object> savedFiles = fileUtil.saveFiles(List.of(file), "event/banner");
+		Map<String, String> fileMap = (Map<String, String>) savedFiles.get(0);
+
+		String imageUrl = fileMap.get("filePath");
+		String imageName = fileMap.get("originalName");
+
+		Event event = eventRepository.findById(eventNo)
+				.orElseThrow(() -> new IllegalArgumentException("해당 이벤트가 존재하지 않습니다."));
+
+		EventBanner banner = EventBanner.builder().event(event).imageName(imageName).imageUrl(imageUrl).build();
+
+		eventBannerRepository.save(banner);
+		return banner.getBno();
+	}
+
+	// 배너 삭제
+	@Override
+	public void deleteBanner(Long bno) {
+		EventBanner banner = eventBannerRepository.findById(bno)
+				.orElseThrow(() -> new IllegalArgumentException("배너가 존재하지 않습니다."));
+
+		String imageUrl = banner.getImageUrl();
+		if (imageUrl != null) {
+			String fileName = Paths.get(imageUrl).getFileName().toString();
+			String parent = Paths.get(imageUrl).getParent().toString();
+			String thumbnailPath = parent + "/s_" + fileName;
+
+			fileUtil.deleteFiles(List.of(imageUrl, thumbnailPath));
+		}
+
+		eventBannerRepository.deleteById(bno);
+	}
+
 }

@@ -7,6 +7,7 @@ import BoardMenu from "../menus/BoardMenu";
 import RecoMenu from "../menus/RecoMenu";
 import RecoComponent from "../components/main/RecoComponent";
 import ProgramMainBannerComponent from "../components/main/ProgramMainBannerComponent";
+import EventMainBannerComponent from "../components/main/EventMainBannerComponent";
 
 const MainPage = () => {
     return (
@@ -28,8 +29,8 @@ const MainPage = () => {
                                     <BoardMenu />
                                 </div>
                                 <div className="flex flex-1 gap-x-4 min-h-0">
-                                    <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
-                                        <div className="p-3 font-bold">새소식 배너</div>
+                                    <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+                                        <EventMainBannerComponent />
                                     </div>
                                     <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
                                         <ClosedInfoComponent />

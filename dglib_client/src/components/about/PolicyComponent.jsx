@@ -18,9 +18,10 @@ const PolicyComponent = () => {
                 <h1 className="text-xl font-bold text-green-700 mb-10 border-b-4 border-green-800 inline-block pb-2 mt-10">
                     건립 배경
                 </h1>
-                <p className="border border-gray-200 rounded-lg p-5 shadow-sm bg-white font-semibold text-gray-700 text-center leading-loose">
-                    「도서관 법」 제25조 및 제26조에 따라 광역시 차원의 도서관 정책을 수립하고,<p /> 정보와 문화의 지역격차 해소를 위해 광역 대표도서관으로서 대구 시립도서관 설립
-                </p>
+                <div className="border border-gray-200 rounded-lg p-5 shadow-sm bg-white font-semibold text-gray-700 text-center leading-loose">
+                    <p>「도서관 법」 제25조 및 제26조에 따라 광역시 차원의 도서관 정책을 수립하고,</p>
+                    <p>정보와 문화의 지역격차 해소를 위해 광역 대표도서관으로서 대구 시립도서관 설립</p>
+                </div>
             </section>
 
             {/* 핵심가치 */}

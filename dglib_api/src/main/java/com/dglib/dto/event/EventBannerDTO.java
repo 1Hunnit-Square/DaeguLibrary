@@ -17,5 +17,6 @@ public class EventBannerDTO {
 	private String imageName;
 	private String imageUrl;
 	private Long eno;
+	private Boolean isPinned;
 
 }

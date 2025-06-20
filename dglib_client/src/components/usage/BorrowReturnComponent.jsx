@@ -3,8 +3,8 @@ const BorrowReturnComponent = () => {
         <div className="max-w-5xl mx-auto px-15 py-15 bg-white rounded-lg shadow-md">
 
             {/* 도서 대출 */}
-            <section className="flex items-start gap-10 mb-15">
-                <img src="/book_loan.gif" alt="도서 대출" className="w-20 h-20 mt-1" />
+            <section className="flex items-start gap-10 mb-10">
+                <img src="/book_loan.gif" alt="도서 대출" className="w-25 h-25 mt-15" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">도서 대출</h3>
                     <p><span className="font-bold text-orange-600">대출자격:</span> 대구도서관 회원증 발급 회원</p>
@@ -23,7 +23,7 @@ const BorrowReturnComponent = () => {
 
             {/* 도서 반납 */}
             <section className="flex items-start gap-10 mb-15">
-                <img src="/book_return.gif" alt="도서 반납" className="w-20 h-20 mt-1" />
+                <img src="/book_return.gif" alt="도서 반납" className="w-25 h-25 mt-5" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">도서 반납</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -37,7 +37,7 @@ const BorrowReturnComponent = () => {
 
             {/* 무인 예약 대출 */}
             <section className="flex items-start gap-10 mb-15">
-                <img src="/unmanned_loan.gif" alt="무인 예약 대출" className="w-20 h-20 mt-1" />
+                <img src="/unmanned_loan.gif" alt="무인 예약 대출" className="w-25 h-25 mt-12" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">무인 예약 대출</h3>
                     <p className="mb-2 text-gray-700">
@@ -55,7 +55,7 @@ const BorrowReturnComponent = () => {
 
             {/* 무인 도서 반납 */}
             <section className="flex items-start gap-10 mb-15">
-                <img src="/unmanned_return.gif" alt="무인 도서 반납" className="w-20 h-20 mt-1" />
+                <img src="/unmanned_return.gif" alt="무인 도서 반납" className="w-25 h-25 mt-3" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">무인 도서 반납</h3>
                     <p className="mb-2 text-gray-700">도서관 운영 시간 외에도 무인반납기를 통해 자료를 반납할 수 있습니다.</p>
@@ -69,7 +69,7 @@ const BorrowReturnComponent = () => {
 
             {/* 대출 연장 */}
             <section className="flex items-start gap-10 mb-15">
-                <img src="/loan_extension.gif" alt="대출 연장" className="w-20 h-20 mt-1" />
+                <img src="/loan_extension.gif" alt="대출 연장" className="w-25 h-25 mt-5" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">대출 연장</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -83,7 +83,7 @@ const BorrowReturnComponent = () => {
 
             {/* 도서 예약 */}
             <section className="flex items-start gap-10 mb-15">
-                <img src="/book_reservation.gif" alt="도서 예약" className="w-20 h-20 mt-1" />
+                <img src="/book_reservation.gif" alt="도서 예약" className="w-25 h-25 mt-5" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">도서 예약</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -97,7 +97,7 @@ const BorrowReturnComponent = () => {
 
             {/* 자료 분실/훼손 */}
             <section className="flex items-start gap-10 mb-5">
-                <img src="/data_lost.gif" alt="자료 분실/훼손" className="w-20 h-20 mt-1" />
+                <img src="/data_lost.gif" alt="자료 분실/훼손" className="w-25 h-25 mt-1" />
                 <div>
                     <h3 className="text-xl font-bold mb-3">자료 분실/훼손</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">

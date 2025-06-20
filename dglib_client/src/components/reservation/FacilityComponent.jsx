@@ -12,7 +12,6 @@ const FacilityComponent = () => {
   const handleReserve = (roomName) => {
 
     if (!mid) {
-      alert("로그인 후 이용해주세요.");
       moveToLogin("로그인 후 이용해주세요.");
       return;
     }

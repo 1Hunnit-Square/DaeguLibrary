@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEventBanners, getEventBannerImageUrl } from "../../api/eventApi";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
 
 const EventMainBannerComponent = () => {
     const [banners, setBanners] = useState([]);
@@ -33,8 +32,6 @@ const EventMainBannerComponent = () => {
         fetchBanners();
     }, []);
 
-
-
     const handleClick = (eno) => {
         if (!eno) {
             console.warn("새소식 번호가 없습니다.")
@@ -42,6 +39,7 @@ const EventMainBannerComponent = () => {
         }
         navigate(`/community/event/${eno}`);
     };
+
     return (
         <div className="w-full h-full">
             {banners.length > 0 ? (
@@ -81,8 +79,8 @@ const EventMainBannerComponent = () => {
 
                 .event-swiper .swiper-button-next,
                 .event-swiper .swiper-button-prev {
-                    width: 15px;
-                    height: 15px;
+                    width: 20px;
+                    height: 20px;
                 }
 
                 .event-swiper .swiper-button-next::after,
@@ -94,7 +92,6 @@ const EventMainBannerComponent = () => {
             </style>
         </div>
     );
-
 };
 
 export default EventMainBannerComponent;

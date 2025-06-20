@@ -278,6 +278,7 @@ public class EventServiceImpl implements EventService {
 			dto.setImageName(b.getImageName());
 			dto.setImageUrl(b.getImageUrl());
 			dto.setEno(b.getEvent().getEno());
+			dto.setIsPinned(b.getEvent().isPinned());
 			return dto;
 		}).toList();
 	}

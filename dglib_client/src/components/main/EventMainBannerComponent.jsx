@@ -56,7 +56,7 @@ const EventMainBannerComponent = () => {
                     {banners.map((banner) => (
                         <SwiperSlide key={banner.eno} className="w-full h-full">
                             <div
-                                className="w-full h-full cursor-pointer"
+                                className="w-full h-full"
                                 onClick={() => handleClick(banner.eno)}
                             >
                                 <img
@@ -81,13 +81,13 @@ const EventMainBannerComponent = () => {
 
                 .event-swiper .swiper-button-next,
                 .event-swiper .swiper-button-prev {
-                    width: 20px;
-                    height: 20px;
+                    width: 15px;
+                    height: 15px;
                 }
 
                 .event-swiper .swiper-button-next::after,
                 .event-swiper .swiper-button-prev::after {
-                    font-size: 15px;
+                    font-size: 20px;
                     color: #475569;    
                 }
             `}

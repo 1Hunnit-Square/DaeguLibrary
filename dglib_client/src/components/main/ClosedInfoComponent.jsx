@@ -38,8 +38,8 @@ const ClosedInfoComponent = () => {
     };
 
     return (
-        <div className="w-full h-full flex justify-center">
-            <div className="w-full h-full flex flex-col items-center justify-center text-center space-y-5">
+        <div className="w-full h-full flex justify-center overflow-hidden">
+            <div className="w-full h-full flex flex-col items-center justify-center text-center">
                 {/* 이용시간 */}
                 <div>
                     <div className="font-semibold text-xs sm:text-sm text-gray-800 mb-1">이용시간</div>
@@ -62,7 +62,7 @@ const ClosedInfoComponent = () => {
                 </div>
 
                 {/* 구분선 */}
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full max-w-sm border-t border-gray-300 sm:my-1 lg:my-5" />
 
                 {/* 휴관일 */}
                 <div>
@@ -73,9 +73,8 @@ const ClosedInfoComponent = () => {
                         <button onClick={handleNextMonth} className="font-bold text-green-600 hover:text-green-700 cursor-pointer">〉</button>
                     </div>
                     <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm font-semibold text-gray-800 break-words">
-                        {formattedDates.length > 0
-                            ? formattedDates.map((d, i) => <span key={i}>{d}</span>)
-                            : <span>휴관일 없음</span>}
+                        {formattedDates.length > 0 &&
+                            formattedDates.map((d, i) => <span key={i}>{d}</span>)}
                     </div>
                     <div className="text-[11px] sm:text-xs text-gray-600 mt-1">
                         🔔 매주 <strong>월요일</strong>은 정기 휴관일입니다.

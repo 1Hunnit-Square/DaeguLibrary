@@ -51,7 +51,7 @@ const ProgramMainBannerComponent = () => {
                     {banners.map((banner) => (
                         <SwiperSlide key={banner.programInfoId}>
                             <div
-                                className="w-full h-full cursor-pointer py-4"
+                                className="w-full h-full py-4"
                                 onClick={() => handleClick(banner.programInfoId)}
                             >
                                 <div className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-2xl shadow-lg mx-auto">

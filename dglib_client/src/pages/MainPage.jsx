@@ -29,10 +29,10 @@ const MainPage = () => {
                                     <BoardMenu />
                                 </div>
                                 <div className="flex flex-1 gap-x-4 min-h-0">
-                                    <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+                                    <div className="w-full sm:flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
                                         <EventMainBannerComponent />
                                     </div>
-                                    <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
+                                    <div className="w-full sm:flex-1 bg-white rounded-lg shadow-sm">
                                         <ClosedInfoComponent />
                                     </div>
                                 </div>

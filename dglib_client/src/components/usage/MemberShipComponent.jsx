@@ -10,10 +10,11 @@ const MemberShipComponent = () => {
                 {/* 헤더 영역 */}
                 <div className="bg-green-100 border border-green-200 p-8 rounded-xl flex flex-col md:flex-row items-center justify-between mb-12 shadow-md">
                     <div className="mb-4 md:mb-0 md:w-3/4">
-                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">회원가입</h1>
-                        <p className="text-sm text-gray-800">
-                            도서관 회원이 되시면 다양한 자료를 이용하실 수 있고, 문화행사 참여와 도서 대출 서비스를<p/>이용하실 수 있습니다.
-                        </p>
+                        <h1 className="text-3xl font-extrabold text-gray-900 mb-5">회원가입</h1>
+                        <div className="text-sm text-gray-800 space-y-1">
+                            <p>도서관 회원이 되시면 다양한 자료를 이용하실 수 있고,</p>
+                            <p>문화행사 참여와 도서 대출 서비스를 이용하실 수 있습니다.</p>
+                        </div>
                     </div>
                     <img src="/signup.png" alt="회원가입 이미지" onClick={() => navigate(`/signup`)} className="hover:cursor-pointer w-20 md:w-20" />
                 </div>

@@ -4,6 +4,7 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.KeywordDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.SearchBookDTO;
+import com.dglib.dto.book.Top10Books;
 import com.dglib.entity.book.Book;
 import com.dglib.entity.book.Ebook;
 import com.dglib.entity.book.EbookReadingProgress;
@@ -1213,6 +1215,91 @@ public class BookServiceImpl implements BookService {
 			
 		}
 		
+    }
+    
+    @Override
+    public List<Top10Books> getTop10Books(LocalDate startDate, LocalDate endDate) {
+    	List<Object[]> rawResults = bookRepository.findTop10BorrowedBookRaw(startDate, endDate);
+    	LOGGER.info("Top 10 Books raw results: {}", rawResults);
+    	
+    	return rawResults.stream()
+    			.map(row -> new Top10Books(
+    				(String) row[0], 
+    				(String) row[1], 
+    				(String) row[2], 
+    				(String) row[3], 
+    				((Date) row[4]).toLocalDate(), 
+    				((Number) row[5]).longValue(), 
+    				((Number) row[6]).longValue()  
+    			))
+    			.collect(Collectors.toList());
+    	
+    }
+    
+    @Override
+    public ChatbotBookResponseDTO getBorrowBest() {
+    	List<String> isbns = libraryBookRepository.findTop5BorrowedBooks();
+    	
+		String randomIsbn = isbns.get(ThreadLocalRandom.current().nextInt(isbns.size()));
+		
+		List<LibraryBook> books = libraryBookRepository.findAllByBookIsbnAndIsDeletedFalse(randomIsbn);
+		
+		List<LibraryBook> availableBooks = books
+    	        .stream()
+    	        .filter(libraryBook -> !libraryBook.isDeleted() && 
+    	            libraryBook.getRentals().stream()
+    	                .noneMatch(rental -> rental.getState() == RentalState.BORROWED))
+    	        .distinct()
+    	        .collect(Collectors.toList());
+		
+		ChatbotBookResponseDTO dto = new ChatbotBookResponseDTO();
+		modelMapper.map(books.get(0).getBook(), dto);
+		dto.setCount(books
+    		    .stream()
+    		    .filter(libraryBook -> !libraryBook.isDeleted())
+    		    .distinct()  
+    		    .count());
+		dto.setCanBorrow(!availableBooks.isEmpty());
+		Map<String, String> callsignLocation = availableBooks.stream()
+		        .collect(Collectors.toMap(
+		            LibraryBook::getCallSign,
+		            LibraryBook::getLocation
+		        ));
+		dto.setCallsignLocation(callsignLocation);
+		return dto;
+    }
+    
+    @Override
+    public ChatbotBookResponseDTO getNewbook() {
+    	List<String> isbns = libraryBookRepository.findTop10NewBooks();
+    	String randomIsbn = isbns.get(ThreadLocalRandom.current().nextInt(isbns.size()));
+    	List<LibraryBook> books = libraryBookRepository.findAllByBookIsbnAndIsDeletedFalse(randomIsbn);
+    	List<LibraryBook> availableBooks = books
+    	        .stream()
+    	        .filter(libraryBook -> !libraryBook.isDeleted() && 
+    	            libraryBook.getRentals().stream()
+    	                .noneMatch(rental -> rental.getState() == RentalState.BORROWED))
+    	        .distinct()
+    	        .collect(Collectors.toList());
+    	ChatbotBookResponseDTO dto = new ChatbotBookResponseDTO();
+		modelMapper.map(books.get(0).getBook(), dto);
+		dto.setCount(books
+    		    .stream()
+    		    .filter(libraryBook -> !libraryBook.isDeleted())
+    		    .distinct()  
+    		    .count());
+		dto.setCanBorrow(!availableBooks.isEmpty());
+		Map<String, String> callsignLocation = availableBooks.stream()
+		        .collect(Collectors.toMap(
+		            LibraryBook::getCallSign,
+		            LibraryBook::getLocation
+		        ));
+		dto.setCallsignLocation(callsignLocation);
+		return dto;
+    	
+        
+		
+    	
     }
     
    

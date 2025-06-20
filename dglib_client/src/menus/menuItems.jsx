@@ -111,7 +111,7 @@ const defaultMenuItems = [
         { name: "배너관리", link: "/admin/bannermanagement" },
         { name: "게시판관리", link: "/admin/boardmanagement" },
         { name: "SMS 관리", link: "/admin/smsmanagement" },
-        { name: "통계관리", link: "/admin/statsmanagement" },
+        { name: "통계관리", link: `/admin/statsmanagement?${dateParams}` },
       ]
     }];
 

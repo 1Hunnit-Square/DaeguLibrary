@@ -3,10 +3,15 @@ import { setCookie, removeCookie } from "../util/cookieUtil";
 import { useResetRecoilState, useRecoilState } from "recoil";
 import RecoilLoginState from "../atoms/loginState";
 import { loginKakao } from "../api/kakaoApi";
+import { chatHistoryState, isChatOpenState, clientIdState } from '../atoms/chatState';
 
 export const useLogin = () => {
+    
 
 const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
+const resetChatHistory = useResetRecoilState(chatHistoryState);
+const resetClientId = useResetRecoilState(clientIdState);
+const resetIsChatOpen = useResetRecoilState(isChatOpenState);
 
 const doLogin = async (loginParam) => {
     const result = await loginPost(loginParam);
@@ -21,6 +26,10 @@ const doLogout = () => {
             removeCookie('auth');
             setLoginState({});
             localStorage.setItem('logout', Date.now());
+            
+            resetChatHistory();
+            resetClientId();
+            resetIsChatOpen();
         }
 
         

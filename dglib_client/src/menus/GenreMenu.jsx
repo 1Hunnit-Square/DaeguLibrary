@@ -20,9 +20,9 @@ const GenreMenu = ({ Component }) => {
     }
 
     const getNavLinkClass = (key) => {
-        return genre == key
-            ? "text-black font-bold border-b-2 border-[#00893B] pb-1"
-            : "text-gray-500 hover:text-black cursor-pointer hover:border-b-2 hover:border-gray-300 pb-1 transition-all duration-200";
+        return genre === key
+        ? "text-black font-bold border-b-2 border-[#00893B] pb-1 transition-all duration-200"
+        : "text-gray-500 hover:text-black cursor-pointer pb-1 transition-all duration-200 border-b-2 border-transparent hover:border-gray-300";
     };
 
     function menuHandler(key){

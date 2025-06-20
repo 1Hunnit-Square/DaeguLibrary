@@ -10,16 +10,11 @@ from dglib_chatbot.services.nlp import analyze_text
 from dglib_chatbot.utils.client import set_client
 import httpx
 from typing import Optional
-from speech_recognition.voice_detect import start_tcp_server
+from speech_recognition.tcp_service import start_tcp_server
 import asyncio
+from dglib_chatbot.services.chatbot_preprocessing import chatbot_preprocessing, ChatRequest
 
 
-
-
-class ChatRequest(BaseModel):
-    parts: str
-    clientId: str = ""
-    mid: Optional[str] = ""
 class resetRequest(BaseModel):
     clientId: str
 
@@ -63,21 +58,18 @@ app.add_middleware(
 @app.post("/chatbot")
 async def chatbot(request: ChatRequest):
     
-    clientId = request.clientId
-    logger.info(f"클라이언트 요청: {request}")
-    is_new_client = not clientId
-    if is_new_client:
-        clientId = str(uuid.uuid4())
-    nlp = analyze_text(request.parts)
-    logger.info(f"NLP 분석 결과: {nlp}")
-   
-    response = await chatbot_ai(clientId, request.parts, nlp, request.mid)
-    logger.info(f"챗봇 응답: {response}")
-
-    response["clientId"] = clientId
+    response = await chatbot_preprocessing(request)
 
 
     return response
+
+
+@app.post("/reset")
+async def reset_chat(request: resetRequest):
+    response = await chatbot_history_delete(request.clientId)
+    return response
+
+
 
 def main():
     import uvicorn
@@ -86,7 +78,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-@app.post("/reset")
-async def reset_chat(request: resetRequest):
-    response = await chatbot_history_delete(request.clientId)
-    return response

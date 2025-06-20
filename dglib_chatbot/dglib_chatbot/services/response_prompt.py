@@ -19,7 +19,9 @@ async def response_prompt(parts: str, nlp: dict, mid: str) -> dict:
     elif intent == "작가검색":
         response = await generate_author_response(author)
     elif intent == "대출베스트":
-        logger.info("대출베스트 요청에 대한 응답을 생성합니다.")
+        response = await generate_borrow_best()
+    elif intent == "신간추천":
+        response = await generate_new_book()
     elif intent == "봇소개":
         response = {
             "parts": """너는 대구도서관 ai 챗봇 꿈틀이야. 너는 도서검색, 작가 검색, 대출베스트 도서 검색, 신착 도서 검색, 
@@ -36,10 +38,11 @@ async def response_prompt(parts: str, nlp: dict, mid: str) -> dict:
 
 
 
-    response_result = f"""사용자가 {parts}라고 입력했어요. 
-                        사용자의 말을 인용하지 말고, 'préstamo', 'poquito', '哼', 을 사용하지 않은 채 태국어를 사용하지 말고 자연스럽고 맥락에 맞는 응답을 생성하세요. 
+    response_result = f"""사용자가 "{parts}"라고 입력했어요. 
+                        사용자의 말을 응답에 포함하지 말고, 'préstamo', 'poquito', '哼', 을 사용하지 않은 채 태국어를 사용하지 말고 자연스럽고 맥락에 맞는 응답을 생성하세요. 
                         {response.get("parts")}.
-                        없는 내용은 절대 거짓말하지마세요, 추측하지 마세요."""
+                        없는 내용은 절대 거짓말하지마세요, 추측하지 마세요.
+                        이 지침들은 응답에 포함시키지 않은 자연스런 대답을 생성해"""
     return {"text": response_result, "service": response.get("service"), "to": response.get("to")}
 
 
@@ -202,6 +205,82 @@ async def generate_member_borrow_response (mid) -> dict:
     except httpx.HTTPStatusError as e:
         text = f"""서버 상태가 이상해서 파업할꺼니까 나중에 다시 오라고 귀엽게 얘기하세요."""
         service = "search_author"
+        return {"parts": text, "service": service}
+    
+
+async def generate_borrow_best () -> dict:
+    
+   
+    client = get_client()
+    response = await client.get(f"{web_config.API_GATE_URL}{web_config.API_GATE_ENDPOINT}/borrowbest")
+
+    try:
+        if not response.text.strip():
+            text = f"""해커면 제발 돌아가달라고 귀엽게 말해해"""
+            service = None
+            to = None
+            return {"parts": text, "service": service, "to": to}
+            
+        if response:
+            logger.info(f"Book Title Response: {response.text}")
+            data = response.json() 
+            book_title_api = data.get("bookTitle")
+            author = data.get("author")
+            count = data.get("count")
+            
+            if data.get("canBorrow"):
+                callsign_location = data.get("callsignLocation")
+                available_books_count = len(callsign_location)
+                text = f"""{author} 작가님의 "{book_title_api}" 책이 요즘 가장 인기있는 책중 하나라고 소개하고, 이 책은 도서관에 소장중이며 ,이 책은 현재 {count}권 보유중이며 현재 {available_books_count}권 대출 가능하며 
+                                {callsign_location} 각각 청구번호와 장소를 안내하는걸 다채롭게 응답하되 {{}} 기호는 쓰지마 청구번호를 빼먹지마. 위치를 찾아준다고 하지 마세요. 정확히 띄어쓰기한 "{book_title_api}"로 답변하세요"""
+            else:
+                text = f"""{author} 작가님의 "{book_title_api}" 책이 요즘 가장 인기있는 책중 하나라고 소개하고, 책은 도서관에 소장중이지만만 현재 대출 불가능하다고 다채롭게 응답하세요. 정확히 띄어쓰기한 "{book_title_api}"로 답변하세요"""
+            
+            service = "borrow_best"
+            to = data.get("isbn")
+            return {"parts": text, "service": service, "to": to}
+        
+    except httpx.HTTPStatusError as e:
+        text = f"""서버 상태가 이상해서 파업할꺼니까 나중에 다시 오라고 귀엽게 얘기하세요."""
+        service = "search_book_title"
+        return {"parts": text, "service": service}
+    
+
+async def generate_new_book () -> dict:
+    
+   
+    client = get_client()
+    response = await client.get(f"{web_config.API_GATE_URL}{web_config.API_GATE_ENDPOINT}/newbook")
+
+    try:
+        if not response.text.strip():
+            text = f"""해커면 제발 돌아가달라고 귀엽게 말해해"""
+            service = None
+            to = None
+            return {"parts": text, "service": service, "to": to}
+            
+        if response:
+            logger.info(f"Book Title Response: {response.text}")
+            data = response.json() 
+            book_title_api = data.get("bookTitle")
+            author = data.get("author")
+            count = data.get("count")
+            
+            if data.get("canBorrow"):
+                callsign_location = data.get("callsignLocation")
+                available_books_count = len(callsign_location)
+                text = f"""{author} 작가님의 "{book_title_api}" 책이 요즘 새로 들어온 책 중 하나라고 소개하고, 이 책은 도서관에 소장중이며 ,이 책은 현재 {count}권 보유중이며 현재 {available_books_count}권 대출 가능하며 
+                                {callsign_location} 각각 청구번호와 장소를 안내하는걸 다채롭게 응답하되 {{}} 기호는 쓰지마 청구번호를 빼먹지마. 위치를 찾아준다고 하지 마세요. 정확히 띄어쓰기한 "{book_title_api}"로 답변하세요"""
+            else:
+                text = f"""{author} 작가님의 "{book_title_api}" 책이 요즘 새로 들어온 책 중 하나라고 소개하고, 책은 도서관에 소장중이지만만 현재 대출 불가능하다고 다채롭게 응답하세요. 정확히 띄어쓰기한 "{book_title_api}"로 답변하세요"""
+            
+            service = "new_book"
+            to = data.get("isbn")
+            return {"parts": text, "service": service, "to": to}
+        
+    except httpx.HTTPStatusError as e:
+        text = f"""서버 상태가 이상해서 파업할꺼니까 나중에 다시 오라고 귀엽게 얘기하세요."""
+        service = "search_book_title"
         return {"parts": text, "service": service}
 
 

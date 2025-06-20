@@ -1,13 +1,16 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import DynamicTab from "../menus/DynamicTab";
 import { useSearchParams } from "react-router-dom";
 import Layout from '../layouts/Layout';
 import FindIdComponent from '../components/member/FindIdComponent';
 import SubHeader from '../layouts/SubHeader';
 import FindPwComponent from '../components/member/FindPwComponent';
+import { useReactToPrint } from "react-to-print";
 
 const FindAccountPage = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const contentRef = useRef(null);
+    const reactToPrintFn = useReactToPrint({ contentRef });
 
     const activeTab = useMemo(() => {
         const tabParam = searchURLParams.get("tab");
@@ -36,8 +39,8 @@ const FindAccountPage = () => {
 
     return (
          <Layout sideOn={false}>
-            <SubHeader subTitle="계정 찾기" mainTitle="기타" />
-        <div className="container mx-auto py-6">
+            <SubHeader subTitle="계정 찾기" mainTitle="기타" print={reactToPrintFn} />
+        <div className="container mx-auto py-6" ref={contentRef}>
         <DynamicTab
             tabsConfig={myTabs}
             activeTabId={activeTab}

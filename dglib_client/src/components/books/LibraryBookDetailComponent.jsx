@@ -55,6 +55,7 @@ const LibraryBookDetailComponent = () => {
     const isbnValue = (fromParam === 'reco' || fromParam === 'personalized') ? isbn : libraryBookDetail?.isbn;
 
     const findRecoBookData = () => {
+
         const queries = queryClient.getQueryCache().getAll();
         console.log(libraryBookDetail)
         const recoQueries = queries.filter(query =>
@@ -68,9 +69,9 @@ const LibraryBookDetailComponent = () => {
             query.queryKey[0] === 'bookreco'
         );
                 for (const query of recoQueries) {
-                    const data = query.state.data;
+                    const data = query.state?.data;
                     if (data?.content) {
-                        const matchingBook = data.content.find(book => book.isbn13 === isbnValue);
+                        const matchingBook = data.content?.find(book => book.isbn13 === isbnValue);
                         if (matchingBook) {
                             return matchingBook;
                         }
@@ -78,9 +79,9 @@ const LibraryBookDetailComponent = () => {
                 }
 
                 for (const query of memberRecoQueries) {
-                    const data = query.state.data;
+                    const data = query.state?.data;
                     if (data?.docs) {
-                        const matchingItem = data.docs.find(item => item.book.isbn13 === isbnValue);
+                        const matchingItem = data.docs?.find(item => item.book.isbn13 === isbnValue);
                         if (matchingItem) {
                             return matchingItem.book;
                         }
@@ -88,10 +89,10 @@ const LibraryBookDetailComponent = () => {
                 }
 
                 for (const query of genreQueries) {
-                    const data = query.state.data;
+                    const data = query.state?.data;
                     const parsedData = JSON.parse(data.result);
                     
-                    const matchingBook = parsedData.content.find(book => book.isbn13 === isbnValue);
+                    const matchingBook = parsedData.content?.find(book => book.isbn13 === isbnValue);
                     if (matchingBook) {
                         return matchingBook;
                     }
@@ -128,6 +129,17 @@ const LibraryBookDetailComponent = () => {
             };
         }
 
+        return {
+            bookTitle: '도서 정보를 불러오는 중...',
+            cover: '',
+            author: '',
+            publisher: '',
+            pubDate: '',
+            isbn: isbn || '',
+            description: '',
+            
+        };
+
     }, [libraryBookDetail, recoBookInfo]);
 
 
@@ -152,6 +164,9 @@ const LibraryBookDetailComponent = () => {
             setSelectedBook(libraryBook);
         }
     }, [selectedBook]);
+
+    const hasValidData = libraryBookDetail?.isbn || recoBookInfo;
+    const isActuallyLoading = isLoading && !hasValidData;
     
 
     return (
@@ -169,17 +184,44 @@ const LibraryBookDetailComponent = () => {
                     </div>
                 </div>
             )}
-            {isLoading ? (
+            
+            {/* 로딩 상태 개선 */}
+            {isActuallyLoading ? (
                 <Loading text="도서 정보를 불러오는 중입니다..." />
             ) : reserveMutation.isPending || unMannedReserveMutation.isPending || interestedMutation.isPending ? (
                 <Loading text="처리중입니다..." />
-            ) : isError ? (
+            ) : isError && !hasValidData ? (
                 <div className="flex justify-center items-center h-64">
-                    <p className="text-red-500 text-sm sm:text-base px-4 text-center">
-                        {error.response?.data?.message}
-                    </p>
+                    <div className="text-center">
+                        <p className="text-red-500 text-sm sm:text-base px-4 mb-4">
+                            {error.response?.data?.message || "도서 정보를 불러올 수 없습니다."}
+                        </p>
+                        <p className="text-gray-600 text-sm px-4">
+                            이전 페이지에서 접근하신 경우, 새로고침으로 인해 캐시 데이터가 사라져서 발생한 문제일 수 있습니다.
+                            <br />
+                            도서 검색 페이지에서 다시 접근해 주세요.
+                        </p>
+                    </div>
+                </div>
+            ) : !hasValidData && !isLoading ? (
+                // 캐시 데이터가 없는 경우 안내 메시지
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-center">
+                        <p className="text-orange-500 text-lg font-semibold mb-4">
+                            도서 정보를 찾을 수 없습니다
+                        </p>
+                        <p className="text-gray-600 text-sm px-4">
+                            도서관에 소장중이지 않은 책에 뒤로가기로 접근하신 경우, 새로고침으로 인해<br />
+                            캐시 데이터가 사라져서 도서 정보를 표시할 수 없습니다.
+                            <br /><br />
+                            
+                            뒤로 가기가 아닌 다시 도서를 선택해주세요
+                           
+                        </p>
+                    </div>
                 </div>
             ) : (
+                // 정상적인 도서 상세 정보 표시
                 <>
                     <div className="flex items-center justify-center border border-b-0 border-[#00893B] w-full min-h-[60px] sm:min-h-[80px] p-4">
                         <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-center">{bookDetails.bookTitle}</h1>
@@ -202,17 +244,17 @@ const LibraryBookDetailComponent = () => {
                                     <span className="w-full sm:w-24 font-semibold text-gray-600 mb-1 sm:mb-0">저자</span>
                                     <span className="break-words">{bookDetails.author}</span>
                                 </div>
-
+    
                                 <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2">
                                     <span className="w-full sm:w-24 font-semibold text-gray-600 mb-1 sm:mb-0">출판사</span>
                                     <span className="break-words">{bookDetails.publisher}</span>
                                 </div>
-
+    
                                 <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2">
                                     <span className="w-full sm:w-24 font-semibold text-gray-600 mb-1 sm:mb-0">출판일</span>
                                     <span>{bookDetails.pubDate}</span>
                                 </div>
-
+    
                                 <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2">
                                     <span className="w-full sm:w-24 font-semibold text-gray-600 mb-1 sm:mb-0">ISBN</span>
                                     <span className="break-words">{bookDetails.isbn}</span>
@@ -247,7 +289,6 @@ const LibraryBookDetailComponent = () => {
                                                 checked={selectedBook === libraryBook} 
                                                 onChange={(e) => handleCheckChange(e, libraryBook)} 
                                             />
-                                            
                                         </div>
                                         
                                         <div className="space-y-2 text-sm">
@@ -283,7 +324,7 @@ const LibraryBookDetailComponent = () => {
                                 ))
                             )}
                         </div>
-
+    
                         {/* 데스크톱 테이블 형태 */}
                         <div className="hidden lg:block overflow-x-auto">
                             <table className="min-w-full border border-[#00893B]">
@@ -374,6 +415,6 @@ const LibraryBookDetailComponent = () => {
             )}
         </div>
     );
-}
+};
 
 export default LibraryBookDetailComponent;

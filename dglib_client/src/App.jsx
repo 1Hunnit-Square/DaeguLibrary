@@ -11,7 +11,7 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       console.error("Query error:", error);
-      toast.error(`데이터 불러오기 실패: ${error.response?.data?.message}`, {
+      toast.error(`데이터 불러오기 실패: ${error.response?.data?.message ?? "서버와 연결이 실패했습니다"}`, {
       position: 'top-center',
     });
     },

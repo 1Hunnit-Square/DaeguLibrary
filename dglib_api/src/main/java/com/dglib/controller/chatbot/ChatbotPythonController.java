@@ -52,5 +52,21 @@ public class ChatbotPythonController {
 		return ResponseEntity.ok(dto);
 		
 	}
+	
+	@GetMapping("/borrowbest")
+	public ResponseEntity<ChatbotBookResponseDTO> borrowBest() {
+		LOGGER.info("Borrow best request");
+		ChatbotBookResponseDTO dto = bookService.getBorrowBest();
+		LOGGER.info("Borrow best response: {}", dto);
+		return ResponseEntity.ok(dto);
+	}
+	
+	@GetMapping("/newbook")
+	public ResponseEntity<ChatbotBookResponseDTO> newbook() {
+		LOGGER.info("Borrow best request");
+		ChatbotBookResponseDTO dto = bookService.getNewbook();
+		LOGGER.info("Borrow best response: {}", dto);
+		return ResponseEntity.ok(dto);
+	}
 
 }

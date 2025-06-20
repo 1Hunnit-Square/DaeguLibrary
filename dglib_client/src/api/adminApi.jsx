@@ -122,3 +122,10 @@ export const deleteEbook = async (ebookId) => {
     const res = await axios.delete(`${prefix}/deleteebook/${ebookId}`);
     return res.data;
 }
+
+export const getTop10Books = async (params) => {
+    const res = await axios.get(`${prefix}/top10books`, {
+        params: params,
+    });
+    return res.data;
+}

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 const QMenuComponent = () => {
     const menuItems = [
         { name: '추천도서', link: '/books/recommend', icon: '📚' },
-        { name: '대출조회', link: '/mylib/borrowstatus', icon: '🔍' },
-        { name: '도서예약', link: '/mylib/reservation', icon: '📅' },
+        { name: '대출조회', link: '/mylibrary/borrowstatus', icon: '🔍' },
+        { name: '도서예약', link: '/mylibrary/bookreservation', icon: '📅' },
         { name: '시설이용신청', link: '/reservation/facility', icon: '🏢' },
         { name: '프로그램신청', link: '/reservation/program', icon: '📝' },
         { name: '모바일회원증', link: '/mylib/card', icon: '📱' }

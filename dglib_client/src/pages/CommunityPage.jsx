@@ -1,12 +1,14 @@
 import Layout from "../layouts/Layout"
 import { Outlet, useLocation } from "react-router-dom"
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
-
+import { useReactToPrint } from "react-to-print";
 
 const CommunityPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
+    const contentRef = useRef(null);
+    const reactToPrintFn = useReactToPrint({ contentRef });
 
     const LSideMenu = useMemo(() => [
         { id: "notice", label: "공지사항", path: "/community/notice" },
@@ -33,8 +35,10 @@ const CommunityPage = () => {
 
     return (
         <Layout LMainMenu={"시민참여"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="시민참여" />
-            <Outlet />
+            <SubHeader subTitle={activeMenuItem?.label} print={reactToPrintFn}  mainTitle="시민참여" />
+            <div ref={contentRef}>
+              <Outlet />
+            </div>
         </Layout>
     )
 }

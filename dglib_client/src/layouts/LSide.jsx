@@ -7,12 +7,12 @@ const LSide = ({ LMainMenu, LSideMenu }) => {
 const activeMenu = useMemo(() => {
   const currentPath = location.pathname;
   const searchParams = new URLSearchParams(location.search);
-  if (currentPath.includes('/detail/')) {
+  
     const fromParam = searchParams.get('from');
     if (fromParam) {
       return fromParam;
     }
-  }
+  
   let bestMatch = null;
   let longestMatchLength = 0;
 

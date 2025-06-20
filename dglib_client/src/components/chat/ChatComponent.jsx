@@ -1,13 +1,70 @@
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import ReactMarkdown from 'react-markdown';
 import ChatActionComponent from "./ChatActionComponent";
 import VoiceWebSocketComponent from "./VoiceWebSocketComponent";
-const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
+import { getChatbotResponse, resetChatHistory } from "../../api/chatbotApi";
+import { useMutation } from '@tanstack/react-query';
+import { useRecoilState, useResetRecoilState } from 'recoil';
+import { chatHistoryState, clientIdState } from '../../atoms/chatState';
+
+const ChatComponent = ({ onClose }) => {
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+    const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
+    const resetChatHistoryState = useResetRecoilState(chatHistoryState);
+    const [clientId, setClientId] = useRecoilState(clientIdState);
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
+
+    const chatMutation = useMutation({
+        mutationFn: async (param) => {
+            const response = await getChatbotResponse(param);
+            return response;
+        },
+        onSuccess: (data) => {
+            console.log("Chatbot response:", data);
+            setChatHistory(prev => [...prev, { role: "model", parts: data.parts, service: data.service, to: data.to }]);
+            setClientId(data.clientId);
+        },
+        onError: (error) => {
+            console.error("Error fetching chatbot response:", error);
+            setChatHistory(prev => [...prev, { role: "model", parts: "오늘은 쉽니당. 꿈틀꿈틀🌱" }]);
+        }
+    });
+
+    const resetChatMutation = useMutation({
+        mutationFn: async (clientId) => {
+            const response = await resetChatHistory(clientId);
+            return response;
+        },
+        onSuccess: () => {
+            resetChatHistoryState();
+            setClientId("");
+            console.log("Chat history reset successfully.");
+        },
+        onError: (error) => {
+            console.error("Error resetting chat history:", error);
+        }
+    });
+
+    const addMessage = useCallback((message) => {
+        setChatHistory(prev => [...prev, {
+            role: "user",
+            parts: message,
+            clientId: clientId
+        }]);
+        const param = {
+            parts: message,
+            clientId: clientId,
+        }
+        chatMutation.mutate(param);
+    }, [clientId, chatMutation, setChatHistory]);
+
+    const resetHandler = useCallback(() => {
+        console.log("Resetting chat history for clientId:", clientId);
+        resetChatMutation.mutate(clientId);
+    }, [clientId, resetChatMutation]);
     
 
 
@@ -27,6 +84,10 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
 
    const handleSendMessage = (e) => {
         e.preventDefault();
+        if (isTyping) {
+            return;
+        }
+       
         if (!message.trim()) return;
         addMessage(message);
         setMessage("");
@@ -43,7 +104,7 @@ const ChatComponent = ({ onClose, chatHistory, addMessage, resetChat }) => {
             <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
                 <h3 className="font-bold text-sm sm:text-base">도서관 도우미 꿈틀이</h3>
                 <div className="flex items-center gap-4">
-                    <img src="/reset.png" title="초기화" className="w-4 h-4 mt-1.5 items-center hover:cursor-pointer" onClick={resetChat} />
+                    <img src="/reset.png" title="초기화" className="w-4 h-4 mt-1.5 items-center hover:cursor-pointer" onClick={resetHandler} />
                     <button
                         onClick={onClose}
                         className="text-white text-3xl sm:text-xl hover:text-gray-200 hover:cursor-pointer "

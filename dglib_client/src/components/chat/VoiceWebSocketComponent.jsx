@@ -1,156 +1,387 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import SockJS from 'sockjs-client';
 import { v4 as uuidv4 } from 'uuid';
 import { Client } from '@stomp/stompjs';
 import { API_SERVER_HOST, API_ENDPOINTS } from '../../api/config';
-import { chatHistoryState, clientIdState } from '../../atoms/chatState';
 import { useRecoilState, useResetRecoilState } from 'recoil';
-import { type } from '@amcharts/amcharts5';
-
+import { chatHistoryState, isChatOpenState, clientIdState } from '../../atoms/chatState';
+import { getCookie } from '../../util/cookieUtil';
+import { checkaccess } from '../../api/chatbotApi';
 
 const sockJsUrl = `${API_SERVER_HOST}${API_ENDPOINTS.chatbot}/voice`;
 
 const VoiceWebSocketComponent = ({ onClose }) => {
     const [isConnected, setIsConnected] = useState(false);
-    const [serverMessages, setServerMessages] = useState([]);
-    const [saying, setSaying] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
-    const [clientId, setClientId] = useRecoilState(clientIdState);
+    const [clientId, setClientId] = useRecoilState(clientIdState); 
+    const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+    const prevSpeakingRef = useRef(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
+    const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
+    const microphoneTimeoutRef = useRef(null);
+    const isProcessingRef = useRef(false);
     const clientRef = useRef({ 
         stompClient: null,
         uuid: uuidv4(),
     });
-    const mediaRecorderRef = useRef(null);
-    const streamRef = useRef(null);
 
-    const startRecording = async () => {
+
+
+    const audioRef = useRef({
+        audioContext: null,
+        stream: null,
+        workletNode: null,
+    });
+
+    const responseAudioRef = useRef(null);
+
+    const playAudioFromBase64 = (base64Data) => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    sampleRate: 16000,
-                    channelCount: 1,
-                    echoCancellation: true,
-                    noiseSuppression: true
-                } 
-            });
             
-            streamRef.current = stream;
-            
-            mediaRecorderRef.current = new MediaRecorder(streamRef.current, {
-                mimeType: 'audio/webm;codecs=opus'
-            });
-            
-            mediaRecorderRef.current.ondataavailable = (event) => {
-                if (event.data.size > 0 && clientRef.current.stompClient && isConnected) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const base64Data = reader.result.split(',')[1];
-                        
-                        const message = {
-                            type: 'voice',
-                            uuid: clientRef.current.uuid,
-                            audioData: base64Data,
-                            timestamp: new Date().toISOString()
-                        };
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
 
-                        clientRef.current.stompClient.publish({
-                            destination: '/app/voice',
-                            body: JSON.stringify(message),
-                        });
+            
+            const blob = new Blob([bytes], { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(blob);
 
-                        console.log("🎤 음성 데이터 전송");
-                    };
-                    reader.readAsDataURL(event.data);
-                }
+            
+            const audio = new Audio(audioUrl);
+            responseAudioRef.current = audio;
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl); 
+                console.log("오디오 재생 완료");
+                setIsProcessing(false);
+                isProcessingRef.current = false;
             };
-            
-            mediaRecorderRef.current.start(100);
-            setIsRecording(true);
-            console.log("🎤 녹음 자동 시작");
-            
+
+            audio.onerror = (error) => {
+                console.error("오디오 재생 오류:", error);
+                URL.revokeObjectURL(audioUrl);
+                setIsProcessing(false);
+                isProcessingRef.current = false;
+            };
+
+            console.log("TTS 오디오 재생 시작");
+            audio.play().catch(error => {
+                console.error("오디오 재생 실패:", error);
+                URL.revokeObjectURL(audioUrl);
+                setIsProcessing(false);
+                isProcessingRef.current = false;
+            });
+
         } catch (error) {
-            console.error("마이크 접근 오류:", error);
-            alert("마이크 접근 권한이 필요합니다.");
+            console.error("base64 오디오 변환 오류:", error);
+            setIsProcessing(false);
+            isProcessingRef.current = false;
         }
     };
 
+     const addMessage = useCallback((message) => {
+            setChatHistory(prev => [...prev, {
+                role: "user",
+                parts: message,
+                clientId: clientId
+            }]);
+        }, [clientId, setChatHistory]);
+
+    const stopRecording = () => {
+        if (!isRecording && !audioRef.current.stream) return;
+        
+        audioRef.current.stream?.getTracks().forEach(track => track.stop());
+        audioRef.current.audioContext?.close().catch(e => console.error("AudioContext close error:", e));
+
+        audioRef.current.stream = null;
+        audioRef.current.audioContext = null;
+        audioRef.current.workletNode = null;
+
+        if (microphoneTimeoutRef.current) {
+            clearTimeout(microphoneTimeoutRef.current);
+            microphoneTimeoutRef.current = null;
+        }
+        
+        setIsRecording(false);
+        setIsMicrophoneActive(false);
+        console.log("녹음 중지 및 리소스 정리 완료");
+    };
+
+   
+    const sendMessage = (type, body = {}) => {
+        try {
+            if (clientRef.current.stompClient?.active) {
+                const memberInfo = getCookie("auth");
+                const accessToken = memberInfo?.accessToken || '';
+                clientRef.current.stompClient.publish({
+                    destination: '/app/voice',
+                    headers: type === 'start_session' ? { 'Authorization': `Bearer ${accessToken}` } : {},
+                    body: JSON.stringify({
+                        type: type,
+                        clientId: clientId,
+                        uuid: clientRef.current.uuid,
+                        ...body
+                    }),
+                });
+            }
+        } catch (error) {
+            console.error(`${type} 메시지 전송 실패:`, error);
+        }
+    };
+
+    const startRecordingAndStreaming = async () => {
+        if (isRecording || isProcessingRef.current) return;
+
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+            audioRef.current.audioContext = audioContext;
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioRef.current.stream = stream;
+            
+            await audioContext.audioWorklet.addModule('/audio-processor.js');
+
+            const source = audioContext.createMediaStreamSource(stream);
+            const workletNode = new AudioWorkletNode(audioContext, 'audio-processor', {
+                processorOptions: {
+                    sourceSampleRate: audioContext.sampleRate,
+                    targetSampleRate: 16000, 
+                    bufferSize: 4096, 
+                }
+            });
+            audioRef.current.workletNode = workletNode;
+
+            workletNode.port.onmessage = (event) => {
+                if (isProcessingRef.current) {
+                    return;
+                }
+                const pcm16Data = new Int16Array(event.data);
+                if (pcm16Data.length > 0 && clientRef.current.stompClient?.active) {
+                    const base64Data = btoa(String.fromCharCode.apply(null, new Uint8Array(pcm16Data.buffer)));
+                    const sum = pcm16Data.reduce((acc, val) => acc + Math.abs(val), 0);
+                    const average = sum / pcm16Data.length;
+                    const threshold = 1000; 
+                    if (average > threshold) {
+                        if (!isProcessingRef.current) {
+                            setIsMicrophoneActive(true);
+                        }
+
+                       
+                       
+                        if (microphoneTimeoutRef.current) {
+                            clearTimeout(microphoneTimeoutRef.current);
+                            microphoneTimeoutRef.current = null;
+                        }
+                    } else {
+                        
+                        if (!microphoneTimeoutRef.current) {
+                            microphoneTimeoutRef.current = setTimeout(() => {
+                                setIsMicrophoneActive(false);
+                                microphoneTimeoutRef.current = null;
+                            }, 1500); 
+                        }
+                    }
+                    sendMessage('audio_chunk', { audioData: base64Data });
+                }
+            };
+            
+            source.connect(workletNode).connect(audioContext.destination); 
+            
+            setIsRecording(true);
+            console.log("오디오 스트림 녹음 및 전송 시작");
+
+        } catch (error) {
+            console.error("마이크 또는 오디오 처리 오류:", error);
+            alert("마이크 접근 권한이 필요하거나 오디오 컨텍스트 생성에 실패했습니다.");
+            handleClose(); 
+        }
+    };
+    
+  
     useEffect(() => {
         if (clientRef.current.stompClient) return;
-        
-        console.log("STOMP 연결 시도...");
-        setServerMessages([{ type: 'info', text: '서버에 연결을 시도합니다...' }]);
 
-        clientRef.current.stompClient = new Client({
-            webSocketFactory: () => new SockJS(sockJsUrl),
+       
+
+        const handleBeforeUnload = () => {
             
-            debug: (str) => {
-                console.log(new Date(), str);
-            },
-            
-            reconnectDelay: 5000,
-        });
-
-        clientRef.current.stompClient.onConnect = () => {
-
-            console.log("✅ STOMP 연결 성공!");
-            const destination = `/topic/response/${clientRef.current.uuid}`;
-            setIsConnected(true);
-            setServerMessages(prev => [...prev, { type: 'info', text: '서버에 성공적으로 연결되었습니다.' }]);
-            startRecording();
-            clientRef.current.stompClient.subscribe(destination, (message) => {
-                console.log("📩 서버로부터 메시지 수신:", message.body);
-                const receivedData = JSON.parse(message.body);
-                setServerMessages(prev => [...prev, { type: 'server', data: receivedData }]);
-            });
-        };
-
-        clientRef.current.stompClient.onStompError = (frame) => {
-            console.error("🔥 STOMP 프로토콜 오류:", frame.headers['message']);
-            setIsConnected(false);
-            setServerMessages(prev => [...prev, { type: 'error', text: `STOMP 오류: ${frame.headers['message']}` }]);
-        };
-        
-        clientRef.current.stompClient.activate();
-
-        return () => {
-            if (clientRef.current.stompClient) {
-                console.log("STOMP 연결을 비활성화합니다.");
-                clientRef.current.stompClient.deactivate();
-                if (mediaRecorderRef.current && isRecording) {
-                    mediaRecorderRef.current.stop();
-                }
-                if (streamRef.current) {
-                    streamRef.current.getTracks().forEach(track => track.stop());
+            if (clientRef.current.stompClient?.active) {
+                sendMessage('end_session');
+                
+                const start = Date.now();
+                while (Date.now() - start < 100) {
+                   
                 }
             }
         };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        console.log("STOMP 연결 시도...");
+
+      
+        checkaccess()
+         
+      
+        const stompClient = new Client({
+            webSocketFactory: () => new SockJS(sockJsUrl),
+            // debug: (str) => { console.log(new Date(), str); },
+            reconnectDelay: 5000,
+        });
+
+        stompClient.onConnect = () => {
+            console.log("✅ STOMP 연결 성공!");
+            setIsConnected(true);
+            
+            const destination = `/topic/response/${clientRef.current.uuid}`;
+            
+            stompClient.subscribe(destination, (message) => {
+                const receivedData = JSON.parse(message.body);
+                console.log("📩 서버로부터 메시지 수신:", receivedData);
+                
+              
+               
+                if (receivedData.type === 'speaking_status') {
+                    const newSpeakingState = receivedData.is_speaking;
+
+                    if (newSpeakingState === false && prevSpeakingRef.current === true) {
+                        setIsProcessing(true);
+                        isProcessingRef.current = true;
+                        console.log("일해라 꿈틀아");
+                    }
+
+                    setIsUserSpeaking(receivedData.is_speaking);
+                    
+                    prevSpeakingRef.current = newSpeakingState;
+                }
+
+                if (receivedData.type === 'no_speech_detected') {
+                    console.log("음성이 감지되지 않았습니다. 녹음을 중지합니다.");
+                    setIsUserSpeaking(false);
+                    setIsProcessing(false);
+                    isProcessingRef.current = false;
+                }
+
+            
+
+                if (receivedData.type === 'chatbot_response') {
+                    
+                    if (receivedData.audio_data) {
+                        console.log("TTS 오디오 재생 중...");
+                        playAudioFromBase64(receivedData.audio_data,);
+                    }
+                    setChatHistory(prev => [...prev, {
+                        role: "user",
+                        parts: receivedData.request_text,
+                        clientId: clientId
+                    }]);
+                    setChatHistory(prev => [...prev, {
+                        role: "model",
+                        parts: receivedData.text,
+                        service: receivedData.service,
+                        to: receivedData.to
+                    }]);
+                setClientId(receivedData.clientId || clientId);
+                    
+                }
+                
+               
+
+
+               
+            });
+
+          
+            sendMessage('start_session');
+            startRecordingAndStreaming();
+        };
+
+        stompClient.onStompError = (frame) => {
+            console.error("🔥 STOMP 프로토콜 오류:", frame.headers['message']);
+            setIsConnected(false);
+        };
+        
+        clientRef.current.stompClient = stompClient;
+        stompClient.activate();
+
+        
+        return () => {
+            console.log("컴포넌트 언마운트.");
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+           
+            handleClose(true); 
+        };
+    
     }, []); 
 
-    
+    const handleClose = (isUnmounting = false) => {
+        try {
+            stopRecording();
+            if (responseAudioRef.current) {
+                responseAudioRef.current.pause();
+                responseAudioRef.current = null;
+            }
+            
+            if (clientRef.current.stompClient?.active) {
+                console.log("세션 종료 메시지를 전송합니다.");
+                try {
+                    sendMessage('end_session'); 
+                } catch (error) {
+                    console.error("세션 종료 메시지 전송 실패:", error);
+                    
+                }
+                
+                setTimeout(() => {
+                    try {
+                        const currentStompClient = clientRef.current.stompClient;
+                        if (currentStompClient && currentStompClient.active) {
+                            console.log("STOMP 연결을 비활성화합니다.");
+                            currentStompClient.deactivate();
+                        }
+                    } catch (error) {
+                        console.error("STOMP 연결 비활성화 실패:", error);
+                    }
+                    clientRef.current.stompClient = null;
+                }, isUnmounting ? 0 : 500);
+            } else {
+                clientRef.current.stompClient = null;
+            }
+        } catch (error) {
+            console.error("handleClose 중 오류 발생:", error);
+            clientRef.current.stompClient = null;
+        } finally {
+            
+            if (!isUnmounting) {
+                onClose();
+            }
+        }
+    };
     
     return (
         <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">음성 대화</h3>
-                    <button 
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
-                    >
+                    <button onClick={() => handleClose(false)} className="text-gray-500 hover:text-gray-700">
                         ✕
                     </button>
                 </div>
-                <img src="/gumtle.gif" className="w-50 mx-auto"/>
+                <img src={`${isProcessingRef.current ? '/gumtle.gif' : '/gumtle1.png'}`} className="w-50 mx-auto" alt="gumtle"/>
+                
+            
                 {isConnected ? (
                     <div className="mb-3 mt-10 flex justify-center">
-                    <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
-                        <div className="flex items-center space-x-1">
-                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`}></div>
-                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`} style={{animationDelay: '0.15s'}}></div>
-                            <div className={`w-2 h-2 rounded-full bg-green-500 ${saying ? animate-bounce : ""}`} style={{animationDelay: '0.3s'}}></div>
+                        <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
+                            <div className="flex items-center space-x-1">
+                                <div className={`w-4 h-4 rounded-full bg-green-500 ${isMicrophoneActive || isUserSpeaking ? 'animate-bounce' : ''}`}></div>
+                                <div className={`w-4 h-4 rounded-full bg-green-500 ${isMicrophoneActive || isUserSpeaking ? 'animate-bounce' : ''}`} style={{animationDelay: '0.15s'}}></div>
+                                <div className={`w-4 h-4     rounded-full bg-green-500 ${isMicrophoneActive || isUserSpeaking ? 'animate-bounce' : ''}`} style={{animationDelay: '0.3s'}}></div>
+                            </div>
                         </div>
                     </div>
-                </div>
                 ) : (
                     <div className="mb-3 mt-10 flex justify-center">
                         <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">

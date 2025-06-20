@@ -20,3 +20,12 @@ export const resetChatHistory = async (clientId) => {
     });
     return res.data;
 }
+
+export const checkaccess = async () => {
+    const res = await axiosClient.get(`${prefix}/checkaccess`, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    return res.data;
+}

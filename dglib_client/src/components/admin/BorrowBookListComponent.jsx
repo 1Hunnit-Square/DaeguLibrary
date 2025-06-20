@@ -37,8 +37,8 @@ const BorrowBookListComponent = () => {
                     const params = {
                         page: parseInt(searchURLParams.get("page") || "1"),
                         size: parseInt(searchURLParams.get("size") || "10"),
-                        startDate: searchURLParams.get("startDate"),
-                        endDate: searchURLParams.get("endDate"),
+                        startDate: dateRange.startDate,
+                        endDate: dateRange.endDate,
                         check: searchURLParams.get("check") || "전체",
                         sortBy: searchURLParams.get("sortBy") || "rentId",
                         orderBy: searchURLParams.get("orderBy") || "desc",

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,9 +67,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	    String path = request.getRequestURI();
 	    String authHeader = request.getHeader("Authorization");
 
-	    log.info("authHeader : " + authHeader);
 
-	    log.info("FILTER CHECK "+path);
 	    
 	    if (path.equals("/favicon.ico") || path.startsWith("/api/member/refresh")) {
 			return true;
@@ -104,6 +103,26 @@ public class JwtFilter extends OncePerRequestFilter {
 		      return ((MemberDTO) principal).getUsername();
 		      
 		   }
+		
+		public static String getMidFromSocket(StompHeaderAccessor headerAccessor) {
+	        String authHeader = headerAccessor.getFirstNativeHeader("Authorization");
+	        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	            String token = authHeader.substring(7);
+				if (token == null || token.isEmpty()) {
+					return null;
+				}
+	            Map<String, Object> claims = JwtProvider.validateToken(token);
+	            String mid = (String) claims.get("mid");
+	    	    String name = (String) claims.get("name");
+	    	    String mno = (String) claims.get("mno");
+	    	    String roleName = (String) claims.get("roleName");
+	    		MemberDTO memberDTO = new MemberDTO(mid, "", name, mno, roleName);
+	    		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
+	    		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+	            return getMid(); 
+	        }
+	        return null;
+	    }
 		
 		public static String getRoleName() {
 

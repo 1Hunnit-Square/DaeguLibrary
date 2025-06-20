@@ -1,12 +1,16 @@
 import Layout from "../layouts/Layout"
 import { Outlet, useLocation, useSearchParams } from "react-router-dom"
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
+import { useReactToPrint } from "react-to-print";
 
 
 const AdminPage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
+    const contentRef = useRef(null);
+    const reactToPrintFn = useReactToPrint({ contentRef });
+
 
     const currentDate = new Date().toDateString();
     const getDateParams = useMemo(() => {
@@ -30,7 +34,7 @@ const AdminPage = () => {
         { id: "banner", label: "배너관리", path: "/admin/bannermanagement" },
         { id: "service", label: "게시판관리", path: "/admin/boardmanagement" },
         { id: "sms", label: "SMS 관리", path: "/admin/smsmanagement" },
-        { id: "stats", label: "통계관리", path: "/admin/statsmanagement" },
+        { id: "stats", label: "통계관리", path: `/admin/statsmanagement?${getDateParams}` },
         
         ], [getDateParams])
 
@@ -49,8 +53,10 @@ const AdminPage = () => {
 
     return (
         <Layout LMainMenu={"관리자"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="관리자" />
-            <Outlet />
+            <SubHeader subTitle={activeMenuItem?.label} print={reactToPrintFn} mainTitle="관리자" />
+            <div ref={contentRef}>
+              <Outlet />
+            </div>
         </Layout>
     )
 }

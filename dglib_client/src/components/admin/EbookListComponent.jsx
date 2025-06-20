@@ -30,8 +30,8 @@ const EbookListComponent = () => {
                     const params = {
                         page: parseInt(searchURLParams.get("page") || "1"),
                         size: parseInt(searchURLParams.get("size") || "10"),
-                        startDate: searchURLParams.get("startDate"),
-                        endDate: searchURLParams.get("endDate"),
+                        startDate: dateRange.startDate,
+                        endDate: dateRange.endDate,
                         sortBy: searchURLParams.get("sortBy") || "ebookId",
                         orderBy: searchURLParams.get("orderBy") || "desc",
                     };

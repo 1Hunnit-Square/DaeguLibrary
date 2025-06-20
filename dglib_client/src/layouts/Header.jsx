@@ -8,7 +8,7 @@ import Search from "./Search";
 const Header = () => {
     return(
         <>
-            <div className="flex justify-end mr-10 mt-3"> <LoginMenu /> </div>
+            <div className="flex justify-end mr-3 sm:mr-10 mt-3"> <LoginMenu /> </div>
             <Link to="/" className="inline-block w-fit">
                 <img src="/logo.png" className="w-35 ml-3" />
             </Link>

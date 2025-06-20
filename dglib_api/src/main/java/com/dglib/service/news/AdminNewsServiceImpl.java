@@ -24,7 +24,7 @@ public class AdminNewsServiceImpl implements AdminNewsService{
 	private final ModelMapper modelMapper;
 
 	@Override
-	public Page<BoardListDTO> getBoardList(BoardSearchDTO searchDTO, Pageable pageable) {
+	public Page<BoardListDTO> getAdminNewsList(BoardSearchDTO searchDTO, Pageable pageable) {
 		Specification<News> spec = NewsSpecifications.adminFilter(searchDTO);
 
 		return newsRepository.findAll(spec, pageable).map(news -> {

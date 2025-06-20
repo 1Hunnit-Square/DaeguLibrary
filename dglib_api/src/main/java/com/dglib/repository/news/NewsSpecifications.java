@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.dglib.dto.news.AdminNewsSearchDTO;
+import com.dglib.dto.admin.BoardSearchDTO;
 import com.dglib.dto.news.NewsSearchDTO;
 import com.dglib.entity.news.News;
 
@@ -36,7 +36,7 @@ public class NewsSpecifications {
 		};
 	}
 	
-	public static Specification<News> adminFilter(AdminNewsSearchDTO dto) {
+	public static Specification<News> adminFilter(BoardSearchDTO dto) {
 	    return (root, query, cb) -> {
 	        List<Predicate> predicates = new ArrayList<>();
 

@@ -41,8 +41,6 @@ import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
-import com.dglib.dto.news.AdminNewsDTO;
-import com.dglib.dto.news.AdminNewsSearchDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
 import com.dglib.service.news.AdminNewsService;
@@ -254,8 +252,8 @@ public class AdminController {
 	}
 	
 	// ---------------------------------------------------
-	@GetMapping("/notice")
-	public Page<BoardListDTO> getAdminNoticeList(
+	@GetMapping("/board")
+	public Page<BoardListDTO> getBoardList(
 	    @ModelAttribute BoardSearchDTO searchDTO, 
 	    Pageable pageable
 	) {
@@ -265,23 +263,7 @@ public class AdminController {
 		   
 	   case"news":
 		   return adminNewsService.getAdminNewsList(searchDTO, pageable);
-	   }
-		
-		
-		
-	   
-		
-		
-		
-		
+	   }	
+	   return null;
 	}
-	
-	@GetMapping("/news")
-	public Page<AdminNewsDTO> getAdminNewsList(
-	    @ModelAttribute AdminNewsSearchDTO searchDTO, 
-	    Pageable pageable
-	) {
-	    return adminNewsService.getAdminNewsList(searchDTO, pageable);
-	}
-
 }

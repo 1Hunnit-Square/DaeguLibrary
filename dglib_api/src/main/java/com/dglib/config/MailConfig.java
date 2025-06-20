@@ -1,12 +1,9 @@
 package com.dglib.config;
 
-import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.sun.mail.util.MailSSLSocketFactory;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.Folder;
@@ -25,13 +22,7 @@ public class MailConfig {
     
     @PostConstruct
 	public void init() {
-	try {
-		MailSSLSocketFactory sf = new MailSSLSocketFactory();
-		sf.setTrustAllHosts(true);
-		props.put("mail.imaps.ssl.socketFactory", sf);
-	} catch (GeneralSecurityException e) {
-		throw new RuntimeException(e);
-	}
+	
     
     props.put("mail.store.protocol", "imaps");
     props.put("mail.imaps.host", HOST);
@@ -39,11 +30,11 @@ public class MailConfig {
     props.put("mail.imaps.ssl.enable", "true");
     props.put("mail.imaps.ssl.trust", "*"); // 모든 인증서 신뢰
     props.put("mail.imaps.ssl.checkserveridentity", "false"); // 호스트네임 검증 비활성화
-    
-	}
+    }
+
 	
 	
-    public Folder getFolder(String type) throws MessagingException{
+    public Folder getFolder(String type, boolean readOnly) throws MessagingException{
     	Session session = Session.getInstance(props);
     	Folder inbox = null;
 			Store store = session.getStore("imaps");
@@ -54,6 +45,10 @@ public class MailConfig {
 			store.connect(HOST, RECIEVER, PASSWORD);
 	    	
 			inbox = store.getFolder("INBOX");
+			
+			if(readOnly)
+			inbox.open(Folder.READ_ONLY);
+			else
 			inbox.open(Folder.READ_WRITE);
 
        

@@ -7,4 +7,5 @@ public class MailSearchDTO {
 	int page;
 	int size;
 	String mailType;
+	boolean notRead;
 }

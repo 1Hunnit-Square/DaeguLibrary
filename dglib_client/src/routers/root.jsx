@@ -14,6 +14,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 
 
+
 const Main = lazy(()=> import ("../pages/MainPage"));
 const About = lazy(()=> import ("../pages/AboutPage"));
 const Books = lazy(()=> import ("../pages/BooksPage"));
@@ -36,7 +37,6 @@ const KakaoRedirect = lazy(() => import("../pages/KakaoRedirectPage"));
 const SmsSearch = lazy(() => import("../components/admin/SmsSearchComponent"));
 const EmailRead = lazy(() => import("../components/admin/EmailReadComponent"));
 const EmailWrite = lazy(() => import("../components/admin/EmailWriteComponent"));
-
 
 
 const root = createBrowserRouter([

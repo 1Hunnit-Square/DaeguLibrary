@@ -136,6 +136,10 @@ const handleTitle = (e) => {
 setTitle(e.target.value);
 }
 
+const handleToMail = (e) => {
+setToEmail(e.target.value);
+}
+
 const handleClick = () => {
      if(!title.trim()){
     alert("제목을 입력해주세요.");
@@ -157,15 +161,15 @@ const handleClick = () => {
   paramData.append("subject", title.trim());
   paramData.append("to", toEmail.trim());
   paramData.append("content", contentReplace(content));
-  files.forEach((file) => {
-    paramData.append("files", file);
-  });
-  urlList.forEach((url) => {
-    paramData.append("urlList", url);
-  });
-  oldfileList.forEach((file) => {
-    paramData.append("oldFiles", file.file.path);
-  });
+  // files.forEach((file) => {
+  //   paramData.append("files", file);
+  // });
+  // urlList.forEach((url) => {
+  //   paramData.append("urlList", url);
+  // });
+  // oldfileList.forEach((file) => {
+  //   paramData.append("oldFiles", file.file.path);
+  // });
 
   onParams(paramData);
 
@@ -182,11 +186,11 @@ const handleClick = () => {
          <div className="flex flex-col mt-10 p-4 border rounded bg-white">
           <div className="flex gap-2 items-center mb-3">
           <input className="text-sm border border-gray-300 p-1 w-100 h-10 pl-3 mr-2" placeholder={"수신 메일을 입력하세요"}
-        onChange={handleTitle} />
+          value={toEmail} onChange={handleToMail} />
          <Button>이메일 검색</Button>
         </div>
         <input className="text-sm border border-gray-300 p-1 w-200 h-10 pl-3 mr-2 mb-3" placeholder={"메일 제목을 입력하세요"}
-        onChange={handleTitle} />
+        value={title} onChange={handleTitle} />
        
          <QuillToolbar tooltip={tooltip} upload={upload} />
         <ReactQuill

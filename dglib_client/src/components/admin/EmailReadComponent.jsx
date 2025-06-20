@@ -78,8 +78,8 @@ return(
 
   <div className="pt-4 border-t border-gray-300">
     <h2 className="text-sm font-semibold text-gray-700 mb-2">첨부파일</h2>
-    {mailDetail.fileName.map((file, index) => 
-    <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/${eid}?fileType=file&fileNum=${index}&mailType=${searchURLParams.get("mailType")}`} fileName={file} />
+    {mailDetail.fileList.map((file, index) => 
+    <Download key={index} link={`${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/${file.filePath}`} fileName={file.originalName} />
     )}
   </div>
 </div>

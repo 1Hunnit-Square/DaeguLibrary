@@ -2,6 +2,8 @@
 
 export const API_SERVER_HOST = '';
 
+export const ORIGIN_URL = window.location.origin;
+
 export const API_ENDPOINTS = {
   member: '/api/member',
   book: '/api/book',

@@ -5,6 +5,7 @@ import { usePagination } from '../../hooks/usePage';
 import SearchSelectComponent from '../common/SearchSelectComponent';
 import SelectComponent from '../common/SelectComponent';
 import dayjs from 'dayjs';
+import Loading from '../../routers/Loading';
 
 const ProgramComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -138,7 +139,7 @@ const ProgramComponent = () => {
         });
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl mx-auto px-6 pt-20 sm:pt-26 md:pt-28 pb-16 bg-white rounded-lg shadow-md">
             <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
                 <div>
                     <h2 className="text-2xl text-gray-800 font-semibold">프로그램 목록</h2>
@@ -161,14 +162,14 @@ const ProgramComponent = () => {
                         input={query}
                         handleSearch={handleSearch}
                         selectClassName="mr-2"
-                        dropdownClassName="w-28"
+                        dropdownClassName="w-32"
                         inputClassName="w-64"
                     />
                 </div>
             </div>
 
             {isLoading ? (
-                <p>프로그램 목록을 불러오는 중입니다...</p>
+                <Loading />
             ) : error ? (
                 <p className="text-red-500">{error}</p>
             ) : finalPrograms.length === 0 ? (

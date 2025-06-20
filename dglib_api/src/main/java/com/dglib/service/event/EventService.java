@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dglib.dto.event.EventBannerDTO;
 import com.dglib.dto.event.EventDTO;
 import com.dglib.dto.event.EventDetailDTO;
 import com.dglib.dto.event.EventListDTO;
@@ -34,4 +35,15 @@ public interface EventService {
 
 	// 삭제
 	void delete(Long eno);
+	
+	// 배너 목록 조회
+	List<EventBannerDTO> getBannerList();
+	
+	// 배너 등록
+	Long registerBanner(Long eventNo, MultipartFile file);
+	
+	// 배너 삭제
+	void deleteBanner(Long bno);
+
+
 }

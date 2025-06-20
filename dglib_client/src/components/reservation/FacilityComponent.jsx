@@ -12,7 +12,6 @@ const FacilityComponent = () => {
   const handleReserve = (roomName) => {
 
     if (!mid) {
-      alert("로그인 후 이용해주세요.");
       moveToLogin("로그인 후 이용해주세요.");
       return;
     }
@@ -147,7 +146,7 @@ const FacilityComponent = () => {
           <tbody className="text-gray-800">
             <tr className="border-t">
               <td className="px-4 py-3 text-center">동아리실</td>
-              <td className="px-4 py-3 text-center">2층</td>
+              <td className="px-4 py-3 text-center">지하 1층</td>
               <td className="px-4 py-3 text-center">동아리 활동 등</td>
               <td className="px-4 py-3 text-center">8</td>
               <td className="px-4 py-3 text-center">
@@ -158,7 +157,7 @@ const FacilityComponent = () => {
             </tr>
             <tr className="border-t">
               <td className="px-4 py-3 text-center">세미나실</td>
-              <td className="px-4 py-3 text-center">3층</td>
+              <td className="px-4 py-3 text-center">지상 3층</td>
               <td className="px-4 py-3 text-center">세미나 활동 등</td>
               <td className="px-4 py-3 text-center">12</td>
               <td className="px-4 py-3 text-center">

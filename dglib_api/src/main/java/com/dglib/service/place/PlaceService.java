@@ -34,5 +34,8 @@ public interface PlaceService {
 	
 	// ===== 관리자 =====
 	Page<PlaceDTO> getListByAdmin(PlaceSearchConditionDTO cond);
+	
+	// 예약 취소(과거 예약 포함 허용)
+	void cancelByAdmin(Long pno);
 
 }

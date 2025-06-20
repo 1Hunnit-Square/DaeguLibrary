@@ -25,6 +25,10 @@ public interface ProgramService {
 
 	ProgramInfo getProgramEntity(Long progNo);
 
+	void registerBanner(ProgramBannerDTO dto, MultipartFile file); // 배너 등록
+
+	void deleteBanner(Long bno); // 배너 삭제
+
 	void registerProgram(ProgramInfoDTO dto, MultipartFile file); // 프로그램 등록(파일 1개 포함)
 
 	void updateProgram(Long progNo, ProgramInfoDTO dto, MultipartFile file); // 프로그램 수정
@@ -51,8 +55,8 @@ public interface ProgramService {
 
 	// 사용자용 목록 조회
 	Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status);
-	Page<ProgramInfoDTO> getUserProgramList(Member member, Pageable pageable);
 
+	Page<ProgramInfoDTO> getUserProgramList(Member member, Pageable pageable);
 
 	// 관리자용 목록 조회
 	Page<ProgramInfoDTO> searchAdminProgramList(Pageable pageable, String option, String query, String status);

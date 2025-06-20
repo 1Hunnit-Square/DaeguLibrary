@@ -1,5 +1,6 @@
 package com.dglib.service.program;
 
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -26,6 +27,7 @@ import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
 import com.dglib.entity.member.Member;
+import com.dglib.entity.program.ProgramBanner;
 import com.dglib.entity.program.ProgramInfo;
 import com.dglib.entity.program.ProgramUse;
 import com.dglib.repository.member.MemberRepository;
@@ -382,10 +384,9 @@ public class ProgramServiceImpl implements ProgramService {
 		int age = Period.between(member.getBirthDate(), LocalDate.now()).getYears();
 
 		return switch (target) {
-		case "초등학생" -> age >= 9 && age <= 13;
-		case "중학생" -> age >= 14 && age <= 16;
-		case "고등학생" -> age >= 17 && age <= 19;
-		case "성인" -> age >= 20;
+		case "어린이" -> age >= 0 && age <= 12;
+		case "청소년" -> age >= 13 && age <= 18;
+		case "성인" -> age >= 19;
 		default -> false;
 		};
 	}
@@ -422,11 +423,96 @@ public class ProgramServiceImpl implements ProgramService {
 		return list.stream().map(this::toDTO).collect(Collectors.toList());
 	}
 
+	// -------------------------- 배너 --------------------------
+	// 배너 등록
+	@Override
+	public void registerBanner(ProgramBannerDTO dto, MultipartFile file) {
+		LocalDate today = LocalDate.now();
+		long currentBannerCount = bannerRepository.countValidBanners(today);
+		if (currentBannerCount >= 6) {
+			throw new IllegalStateException("배너는 최대 6개까지 등록할 수 있습니다.");
+		}
+
+		if (file == null || file.isEmpty()) {
+			throw new IllegalArgumentException("배너 이미지를 첨부해주세요.");
+		}
+		if (!file.getContentType().startsWith("image")) {
+			throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
+		}
+
+		// 중복 검사
+		if (bannerRepository.existsByProgramInfo_ProgNo(dto.getProgramInfoId())) {
+			throw new IllegalStateException("해당 프로그램에는 이미 배너가 등록되어 있습니다.");
+		}
+
+		List<Object> savedFiles = fileUtil.saveFiles(List.of(file), "program/banner");
+		Map<String, String> fileMap = (Map<String, String>) savedFiles.get(0);
+
+		String imageUrl = fileMap.get("filePath");
+		String imageName = fileMap.get("originalName");
+
+		ProgramInfo program = infoRepository.findById(dto.getProgramInfoId())
+				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+
+		ProgramBanner banner = new ProgramBanner();
+		banner.setImageName(imageName);
+		banner.setImageUrl(imageUrl);
+		banner.setProgramInfo(program);
+
+		bannerRepository.save(banner);
+	}
+
 	// 배너 리스트 조회
 	@Override
 	public List<ProgramBannerDTO> getAllBanners() {
-		return bannerRepository.findAll().stream().map(banner -> modelMapper.map(banner, ProgramBannerDTO.class))
-				.collect(Collectors.toList());
+		LocalDate today = LocalDate.now();
+		List<ProgramBanner> result = bannerRepository.findValidBanners(today);
+
+		return result.stream().map(banner -> {
+			ProgramInfo info = banner.getProgramInfo();
+			ProgramBannerDTO dto = new ProgramBannerDTO();
+			dto.setBno(banner.getBno());
+			dto.setImageName(banner.getImageName());
+			dto.setImageUrl(banner.getImageUrl());
+			dto.setProgramInfoId(info.getProgNo());
+
+			// 썸네일 경로 생성 (s_ 접두사 방식)
+			String imageUrl = banner.getImageUrl();
+			if (imageUrl != null && imageUrl.contains("/")) {
+				String fileName = Paths.get(imageUrl).getFileName().toString();
+				String parent = Paths.get(imageUrl).getParent().toString();
+				dto.setThumbnailPath(imageUrl);
+			}
+			// 프로그램 정보 추가
+			dto.setProgName(info.getProgName());
+			dto.setTarget(info.getTarget());
+			dto.setStartDate(info.getStartDate());
+			dto.setEndDate(info.getEndDate());
+			dto.setStartTime(info.getStartTime());
+			dto.setEndTime(info.getEndTime());
+			dto.setDaysOfWeek(info.getDaysOfWeek());
+			dto.setDayNames(convertToDayNames(info.getDaysOfWeek()));
+
+			return dto;
+		}).collect(Collectors.toList());
+	}
+
+	// 배너 삭제
+	@Override
+	public void deleteBanner(Long bno) {
+		ProgramBanner banner = bannerRepository.findById(bno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 배너가 존재하지 않습니다."));
+
+		String imageUrl = banner.getImageUrl();
+		if (imageUrl != null) {
+			String fileName = Paths.get(imageUrl).getFileName().toString();
+			String parent = Paths.get(imageUrl).getParent().toString();
+			String thumbnailPath = parent + "/s_" + fileName;
+
+			fileUtil.deleteFiles(List.of(imageUrl, thumbnailPath));
+		}
+
+		bannerRepository.delete(banner);
 	}
 
 	// -------------------공통 메서드--------------------

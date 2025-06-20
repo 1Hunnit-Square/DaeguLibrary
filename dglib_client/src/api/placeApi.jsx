@@ -27,6 +27,6 @@ export const getReservationListByAdmin = async (params = {}) => {
 
 // 관리자 전용: 시설대여 신청 취소
 export const cancelReservationByAdmin = async (pno) => {
-  const res = await axios.delete(`${prefix}/${pno}`);
+  const res = await axios.delete(`${prefix}/admin/delete/${pno}`);
   return res.data;
 };

@@ -4,6 +4,32 @@ import { API_SERVER_HOST, API_ENDPOINTS } from './config';
 
 const PROGRAM_URL = `${API_SERVER_HOST}${API_ENDPOINTS.program}`;
 
+// 프로그램 배너 목록 조회
+export const getProgramBanners = async () => {
+  const res = await axios.get(`${PROGRAM_URL}/banners`);
+  return res.data;
+};
+
+// 프로그램 배너 등록
+export const registerProgramBanner = async (formData) => {
+  const res = await axios.post(`${PROGRAM_URL}/banners/register`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+};
+
+// 프로그램 배너 삭제
+export const deleteProgramBanner = async (bno) => {
+  const res = await axios.delete(`${PROGRAM_URL}/banners/delete/${bno}`);
+  return res.data;
+};
+
+// 배너 이미지 URL 생성 함수
+export const getProgramBannerImageUrl = (filePath) => {
+  if (!filePath) return '';
+  return `${PROGRAM_URL}/banners/view?filePath=${encodeURIComponent(filePath)}`;
+};
+
 // 상세 조회
 export const getProgramDetail = async (progNo) => {
   const response = await axios.get(`${PROGRAM_URL}/${progNo}`);

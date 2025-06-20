@@ -170,7 +170,7 @@ const ProgramRegisterComponent = () => {
 
         isEdit ? updateMutation.mutate(formData) : registerMutation.mutate(formData);
     };
-   
+
     // 날짜/시간 포맷팅 유틸 함수 (입력 필드의 value prop에 사용)
     const formatDateTimeLocal = (value) => {
         if (!value) return "";
@@ -290,14 +290,19 @@ const ProgramRegisterComponent = () => {
 
                     <div>
                         <label className="block text-gray-700">수강대상</label>
-                        <select name="target" value={form.target} onChange={handleChange} className="w-full border p-2 rounded">
+                        <select
+                            name="target"
+                            value={form.target}
+                            onChange={handleChange}
+                            className="w-full border p-2 rounded"
+                        >
                             <option value="전체">전체</option>
-                            <option value="초등학생">초등학생</option>
-                            <option value="중학생">중학생</option>
-                            <option value="고등학생">고등학생</option>
+                            <option value="어린이">어린이</option>
+                            <option value="청소년">청소년</option>
                             <option value="성인">성인</option>
                         </select>
                     </div>
+
                     <div>
                         <label className="block text-gray-700">모집인원</label>
                         <input type="number" name="capacity" value={form.capacity} onChange={handleChange} className="w-full border p-2 rounded" min="1" required />

@@ -1,13 +1,20 @@
 package com.dglib.controller.program;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,13 +51,60 @@ public class ProgramController {
 	private final MemberRepository memberRepository;
 	private final FileUtil fileUtil;
 
-	// 관리자용 API
+	@Value("${file.upload.path}")
+	private String uploadPath;
+
+	// 관리자용 Api
 	// 1. 배너 목록 조회
 	@GetMapping("/banners")
 	public ResponseEntity<List<ProgramBannerDTO>> getAllBanners() {
 		return ResponseEntity.ok(programService.getAllBanners());
 	}
 
+	// 1-1. 배너 등록
+	@PostMapping("/banners/register")
+	public ResponseEntity<String> registerBanner(@ModelAttribute ProgramBannerDTO dto,
+			@RequestParam("file") MultipartFile file) {
+		programService.registerBanner(dto, file);
+		return ResponseEntity.ok("배너 등록 완료");
+	}
+
+	// 1-2. 배너 삭제
+	@DeleteMapping("/banners/delete/{bno}")
+	public ResponseEntity<Void> deleteBanner(@PathVariable Long bno) {
+		programService.deleteBanner(bno);
+		return ResponseEntity.noContent().build();
+	}
+
+	// 1-3. 배너 이미지 조회
+	@GetMapping("/banners/view")
+	public ResponseEntity<Resource> viewBannerImage(@RequestParam String filePath) {
+		if (filePath == null || filePath.isBlank()) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		try {
+			Path basePath = Paths.get(uploadPath).toAbsolutePath().normalize();
+			Path fullPath = basePath.resolve(filePath).normalize();
+
+			if (!Files.exists(fullPath)) {
+				return ResponseEntity.notFound().build();
+			}
+
+			Resource resource = new UrlResource(fullPath.toUri());
+			String contentType = Files.probeContentType(fullPath);
+
+			return ResponseEntity.ok()
+					.contentType(
+							MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+					.body(resource);
+		} catch (IOException e) {
+			log.error("배너 이미지 조회 중 오류", e);
+			return ResponseEntity.internalServerError().build();
+		}
+	}
+
+	// ----------------------------------------------------------------
 	// 2. 전체 프로그램 목록 조회 (신청 종료 기간 기준 필터링 없이 전체)
 	@GetMapping("/all")
 	public ResponseEntity<List<ProgramInfoDTO>> getAllPrograms() {
@@ -105,13 +159,13 @@ public class ProgramController {
 		return ResponseEntity.ok(Map.of("full", full));
 	}
 
-	// 9. 관리자용 API - 특정 프로그램의 신청 회원 리스트 조회
+	// 9. 특정 프로그램의 신청 회원 리스트 조회
 	@GetMapping("/{progNo}/applicants")
 	public ResponseEntity<List<ProgramUseDTO>> getApplicantsByProgram(@PathVariable Long progNo) {
 		return ResponseEntity.ok(programService.getApplicantsByProgram(progNo));
 	}
 
-	// 10. 관리자 - 프로그램 시설 등록
+	// 10. 프로그램 시설 등록
 	@PostMapping("/room-status")
 	public ResponseEntity<Map<String, Boolean>> getRoomAvailabilityStatus(@RequestBody ProgramRoomCheckDTO dto) {
 		Map<String, Boolean> status = programService.getRoomAvailabilityStatus(dto);
@@ -160,15 +214,14 @@ public class ProgramController {
 
 	// 8. 사용자 프로그램 목록 조회
 	@GetMapping("/user/list")
-	public ResponseEntity<Page<ProgramInfoDTO>> getUserProgramList(
-	        @RequestParam(required = false) String option,
-	        @RequestParam(required = false) String query,
-	        @RequestParam(required = false) String status,
-	        Pageable pageable) {
-	    log.info("getUserProgramList called with option: {}, query: {}, status: {}, pageable: {}", option, query, status, pageable);
-	    Page<ProgramInfoDTO> result = programService.searchProgramList(pageable, option, query, status);
-	    log.info("Returned {} programs. Total elements: {}", result.getContent().size(), result.getTotalElements());
-	    return ResponseEntity.ok(result);
+	public ResponseEntity<Page<ProgramInfoDTO>> getUserProgramList(@RequestParam(required = false) String option,
+			@RequestParam(required = false) String query, @RequestParam(required = false) String status,
+			Pageable pageable) {
+		log.info("getUserProgramList called with option: {}, query: {}, status: {}, pageable: {}", option, query,
+				status, pageable);
+		Page<ProgramInfoDTO> result = programService.searchProgramList(pageable, option, query, status);
+		log.info("Returned {} programs. Total elements: {}", result.getContent().size(), result.getTotalElements());
+		return ResponseEntity.ok(result);
 	}
 
 }

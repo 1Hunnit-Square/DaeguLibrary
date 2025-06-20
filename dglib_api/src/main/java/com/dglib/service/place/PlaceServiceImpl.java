@@ -40,7 +40,7 @@ public class PlaceServiceImpl implements PlaceService {
 	private final ModelMapper modelMapper;
 	private final MemberRepository memberRepository;
 	private final ClosedDayService closedDayService;
-	
+
 	private String option;
 	private String query;
 
@@ -58,23 +58,25 @@ public class PlaceServiceImpl implements PlaceService {
 	public Page<PlaceDTO> getListByAdmin(PlaceSearchConditionDTO cond) {
 		Pageable pageable = PageRequest.of(cond.getPage(), cond.getSize(),
 				Sort.by(Sort.Direction.fromString(cond.getOrderBy()), cond.getSortBy()));
-		
-	    if (cond.getOption() != null && cond.getQuery() != null && !cond.getQuery().isBlank()) {
-	        switch (cond.getOption()) {
-	            case "mid" -> cond.setMid(cond.getQuery());
-	            case "name" -> cond.setName(cond.getQuery());
-	            case "room" -> cond.setRoom(cond.getQuery());
-	        }
-	    }
+
+		if (cond.getOption() != null && cond.getQuery() != null && !cond.getQuery().isBlank()) {
+			switch (cond.getOption()) {
+			case "mid" -> cond.setMid(cond.getQuery());
+			case "name" -> cond.setName(cond.getQuery());
+			case "room" -> cond.setRoom(cond.getQuery());
+			}
+		}
 
 		Page<Place> result = placeRepository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
 
 			if (cond.getStartDate() != null && !cond.getStartDate().isEmpty()) {
-				predicates.add(cb.greaterThanOrEqualTo(root.get("appliedAt"), LocalDate.parse(cond.getStartDate()).atStartOfDay()));
+				predicates.add(cb.greaterThanOrEqualTo(root.get("appliedAt"),
+						LocalDate.parse(cond.getStartDate()).atStartOfDay()));
 			}
 			if (cond.getEndDate() != null && !cond.getEndDate().isEmpty()) {
-				predicates.add(cb.lessThanOrEqualTo(root.get("appliedAt"), LocalDate.parse(cond.getEndDate()).atTime(23, 59, 59)));
+				predicates.add(cb.lessThanOrEqualTo(root.get("appliedAt"),
+						LocalDate.parse(cond.getEndDate()).atTime(23, 59, 59)));
 			}
 			if (cond.getMid() != null && !cond.getMid().isEmpty()) {
 				predicates.add(cb.equal(root.get("member").get("mid"), cond.getMid()));
@@ -93,21 +95,12 @@ public class PlaceServiceImpl implements PlaceService {
 	}
 
 	private PlaceDTO convertToDTO(Place entity) {
-	    return PlaceDTO.builder()
-	            .pno(entity.getPno())
-	            .memberMid(entity.getMember().getMid())
-	            .memberName(entity.getMember().getName())
-	            .appliedAt(entity.getAppliedAt())
-	            .useDate(entity.getUseDate())
-	            .startTime(entity.getStartTime())
-	            .durationTime(entity.getDurationTime())
-	            .room(entity.getRoom())
-	            .people(entity.getPeople())
-	            .participants(entity.getParticipants())
-	            .purpose(entity.getPurpose())
-	            .build();
+		return PlaceDTO.builder().pno(entity.getPno()).memberMid(entity.getMember().getMid())
+				.memberName(entity.getMember().getName()).appliedAt(entity.getAppliedAt()).useDate(entity.getUseDate())
+				.startTime(entity.getStartTime()).durationTime(entity.getDurationTime()).room(entity.getRoom())
+				.people(entity.getPeople()).participants(entity.getParticipants()).purpose(entity.getPurpose()).build();
 	}
-	
+
 	// 예약 등록
 	@Override
 	public Long registerPlace(PlaceDTO dto) {
@@ -149,7 +142,7 @@ public class PlaceServiceImpl implements PlaceService {
 		}
 
 		if (dto.getRoom().equals("동아리실")) {
-			
+
 			if (dto.getPeople() < CLUB_ROOM_MIN_PEOPLE || dto.getPeople() > CLUB_ROOM_MAX_PEOPLE) {
 				throw new IllegalArgumentException(
 						"동아리실은 " + CLUB_ROOM_MIN_PEOPLE + "인 이상 " + CLUB_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
@@ -157,7 +150,7 @@ public class PlaceServiceImpl implements PlaceService {
 		}
 
 		if (dto.getRoom().equals("세미나실")) {
-			
+
 			if (dto.getPeople() < SEMINAR_ROOM_MIN_PEOPLE || dto.getPeople() > SEMINAR_ROOM_MAX_PEOPLE) {
 				throw new IllegalArgumentException(
 						"세미나실은 " + SEMINAR_ROOM_MIN_PEOPLE + "인 이상 " + SEMINAR_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
@@ -233,11 +226,22 @@ public class PlaceServiceImpl implements PlaceService {
 		Place place = placeRepository.findById(pno)
 				.orElseThrow(() -> new IllegalArgumentException("해당 신청 내역이 존재하지 않습니다."));
 
+		// 회원은 이용일이 지난 예약은 취소 불가
 		if (place.getUseDate().isBefore(LocalDate.now())) {
 			throw new IllegalStateException("이미 지난 예약은 취소할 수 없습니다.");
 		}
 
 		placeRepository.deleteById(pno);
+	}
+
+	// 관리자 예약 삭제
+	@Override
+	public void cancelByAdmin(Long pno) {
+		Place place = placeRepository.findById(pno)
+				.orElseThrow(() -> new IllegalArgumentException("예약 정보가 존재하지 않습니다."));
+
+		// 과거 예약도 삭제 가능
+		placeRepository.delete(place);
 	}
 
 	// 회원별 신청 내역

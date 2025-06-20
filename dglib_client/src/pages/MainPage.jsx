@@ -6,6 +6,8 @@ import ClosedInfoComponent from "../components/main/ClosedInfoComponent";
 import BoardMenu from "../menus/BoardMenu";
 import RecoMenu from "../menus/RecoMenu";
 import RecoComponent from "../components/main/RecoComponent";
+import ProgramMainBannerComponent from "../components/main/ProgramMainBannerComponent";
+import EventMainBannerComponent from "../components/main/EventMainBannerComponent";
 
 const MainPage = () => {
     return (
@@ -18,22 +20,22 @@ const MainPage = () => {
                     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                         <div className="w-full lg:w-[45%]">
                             <div className="bg-white rounded-lg shadow-sm h-[300px] sm:h-[400px] lg:h-[472px] p-4">
-                                <h2 className="text-lg sm:text-xl font-bold mb-4">이달의 프로그램</h2>
-                                {/* 프로그램 내용 */}
+                                <ProgramMainBannerComponent />
                             </div>
                         </div>
                         <div className="w-full lg:w-[55%]">
                             <div className="flex flex-col space-y-3 sm:space-y-4 h-[300px] sm:h-[400px] lg:h-[472px]">
                                 <div className="bg-white rounded-lg shadow-sm h-[150px] sm:h-[180px] lg:h-[200px] p-1">
-                                   <BoardMenu />
+                                    <BoardMenu />
                                 </div>
                                 <div className="flex flex-1 gap-x-4 min-h-0">
-                                <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
-                                    <div className="p-3 font-bold">새소식 배너</div>
-                                </div>
-                                <div className="flex-1 bg-white rounded-lg shadow-sm p-1">
-                                    <ClosedInfoComponent />
-                                </div>
+                                    <div className="w-full sm:flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+                                        <EventMainBannerComponent />
+                                    </div>
+                                    <div className="w-full sm:flex-1 bg-white rounded-lg shadow-sm">
+                                        <ClosedInfoComponent />
+                                    </div>
+                                
                                 </div>
                             </div>
                         </div>

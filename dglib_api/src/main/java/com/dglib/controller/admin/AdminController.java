@@ -1,6 +1,5 @@
 package com.dglib.controller.admin;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,33 +19,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.dglib.controller.book.BookController;
+import com.dglib.dto.admin.BoardListDTO;
+import com.dglib.dto.admin.BoardSearchDTO;
 import com.dglib.dto.book.AdminWishBookListDTO;
 import com.dglib.dto.book.AdminWishBookSearchDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
-import com.dglib.dto.book.LibraryBookDTO;
-import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
-import com.dglib.dto.book.LibraryBookSearchDTO;
-import com.dglib.dto.book.LibraryBookSummaryDTO;
-import com.dglib.dto.book.RentBookDTO;
-import com.dglib.dto.book.RentalBookListDTO;
-import com.dglib.dto.book.RentalPageDTO;
-import com.dglib.dto.book.RentalStateChangeDTO;
-import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.BorrowedBookSearchDTO;
 import com.dglib.dto.book.EbookRegistrationDTO;
 import com.dglib.dto.book.EbookSearchDTO;
 import com.dglib.dto.book.EbookSummaryDTO;
 import com.dglib.dto.book.EbookUpdateDTO;
 import com.dglib.dto.book.LibraryBookChangeDTO;
+import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
+import com.dglib.dto.book.LibraryBookSearchDTO;
+import com.dglib.dto.book.LibraryBookSummaryDTO;
+import com.dglib.dto.book.RentBookDTO;
+import com.dglib.dto.book.RentalPageDTO;
+import com.dglib.dto.book.RentalStateChangeDTO;
+import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
-import com.dglib.util.FileUtil;
+import com.dglib.service.news.AdminNewsService;
+import com.dglib.service.notice.AdminNoticeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,7 +56,8 @@ public class AdminController {
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
 	private final MemberService memberService;
-	
+	private final AdminNoticeService adminNoticeService;
+	private final AdminNewsService adminNewsService;
 	
 	@PostMapping("/regbook")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
@@ -251,5 +250,20 @@ public class AdminController {
 		bookService.deleteEbook(ebookId);
 		return ResponseEntity.ok().build();
 	}
-
+	
+	// ---------------------------------------------------
+	@GetMapping("/board")
+	public Page<BoardListDTO> getBoardList(
+	    @ModelAttribute BoardSearchDTO searchDTO, 
+	    Pageable pageable
+	) {
+	   switch(searchDTO.getBoardType()) {
+	   case "notice":
+		   return adminNoticeService.getAdminNoticeList(searchDTO, pageable);
+		   
+	   case"news":
+		   return adminNewsService.getAdminNewsList(searchDTO, pageable);
+	   }	
+	   return null;
+	}
 }

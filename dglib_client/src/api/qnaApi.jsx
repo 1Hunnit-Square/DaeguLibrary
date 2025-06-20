@@ -75,3 +75,9 @@ export const deleteAnswer = async (ano, requesterMid) => {
   });
   return response.data;
 };
+
+//관리자 목록
+export const getAdminQnaList = async (params) => {
+  const response = await axiosClient.get(`${prefix}/admin`, { params });
+  return response.data;
+};

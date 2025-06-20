@@ -1,39 +1,74 @@
 package com.dglib.repository.notice;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.jpa.domain.Specification;
 
+import com.dglib.dto.admin.BoardSearchDTO;
 import com.dglib.dto.notice.NoticeSearchDTO;
 import com.dglib.entity.notice.Notice;
 
+import jakarta.persistence.criteria.Predicate;
+
 public class NoticeSpecifications {
 	public static Specification<Notice> fromDTO(NoticeSearchDTO dto) {
-        return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
-        		.and((root, query, cb) -> cb.equal(root.get("isHidden"), false))
-        		.and((root, query, cb) -> cb.equal(root.get("isPinned"), false));
-    }
+		return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
+				.and((root, query, cb) -> cb.equal(root.get("isHidden"), false))
+				.and((root, query, cb) -> cb.equal(root.get("isPinned"), false));
+	}
 
+	public static Specification<Notice> searchFilter(String option, String queryStr) {
+		return (root, query, cb) -> {
+			if (option == null || queryStr == null) {
+				return null;
+			}
 
-public static Specification<Notice> searchFilter(String option, String queryStr) {
-    return (root, query, cb) -> {
-    	if(option == null || queryStr == null) 	{
-    		return null;
-    	}
-    	
-        switch(option) {
-        case "제목":
-    	return cb.like(root.get("title"), "%" + queryStr + "%");
-    	
-        case "내용":
-        return cb.like(root.get("content"), "%" + queryStr + "%");
-        
-        case "작성자":
-        return cb.like(root.get("member").get("name"), "%" + queryStr + "%");
-        
-        default:
-        return null;
-        }
-};
-}
+			switch (option) {
+			case "제목":
+				return cb.like(root.get("title"), "%" + queryStr + "%");
 
+			case "내용":
+				return cb.like(root.get("content"), "%" + queryStr + "%");
+
+			case "작성자":
+				return cb.like(root.get("member").get("name"), "%" + queryStr + "%");
+
+			default:
+				return null;
+			}
+		};
+	}
+	
+	public static Specification<Notice> adminFilter(BoardSearchDTO dto) {
+	    return (root, query, cb) -> {
+	        List<Predicate> predicates = new ArrayList<>();
+
+	        // searchType + searchKeyword 조합
+	        if (dto.getSearchType() != null && dto.getSearchKeyword() != null && !dto.getSearchKeyword().isBlank()) {
+	            switch (dto.getSearchType()) {
+	                case "title":
+	                    predicates.add(cb.like(root.get("title"), "%" + dto.getSearchKeyword() + "%"));
+	                    break;
+	                case "id":
+	                    predicates.add(cb.like(root.get("member").get("mid"), "%" + dto.getSearchKeyword() + "%"));
+	                    break;
+	                case "name":
+	                    predicates.add(cb.like(root.get("member").get("name"), "%" + dto.getSearchKeyword() + "%"));
+	                    break;
+	            }
+	        }
+
+	        // 작성일 조건
+	        if (dto.getStartDate() != null) {
+	            predicates.add(cb.greaterThanOrEqualTo(root.get("postedAt"), dto.getStartDate().atStartOfDay()));
+	        }
+	        if (dto.getEndDate() != null) {
+	            predicates.add(cb.lessThanOrEqualTo(root.get("postedAt"), dto.getEndDate().atTime(23, 59, 59)));
+	        }
+
+	        return cb.and(predicates.toArray(new Predicate[0]));
+	    };
+	}
 
 }

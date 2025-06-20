@@ -73,7 +73,7 @@ const EventDetailComponent = () => {
                             data.imageDTO.map((file, index) =>
                                 <tr key={index} className="border-b border-gray-300">
                                     <td className="p-2 font-semibold text-center">첨부 파일 ({index + 1})</td>
-                                    <td className="p-2 pl-3">
+                                    <td colSpan={4} className="p-2 pl-3">
                                         <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${file.filePath}`} fileName={file.originalName} />
                                     </td>
                                 </tr>

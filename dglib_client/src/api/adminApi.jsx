@@ -1,7 +1,29 @@
 import axios from 'axios';
 import { API_SERVER_HOST, API_ENDPOINTS } from './config';
+import axiosClient from '../util/axiosClient';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.admin}`;
+
+
+// 공지사항 관리자
+export const getAdminNoticeList = async (params) => {
+  console.log("보내는 params", params);
+  const response = await axiosClient.get(`${prefix}/notice`, { params : params });
+  console.log("받은 데이터", response.data);
+  return response.data;
+};
+
+export const getAdminNewsList = async (params) => {
+  console.log("보내는 params", params);
+  const response = await axiosClient.get(`${prefix}/news`, { params : params });
+  console.log("받은 데이터", response.data);
+  return response.data;
+};
+
+
+
+
+
 
 export const regBook = async (bookData) => {
     const res = await axios.post(`${prefix}/regbook`, bookData, { headers: { 'Content-Type': 'application/json' } });
@@ -122,3 +144,5 @@ export const deleteEbook = async (ebookId) => {
     const res = await axios.delete(`${prefix}/deleteebook/${ebookId}`);
     return res.data;
 }
+
+

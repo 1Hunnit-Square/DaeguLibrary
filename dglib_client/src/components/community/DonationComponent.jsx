@@ -79,7 +79,7 @@ const DonationComponent = () => {
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">기증문의</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
-                        <li>대구도서관 정보지원팀(☎ 053-269-0705)</li>
+                        <li>대구도서관 정보지원팀(☎ 053-269-0711)</li>
                     </ul>
                 </div>
             </section>

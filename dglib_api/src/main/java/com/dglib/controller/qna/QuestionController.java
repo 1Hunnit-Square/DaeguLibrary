@@ -96,7 +96,7 @@ public class QuestionController {
 	}
 	
 	
-	@GetMapping("/admin/qna")
+	@GetMapping("/admin")
 	public Page<AdminQnaDTO> getAdminQnaList(@ModelAttribute AdminQnaSearchDTO searchDTO, Pageable pageable) {
 	    return adminQnaService.findAll(searchDTO, pageable, null);
 	}

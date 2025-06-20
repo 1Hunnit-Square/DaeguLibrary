@@ -15,7 +15,7 @@ const QnaComponent = () => {
 
     const searchFieldMap = { "회원 ID": "id", "작성자": "name", "제목": "title" };
     const searchOptions = Object.keys(searchFieldMap);
-    const statusOptions = { 전체: "전체", 접수: "접수", 완료: "완료" };
+    const statusOptions = { 처리상황: "전체", 접수: "접수", 완료: "완료" };
     const sortOptions = { 최신순: "desc", 오래된순: "asc" };
     const sizeOptions = { "10개씩": 10, "20개씩": 20 };
 

@@ -24,7 +24,6 @@ import com.dglib.dto.notice.NoticeDetailDTO;
 import com.dglib.dto.notice.NoticeListDTO;
 import com.dglib.dto.notice.NoticeModDTO;
 import com.dglib.dto.notice.NoticeSearchDTO;
-import com.dglib.security.jwt.JwtFilter;
 import com.dglib.service.notice.NoticeService;
 
 import lombok.RequiredArgsConstructor;
@@ -86,9 +85,5 @@ public class NoticeController {
 	public ResponseEntity<List<NoticeListDTO>> listPinNotice(){
 		return ResponseEntity.ok(noticeService.findPinned());
 	}
-	
-	
-	
-	
 	
 }

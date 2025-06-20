@@ -27,7 +27,7 @@ const ProgramBannerSearchComponent = ({ onSelect, onClose }) => {
       <div className="bg-white w-full max-w-3xl p-6 rounded shadow-2xl">
         <div className="flex justify-between mb-4">
           <h2 className="text-lg font-bold text-green-800">프로그램 검색</h2>
-          <button onClick={onClose} className="text-gray-600 font-semibold hover:text-black">✕</button>
+          <button onClick={onClose} className="text-gray-600 font-semibold hover:text-black cursor-pointer">✕</button>
         </div>
 
         <input
@@ -38,11 +38,11 @@ const ProgramBannerSearchComponent = ({ onSelect, onClose }) => {
           className="w-full border px-3 py-2 rounded mb-4"
         />
 
-        <div className="max-h-70 overflow-y-auto space-y-3">
+        <div className="max-h-70 overflow-y-auto space-y-2">
           {filtered.map(program => (
             <div
               key={program.progNo}
-              className="border rounded p-2 hover:bg-yellow-100 cursor-pointer"
+              className="border rounded p-3 hover:bg-yellow-100 cursor-pointer"
               onClick={() => onSelect(program)}
             >
               <p className="font-semibold">{program.progName}</p>

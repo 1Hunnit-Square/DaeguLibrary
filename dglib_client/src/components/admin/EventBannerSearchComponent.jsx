@@ -31,7 +31,7 @@ const EventBannerSearchComponent = ({ onSelect, onClose }) => {
         <div className="bg-white w-full max-w-3xl p-6 rounded shadow-2xl">
             <div className="flex justify-between mb-4">
                 <h2 className="text-lg font-bold text-green-800">이벤트 검색</h2>
-                <button onClick={onClose} className="text-gray-600 font-semibold hover:text-black">✕</button>
+                <button onClick={onClose} className="text-gray-600 font-semibold hover:text-black cursor-pointer">✕</button>
             </div>
 
             <input
@@ -42,12 +42,12 @@ const EventBannerSearchComponent = ({ onSelect, onClose }) => {
                 className="w-full border px-3 py-2 rounded mb-4"
             />
 
-            <div className="max-h-70 overflow-y-auto space-y-3">
+            <div className="max-h-70 overflow-y-auto space-y-2">
                 {filtered.length > 0 ? (
                     filtered.map(event => (
                         <div
                             key={event.eno}
-                            className="border rounded p-4 hover:bg-blue-200 cursor-pointer"
+                            className="border rounded p-5 hover:bg-yellow-100 cursor-pointer"
                             onClick={() => onSelect(event)}
                         >
                             <div className="text-sm text-gray-800">{event.title}</div>

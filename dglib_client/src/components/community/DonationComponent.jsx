@@ -6,7 +6,7 @@ const DonationComponent = () => {
 
             {/* 수집 기간 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/book_loan.gif" alt="수집기간" className="w-25 h-25" />
+                <img src="/book_loan.png" alt="수집기간" className="w-23 h-23" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">수집 기간</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -18,7 +18,7 @@ const DonationComponent = () => {
 
             {/* 도서선정 기준 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/unmanned_return.gif" alt="도서선정" className="w-25 h-25 mt-4" />
+                <img src="/unmanned_return.png" alt="도서선정" className="w-25 h-25 mt-4" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">도서 선정 기준</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -32,7 +32,7 @@ const DonationComponent = () => {
 
             {/* 등록제외 도서 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/unmanned_loan.gif" alt="등록제외" className="w-25 h-25 mt-18" />
+                <img src="/unmanned_loan.png" alt="등록제외" className="w-25 h-25 mt-18" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">등록 제외 도서</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -50,7 +50,7 @@ const DonationComponent = () => {
 
             {/* 기증방법 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/book_reservation.gif" alt="기증방법" className="w-25 h-25" />
+                <img src="/book_reservation.png" alt="기증방법" className="w-25 h-25" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">기증 방법</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -62,7 +62,7 @@ const DonationComponent = () => {
 
             {/* 기증필요서류 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/unmanned_return.gif" alt="기증필요서류" className="w-25 h-25" />
+                <img src="/unmanned_return.png" alt="기증필요서류" className="w-25 h-25" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">기증 필요서류</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">
@@ -75,7 +75,7 @@ const DonationComponent = () => {
 
             {/* 기증문의 */}
             <section className="flex items-start gap-10 mb-10">
-                <img src="/data_lost.gif" alt="기증문의" className="w-25 h-25" />
+                <img src="/data_lost.png" alt="기증문의" className="w-25 h-25" />
                 <div>
                     <h3 className="text-2xl font-semibold mb-5">기증 문의</h3>
                     <ul className="list-disc list-inside space-y-1 text-gray-800">

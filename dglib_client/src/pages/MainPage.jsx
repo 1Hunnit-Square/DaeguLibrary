@@ -35,7 +35,6 @@ const MainPage = () => {
                                     <div className="w-full sm:flex-1 bg-white rounded-lg shadow-sm">
                                         <ClosedInfoComponent />
                                     </div>
-                                
                                 </div>
                             </div>
                         </div>

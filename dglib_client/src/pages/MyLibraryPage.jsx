@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useEffect, useState, useMemo, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
 import { useReactToPrint } from "react-to-print";
+import { useLogin } from "../hooks/useLogin";
 
 const MyLibraryPage = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
@@ -25,17 +26,21 @@ const MyLibraryPage = () => {
     useEffect(() => {
       const currentPath = location.pathname;
       const searchParams = new URLSearchParams(location.search);
+      console.log("🔍 Current Path:", currentPath)
+      console.log("🔍 Search Params:", searchParams.toString());
 
-      if (currentPath.includes('/detail/')) {
+  
         const fromParam = searchParams.get('from');
         if (fromParam) {
+          
           const menuItem = LSideMenu.find(menu => menu.id === fromParam);
+          console.log("✅ Setting activeMenuItem from fromParam:", menuItem); 
           if (menuItem) {
             setActiveMenuItem(menuItem);
             return;
           }
         }
-      }
+     
       const currentMenuItem = LSideMenu.find(menu => {
         const menuBasePath = menu.path.split('?')[0];
         return currentPath.includes(menuBasePath);
@@ -45,7 +50,7 @@ const MyLibraryPage = () => {
       } else {
         setActiveMenuItem(LSideMenu[0]);
       }
-    }, [location.pathname, LSideMenu]);
+    }, [location, LSideMenu]);
 
 
 

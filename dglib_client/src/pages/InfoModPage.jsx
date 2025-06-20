@@ -3,11 +3,12 @@ import SubHeader from "../layouts/SubHeader";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../atoms/loginState";
 import Button from "../components/common/Button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useRef } from "react";
 import InfoModComponent from "../components/member/InfoModComponent";
 import { getMemberInfo } from "../api/memberApi";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin";
+import { useReactToPrint } from "react-to-print";
 
 const InfoModPage = () => {
 const pwRef = useRef();
@@ -17,6 +18,8 @@ const [ modPage, setModPage ] = useState(false);
 const [ memberData, setMemberData ] = useState({});
 const navigate = useNavigate();
 const { doLogout, loginUpdate } = useLogin();
+const contentRef = useRef(null);
+const reactToPrintFn = useReactToPrint({ contentRef });
 
 const handleChange = (e) => {
     setPwVerify(e.target.value);
@@ -68,8 +71,8 @@ loginUpdate().then(res => {
 }
 
     return (<Layout sideOn={false}>
-        <SubHeader subTitle ="정보수정" mainTitle ="기타" />
-        { modPage? <InfoModComponent data={memberData} handleSuccess={handleSuccess} /> :  <>
+        <SubHeader subTitle ="정보수정" mainTitle ="기타" print={reactToPrintFn} />
+        { modPage? <InfoModComponent data={memberData} handleSuccess={handleSuccess} /> :  <div ref={contentRef}>
         <div className = "flex justify-center my-10"> 현재 사용중인 비밀번호를 입력하세요 </div>
         <div className = "text-center pb-3 font-bold">접속 ID : {mid}</div>
            <input ref={pwRef} type="password" required
@@ -79,7 +82,7 @@ loginUpdate().then(res => {
            <div className = "flex justify-center my-10">
             <Button onClick={handleClick}>확인</Button>
            </div>
-           </>
+           </div>
     }
         </Layout>
     );

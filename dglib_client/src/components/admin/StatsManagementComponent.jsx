@@ -5,7 +5,11 @@ import BorrowStatsComponent from "./BorrowStatsComponent";
 import MemberStatsComponent from "./MemberStatsComponent";
 
 const StatsManagementComponent = () => {
- const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const today = new Date();
+    const aMonthAgo = new Date(today);
+    aMonthAgo.setDate(today.getDate() - 30);
+
 
 
     const activeTab = useMemo(() => {
@@ -17,6 +21,11 @@ const StatsManagementComponent = () => {
     const handleTabChange = useCallback((tabId) => {
         const newParams = new URLSearchParams();
         newParams.set("tab", tabId);
+        if(tabId === 'borrow') {
+            
+            newParams.set("startDate", aMonthAgo.toLocaleDateString('fr-CA'));
+            newParams.set("endDate", today.toLocaleDateString('fr-CA'));
+        }
 
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);

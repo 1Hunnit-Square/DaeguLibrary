@@ -1,5 +1,6 @@
 package com.dglib.service.book;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -46,6 +47,7 @@ import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.book.KeywordDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.SearchBookDTO;
+import com.dglib.dto.book.Top10Books;
 import com.dglib.entity.book.Keyword;
 
 public interface BookService {
@@ -91,6 +93,9 @@ public interface BookService {
 	ChatbotBookResponseDTO getBookInfoByBookTitle(String book_title);
 	ChatbotBookResponseDTO getBookInfoByAuthor(String author);
 	List<BookTopNewResponseDTO> getTopNewBookList(String type);
+	List<Top10Books> getTop10Books(LocalDate startDate, LocalDate endDate);
+	ChatbotBookResponseDTO getBorrowBest();
+	ChatbotBookResponseDTO getNewbook();
 	
 	
 	

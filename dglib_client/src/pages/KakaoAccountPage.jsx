@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import SubHeader from "../layouts/SubHeader";
@@ -6,6 +6,7 @@ import Modal from "../components/common/Modal";
 import KakaoAccountComponent from "../components/member/KakaoAccountComponent";
 import { regKakao } from "../api/kakaoApi";
 import { useLogin } from "../hooks/useLogin";
+import { useReactToPrint } from "react-to-print";
 
 const KakaoAccountPage = () => {
 
@@ -14,6 +15,8 @@ const location = useLocation();
 const navigate = useNavigate();
 const { doLogout } = useLogin();
 const { kakaoToken } = location.state || {};
+const contentRef = useRef(null);
+const reactToPrintFn = useReactToPrint({ contentRef });
 
     useEffect(()=>{
         if(!kakaoToken){
@@ -51,9 +54,9 @@ const { kakaoToken } = location.state || {};
 
         return(
         <Layout sideOn={false}>
-        <SubHeader subTitle="회원가입" mainTitle="기타" />
+        <SubHeader subTitle="회원가입" mainTitle="기타" print={reactToPrintFn}/>
         
-        <div className = "my-20">
+        <div className = "my-20" ref={contentRef}>
         <div className = "font-bold text-xl text-center mb-5">
          현재 카카오 계정과 연동된 도서관 ID가 존재하지 않습니다.
          </div>

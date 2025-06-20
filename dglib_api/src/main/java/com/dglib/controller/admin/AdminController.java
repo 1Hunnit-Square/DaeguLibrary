@@ -1,5 +1,7 @@
 package com.dglib.controller.admin;
 
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +42,7 @@ import com.dglib.dto.book.RentalPageDTO;
 import com.dglib.dto.book.RentalStateChangeDTO;
 import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
+import com.dglib.dto.book.Top10Books;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
@@ -251,6 +254,7 @@ public class AdminController {
 		return ResponseEntity.ok().build();
 	}
 	
+
 	// ---------------------------------------------------
 	@GetMapping("/board")
 	public Page<BoardListDTO> getBoardList(
@@ -266,4 +270,13 @@ public class AdminController {
 	   }	
 	   return null;
 	}
+
+	@GetMapping("/top10books")
+	public ResponseEntity<List<Top10Books>> getTop10Books(@RequestParam(required = false) LocalDate startDate, @RequestParam(required = false) LocalDate endDate) {
+		LOGGER.info("Top 10 books request with startDate: {}, endDate: {}", startDate, endDate);
+		List<Top10Books> top10Books = bookService.getTop10Books(startDate, endDate);
+		
+		return ResponseEntity.ok(top10Books);
+	}
+
 }

@@ -2,16 +2,18 @@ import Layout from "../layouts/Layout"
 import { useRecoilValue } from "recoil";
 import LoginComponent from "../components/member/LoginComponent";
 import { useMoveTo } from "../hooks/useMoveTo";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
 import { memberIdSelector } from "../atoms/loginState";
-
+import { useReactToPrint } from "react-to-print";
 
 
 
 const LoginPage = () => {
     const mid = useRecoilValue(memberIdSelector);
     const { moveToPath } = useMoveTo();
+    const contentRef = useRef(null);
+    const reactToPrintFn = useReactToPrint({ contentRef });
 
     useEffect(()=>{
     if (mid){
@@ -22,8 +24,8 @@ const LoginPage = () => {
     
     return (
         <Layout sideOn={false}>
-        <SubHeader subTitle="로그인" mainTitle="기타" />
-        <div className="mx-auto text-center border border-gray-300 rounded-lg w-100 my-10">
+        <SubHeader subTitle="로그인" mainTitle="기타" print={reactToPrintFn} />
+        <div className="mx-auto text-center border border-gray-300 rounded-lg w-100 my-10" ref={contentRef}>
         <div className="mt-10 mb-3">
         대구 도서관에 오신 것을 환영합니다.
         </div>

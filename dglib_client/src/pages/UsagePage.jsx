@@ -1,12 +1,16 @@
 import Layout from "../layouts/Layout"
 import { Outlet, useLocation } from "react-router-dom"
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import SubHeader from "../layouts/SubHeader";
+import { useReactToPrint } from "react-to-print";
+
 
 
 const UsagePage = () => {
     const [activeMenuItem, setActiveMenuItem] = useState(null);
     const location = useLocation();
+    const contentRef = useRef(null);
+    const reactToPrintFn = useReactToPrint({ contentRef });
 
      const LSideMenu = useMemo(() =>[
         { id: "readingroom", label: "자료실 이용", path: "/usage/readingroom" },
@@ -31,8 +35,10 @@ const UsagePage = () => {
 
     return (
          <Layout LMainMenu={"도서관 이용"} LSideMenu={LSideMenu} >
-            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서관 이용" />
-            <Outlet />
+            <SubHeader subTitle={activeMenuItem?.label}  mainTitle="도서관 이용" print={reactToPrintFn} />
+            <div ref={contentRef}>
+              <Outlet />
+            </div>
         </Layout>
     );
 }

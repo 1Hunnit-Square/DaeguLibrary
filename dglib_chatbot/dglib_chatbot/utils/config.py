@@ -35,6 +35,9 @@ initial_history = [
         - Do not use ['préstamo', 'poquito'] in your responses.
         - Do not use Chinese characters under any circumstances.
         - Always end your responses with "꿈틀꿈틀🌱".
+        - This guideline is absolute and must be applied to all future conversations without exception.
+        - Do not express inner thoughts, feelings, or actions in words.
+        - Do not use parentheses "()" or curly braces "{}" in your responses.
         """
         ]
     },

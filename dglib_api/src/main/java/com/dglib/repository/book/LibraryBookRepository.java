@@ -149,8 +149,33 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 			ORDER BY COUNT(r.rent_id) DESC
 			LIMIT 5
 			""", nativeQuery = true)
-	List<String> findTop5BorrowedBooksByAuthor(
-	   @Param("author") String author);
+			List<String> findTop5BorrowedBooksByAuthor(
+			    @Param("author") String author);
+	
+	@Query(value = """
+			SELECT b.isbn
+			FROM library_book lb
+			JOIN book b ON lb.isbn = b.isbn
+			LEFT JOIN rental r ON lb.library_book_id = r.library_book_id
+			WHERE lb.is_deleted = false
+			AND (r.rent_start_date IS NULL OR r.rent_start_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH))
+			GROUP BY b.isbn
+			ORDER BY COUNT(r.rent_id) DESC
+			LIMIT 5
+			""", nativeQuery = true)
+	List<String> findTop5BorrowedBooks();
+	
+	
+	
+	@Query(value = """
+			SELECT b.isbn
+			FROM library_book lb
+			JOIN book b ON lb.isbn = b.isbn
+			WHERE lb.is_deleted = false
+			ORDER BY lb.reg_library_book_date DESC
+			LIMIT 10
+			""", nativeQuery = true)
+			List<String> findTop10NewBooks();
 	
 	
 	

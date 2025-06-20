@@ -21,7 +21,6 @@ const Books = lazy(()=> import ("../pages/BooksPage"));
 const Login = lazy(()=> import ("../pages/LoginPage"));
 const Logout = lazy(()=> import ("../pages/LogoutPage"));
 const MemberCard = lazy(()=> import ("../pages/MemberCardPage"));
-const None = lazy(()=> import ("../pages/NonePage"));
 const Admin = lazy(()=> import ("../pages/AdminPage"));
 const Usage = lazy(()=> import ("../pages/UsagePage"));
 const SearchBookApi = lazy(()=> import ("../components/books/SearchBookApiComponent"));
@@ -73,10 +72,6 @@ const root = createBrowserRouter([
     {
         path: "mylib/card",
         element: <Suspense fallback={<Loading />}><MemberCard /></Suspense>
-    },
-    {
-        path: "mylib/*",
-        element: <Suspense fallback={<Loading />}><None /></Suspense>
     },
     {
         path: "mylibrary",

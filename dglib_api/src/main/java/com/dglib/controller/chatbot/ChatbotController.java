@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +64,13 @@ public class ChatbotController {
 					return new RuntimeException("api 서버와 통신 중 오류가 발생했습니다.", original);
 				});
 	}
+	
+	@GetMapping("/checkaccess")
+	public ResponseEntity<String> checkAccess() {
+        String mid = JwtFilter.getMid();
+        LOGGER.info("Checking access for mid: {}", mid);
+        return ResponseEntity.ok().build();
+    }
 	
 	
 	

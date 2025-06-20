@@ -12,7 +12,7 @@ import { useSelectHandler } from "../../hooks/useSelectHandler";
 
 const LibraryBookListComponent = () => {
     const options = ["도서명", "저자", "ISBN", "도서번호"]
-    const sortByOption = useMemo(() => ({"입고일순": "libraryBookId"}), []);
+    const sortByOption = useMemo(() => ({   "입고일순": "libraryBookId"}), []);
     const orderByOption = useMemo(() => ({"오름차순": "asc", "내림차순": "desc"}), []);
     const sizeOption = useMemo(() => ({"10개씩": "10", "50개씩": "50", "100개씩": "100"}), []);
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -20,13 +20,13 @@ const LibraryBookListComponent = () => {
     const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
 
     const { data: bookData = { content: [], totalElements: 0 }, isLoading } = useQuery({
-        queryKey: ['bookList', searchURLParams.toString()],
+        queryKey: ['bookList', searchURLParams.toString(), dateRange],
         queryFn: () => {
                     const params = {
                         page: parseInt(searchURLParams.get("page") || "1"),
                         size: parseInt(searchURLParams.get("size") || "10"),
-                        startDate: searchURLParams.get("startDate"),
-                        endDate: searchURLParams.get("endDate"),
+                        startDate: dateRange.startDate,
+                        endDate: dateRange.endDate,
                         sortBy: searchURLParams.get("sortBy") || "libraryBookId",
                         orderBy: searchURLParams.get("orderBy") || "desc",
                     };

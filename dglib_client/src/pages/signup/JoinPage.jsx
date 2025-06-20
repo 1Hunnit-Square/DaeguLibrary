@@ -1,5 +1,5 @@
 import DaumPostcode from 'react-daum-postcode';
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
@@ -11,6 +11,8 @@ import PwEqualComponent from "../../components/member/PwEqualComponent";
 import Modal from '../../components/common/Modal';
 import { regPost } from '../../api/memberApi';
 import { getKakaoEmail } from '../../api/kakaoApi';
+import { useReactToPrint } from "react-to-print";
+
 
 
 const JoinPage = () => {
@@ -28,6 +30,8 @@ const [ joinForm, setJoinForm] = useState(
 const [ idCheck, setIdCheck ] = useState(false);
 const [ pwCheck, setPwCheck ] = useState(false);
 const [ pwEqual, setPwEqual ] = useState(false);
+const contentRef = useRef(null);
+const reactToPrintFn = useReactToPrint({ contentRef });
 
 
 useEffect(()=>{
@@ -203,8 +207,8 @@ const onClickJoin = () => {
 
 return(
 <Layout sideOn={false}>
-<SubHeader subTitle="회원가입" mainTitle="기타" />
-<div className="max-w-3xl mx-auto mt-10 p-6 bg-white border rounded-lg shadow">
+<SubHeader subTitle="회원가입" mainTitle="기타" print={reactToPrintFn} />
+<div className="max-w-3xl mx-auto mt-10 p-6 bg-white border rounded-lg shadow" ref={contentRef}>
   <h2 className="text-xl font-semibold border-b mb-6 pb-6">회원가입</h2>
 
   <form className="space-y-0 divide-y divide-gray-300" onSubmit={(e) => e.preventDefault()}>

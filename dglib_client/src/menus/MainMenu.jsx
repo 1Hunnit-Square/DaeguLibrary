@@ -105,7 +105,7 @@ const MainMenu = () => {
                 <AnimatePresence>
                     {isHovering && (
                         <motion.div
-                            className="absolute left-0 w-full bg-white border-b border-b-gray-300 z-10 shadow-md"
+                            className="absolute left-0 w-full bg-white border-b border-b-gray-300 z-150 shadow-md"
                             variants={menuVariants}
                             initial="hidden"
                             animate="visible"
@@ -169,7 +169,7 @@ const MainMenu = () => {
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            className="absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 overflow-hidden"
+                            className="absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg z-150 overflow-hidden"
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}

@@ -70,7 +70,7 @@ const ProgramDetailComponent = () => {
         try {
             await applyProgram(program.progNo, mid);
             alert("신청이 완료되었습니다!");
-            navigate("/myLibrary/useprogram");
+            navigate("/myLibrary/useprogram?from=program");
         } catch (e) {
             alert(e.response?.data?.message || "신청 중 오류 발생");
         }

@@ -7,6 +7,6 @@ import com.dglib.dto.admin.BoardListDTO;
 import com.dglib.dto.admin.BoardSearchDTO;
 
 public interface AdminNoticeService {
-	Page<BoardListDTO> getAdminNoticeList(BoardSearchDTO searchDTO, Pageable pageable);
+	 Page<BoardListDTO> getList(BoardSearchDTO dto, Pageable pageable);
 
 }

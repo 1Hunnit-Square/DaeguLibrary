@@ -156,13 +156,13 @@ const QnaComponent = () => {
             <div className="shadow-md rounded-lg overflow-x-auto mt-4">
                 <table className="w-full bg-white table-fixed">
                     <colgroup>
-                        <col style={{ width: '5%' }} /> 
-                        <col style={{ width: '8%' }} />
-                        <col style={{ width: '35%' }} />
-                        <col style={{ width: '10%' }} />
-                        <col style={{ width: '12%' }} />
-                        <col style={{ width: '15%' }} />
-                        <col style={{ width: '10%' }} />
+                        <col style={{ width: '5%' }} /> {/* 번호 */}
+                        <col style={{ width: '8%' }} /> {/* 상태 */}
+                        <col style={{ width: '35%' }} /> {/* 제목 */}
+                        <col style={{ width: '13%' }} /> {/* 작성자 */}
+                        <col style={{ width: '12%' }} /> {/* 등록일 */}
+                        <col style={{ width: '12%' }} /> {/* 수정일 */}
+                        <col style={{ width: '8%' }} /> {/* 조회수 */}
                     </colgroup>
                     <thead className="bg-[#00893B] text-white">
                         <tr>
@@ -172,6 +172,7 @@ const QnaComponent = () => {
                             <th className="py-3 px-2 text-center text-xs font-semibold uppercase">공개여부</th>
                             <th className="py-3 px-2 text-center text-xs font-semibold uppercase">작성자</th>
                             <th className="py-3 px-2 text-center text-xs font-semibold uppercase">등록일</th>
+                            <th className="py-3 px-2 text-center text-xs font-semibold uppercase">수정일</th>
                             <th className="py-3 px-2 text-center text-xs font-semibold uppercase">조회수</th>
                         </tr>
                     </thead>
@@ -198,7 +199,8 @@ const QnaComponent = () => {
                                     <td className="py-4 px-2 text-xs truncate" title={item.title}>{item.title}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.checkPublic ? "-" : "🔒︎"}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.name}</td>
-                                    <td className="py-4 px-2 text-xs text-center">{item.postedAt?.substring(0, 10)}</td>
+                                    <td className="py-4 px-2 text-xs text-center">{item.postedAt}</td>
+                                    <td className="py-4 px-2 text-xs text-center">{item.modifiedAt}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.viewCount}</td>
                                 </tr>
                             ))

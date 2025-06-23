@@ -6,23 +6,12 @@ const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.admin}`;
 
 
 // 공지사항 관리자
-export const getAdminNoticeList = async (params) => {
+export const getBoardList = async (params) => {
   console.log("보내는 params", params);
-  const response = await axiosClient.get(`${prefix}/notice`, { params : params });
+  const response = await axiosClient.get(`${prefix}/board`, { params : params });
   console.log("받은 데이터", response.data);
   return response.data;
 };
-
-export const getAdminNewsList = async (params) => {
-  console.log("보내는 params", params);
-  const response = await axiosClient.get(`${prefix}/news`, { params : params });
-  console.log("받은 데이터", response.data);
-  return response.data;
-};
-
-
-
-
 
 
 export const regBook = async (bookData) => {

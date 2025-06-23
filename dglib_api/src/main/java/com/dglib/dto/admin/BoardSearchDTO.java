@@ -14,7 +14,7 @@ public class BoardSearchDTO {
     private LocalDate startDate;    // 작성일 시작일
     private LocalDate endDate;      // 작성일 종료일
 
-    private Boolean onlyHidden;     // 숨김글만 보기 체크 여부
+    private Boolean isHidden;     // 숨김글만 보기 체크 여부
 
     private String sortBy;          // 정렬 기준
     private String orderBy;         // asc, desc

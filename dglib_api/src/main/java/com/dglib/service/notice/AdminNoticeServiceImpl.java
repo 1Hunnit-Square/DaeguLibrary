@@ -21,17 +21,23 @@ import lombok.RequiredArgsConstructor;
 public class AdminNoticeServiceImpl implements AdminNoticeService {
 
 	private final NoticeRepository noticeRepository;
-	private final ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-	@Override
-	public Page<BoardListDTO> getAdminNoticeList(BoardSearchDTO searchDTO, Pageable pageable) {
-		Specification<Notice> spec = NoticeSpecifications.adminFilter(searchDTO);
+    @Override
+    public Page<BoardListDTO> getList(BoardSearchDTO dto, Pageable pageable) {
+        Specification<Notice> spec = NoticeSpecifications.adminFilter(dto);
 
-		return noticeRepository.findAll(spec, pageable).map(notice -> {
-			BoardListDTO dto = modelMapper.map(notice, BoardListDTO.class);
-			dto.setWriterId(notice.getMember().getMid());
-			dto.setName(notice.getMember().getName());
-			return dto;
-		});
-	}
+        if (dto.getIsHidden() != null) {
+            spec = spec.and(NoticeSpecifications.isHidden(dto.getIsHidden()));
+        }
+        
+        return noticeRepository.findAll(spec, pageable)
+                .map(notice -> {
+                    BoardListDTO mapped = modelMapper.map(notice, BoardListDTO.class);
+                    mapped.setNo(notice.getAno());
+                    mapped.setWriterId(notice.getMember().getMid());
+                    mapped.setName(notice.getMember().getName());
+                    return mapped;
+                });
+    }
 }

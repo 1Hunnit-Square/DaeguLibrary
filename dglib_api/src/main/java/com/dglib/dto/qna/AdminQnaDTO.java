@@ -13,6 +13,7 @@ public class AdminQnaDTO {
 	private Boolean checkPublic; // 공개 여부
 	private String name; // 작성자 이름
 	private LocalDateTime postedAt; // 등록일
+	private LocalDateTime modifiedAt; // 수정일
 	private int viewCount; // 조회 수
 	private String Mid;	// 작성자 ID
 }

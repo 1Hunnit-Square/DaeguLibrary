@@ -1,6 +1,5 @@
 package com.dglib.controller.admin;
 
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -55,13 +54,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
 public class AdminController {
-	
+
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
 	private final MemberService memberService;
 	private final AdminNoticeService adminNoticeService;
 	private final AdminNewsService adminNewsService;
-	
+
 	@PostMapping("/regbook")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
 		LOGGER.info("도서 등록 요청: {}", bookRegistration);
@@ -69,110 +68,105 @@ public class AdminController {
 		LOGGER.info("도서 등록 성공");
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/regbookcheck/{isbn}")
 	public ResponseEntity<BookRegistrationDTO> regBookCheck(@PathVariable String isbn) {
 		LOGGER.info("isbn: {}", isbn);
 		BookRegistrationDTO regBookCheckDto = bookService.getLibraryBookList(isbn);
 		return ResponseEntity.ok(regBookCheckDto);
 	}
-	
+
 	@PostMapping("/changelibrarybook")
 	public ResponseEntity<String> deleteLibraryBook(@RequestBody LibraryBookChangeDTO libraryBookChangeDto) {
 		LOGGER.info("도서 삭제 요청: {}", libraryBookChangeDto);
 		bookService.changeLibraryBook(libraryBookChangeDto.getLibraryBookId(), libraryBookChangeDto.getState());
 		return ResponseEntity.ok().build();
 	}
-	
-	
-	
+
 	@PostMapping("/borrowbook")
 	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
 		LOGGER.info("도서 대출 요청: {}", rentBookDto);
 		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("searchmembernumber/{memberNumber}")
-	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber,
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
-		Pageable pageable = PageRequest.of(page -1, size);
+		Pageable pageable = PageRequest.of(page - 1, size);
 		Page<MemberSearchByMnoDTO> memberList = memberService.searchByMno(memberNumber, pageable);
-		
 
 		return ResponseEntity.ok(memberList);
 	}
-	
+
 	@GetMapping("/searchlibrarybook/{libraryBookId}")
-	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
+	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId,
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("libraryBookId: {}", libraryBookId);
 		Pageable pageable = PageRequest.of(page - 1, size);
 		Page<LibraryBookSearchByBookIdDTO> memberList = bookService.searchByLibraryBookBookId(libraryBookId, pageable);
 		return ResponseEntity.ok(memberList);
 	}
-	
+
 	@GetMapping("/rentallist")
-	public ResponseEntity<RentalPageDTO> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto ) {
+	public ResponseEntity<RentalPageDTO> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
 		LOGGER.info(borrowedBookSearchDto + " ");
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
-		int size = Optional.ofNullable(borrowedBookSearchDto.getSize())
-                .orElse(10);
+		int size = Optional.ofNullable(borrowedBookSearchDto.getSize()).orElse(10);
 		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("rentId");
 		String orderBy = Optional.ofNullable(borrowedBookSearchDto.getOrderBy()).orElse("desc");
-		
-		Sort sort = "asc".equalsIgnoreCase(orderBy) 
-			    ? Sort.by(sortBy).ascending() 
-			    : Sort.by(sortBy).descending();
-		
+
+		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		RentalPageDTO rentalList = bookService.getRentalList(pageable, borrowedBookSearchDto);
 		LOGGER.info("rentalList: {}", rentalList);
 		return ResponseEntity.ok(rentalList);
 	}
-	
+
 	@PostMapping("/returnbook")
 	public ResponseEntity<String> returnBook(@RequestBody List<RentalStateChangeDTO> rentalStateChangeDto) {
-        LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
-        bookService.completeBookReturn(rentalStateChangeDto);
-        return ResponseEntity.ok().build();
+		LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
+		bookService.completeBookReturn(rentalStateChangeDto);
+		return ResponseEntity.ok().build();
 	}
+
 	@GetMapping("/reservebooklist")
-	public ResponseEntity<Page<ReserveBookListDTO>> reserveBookList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
+	public ResponseEntity<Page<ReserveBookListDTO>> reserveBookList(
+			@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
 		LOGGER.info(borrowedBookSearchDto + " ");
 		borrowedBookSearchDto.updateDateTimeRange();
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
-		int size = Optional.ofNullable(borrowedBookSearchDto.getSize())
-                .orElse(10);
+		int size = Optional.ofNullable(borrowedBookSearchDto.getSize()).orElse(10);
 		String sortBy = Optional.ofNullable(borrowedBookSearchDto.getSortBy()).orElse("reserveId");
 		String orderBy = Optional.ofNullable(borrowedBookSearchDto.getOrderBy()).orElse("desc");
-		
-		Sort sort = "asc".equalsIgnoreCase(orderBy) 
-			    ? Sort.by(sortBy).ascending() 
-			    : Sort.by(sortBy).descending();
+
+		Sort sort = "asc".equalsIgnoreCase(orderBy) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		
+
 		Page<ReserveBookListDTO> reserveList = bookService.getReserveList(pageable, borrowedBookSearchDto);
 		LOGGER.info("reserveList: {}", reserveList);
 		return ResponseEntity.ok(reserveList);
 	}
-	
+
 	@PostMapping("/cancelreservebook")
 	public ResponseEntity<String> cancelReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
-        LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
-        bookService.cancelReserveBook(reserveStateChangeDtos);
-        return ResponseEntity.ok().build();
+		LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
+		bookService.cancelReserveBook(reserveStateChangeDtos);
+		return ResponseEntity.ok().build();
 	}
-	
-	
+
 	@PostMapping("/completeborrowing")
 	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 		LOGGER.info("도서 대출 완료 요청: {}", reserveStateChangeDtos);
 		bookService.completeBorrowing(reserveStateChangeDtos);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/librarybooklist")
-	public ResponseEntity<Page<LibraryBookSummaryDTO>> getLibraryBookList(@ModelAttribute LibraryBookSearchDTO libraryBookSearchDto) {
+	public ResponseEntity<Page<LibraryBookSummaryDTO>> getLibraryBookList(
+			@ModelAttribute LibraryBookSearchDTO libraryBookSearchDto) {
 		LOGGER.info(libraryBookSearchDto + " ");
 		int page = Optional.ofNullable(libraryBookSearchDto.getPage()).orElse(1);
 		int size = Optional.ofNullable(libraryBookSearchDto.getSize()).orElse(10);
@@ -184,19 +178,19 @@ public class AdminController {
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<LibraryBookSummaryDTO> libraryBookList = bookService.getLibraryBookList(pageable, libraryBookSearchDto);
 		return ResponseEntity.ok(libraryBookList);
-		
+
 	}
-	
+
 	@PostMapping("/updateoverduemember")
 	public ResponseEntity<String> updateOverdueMember() {
 		LOGGER.info("연체 회원 업데이트 요청");
 		memberService.executeOverdueCheck();
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("wishbooklist")
 	public ResponseEntity<Page<AdminWishBookListDTO>> getWishBookList(AdminWishBookSearchDTO dto) {
-		LOGGER.info("위시리스트 도서 조회 요청 {}" , dto);
+		LOGGER.info("위시리스트 도서 조회 요청 {}", dto);
 		int page = Optional.ofNullable(dto.getPage()).orElse(1);
 		int size = Optional.ofNullable(dto.getSize()).orElse(10);
 		String sortBy = Optional.ofNullable(dto.getSortBy()).orElse("wishNo");
@@ -206,24 +200,24 @@ public class AdminController {
 		Page<AdminWishBookListDTO> wishBookList = bookService.getWishBookList(pageable, dto);
 		return ResponseEntity.ok(wishBookList);
 	}
-	
+
 	@PostMapping("/rejectwishbook/{wishNo}")
 	public ResponseEntity<String> rejectWishBook(@PathVariable Long wishNo) {
 		LOGGER.info("위시리스트 도서 거절 요청: {}", wishNo);
 		bookService.rejectWishBook(wishNo);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/regebook")
 	public ResponseEntity<String> regEbook(EbookRegistrationDTO dto) {
 		LOGGER.info("전자책 등록 요청 {}", dto);
-		
+
 		bookService.regEbook(dto);
-		
+
 		LOGGER.info("전자책 등록 성공");
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("/ebooklist")
 	public ResponseEntity<Page<EbookSummaryDTO>> getEbookList(@ModelAttribute EbookSearchDTO dto) {
 		LOGGER.info(dto + " ");
@@ -237,46 +231,40 @@ public class AdminController {
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<EbookSummaryDTO> ebookList = bookService.getEbookAdminList(pageable, dto);
 		return ResponseEntity.ok(ebookList);
-		
+
 	}
-	
+
 	@PostMapping("/updateebook")
 	public ResponseEntity<String> updateEbook(@ModelAttribute EbookUpdateDTO dto) {
 		LOGGER.info("전자책 수정 요청 {}", dto);
 		bookService.updateEbook(dto);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@DeleteMapping("/deleteebook/{ebookId}")
 	public ResponseEntity<String> deleteEbook(@PathVariable Long ebookId) {
 		LOGGER.info("전자책 삭제 요청: {}", ebookId);
 		bookService.deleteEbook(ebookId);
 		return ResponseEntity.ok().build();
 	}
-	
-
-	// ---------------------------------------------------
-	@GetMapping("/board")
-	public Page<BoardListDTO> getBoardList(
-	    @ModelAttribute BoardSearchDTO searchDTO, 
-	    Pageable pageable
-	) {
-	   switch(searchDTO.getBoardType()) {
-	   case "notice":
-		   return adminNoticeService.getAdminNoticeList(searchDTO, pageable);
-		   
-	   case"news":
-		   return adminNewsService.getAdminNewsList(searchDTO, pageable);
-	   }	
-	   return null;
-	}
 
 	@GetMapping("/top10books")
-	public ResponseEntity<List<Top10Books>> getTop10Books(@RequestParam(required = false) LocalDate startDate, @RequestParam(required = false) LocalDate endDate) {
+	public ResponseEntity<List<Top10Books>> getTop10Books(@RequestParam(required = false) LocalDate startDate,
+			@RequestParam(required = false) LocalDate endDate) {
 		LOGGER.info("Top 10 books request with startDate: {}, endDate: {}", startDate, endDate);
 		List<Top10Books> top10Books = bookService.getTop10Books(startDate, endDate);
-		
+
 		return ResponseEntity.ok(top10Books);
 	}
 
+	// ---------------------------------------------------
+	@GetMapping("/board")
+	public Page<BoardListDTO> getBoards(@ModelAttribute BoardSearchDTO dto, Pageable pageable) {
+		if ("notice".equals(dto.getBoardType())) {
+			return adminNoticeService.getList(dto, pageable);
+		} else if ("news".equals(dto.getBoardType())) {
+			return adminNewsService.getList(dto, pageable);
+		}
+		throw new IllegalArgumentException("지원하지 않는 게시판 타입입니다.");
+	}
 }

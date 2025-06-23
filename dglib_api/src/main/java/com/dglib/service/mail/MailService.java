@@ -1,6 +1,8 @@
 package com.dglib.service.mail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +36,7 @@ import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMessage.RecipientType;
 import jakarta.mail.search.AndTerm;
 import jakarta.mail.search.FromTerm;
@@ -46,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MailService {
-	
+
     private final Mailer mailer;
     private final MailConfig mailConfig;
     private final ModelMapper modelMapper;
@@ -78,8 +81,10 @@ public class MailService {
     		int size = searchDTO.getSize() > 0 ? searchDTO.getSize() : 10;
     		
         	try {
-        		Folder inbox = mailConfig.getFolder(type, true);
+        		Folder inbox = mailConfig.getFolder(type, false);
+        		
         		Message[] messages = filterMail(type, inbox, mailId, null);
+        		sortMessages(messages);
         		
         		int total = messages.length;
         		int fromIndex = Math.min(page * size, total);
@@ -87,7 +92,7 @@ public class MailService {
         		
         	    List<MailListDTO> mailList = new ArrayList<>();
         	    
-            for (int i = messages.length - fromIndex - 1; i > messages.length - toIndex - 1; i--) {
+            for (int i = fromIndex; i < toIndex; i++) {
             	Message msg = messages[i];
             	
             	Flags flags = msg.getFlags();
@@ -106,8 +111,18 @@ public class MailService {
             	 String eid = null;
             	 if(header != null && header.length > 0) {
             		 eid = EncryptUtil.base64Encode(header[0]);
+            	 } else {
+            		 MimeMessage copy = new MimeMessage((MimeMessage) msg);
+            		 String newId = "<" + UUID.randomUUID().toString() + "-" + System.currentTimeMillis() + "@"+basicDTO.getFromEmail()+">";
+            		 copy.setHeader("Message-ID", newId);
+            		 copy.saveChanges();
+            		 eid = EncryptUtil.base64Encode(newId);
+            		 
+            		 inbox.appendMessages(new Message[]{copy});
+
+            		msg.setFlag(Flags.Flag.DELETED, true);
             	 }
-                
+            	 
                 MailListDTO dto = new MailListDTO();
                 modelMapper.map(basicDTO, dto);
                 dto.setEid(eid);
@@ -119,7 +134,7 @@ public class MailService {
             
             mailPage = new PageImpl<>(mailList, PageRequest.of(page, size), mailList.size());
             
-            mailConfig.closeFolder(inbox, false);
+            mailConfig.closeFolder(inbox, true);
             
         	} catch (MessagingException e) {
         		throw new RuntimeException(e); 
@@ -244,6 +259,26 @@ public class MailService {
             }
   
     	return messages;
+    }
+    
+    public static void sortMessages(Message[] messages) {
+      
+    	Arrays.sort(messages, (m1, m2) -> {
+    		try {
+                Date d1 = m1.getReceivedDate();
+                Date d2 = m2.getReceivedDate();
+
+               
+                if (d1 == null && d2 == null) return 0;
+                if (d1 == null) return -1; 
+                if (d2 == null) return 1;
+
+                return d2.compareTo(d1);
+    		 } catch(Exception e) {
+    	    	  throw new RuntimeException("Sort Error");
+    	      }
+        });
+     
     }
     
 }

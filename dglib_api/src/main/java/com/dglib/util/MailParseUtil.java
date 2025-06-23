@@ -43,7 +43,8 @@ public class MailParseUtil {
         
         if((type.equals("SENDER") && email.equals(fromEmail)) || (type.equals("RECIEVER") && toEmail.contains(email))) {
         	 String subject = message.getSubject();
-             LocalDateTime sentTime = message.getSentDate().toInstant()
+
+             LocalDateTime sentTime = message.getReceivedDate().toInstant()
                      .atZone(ZoneId.systemDefault())
                      .toLocalDateTime();
      		

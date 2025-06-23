@@ -1,22 +1,34 @@
 import { useEffect } from 'react';
 
-const { kakao } = window;
+
 
 const LocationComponent = () => {
 
+
     useEffect(() => {
-        const container = document.getElementById('map');
-        const option = {
-            center: new kakao.maps.LatLng(35.842453316043404, 128.59189023238966),
-            level: 3
-        };
-        const map = new kakao.maps.Map(container, option)
-        const marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(35.842453316043404, 128.59189023238966)
-        });
-        marker.setMap(map);
-        const zoomControl = new kakao.maps.ZoomControl();
-        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+        const { kakao } = window;
+
+        const kakaoMap = () => {
+            const container = document.getElementById('map');
+            const option = {
+                center: new kakao.maps.LatLng(35.842453316043404, 128.59189023238966),
+                level: 3
+            };
+            const map = new kakao.maps.Map(container, option)
+            const marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(35.842453316043404, 128.59189023238966)
+            });
+            marker.setMap(map);
+            const zoomControl = new kakao.maps.ZoomControl();
+            map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+        }
+
+        if(kakao)
+        kakao.maps.load(kakaoMap);
+        else
+        document.getElementById('map').innerText = "카카오 지도가 로드되지 않았습니다.";
+    
+
     }, [])
 
 
@@ -25,7 +37,7 @@ const LocationComponent = () => {
             <div className="w-full max-w-8xl px-4">
 
                 <div className="mt-10 mb-8 mx-auto  rounded-lg overflow-hidden shadow-lg border max-w-6xl item-center justify-center border-gray-200">
-                    <div id="map" className="w-full h-[500px]"></div>
+                    <div id="map" className="w-full h-[500px] flex justify-center items-center"></div>
                 </div>
 
 

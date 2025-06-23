@@ -123,7 +123,7 @@ return(
                             <th className="py-3 px-3 max-w-70 min-w-70 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "받은 사람" : "보낸 사람"}</th>
                             <th className="py-3 px-3 max-w-100 min-w-100 text-center text-sm uppercase whitespace-nowrap">제목</th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "수신여부" : "읽음여부"}</th>
-                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">도착시간</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "발송시간" : "도착시간"}</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">

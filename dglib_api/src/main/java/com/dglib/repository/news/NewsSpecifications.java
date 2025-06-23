@@ -35,35 +35,28 @@ public class NewsSpecifications {
 			}
 		};
 	}
-	
+
 	public static Specification<News> adminFilter(BoardSearchDTO dto) {
-	    return (root, query, cb) -> {
-	        List<Predicate> predicates = new ArrayList<>();
+		return (root, query, cb) -> {
+			List<Predicate> predicates = new ArrayList<>();
 
-	        // searchType + searchKeyword 조합
-	        if (dto.getSearchType() != null && dto.getSearchKeyword() != null && !dto.getSearchKeyword().isBlank()) {
-	            switch (dto.getSearchType()) {
-	                case "title":
-	                    predicates.add(cb.like(root.get("title"), "%" + dto.getSearchKeyword() + "%"));
-	                    break;
-	                case "id":
-	                    predicates.add(cb.like(root.get("member").get("mid"), "%" + dto.getSearchKeyword() + "%"));
-	                    break;
-	                case "name":
-	                    predicates.add(cb.like(root.get("member").get("name"), "%" + dto.getSearchKeyword() + "%"));
-	                    break;
-	            }
-	        }
+			if (dto.getSearchType() != null && dto.getSearchKeyword() != null && !dto.getSearchKeyword().isBlank()) {
+				switch (dto.getSearchType()) {
+				case "title" -> predicates.add(cb.like(root.get("title"), "%" + dto.getSearchKeyword() + "%"));
+				case "id" -> predicates.add(cb.like(root.get("member").get("mid"), "%" + dto.getSearchKeyword() + "%"));
+				case "name" ->
+					predicates.add(cb.like(root.get("member").get("name"), "%" + dto.getSearchKeyword() + "%"));
+				}
+			}
 
-	        // 작성일 조건
-	        if (dto.getStartDate() != null) {
-	            predicates.add(cb.greaterThanOrEqualTo(root.get("postedAt"), dto.getStartDate().atStartOfDay()));
-	        }
-	        if (dto.getEndDate() != null) {
-	            predicates.add(cb.lessThanOrEqualTo(root.get("postedAt"), dto.getEndDate().atTime(23, 59, 59)));
-	        }
+			if (dto.getStartDate() != null) {
+				predicates.add(cb.greaterThanOrEqualTo(root.get("postedAt"), dto.getStartDate().atStartOfDay()));
+			}
+			if (dto.getEndDate() != null) {
+				predicates.add(cb.lessThanOrEqualTo(root.get("postedAt"), dto.getEndDate().atTime(23, 59, 59)));
+			}
 
-	        return cb.and(predicates.toArray(new Predicate[0]));
-	    };
+			return cb.and(predicates.toArray(new Predicate[0]));
+		};
 	}
 }

@@ -17,4 +17,5 @@ public class BoardListDTO {
 	
 	private String writerId;	//작성자id
 	private String name;	//작성자이름
+	
 }

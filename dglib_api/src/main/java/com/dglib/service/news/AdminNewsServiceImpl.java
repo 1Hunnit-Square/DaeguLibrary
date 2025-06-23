@@ -18,21 +18,21 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AdminNewsServiceImpl implements AdminNewsService{
-	
+public class AdminNewsServiceImpl implements AdminNewsService {
+
 	private final NewsRepository newsRepository;
 	private final ModelMapper modelMapper;
 
 	@Override
-	public Page<BoardListDTO> getAdminNewsList(BoardSearchDTO searchDTO, Pageable pageable) {
-		Specification<News> spec = NewsSpecifications.adminFilter(searchDTO);
+	public Page<BoardListDTO> getList(BoardSearchDTO dto, Pageable pageable) {
+		Specification<News> spec = NewsSpecifications.adminFilter(dto);
 
 		return newsRepository.findAll(spec, pageable).map(news -> {
-			BoardListDTO dto = modelMapper.map(news, BoardListDTO.class);
-			dto.setWriterId(news.getMember().getMid());
-			dto.setName(news.getMember().getName());
-			return dto;
+			BoardListDTO mapped = modelMapper.map(news, BoardListDTO.class);
+			mapped.setNo(news.getNno());
+			mapped.setWriterId(news.getMember().getMid());
+			mapped.setName(news.getMember().getName());
+			return mapped;
 		});
 	}
 }
-

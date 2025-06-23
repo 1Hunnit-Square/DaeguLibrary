@@ -71,16 +71,22 @@ const BorrowMemberHistoryComponent = () => {
                     </div>
                 ) : (
                     <>
-                        {data.content.map((book, index) => (
+                        {data.content.map((book, index) => {
+                            const rentStart = new Date(book.rentStartDate);
+                            const dueDate = new Date(book.dueDate);
+                            const duration = Math.floor((dueDate - rentStart) / (1000 * 60 * 60 * 24));
+                            const canExtend = book.rentStartDate <= book.dueDate && book.reserveCount === 0 && duration <= 7;
+                            const isOverdue = new Date() > dueDate;
+                            return (
                             <div key={book.rentId}>
                                 <div className="p-4 sm:p-6">
                                     <div className="space-y-4">
                                         <div className={
-                                            (book.rentStartDate > book.dueDate)
+                                            (isOverdue && book.rentalState !== "RETURNED")
                                             ? "text-red-500 font-medium text-sm sm:text-base"
                                             : "text-green-600 font-medium text-sm sm:text-base"
                                         }>
-                                            <span>{book.rentalState === "RETURNED" ? "반납완료" : (book.rentStartDate > book.dueDate) ? `연체중`  : `대출중` }</span>
+                                            <span>{book.rentalState === "RETURNED" ? "반납완료" : isOverdue ? `연체중`  : `대출중` }</span>
                                         </div>
                                         
                                         <div className="text-lg sm:text-xl font-semibold">
@@ -103,7 +109,7 @@ const BorrowMemberHistoryComponent = () => {
                                         <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
                                             <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
                                                 <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">저자</span>
-                                                <span className="truncate break-words" title={book.author}>{book.author}</span>
+                                                <span className="truncate break-words" title={book.author}>{book.author && book.author.length > 20 ? `${book.author.substring(0, 20)}...` : book.author}</span>
                                             </div>
                                             <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
                                                 <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">대출일</span>
@@ -124,7 +130,7 @@ const BorrowMemberHistoryComponent = () => {
                                     <div className="border-b border-gray-200 mx-4 sm:mx-6"></div>
                                 )}
                             </div>
-                        ))}
+                        )})}
                     </>
                 )}
             </div>

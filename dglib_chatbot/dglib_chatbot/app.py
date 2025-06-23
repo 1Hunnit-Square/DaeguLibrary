@@ -73,7 +73,7 @@ async def reset_chat(request: resetRequest):
 
 def main():
     import uvicorn
-    uvicorn.run("dglib_chatbot.app:app", host="0.0.0.0", port=1992, reload=True)
+    uvicorn.run("dglib_chatbot.app:app", host="0.0.0.0", port=1992, reload=False)
 
 if __name__ == "__main__":
     main()

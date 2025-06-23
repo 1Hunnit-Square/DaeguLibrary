@@ -10,11 +10,13 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 
 const BorrowMemberStateComponent = () => {
 
+
     const { data = [], isLoading, isError } = useQuery({
         queryKey: ["borrowMemberBookNowList"],
         queryFn: getMemberBorrowList,
     })
     console.log(data);
+    
     const { selectedItems: selectedBooks, isAllSelected, handleSelectItem: handleSelectBooks, handleSelectAll, resetSelection: resetSelectedBooks } = useItemSelection(data, 'rentId');
     const extendBorrowBooks = useBookMutation(async (rentIds) => await extendBorrow(rentIds), { successMessage: "대출을 7일 연장했습니다.", onReset: resetSelectedBooks, queryKeyToInvalidate: 'interestedBooks'} );
     const handleSelectAllClick = useCallback(() => {
@@ -86,6 +88,7 @@ const BorrowMemberStateComponent = () => {
                             const dueDate = new Date(book.dueDate);
                             const duration = Math.floor((dueDate - rentStart) / (1000 * 60 * 60 * 24));
                             const canExtend = book.rentStartDate <= book.dueDate && book.reserveCount === 0 && duration <= 7;
+                            const isOverdue = new Date() > dueDate;
                             return (
                                 <div key={book.rentId}>
                                     <div className="p-4 sm:p-6">
@@ -95,11 +98,11 @@ const BorrowMemberStateComponent = () => {
                                             </div>
                                             <div className="flex-1 space-y-4">
                                                 <div className={
-                                                    (book.rentStartDate > book.dueDate)
+                                                    (isOverdue)
                                                     ? "text-red-500 font-medium text-sm sm:text-base"
                                                     : "text-green-600 font-medium text-sm sm:text-base"
                                                 }>
-                                                    <span>{(book.rentStartDate > book.dueDate) ? `연체중(예약${book.reserveCount}명)`  : `대출중(예약${book.reserveCount}명)` }</span>
+                                                    <span>{isOverdue ? `연체중(예약${book.reserveCount}명)`  : `대출중(예약${book.reserveCount}명)` }</span>
                                                 </div>
                                                 
                                                 <div className="text-lg sm:text-xl font-semibold">
@@ -122,8 +125,8 @@ const BorrowMemberStateComponent = () => {
                                                         <span className="truncate" title={book.dueDate}>{book.dueDate}</span>
                                                     </div>
                                                     <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
-                                                        <span className={`px-2 py-1 rounded font-medium text-xs ${!canExtend ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
-                                                            {!canExtend ? "대출연장불가" : "대출연장가능"}
+                                                        <span className={`px-2 py-1 rounded font-medium text-xs ${!canExtend || isOverdue ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
+                                                            {!canExtend || isOverdue  ? "대출연장불가" : "대출연장가능"}
                                                         </span>
                                                     </div>
                                                 </div>

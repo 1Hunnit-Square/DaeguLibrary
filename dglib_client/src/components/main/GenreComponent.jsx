@@ -22,18 +22,16 @@ const GenreComponent = ({genre}) => {
         refetchOnWindowFocus: false
     })
 
-    // 화면 크기별 예상 높이 계산 (더 정확한 모바일 대응)
+   
     const calculateExpectedHeight = () => {
         const width = window.innerWidth;
-        const padding = width >= 640 ? 32 : 16; // p-2 sm:p-4
+        const padding = width >= 640 ? 32 : 16; 
         
-        if (width >= 1280) { // xl: 데스크톱
-            // 200px 너비 기준으로 aspect-ratio 3:4 + 텍스트 영역
-            const imageHeight = (200 * 4) / 3; // 266px
-            const textHeight = 40; // 제목 + 저자
+        if (width >= 1280) { 
+            const imageHeight = (200 * 4) / 3;
+            const textHeight = 40; 
             return imageHeight + textHeight + padding;
-        } else { // 모바일: Swiper
-            // 화면 너비에서 패딩과 gap을 제외한 실제 슬라이드 너비 계산
+        } else { 
             let slidesPerView = 2.5;
             let spaceBetween = 16;
             
@@ -45,15 +43,15 @@ const GenreComponent = ({genre}) => {
             const totalGaps = (slidesPerView - 1) * spaceBetween;
             const slideWidth = (availableWidth - totalGaps) / slidesPerView;
             
-            // aspect-ratio 3:4로 이미지 높이 계산
+            
             const imageHeight = (slideWidth * 4) / 3;
-            const textHeight = 40; // 제목 + 저자
+            const textHeight = 40; 
             
             return imageHeight + textHeight + padding;
         }
     };
 
-    // 현재 화면 크기의 key 생성
+
     const getScreenKey = () => {
         const width = window.innerWidth;
         if (width >= 1280) return 'xl';
@@ -63,7 +61,7 @@ const GenreComponent = ({genre}) => {
         return 'xs';
     };
 
-    // 실제 높이 측정 및 저장
+   
     useEffect(() => {
         if (!isLoading && containerRef.current) {
             const height = containerRef.current.offsetHeight;
@@ -80,7 +78,7 @@ const GenreComponent = ({genre}) => {
         navigate(`/books/detail/${isbn}?from=reco`);
     };
 
-    // 로딩 높이 계산 (모바일 최적화)
+   
     const getLoadingHeight = () => {
         const screenKey = getScreenKey();
         const savedHeight = calculatedHeights[screenKey];
@@ -89,7 +87,7 @@ const GenreComponent = ({genre}) => {
             return savedHeight;
         }
         
-        // 저장된 높이가 없으면 계산된 예상 높이 사용
+      
         return calculateExpectedHeight();
     };
 
@@ -121,7 +119,7 @@ const GenreComponent = ({genre}) => {
     return (
         <div className="p-2 sm:p-4" ref={containerRef}>
            
-           <div className="hidden xl:flex xl:justify-between xl:gap-4">
+           <div className="hidden xl:flex xl:justify-center xl:gap-15">
                 {books.map((bookData) => (
                     <div 
                         key={bookData.isbn13}

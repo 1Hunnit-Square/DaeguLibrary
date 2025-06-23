@@ -5,7 +5,7 @@ const PolicyComponent = () => {
         <div className="max-w-5xl mx-auto p-6 md:p-10 bg-gray-50 rounded-lg">
             {/* 비전 */}
             <section className="relative mt-5 text-center py-10 px-6 rounded-2xl shadow-md bg-green-800">
-                <p className="text-3xl font-semibold text-white mt-2 mb-3 leading-relaxed">
+                <p className="text-3xl text-white mt-2 mb-3 leading-relaxed">
                     시민이<br className="sm:hidden" /> 행복한 도서관
                 </p>
                 <div className="absolute bottom-4 right-4">

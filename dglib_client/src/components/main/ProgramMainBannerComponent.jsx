@@ -54,7 +54,7 @@ const ProgramMainBannerComponent = () => {
                                 className="w-full h-full py-4"
                                 onClick={() => handleClick(banner.programInfoId)}
                             >
-                                <div className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-2xl shadow-lg mx-auto">
+                                <div className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-3xl shadow-lg mx-auto">
                                     <img
                                         src={getProgramBannerImageUrl(banner.thumbnailPath)}
                                         alt={banner.progName}
@@ -81,7 +81,7 @@ const ProgramMainBannerComponent = () => {
             <style>
                 {`
                     .program-swiper {
-                        --swiper-navigation-color: #475569;
+                        --swiper-navigation-color: #160258;
                         --swiper-pagination-color: #00893B;
                     }
 
@@ -94,7 +94,7 @@ const ProgramMainBannerComponent = () => {
                     .program-swiper .swiper-button-next::after,
                     .program-swiper .swiper-button-prev::after {
                         font-size: 20px;
-                        color: #475569;
+                        color: #160258;
                     }
                 `}
             </style>

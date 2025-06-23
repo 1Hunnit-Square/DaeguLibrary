@@ -65,7 +65,7 @@ const CalendarManagementComponent = () => {
       queryClient.invalidateQueries(['closedDays', selectedYear, selectedMonth]);
       resetModal();
     },
-    onError: (err) => alert('저장 중 오류 발생: ' + (err.response?.data || err.message)),
+    onError: (err) => alert('저장 중 오류 발생: ' + (err.response?.data?.message || err.message)),
   });
 
   // 일정 삭제 요청을 서버에 보내는 비동기 처리, 성공 시: 자동으로 현재 연/월 일정 목록을 다시 불러옴, 실패 시: 에러 메시지 출력
@@ -75,7 +75,7 @@ const CalendarManagementComponent = () => {
       queryClient.invalidateQueries(['closedDays', selectedYear, selectedMonth]);
       resetModal();
     },
-    onError: (err) => alert('삭제 중 오류 발생: ' + (err.response?.data || err.message)),
+    onError: (err) => alert('삭제 중 오류 발생: ' + (err.response?.data?.message || err.message)),
   });
 
 
@@ -271,7 +271,7 @@ const CalendarManagementComponent = () => {
                 alert('공휴일 및 휴관일이 등록되었습니다.');
                 refetch();
               } catch (e) {
-                alert('공휴일 및 휴관일 등록 실패: ' + (e.response?.date || e.message));
+                alert('공휴일 및 휴관일 등록 실패: ' + (e.response?.data?.message || e.message));
               } finally {
                 setIsRegisterLoading(false);
               }

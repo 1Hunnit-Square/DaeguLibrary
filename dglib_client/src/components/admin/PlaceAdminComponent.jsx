@@ -92,7 +92,7 @@ const PlaceAdminComponent = () => {
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">시설대여 관리</h1>
 
             {/* 검색 조건 */}
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-100 p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-4 min-h-30">
                 <SearchSelectComponent
                     options={searchOptions}
                     defaultCategory={defaultCategory}

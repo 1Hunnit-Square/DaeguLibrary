@@ -8,21 +8,21 @@ const MemberShipComponent = () => {
         <div className="max-w-5xl mx-auto px-12 py-15 bg-white rounded-lg shadow-md">
             <section className="px-5 py-5 max-w-6xl mx-auto text-gray-800">
                 {/* 헤더 영역 */}
-                <div className="bg-green-100 border border-green-200 p-8 rounded-xl flex flex-col md:flex-row items-center justify-between mb-12 shadow-md">
-                    <div className="mb-4 md:mb-0 md:w-3/4">
-                        <h1 className="text-3xl font-extrabold text-gray-900 mb-5">회원가입</h1>
-                        <div className="text-sm text-gray-800 space-y-1">
+                <div className="bg-[#eefbef] p-6 rounded-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+                    <div className="flex-1">
+                        <h1 className="text-3xl font-bold text-green-900 mb-10">회원가입</h1>
+                        <div className="text-sm text-gray-800 space-y-2">
                             <p>도서관 회원이 되시면 다양한 자료를 이용하실 수 있고,</p>
                             <p>문화행사 참여와 도서 대출 서비스를 이용하실 수 있습니다.</p>
                         </div>
                     </div>
-                    <img src="/signup.png" alt="회원가입 이미지" onClick={() => navigate(`/signup`)} className="hover:cursor-pointer w-20 md:w-20" />
+                    <img src="/signup.png" alt="회원가입 이미지" onClick={() => navigate(`/signup`)} className="hover:cursor-pointer w-23 md:w-23" />
                 </div>
 
                 {/* 가입 대상 */}
                 <div className="mb-14">
                     <h2 className="text-2xl font-bold text-green-800 mb-6 border-b-4 border-green-700 inline-block pb-2">회원 가입 대상</h2>
-                    <ul className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm text-gray-700 list-disc pl-6 space-y-2 text-sm">
+                    <ul className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm text-gray-700 list-disc pl-10 space-y-2 text-sm">
                         <li>대구시에 주민등록이 되어있는 만 14세 이상의 내국인</li>
                         <li>대구시 소재 학교에 재학 중인 학생, 직장에 재직 중인 자</li>
                         <li>대구시 거주 외국인 등록자(등록증 소지자), 국내 체류 외국인 등록자</li>
@@ -75,10 +75,10 @@ const MemberShipComponent = () => {
                     <h2 className="text-2xl font-bold text-green-800 mb-6 border-b-4 border-green-700 inline-block pb-2">구비서류 (도서관 방문 시)</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-center border border-gray-300 shadow-sm">
-                            <thead className="bg-green-600 text-white">
+                            <thead className="bg-gray-200 text-gray-800">
                                 <tr>
-                                    <th className="px-4 py-3">회원유형</th>
-                                    <th className="border border-green-500 px-4 py-3">구비서류</th>
+                                    <th className="border border-gray-300 px-4 py-3">회원 유형</th>
+                                    <th className="border border-gray-300 px-4 py-3">구비서류</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white">

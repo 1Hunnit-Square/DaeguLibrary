@@ -2,6 +2,7 @@ package com.dglib.service.days;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,6 @@ import com.dglib.entity.days.ClosedDay;
 import com.dglib.repository.days.ClosedDayRepository;
 
 import lombok.RequiredArgsConstructor;
-
 
 @RequiredArgsConstructor
 @Service
@@ -55,14 +55,16 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	// 월별 조회
 	@Override
 	public List<ClosedDayDTO> getMonthlyList(int year, int month) {
-		List<ClosedDay> list = closedDayRepository.findAll().stream()
-				.filter(day -> day.getClosedDate().getYear() == year && day.getClosedDate().getMonthValue() == month)
-				.sorted(Comparator.comparing(ClosedDay::getClosedDate)) // 휴관일 리스트를 날짜순으로 정렬
-				.collect(Collectors.toList());
+		LocalDate start = LocalDate.of(year, month, 1);
+		LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+		List<ClosedDay> list = closedDayRepository.findByClosedDateBetween(start, end).stream()
+				.sorted(Comparator.comparing(ClosedDay::getClosedDate)).collect(Collectors.toList());
 
 		return list.stream().map(day -> modelMapper.map(day, ClosedDayDTO.class)).collect(Collectors.toList());
 	}
 
+	// 수정
 	@Override
 	public void update(String originalDate, ClosedDayDTO dto) {
 		LocalDate targetDate = LocalDate.parse(originalDate); // 기존 날짜로 조회
@@ -84,11 +86,10 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	// 삭제
 	@Override
 	public void delete(LocalDate date) {
-		if (!closedDayRepository.existsById(date)) {
-			throw new IllegalArgumentException("삭제할 휴관일이 존재하지 않습니다.");
-		}
+		ClosedDay day = closedDayRepository.findById(date)
+				.orElseThrow(() -> new IllegalArgumentException("삭제할 휴관일이 존재하지 않습니다."));
 
-		closedDayRepository.deleteById(date);
+		closedDayRepository.delete(day);
 	}
 
 	// 전체 삭제(테스트용)
@@ -97,64 +98,75 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 //		closedDayRepository.deleteAll();
 //	}
 
-	// 자동 등록 메서드
-
+	// -------------------- 자동 등록 메서드 --------------------
 	// 월요일 등록
 	@Override
 	public void registerMondays(int year) {
 		LocalDate date = LocalDate.of(year, 1, 1);
+		List<LocalDate> mondays = new ArrayList<>();
 
 		while (date.getYear() == year) {
 			if (date.getDayOfWeek() == DayOfWeek.MONDAY) {
-				if (!closedDayRepository.existsById(date)) {
-					closedDayRepository
-							.save(ClosedDay.builder().closedDate(date).reason("정기휴관일").isClosed(true).build());
-				}
+				mondays.add(date);
 			}
 			date = date.plusDays(1);
 		}
+
+		List<LocalDate> existingDates = closedDayRepository.findExistingDates(mondays);
+		List<ClosedDay> newMondays = mondays.stream().filter(d -> !existingDates.contains(d))
+				.map(d -> ClosedDay.builder().closedDate(d).reason("정기휴관일").isClosed(true).build())
+				.collect(Collectors.toList());
+
+		closedDayRepository.saveAll(newMondays);
 	}
 
 	// 공휴일 등록 (설날, 추석은 당일만)
 	@Override
 	public void registerHolidays(int year) {
+		List<ClosedDay> newClosedDays = new ArrayList<>();
+
 		for (int month = 1; month <= 12; month++) {
 			List<HolidayDTO> holidays = holidayApiService.fetch(year, month);
 
-			// 설날/추석 처리 - 이름 기준 그룹핑 후 가운데 날짜만 등록
+			// 1. 설날 / 추석 → 그룹핑해서 가운데 날짜만 저장
 			holidays.stream().filter(h -> h.getName().contains("설날") || h.getName().contains("추석"))
 					.collect(Collectors.groupingBy(HolidayDTO::getName)).values().forEach(group -> {
 						group.sort(Comparator.comparing(HolidayDTO::getDate));
 						HolidayDTO middle = group.get(group.size() / 2);
-						LocalDate date = middle.getDate();
-						if (!closedDayRepository.existsById(date)) {
-							closedDayRepository.save(ClosedDay.builder().closedDate(date).reason(middle.getName()) // "설날"
-																													// 또는
-																													// "추석"
-									.isClosed(true).build());
-						}
+						newClosedDays.add(ClosedDay.builder().closedDate(middle.getDate()).reason(middle.getName())
+								.isClosed(true).build());
 					});
 
-			// 그 외 공휴일 등록
-			for (HolidayDTO dto : holidays) {
-				String name = dto.getName();
-				if (name.contains("설날") || name.contains("추석"))
-					continue; // 이미 처리됨
-				LocalDate date = dto.getDate();
-				if (!closedDayRepository.existsById(date)) {
-					closedDayRepository.save(ClosedDay.builder().closedDate(date).reason(name).isClosed(true).build());
-				}
-			}
+			// 2. 그 외 공휴일 추가
+			holidays.stream().filter(dto -> !(dto.getName().contains("설날") || dto.getName().contains("추석")))
+					.forEach(dto -> newClosedDays.add(ClosedDay.builder().closedDate(dto.getDate())
+							.reason(dto.getName()).isClosed(true).build()));
 		}
+
+		// 3. 중복 필터링
+		List<LocalDate> allDates = newClosedDays.stream().map(ClosedDay::getClosedDate).toList();
+
+		List<LocalDate> existingDates = closedDayRepository.findExistingDates(allDates);
+
+		List<ClosedDay> filtered = newClosedDays.stream().filter(day -> !existingDates.contains(day.getClosedDate()))
+				.toList();
+
+		// 4. 일괄 저장
+		closedDayRepository.saveAll(filtered);
 	}
 
 	// 개관일 등록 (매년 7월 8일)
 	@Override
 	public void registerLibraryAnniversary(int year) {
 		LocalDate date = LocalDate.of(year, 7, 8);
-		if (!closedDayRepository.existsById(date)) {
-			closedDayRepository.save(ClosedDay.builder().closedDate(date).reason("도서관 개관일").isClosed(true).build());
-		}
+
+		List<LocalDate> existing = closedDayRepository.findExistingDates(List.of(date));
+		if (existing.contains(date))
+			return;
+
+		ClosedDay day = ClosedDay.builder().closedDate(date).reason("도서관 개관일").isClosed(true).build();
+
+		closedDayRepository.save(day);
 	}
 
 	// 한해 자동 등록

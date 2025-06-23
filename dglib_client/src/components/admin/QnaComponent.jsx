@@ -117,25 +117,25 @@ const QnaComponent = () => {
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">QnA 관리</h1>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-center flex-wrap gap-4 bg-gray-300 p-4 rounded">
-                <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-3 min-h-30">
                     <SearchSelectComponent
                         options={searchOptions}
                         defaultCategory={defaultCategory}
-                        className="w-full"
-                        inputClassName="bg-white"
+                        className="w-full md:w-[50%] min-w-0"
+                        inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
                         dropdownClassName="w-full md:w-32"
                         input={query}
                         handleSearch={handleSearch}
                     />
-                </div>
 
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium whitespace-nowrap">등록일</span>
-                    <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
-                    <span className="mx-1">-</span>
-                    <input type="date" name="endDate" value={endDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <span className="w-50">등록일</span>
+                        <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <span className="mx-4">-</span>
+                        <input type="date" name="endDate" value={endDate} onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                    </div>
                 </div>
             </div>
 
@@ -156,7 +156,7 @@ const QnaComponent = () => {
             <div className="shadow-md rounded-lg overflow-x-auto mt-4">
                 <table className="w-full bg-white table-fixed">
                     <colgroup>
-                        <col style={{ width: '5%' }} /> 
+                        <col style={{ width: '5%' }} />
                         <col style={{ width: '8%' }} />
                         <col style={{ width: '35%' }} />
                         <col style={{ width: '10%' }} />

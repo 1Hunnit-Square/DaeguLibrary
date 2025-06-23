@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.EmailInfoSearchDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.entity.book.Rental;
+import com.dglib.entity.book.RentalState;
 import com.dglib.entity.member.Member;
 
 import jakarta.persistence.criteria.Join;
@@ -24,6 +26,11 @@ public class MemberSpecifications {
         return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
                 .and((root, query, cb) -> dto.isCheckSms() ? cb.equal(root.get("checkSms"), true) : cb.conjunction())
                 .and(searchOverdue(dto.isCheckOverdue()));
+    }
+	
+	public static Specification<Member> fromDTO(EmailInfoSearchDTO dto) {
+        return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
+                .and((root, query, cb) -> dto.isCheckEmail() ? cb.equal(root.get("checkEmail"), true) : cb.conjunction());
     }
 	
 	
@@ -76,7 +83,8 @@ public class MemberSpecifications {
             
         	return cb.and(
         			cb.lessThan(rentalJoin.get("dueDate"), LocalDate.now()),
-        			cb.isNull(rentalJoin.get("returnDate"))
+        			cb.isNull(rentalJoin.get("returnDate")),
+        			cb.equal(rentalJoin.get("state"), RentalState.BORROWED)
         			);
             }
             return cb.conjunction();    	

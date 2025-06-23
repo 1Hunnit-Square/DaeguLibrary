@@ -1,9 +1,9 @@
 import axios from "axios";
 import axiosClient from "../util/axiosClient";
-import { API_SERVER_HOST, API_ENDPOINTS } from "./config";
+import { API_SERVER_HOST, API_ENDPOINTS, ORIGIN_URL } from "./config";
 
 const API_KEY =`aea7f764f199c88568ded7e2620f0622`
-const REDIRECT_URI =`http://localhost:5173/login/kakao`
+const REDIRECT_URI =`${ORIGIN_URL}/login/kakao`
 const AUTH_KAKAO = `https://kauth.kakao.com/oauth/authorize`
 const ACCESS_URL =`https://kauth.kakao.com/oauth/token`
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.member}`;

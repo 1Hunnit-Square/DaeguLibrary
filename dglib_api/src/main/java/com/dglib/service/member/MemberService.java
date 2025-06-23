@@ -19,6 +19,8 @@ import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.EmailInfoListDTO;
+import com.dglib.dto.member.EmailInfoSearchDTO;
 import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
@@ -98,6 +100,8 @@ public interface MemberService {
 	void regKakao(String kakaoEmail);
 	
 	List<ContactListDTO> getContactList (ContactSearchDTO searchDTO, Sort sort);
+	
+	List<EmailInfoListDTO> getEmailInfoList (EmailInfoSearchDTO searchDTO, Sort sort);
 
 	void addInterestedBook(String mid, AddInterestedBookDTO addInteredtedBookDto);
 	

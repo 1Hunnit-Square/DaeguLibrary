@@ -10,16 +10,20 @@ import { fileSize } from "../../util/commonUtil";
 import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
 import { contentReplace } from "../../util/commonUtil";
+import { trim } from "lodash";
 
-const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], modMap}) => {
+const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], modMap, searchHandler}) => {
   const quillRef = useRef(null);
   const imgRef = useRef(null);
   const fileRef = useRef(null);
   const [content, setContent ] = useState("");
   const [fileList, setFileList ] = useState([]);
   const [title, setTitle] = useState("");
-  const [toEmail, setToEmail] = useState("");
+  const [inputEmail, setInputEmail] = useState("");
+  const [toEmail, setToEmail] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [mailFocused, setMailFocused] = useState(false);
+  const [ sendMe, setSendMe ] = useState(false);
 
 const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
 
@@ -125,6 +129,16 @@ const deleteFile = (url, index) => {
   setFileList(prev => prev.filter((v, i) => i != index ));
 }
 
+const handleKeyDown = (e)=>{
+    if (e.key === 'Backspace') {
+     if(e.target.value == ""){
+      setToEmail(prev => {
+        const newArr = prev.slice(0,-1);
+      return newArr;
+    })
+     }
+}
+}
 
 
 const isEmptyQuill = (html) => {
@@ -136,13 +150,36 @@ const handleTitle = (e) => {
 setTitle(e.target.value);
 }
 
-const handleToMail = (e) => {
-setToEmail(e.target.value);
+const inputToArray = (value) => {
+  if(value == ""){
+    return;
+  }
+  const addMail = value.includes(", ") ? value.split(", ")[0] : value.split(" ")[0];
+  if(addMail?.split("<")[1]?.split(">")[0].trim()){
+    setToEmail(prev => [...prev , addMail.split("<")[0]+" <"+addMail.split("<")[1].split(">")[0] +">"]);
+  } else
+  setToEmail(prev => [...prev , addMail]);
+  setInputEmail(""); 
 }
+
+const handleToMail = (e) => {
+  if(e.target.value.includes(" ") && e.target.value.trim()){
+  inputToArray(e.target.value);
+  
+  } else
+  setInputEmail(e.target.value.trim())
+}
+
+
 
 const handleClick = () => {
      if(!title.trim()){
     alert("제목을 입력해주세요.");
+    return ;
+  }
+
+  if(!sendMe && !toEmail.length){
+    alert("수신 메일을 입력해주세요.");
     return ;
   }
 
@@ -159,14 +196,18 @@ const handleClick = () => {
   const paramData = new FormData();
 
   paramData.append("subject", title.trim());
-  paramData.append("to", toEmail.trim());
+
+  !sendMe && toEmail.forEach((to) => {
+    paramData.append("to", to);  
+  });
+  
   paramData.append("content", contentReplace(content));
-  // files.forEach((file) => {
-  //   paramData.append("files", file);
-  // });
-  // urlList.forEach((url) => {
-  //   paramData.append("urlList", url);
-  // });
+  files.forEach((file) => {
+    paramData.append("files", file);
+  });
+  urlList.forEach((url) => {
+    paramData.append("urlList", url);
+  });
   // oldfileList.forEach((file) => {
   //   paramData.append("oldFiles", file.file.path);
   // });
@@ -175,21 +216,33 @@ const handleClick = () => {
 
 }
 
-
   const formats = useMemo(() => ["font", "size", "bold", "italic", "underline", "strike", "align",
   "list", "bullet", "link", "image", "clean",
   "color", "background","file"
  ], []);
 
-    return (
-        
-         <div className="flex flex-col mt-10 p-4 border rounded bg-white">
-          <div className="flex gap-2 items-center mb-3">
-          <input className="text-sm border border-gray-300 p-1 w-100 h-10 pl-3 mr-2" placeholder={"수신 메일을 입력하세요"}
-          value={toEmail} onChange={handleToMail} />
-         <Button>이메일 검색</Button>
-        </div>
-        <input className="text-sm border border-gray-300 p-1 w-200 h-10 pl-3 mr-2 mb-3" placeholder={"메일 제목을 입력하세요"}
+    return (<div className="flex flex-col w-full">
+      <div className="sticky top-0 z-50 bg-white pt-5 mb-7">
+        <h1 className="text-3xl py-5 font-bold text-center text-[#00893B]">메일 쓰기</h1>
+            <hr className="border-t border-gray-300 my-3" />
+          <div className = "flex justify-between items-center gap-3 px-10 w-4xl mx-auto">
+            <div className="flex gap-3">
+            <Button onClick={handleClick}>전송</Button>
+            {sendMe ? <Button onClick={()=>setSendMe(false)} className="bg-lime-600 hover:bg-lime-700">메일 쓰기</Button> :<Button onClick={()=>setSendMe(true)} className="bg-blue-500 hover:bg-blue-600">내게 쓰기</Button> }
+            </div>
+          <Button onClick={onBack} className="bg-gray-400 hover:bg-gray-500">닫기</Button>
+          </div>
+           <hr className="border-t border-gray-300 mt-3" />
+           </div>
+         <div className="flex flex-col mb-10 p-4 border border-gray-400 shadow-md rounded-xl bg-white max-w-4xl mx-auto">
+          { !sendMe && <div className="flex gap-3 items-center mb-3">
+          <div className = {`flex flex-wrap gap-2 pl-3 border border-gray-300 w-150 p-1 min-h-10 overflow-y-auto ${mailFocused ? "outline-1 outline-blue-300 rounded" : ""}`}>
+          {toEmail.map((v,i) => <span key ={i} className="rounded-xl px-2 py-1 bg-blue-100 text-sm">{v}</span>)}
+          <input className="text-sm outline-none flex-grow basis-0" placeholder={toEmail == "" ? `수신 메일을 입력하세요` : ""}
+          value={inputEmail} onChange={handleToMail} onFocus={()=>setMailFocused(true)} onBlur={()=>{setMailFocused(false); inputToArray(inputEmail)}}  onKeyDown={handleKeyDown} /></div>
+         <Button className="w-fit bg-emerald-500 hover:bg-emerald-600" onClick={() => searchHandler({setToEmail})}>이메일 검색</Button>
+        </div>}
+        <input className="text-sm border border-gray-300 p-1 w-200 h-10 pl-3 mr-2 mb-3 outline-blue-300" placeholder={"메일 제목을 입력하세요"}
         value={title} onChange={handleTitle} />
        
          <QuillToolbar tooltip={tooltip} upload={upload} />
@@ -202,7 +255,7 @@ const handleClick = () => {
               onChangeSelection={handleChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              className = {`h-90 mb-3 border-1 border-gray-300 ${isFocused ? 'outline-2 rounded' : ''}`}
+              className = {`h-90 mb-3 border-1 border-gray-300 ${isFocused ? 'outline-2 outline-blue-300 rounded' : ''}`}
               modules={modules}
               formats={formats}
             />
@@ -217,13 +270,10 @@ const handleClick = () => {
               onClick={()=> deleteFile(file.blobUrl, index)}>삭제</span>
               </div>)}
          </div>
-         <div className = "flex justify-end items-center mt-3 gap-2">
-          <Button onClick={onBack} className="bg-gray-400 hover:bg-gray-500">닫기</Button>
-          <Button onClick={handleClick}>전송</Button>
-          </div>
-            </div>
+  
 
-            
+                </div>
+           </div> 
     );
 }
 

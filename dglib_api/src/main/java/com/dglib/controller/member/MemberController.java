@@ -40,6 +40,8 @@ import com.dglib.dto.book.ReserveBookDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.EmailInfoListDTO;
+import com.dglib.dto.member.EmailInfoSearchDTO;
 import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
@@ -103,11 +105,20 @@ public class MemberController {
 
 	@GetMapping("/listContact")
 	public ResponseEntity<List<ContactListDTO>> listContact(@ModelAttribute ContactSearchDTO searchDTO) {
-		System.out.println(searchDTO);
 
 		Sort sort = Sort.by("mno").descending();
 
 		List<ContactListDTO> memberList = memberService.getContactList(searchDTO, sort);
+		return ResponseEntity.ok(memberList);
+	}
+	
+	
+	@GetMapping("/listEmailInfo")
+	public ResponseEntity<List<EmailInfoListDTO>> listEmailInfo(@ModelAttribute EmailInfoSearchDTO searchDTO) {
+
+		Sort sort = Sort.by("mno").descending();
+
+		List<EmailInfoListDTO> memberList = memberService.getEmailInfoList(searchDTO, sort);
 		return ResponseEntity.ok(memberList);
 	}
 

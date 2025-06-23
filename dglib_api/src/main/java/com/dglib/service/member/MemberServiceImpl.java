@@ -40,6 +40,8 @@ import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
+import com.dglib.dto.member.EmailInfoListDTO;
+import com.dglib.dto.member.EmailInfoSearchDTO;
 import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
@@ -178,6 +180,18 @@ public class MemberServiceImpl implements MemberService {
 			return listDTO;
 		}).collect(Collectors.toList());
 
+		return result;
+	}
+	
+	@Override
+	public List<EmailInfoListDTO> getEmailInfoList(EmailInfoSearchDTO searchDTO, Sort sort){
+		Specification<Member> spec = MemberSpecifications.fromDTO(searchDTO);
+		List<Member> memberList = memberRepository.findAll(spec, sort);
+		
+		List<EmailInfoListDTO> result = memberList.stream().map(member -> 
+			modelMapper.map(member, EmailInfoListDTO.class)
+		).collect(Collectors.toList());
+		
 		return result;
 	}
 

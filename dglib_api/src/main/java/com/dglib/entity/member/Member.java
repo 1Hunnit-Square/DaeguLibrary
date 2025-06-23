@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.dglib.entity.book.InterestedBook;
 import com.dglib.entity.book.Rental;
+import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
 
 import jakarta.persistence.Column;
@@ -98,7 +99,7 @@ public class Member {
 			return Collections.emptyList();
 		}
 		return this.rentals.stream()
-		.filter(rental -> LocalDate.now().isAfter(rental.getDueDate()) && rental.getReturnDate() == null)
+		.filter(rental -> LocalDate.now().isAfter(rental.getDueDate()) && rental.getReturnDate() == null && rental.getState() == RentalState.BORROWED)
 		.collect(Collectors.toList());
 	}
 }

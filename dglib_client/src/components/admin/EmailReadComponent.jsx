@@ -8,6 +8,7 @@ import { useRecoilValue } from "recoil";
 import Loading from "../../routers/Loading";
 import Download from "../common/Download";
 import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
+import Button from "../common/Button";
 
 const EmailReadComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -55,10 +56,25 @@ const EmailReadComponent = () => {
 
 
 return(
-    <div className = "my-10">
+    <div className = "mb-15">
     {
      !_.isEmpty(mailDetail) ? 
-   <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 space-y-6">
+     <>
+     <div className="sticky top-0 z-50 bg-white pt-5 mb-7">
+     <h1 className="text-3xl font-bold text-center py-5 text-[#00893B]">메일 읽기</h1>
+      <hr className="border-t border-gray-300 my-3" />
+     <div className="flex justify-between w-4xl px-3 mx-auto">
+     <div className="flex gap-3">
+     <Button>답장</Button>
+     <Button className="bg-blue-400 hover:bg-blue-500">전달</Button>
+     <Button className="bg-red-400 hover:bg-red-500">삭제</Button>
+     </div>
+     <Button onClick={()=>{window.close()}} className="bg-gray-400 hover:bg-gray-500">닫기</Button>
+     </div>
+     <hr className="border-t border-gray-300 mt-3" />
+     </div>
+      
+   <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 space-y-6 border border-gray-400">
 
   <h1 className="text-2xl font-bold text-gray-800">{mailDetail.subject}</h1>
 
@@ -83,6 +99,7 @@ return(
     )}
   </div>
 </div>
+</>
 : <Loading text="메일 읽는 중.." />
 }
     </div>

@@ -1,13 +1,16 @@
 package com.dglib.service.mail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.modelmapper.ModelMapper;
 import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.springframework.core.io.InputStreamResource;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.dglib.config.MailConfig;
 import com.dglib.dto.mail.MailBasicDTO;
@@ -31,6 +35,7 @@ import com.dglib.security.jwt.JwtFilter;
 import com.dglib.util.EncryptUtil;
 import com.dglib.util.MailParseUtil;
 
+import jakarta.activation.DataSource;
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
@@ -43,6 +48,7 @@ import jakarta.mail.search.FromTerm;
 import jakarta.mail.search.HeaderTerm;
 import jakarta.mail.search.RecipientTerm;
 import jakarta.mail.search.SearchTerm;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 
 
@@ -55,22 +61,74 @@ public class MailService {
     private final ModelMapper modelMapper;
     private final String MAIL_ADDR = "@dglib.kro.kr";
 
-    public void sendMail(MailSendDTO sendDTO) {
+    public void sendMail(MailSendDTO sendDTO, List<MultipartFile> files) {
     	
-    		String eid = "<"+UUID.randomUUID().toString() + "-" + System.currentTimeMillis() + MAIL_ADDR+">";
-        	String tracker = String.format("""
-        			<div class="dglib-tracker" style="width:0px; height:0px; overflow:hidden;">
-        			<img src="%s%s.gif" border="0" />
-        			</div>
-        			""", sendDTO.getTrackPath(), EncryptUtil.base64Encode(eid));
-    		Email email = EmailBuilder.startingBlank()
-        			.from(JwtFilter.getName(), JwtFilter.getMid() + MAIL_ADDR)
-                    .to(sendDTO.getTo())
-                    .withSubject(sendDTO.getSubject())
-                    .withHTMLText(sendDTO.getContent()+tracker)
-                    .bcc("archive"+MAIL_ADDR)
-                    .fixingMessageId(eid)
-                    .buildEmail();
+    	if(sendDTO.getSubject() == null || sendDTO.getSubject().trim().isEmpty()) {
+			throw new IllegalArgumentException("제목을 입력해주세요.");			
+		}
+		
+		if(sendDTO.getContent() == null || sendDTO.getContent().trim().isEmpty()) {
+			throw new IllegalArgumentException("내용을 입력해주세요.");			
+		}
+		
+		if(sendDTO.getTo() == null || sendDTO.getTo().isEmpty()) {
+			sendDTO.setTo(List.of(JwtFilter.getName() + " <"+ JwtFilter.getMid() + MAIL_ADDR+">"));
+		}
+		
+		String eid = "<"+UUID.randomUUID().toString() + "-" + System.currentTimeMillis() + MAIL_ADDR+">";
+    	String tracker = String.format("""
+    			<div class="dglib-tracker" style="width:0px; height:0px; overflow:hidden;">
+    			<img src="%s%s.gif" border="0" />
+    			</div>
+    			""", sendDTO.getTrackPath(), EncryptUtil.base64Encode(eid));
+    	
+    	EmailPopulatingBuilder emailBuilder  = EmailBuilder.startingBlank()
+    			.from(JwtFilter.getName(), JwtFilter.getMid() + MAIL_ADDR)
+                .withSubject(sendDTO.getSubject())
+                .bcc("archive"+MAIL_ADDR)
+                .fixingMessageId(eid);
+
+		// 파일첨부
+		AtomicInteger index = new AtomicInteger(0);
+		if(files != null) {
+			files.forEach(file -> {
+				int i = index.getAndIncrement();
+				DataSource ds;
+				try {
+					ds = new ByteArrayDataSource(
+						    file.getInputStream(),
+						    file.getContentType()
+							);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				
+				if(!sendDTO.getUrlList().get(i).equals("null")) {
+					emailBuilder.withEmbeddedImage(file.getOriginalFilename(), ds);
+					String content = sendDTO.getContent().replace(sendDTO.getUrlList().get(i), "cid:"+file.getOriginalFilename());
+					sendDTO.setContent(content);
+				} else {
+					emailBuilder.withAttachment(file.getOriginalFilename(), ds);
+				}
+
+			});				
+			}
+		
+			sendDTO.getTo().forEach(to -> {
+				if(to.contains("<") && to.contains(">")) {
+				String toName = to.split("<")[0].trim();
+				String toEmail = to.split("<")[1].split(">")[0].trim();
+					emailBuilder.to(toName, toEmail);
+				} else {
+					emailBuilder.to(to.trim());
+				}
+	
+			});
+			
+    	
+    		
+            Email email  = emailBuilder.withHTMLText(sendDTO.getContent()+tracker)
+            							.buildEmail();
         	mailer.sendMail(email);
     }
     

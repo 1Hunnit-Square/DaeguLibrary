@@ -44,6 +44,11 @@ export const getContactList = async (params) => {
     return res.data;
 }
 
+export const getEmailInfoList = async (params) => {
+    const res = await axiosClient.get(`${prefix}/listEmailInfo`, { params: params });
+    return res.data;
+}
+
 export const postMemberManage = async (params) => {
     const header = { headers: { "Content-Type": "x-www-form-urlencoded" } };
     const res = await axios.post(`${prefix}/manageMember`, params, header);

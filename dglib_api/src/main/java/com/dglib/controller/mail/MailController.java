@@ -38,7 +38,7 @@ public class MailController {
 	
 	@PostMapping("/sendMail") //백엔드 기준 허용된 아이피에서만 전송가능
 	public ResponseEntity<String> sendMail(@ModelAttribute MailSendDTO sendDTO, @RequestParam(required = false) List<MultipartFile> files) {
-		mailService.sendMail(sendDTO);
+		mailService.sendMail(sendDTO, files);
 		return ResponseEntity.ok().build();
 		
 	}

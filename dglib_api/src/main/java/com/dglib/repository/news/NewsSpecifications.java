@@ -1,5 +1,8 @@
 package com.dglib.repository.news;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class NewsSpecifications {
 			if (option == null || queryStr == null) {
 				return null;
 			}
+
 			switch (option) {
 			case "제목":
 				return cb.like(root.get("title"), "%" + queryStr + "%");
@@ -30,33 +34,52 @@ public class NewsSpecifications {
 			case "내용":
 				return cb.like(root.get("content"), "%" + queryStr + "%");
 
+			case "작성자":
+				return cb.like(root.get("member").get("name"), "%" + queryStr + "%");
+
 			default:
 				return null;
 			}
 		};
 	}
-
+	
 	public static Specification<News> adminFilter(BoardSearchDTO dto) {
-		return (root, query, cb) -> {
-			List<Predicate> predicates = new ArrayList<>();
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-			if (dto.getSearchType() != null && dto.getSearchKeyword() != null && !dto.getSearchKeyword().isBlank()) {
-				switch (dto.getSearchType()) {
-				case "title" -> predicates.add(cb.like(root.get("title"), "%" + dto.getSearchKeyword() + "%"));
-				case "id" -> predicates.add(cb.like(root.get("member").get("mid"), "%" + dto.getSearchKeyword() + "%"));
-				case "name" ->
-					predicates.add(cb.like(root.get("member").get("name"), "%" + dto.getSearchKeyword() + "%"));
-				}
-			}
+            if (dto.getSearchKeyword() != null && !dto.getSearchKeyword().isEmpty()) {
+                switch (dto.getSearchType()) {
+                    case "id":
+                        predicates.add(cb.like(root.get("writerId"), "%" + dto.getSearchKeyword() + "%"));
+                        break;
+                    case "name":
+                        predicates.add(cb.like(root.get("name"), "%" + dto.getSearchKeyword() + "%"));
+                        break;
+                    case "title":
+                        predicates.add(cb.like(root.get("title"), "%" + dto.getSearchKeyword() + "%"));
+                        break;
+                }
+            }
 
-			if (dto.getStartDate() != null) {
-				predicates.add(cb.greaterThanOrEqualTo(root.get("postedAt"), dto.getStartDate().atStartOfDay()));
-			}
-			if (dto.getEndDate() != null) {
-				predicates.add(cb.lessThanOrEqualTo(root.get("postedAt"), dto.getEndDate().atTime(23, 59, 59)));
-			}
+        
+            if (dto.getStartDate() != null && dto.getEndDate() != null) {
+                try {
+                	LocalDate start = dto.getStartDate();
+                	LocalDate end = dto.getEndDate();
+                    predicates.add(cb.between(
+                        root.get("postedAt"), 
+                        start.atStartOfDay(), 
+                        end.atTime(LocalTime.MAX)
+                    ));
+                } catch (DateTimeParseException e) {
+                }
+            }
 
-			return cb.and(predicates.toArray(new Predicate[0]));
-		};
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+	
+	public static Specification<News> isHidden(Boolean isHidden) {
+	    return (root, query, cb) -> cb.equal(root.get("isHidden"), isHidden);
 	}
 }

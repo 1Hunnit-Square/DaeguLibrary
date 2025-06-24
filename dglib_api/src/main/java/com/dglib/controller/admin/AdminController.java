@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dglib.controller.book.BookController;
 import com.dglib.dto.admin.BoardListDTO;
 import com.dglib.dto.admin.BoardSearchDTO;
+import com.dglib.dto.admin.BoardTypeDTO;
 import com.dglib.dto.book.AdminWishBookListDTO;
 import com.dglib.dto.book.AdminWishBookSearchDTO;
 import com.dglib.dto.book.BookRegistrationDTO;
@@ -43,10 +45,9 @@ import com.dglib.dto.book.ReserveBookListDTO;
 import com.dglib.dto.book.ReserveStateChangeDTO;
 import com.dglib.dto.book.Top10Books;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
+import com.dglib.service.admin.AdminBoardService;
 import com.dglib.service.book.BookService;
 import com.dglib.service.member.MemberService;
-import com.dglib.service.news.AdminNewsService;
-import com.dglib.service.notice.AdminNoticeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,8 +59,7 @@ public class AdminController {
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
 	private final BookService bookService;
 	private final MemberService memberService;
-	private final AdminNoticeService adminNoticeService;
-	private final AdminNewsService adminNewsService;
+	private final AdminBoardService adminBoardService;
 
 	@PostMapping("/regbook")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
@@ -257,14 +257,27 @@ public class AdminController {
 		return ResponseEntity.ok(top10Books);
 	}
 
-	// ---------------------------------------------------
+	// 관리자 게시판 리스트
 	@GetMapping("/board")
 	public Page<BoardListDTO> getBoards(@ModelAttribute BoardSearchDTO dto, Pageable pageable) {
 		if ("notice".equals(dto.getBoardType())) {
-			return adminNoticeService.getList(dto, pageable);
+			return adminBoardService.getNoticeList(dto, pageable);
 		} else if ("news".equals(dto.getBoardType())) {
-			return adminNewsService.getList(dto, pageable);
+			return adminBoardService.getNewsList(dto, pageable);
 		}
 		throw new IllegalArgumentException("지원하지 않는 게시판 타입입니다.");
 	}
+
+	@PutMapping("/board/hide")
+	public ResponseEntity<Void> hideBoards(@RequestBody BoardTypeDTO request) {
+	    adminBoardService.hideBoards(request.getBoardType(), request.getIds(), request.isHidden());
+	    return ResponseEntity.ok().build();
+	}
+
+	@DeleteMapping("/board")
+	public ResponseEntity<Void> deleteBoards(@RequestBody BoardTypeDTO request) {
+	    adminBoardService.deleteBoards(request.getBoardType(), request.getIds());
+	    return ResponseEntity.ok().build();
+	}
 }
+

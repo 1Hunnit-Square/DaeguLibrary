@@ -1,5 +1,5 @@
 import SelectComponent from "../common/SelectComponent";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,12 @@ const RecommendBookComponent = () => {
     const recoBooks = useMemo(() => recoBookData.content, [recoBookData.content]);
     const { renderPagination } = usePagination(recoBookData, searchURLParams, setSearchURLParams, isLoading);
     console.log(recoBookData)
+
+    useEffect(() => {
+                window.scrollTo(0, 0);
+            }, []);
+
+    
 
     return (
         <div>

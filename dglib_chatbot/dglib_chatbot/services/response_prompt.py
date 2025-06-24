@@ -340,7 +340,7 @@ async def generate_holiday_response(date: list) -> dict:
             text = f"사용자가 언제 날짜를 물어보는지 잘 모르겠다고 꼭 말하고 {display_name}의 휴관일은 아직 정해지지 않았다고 귀엽고 다채롭게 응답하세요."
         else:
             closed_days_str = ", ".join(map(str, sorted(closed_dates)))
-            text = f"사용자가 언제 날짜를 물어보는지 잘 모르겠다고 꼭 말하고 {display_name}의 휴관일은 {closed_days_str}일 이라고 귀엽고 다채롭게 응답하세요."
+            text = f"사용자가 언제 날짜를 물어보는지 잘 모르겠다고 꼭 말하고 {display_name}의 휴관일은 {closed_days_str}일 이라고 귀엽고 다채롭게 응답하세요. 요일 정보가 없으면 만들지마"
 
         
         return {"parts": text, "service": "holiday", "to": None}
@@ -355,23 +355,27 @@ async def generate_holiday_response(date: list) -> dict:
         if isinstance(data, list) and any(item.get("error") for item in data if isinstance(item, dict)):
             text = "서버 상태가 이상해서 파업할꺼니까 나중에 다시 오라고 귀엽게 얘기하세요."
             return {"parts": text, "service": "holiday"}
+        
+        
         is_closed = data.get("isClosed")
+        date_str_for_prompt = target_date.strftime('%Y-%m-%d')
         display_name = f"{week_name} {weekday_name}".strip()
         if is_closed:
-            text = f"{display_name}인 {target_date}는 휴관일이라고 귀엽고 다채롭게 응답하세요. {week_name}을 빼먹지 마세요"
+            text = f"{display_name}인 {date_str_for_prompt}는 휴관일이라고 귀엽고 다채롭게 응답하세요. {week_name}을 빼먹지 마세요"
         else:
-            text = f"{display_name}인 {target_date}는 휴관일이 아니라고 귀엽고 다채롭게 응답하세요. {week_name}을 빼먹지 마세요"
+            text = f"{display_name}인 {date_str_for_prompt}는 휴관일이 아니라고 귀엽고 다채롭게 응답하세요. {week_name}을 빼먹지 마세요"
         return {"parts": text, "service": "holiday", "to": date_str}
 
     try:
         cleaned_texts = [preprocess(t) for t in date]
         today = datetime.today()
         start_of_week = today - timedelta(days=today.weekday())
+        logger.info(f"{cleaned_texts}, 오늘 날짜: {today}, 주 시작일: {start_of_week}")
 
         week_configs = [
-            {"name": "다다음 주", "keywords": ["다다음주", "다담주"], "base_date": start_of_week + timedelta(weeks=2)},
-            {"name": "다음 주", "keywords": ["다음주", "담주"], "base_date": start_of_week + timedelta(weeks=1)},
-            {"name": "이번 주", "keywords": ["이번주"], "base_date": start_of_week},
+            {"name": "다다음 주", "keywords": ["다다음주", "다담주", "다다음 주"], "base_date": start_of_week + timedelta(weeks=2)},
+            {"name": "다음 주", "keywords": ["다음주", "담주", "다음 주"], "base_date": start_of_week + timedelta(weeks=1)},
+            {"name": "이번 주", "keywords": ["이번주", "이번 주"], "base_date": start_of_week},
         ]
         weekday_map = {
             "월요일": 0, "월욜": 0, "화요일": 1, "화욜": 1,
@@ -381,14 +385,23 @@ async def generate_holiday_response(date: list) -> dict:
         }
 
         hangul_to_num_map = {
-            '한': 1, '일': 1,
-            '두': 2, '이': 2,
-            '세': 3, '삼': 3,
-            '네': 4, '사': 4,
+            '한': 1, '일': 1, '하나': 1,
+            '두': 2, '이': 2, '둘': 2,
+            '세': 3, '삼': 3, '셋': 3,
+            '네': 4, '사': 4, '넷': 4,
             '다섯': 5, '오': 5,
+            '여섯': 6, '육': 6,
+            '일곱': 7, '칠': 7,
+            '여덟': 8, '팔': 8,
+            '아홉': 9, '구': 9,
+            '열': 10, '십': 10,
+            '열하나': 11, '십일': 11,
+            '열둘': 12, '십이': 12,
         }
+        num_keyword_base_pattern = "|".join(hangul_to_num_map.keys())
+        num_week_keyword_pattern = r"(\d+|" + num_keyword_base_pattern + r")\s*주(?:일)?\s*뒤"
+        specific_date_pattern = r"(?:(\d{4}|\d{2})년\s*)?(?:(\d{1,2}|" + num_keyword_base_pattern + r")월\s*)?(\d{1,2}|" + num_keyword_base_pattern + r")일"
 
-        num_keyword_pattern = r"(\d+|" + "|".join(hangul_to_num_map.keys()) + r")\s*주(?:일)?\s*뒤"
 
         # 이번 달 전체 조회
         if not date:
@@ -396,8 +409,8 @@ async def generate_holiday_response(date: list) -> dict:
 
         # 다음달, 다다음달 조회
         month_keyword_configs = [
-            {"name": "다음 달", "keywords": ["다음달", "담달"], "offset": 1},
             {"name": "다다음 달", "keywords": ["다다음달", "다담달"], "offset": 2},
+            {"name": "다음 달", "keywords": ["다음달", "담달"], "offset": 1},      
         ]
         for config in month_keyword_configs:
             if any(keyword in t for t in cleaned_texts for keyword in config["keywords"]) and not any("요일" in t or "욜" in t for t in cleaned_texts):
@@ -410,17 +423,12 @@ async def generate_holiday_response(date: list) -> dict:
         
         # 숫자, 한글 기반 주 단위 조회
         for text in cleaned_texts:
-            match = re.search(num_keyword_pattern, text)
+            match = re.search(num_week_keyword_pattern, text)
             if match:
                 matched_text = match.group(1)
-                
-              
-                if matched_text.isdigit():
-                    weeks_offset = int(matched_text)
-                else:
-                    weeks_offset = hangul_to_num_map.get(matched_text)
-
-                if weeks_offset is None: continue 
+                weeks_offset = int(matched_text) if matched_text.isdigit() else hangul_to_num_map.get(matched_text)
+    
+                if weeks_offset is None: continue
 
                 display_name = f"{weeks_offset}주 뒤"
 
@@ -451,7 +459,7 @@ async def generate_holiday_response(date: list) -> dict:
                     error_items = [item for item in data if isinstance(item, dict) and item.get("error")]
                     if error_items: raise Exception("서버 에러")
 
-                    closed_days = [datetime.strptime(item["closedDate"], "%Y-%m-%d").day for item in data if item.get("closedDate")]
+                    closed_days = [datetime.strptime(item["closedDate"], "%Y-%m-%d").strftime("%m-%d") for item in data if item.get("closedDate")]
                 
                     if not closed_days:
                         text = f"{display_name}에는 휴관일이 없다다고 귀엽고 다채롭게 응답하세요."
@@ -494,7 +502,7 @@ async def generate_holiday_response(date: list) -> dict:
                 for item in data:
                     if item.get("closedDate"):
                         holiday_date = datetime.strptime(item["closedDate"], "%Y-%m-%d")
-                        closed_days.append(holiday_date.day) 
+                        closed_days.append(holiday_date.strftime("%m-%d")) 
                 
                 if not closed_days:
                     text = f"{found_keyword}에는 휴관일이 없다다고 귀엽고 다채롭게 응답하세요."
@@ -552,39 +560,67 @@ async def generate_holiday_response(date: list) -> dict:
                 return await _check_specific_day_holiday(target_date, "이번 주", text)
 
         # 숫자 기반 상대 날짜 조회    
+        num_day_keyword_pattern = r"(\d+|" + num_keyword_base_pattern + r")\s*일\s*(?:뒤|후)"
         for text in cleaned_texts:
-            match = re.search(r"(\d+)\s*일\s*(?:뒤|후)", text)
+            match = re.search(num_day_keyword_pattern, text)
             if match:
-                days_offset = int(match.group(1))
+                matched_text = match.group(1)
+                days_offset = int(matched_text) if matched_text.isdigit() else hangul_to_num_map.get(matched_text)
+                if days_offset is None: continue
+                
                 target_date = today + timedelta(days=days_offset)
                 display_name = f"{days_offset}일 뒤"
-                logger.info(f"숫자 기반 상대 날짜 '{display_name}' 감지.")
+                logger.info(f"숫자/한글 기반 일 단위 상대 날짜 '{display_name}' 감지.")
                 return await _check_specific_day_holiday(target_date, display_name, "")
 
         # 특정 날짜 조회
         for text in cleaned_texts:
-            match = re.search(r"(?:(\d{4}|\d{2})년\s*)?(?:(\d{1,2})월\s*)?(\d{1,2})일", text)
+            match = re.search(specific_date_pattern, text)
             if match:
+                if "뒤" in text or "후" in text:
+                    continue
+
                 year_str, month_str, day_str = match.groups()
-                day = int(day_str)
+                
+                def _to_int(s):
+                    if s is None: return None
+                    return int(s) if s.isdigit() else hangul_to_num_map.get(s)
+
+                day = _to_int(day_str)
+                month = _to_int(month_str)
+
+            
+                if day is None: continue
+                
+               
                 if year_str:
                     year = int(f"20{year_str}") if len(year_str) == 2 else int(year_str)
                 else:
                     year = today.year
-                if month_str:
-                    month = int(month_str)
-                    if not year_str and month < today.month: year += 1
-                else:
+
+                
+                if month:
+                    
+                    if not year_str and month < today.month:
+                        year += 1
+                else: 
                     month = today.month
+                    
                     try:
                         if datetime(year, month, day).date() < today.date():
                             month += 1
                             if month > 12: month, year = 1, year + 1
                     except ValueError: continue
+
+               
                 try:
                     target_date = datetime(year, month, day)
-                    return await _check_specific_day_holiday(target_date, f"{month}월 {day}일", "")
-                except ValueError: continue
+                    display_name = f"{month}월 {day}일"
+                    logger.info(f"한글/숫자 특정 날짜 '{year}년 {display_name}' 감지.")
+                    return await _check_specific_day_holiday(target_date, display_name, "")
+                except ValueError:
+                    logger.warning(f"Invalid date detected and ignored: {year}-{month}-{day}")
+                    continue
 
         # 상대 날짜 조회
         relative_day_map = {

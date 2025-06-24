@@ -93,5 +93,18 @@ public class ChatbotPythonController {
 		LOGGER.info("Month holiday response: {}", response);
 		return ResponseEntity.ok(response);
 	}
+	
+	@GetMapping("/weekholiday/{start_str}/{end_str}")
+	public ResponseEntity<List<ClosedDayDTO>> monthHolidayRange(@PathVariable String start_str,
+			@PathVariable String end_str) {
+		LOGGER.info("Month holiday range request from {} to {}", start_str, end_str);
+
+		LocalDate start = LocalDate.parse(start_str);
+		LocalDate end = LocalDate.parse(end_str);
+
+		List<ClosedDayDTO> response = closedDayService.getWeeklyList(start, end);
+		LOGGER.info("Month holiday range response: {}", response);
+		return ResponseEntity.ok(response);
+	}
 
 }

@@ -13,7 +13,7 @@ public interface ClosedDayService {
 	
 	ClosedDayDTO getByChat(LocalDate date); // 챗봇용 단일 조회
 	
-	List<ClosedDayDTO> getWeeklyList(int year, int month, int week); // 특정 주간 조회
+	List<ClosedDayDTO> getWeeklyList(LocalDate start, LocalDate end); // 특정 주간 조회
 	
 	List<ClosedDayDTO> getMonthlyList(int year, int month); // 특정 연월 전체 조회
 	

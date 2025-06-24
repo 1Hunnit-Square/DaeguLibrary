@@ -51,7 +51,7 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 
 		return modelMapper.map(entity, ClosedDayDTO.class);
 	}
-	
+	// 챗봇용 단일 조회
 	@Override
 	public ClosedDayDTO getByChat(LocalDate date) {
 		ClosedDay entity = closedDayRepository.findById(date).orElse(
@@ -62,9 +62,8 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	
 	//주간 조회
 	@Override
-	public List<ClosedDayDTO> getWeeklyList(int year, int month, int week) {
-		LocalDate start = LocalDate.of(year, month, 1).withDayOfMonth((week - 1) * 7 + 1);
-		LocalDate end = start.plusDays(6);
+	public List<ClosedDayDTO> getWeeklyList(LocalDate start, LocalDate end) {
+		
 
 		List<ClosedDay> list = closedDayRepository.findByClosedDateBetween(start, end).stream()
 				.sorted(Comparator.comparing(ClosedDay::getClosedDate)).collect(Collectors.toList());

@@ -3,7 +3,7 @@ import SubHeader from "../layouts/SubHeader";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../atoms/loginState";
 import Button from "../components/common/Button";
-import { useState, useRef, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import InfoModComponent from "../components/member/InfoModComponent";
 import { getMemberInfo } from "../api/memberApi";
 import { useNavigate } from "react-router-dom";

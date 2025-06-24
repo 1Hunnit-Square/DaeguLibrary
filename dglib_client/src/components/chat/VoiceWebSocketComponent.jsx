@@ -7,12 +7,14 @@ import { useRecoilState, useResetRecoilState } from 'recoil';
 import { chatHistoryState, isChatOpenState, clientIdState } from '../../atoms/chatState';
 import { getCookie } from '../../util/cookieUtil';
 import { checkaccess } from '../../api/chatbotApi';
+import { has } from 'lodash';
 
 const sockJsUrl = `${API_SERVER_HOST}${API_ENDPOINTS.chatbot}/voice`;
 
 const VoiceWebSocketComponent = ({ onClose }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    const [IsNotconnected, setIsNotconnected] = useState(false);
     const [clientId, setClientId] = useRecoilState(clientIdState); 
     const [isUserSpeaking, setIsUserSpeaking] = useState(false);
     const prevSpeakingRef = useRef(false);
@@ -20,6 +22,9 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
     const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
     const microphoneTimeoutRef = useRef(null);
+    const hasplayedErrorSoundRef = useRef(false);
+    const selfclosed = useRef(false);
+    
     const isProcessingRef = useRef(false);
     const clientRef = useRef({ 
         stompClient: null,
@@ -35,6 +40,29 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     });
 
     const responseAudioRef = useRef(null);
+
+    const playErrorSound = () => {
+        
+        const errorAudio = new Audio('/error.wav');
+        responseAudioRef.current = errorAudio;
+        errorAudio.onended = () => {
+            console.log("에러 사운드 재생 완료");
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+        }; 
+        errorAudio.onerror = (error) => {
+            console.error("에러 사운드 재생 오류:", error);
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+        };
+
+        console.log("에러 사운드 재생 시작");
+        errorAudio.play().catch(error => {
+            console.error("에러 사운드 재생 실패:", error);
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+        });
+    };
 
     const playAudioFromBase64 = (base64Data) => {
         try {
@@ -287,6 +315,11 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                 setClientId(receivedData.clientId || clientId);
                     
                 }
+
+                if (receivedData.type === 'tts_error') {
+                    playErrorSound();
+                   
+                }
                 
                
 
@@ -302,7 +335,29 @@ const VoiceWebSocketComponent = ({ onClose }) => {
         stompClient.onStompError = (frame) => {
             console.error("🔥 STOMP 프로토콜 오류:", frame.headers['message']);
             setIsConnected(false);
+            playErrorSound();
         };
+
+        stompClient.onWebSocketError = (error) => {
+            console.error("🔥 WebSocket 연결 오류:", error);
+            setIsConnected(false);
+            playErrorSound();
+        };
+
+        stompClient.onWebSocketClose = (event) => {
+            console.error("🔥 WebSocket 연결 종료:", event);
+            setIsConnected(false);
+            if (!hasplayedErrorSoundRef.current && !selfclosed.current) {
+                hasplayedErrorSoundRef.current = true;
+                setIsNotconnected(true);
+                playErrorSound();
+            }
+           
+        };
+
+
+
+        
         
         clientRef.current.stompClient = stompClient;
         stompClient.activate();
@@ -318,6 +373,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     }, []); 
 
     const handleClose = (isUnmounting = false) => {
+        selfclosed.current = true;
         try {
             stopRecording();
             if (responseAudioRef.current) {
@@ -385,7 +441,11 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                 ) : (
                     <div className="mb-3 mt-10 flex justify-center">
                         <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
-                            <p className="text-sm text-gray-500">서버에 연결 중...</p>
+                            {IsNotconnected ? (
+                                <p className="text-sm text-red-500">연결이 끊어졌습니다. 다시 시도해주세요.</p>
+                            ) : (
+                                <p className="text-sm text-gray-500">연결 중...</p>
+                            )} 
                         </div>
                     </div>
                 )}

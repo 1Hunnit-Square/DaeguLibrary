@@ -51,6 +51,26 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 
 		return modelMapper.map(entity, ClosedDayDTO.class);
 	}
+	
+	@Override
+	public ClosedDayDTO getByChat(LocalDate date) {
+		ClosedDay entity = closedDayRepository.findById(date).orElse(
+				ClosedDay.builder().isClosed(false).build());
+
+		return modelMapper.map(entity, ClosedDayDTO.class);
+	}
+	
+	//주간 조회
+	@Override
+	public List<ClosedDayDTO> getWeeklyList(int year, int month, int week) {
+		LocalDate start = LocalDate.of(year, month, 1).withDayOfMonth((week - 1) * 7 + 1);
+		LocalDate end = start.plusDays(6);
+
+		List<ClosedDay> list = closedDayRepository.findByClosedDateBetween(start, end).stream()
+				.sorted(Comparator.comparing(ClosedDay::getClosedDate)).collect(Collectors.toList());
+
+		return list.stream().map(day -> modelMapper.map(day, ClosedDayDTO.class)).collect(Collectors.toList());
+	}
 
 	// 월별 조회
 	@Override
@@ -63,6 +83,7 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 
 		return list.stream().map(day -> modelMapper.map(day, ClosedDayDTO.class)).collect(Collectors.toList());
 	}
+	
 
 	// 수정
 	@Override

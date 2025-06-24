@@ -10,6 +10,8 @@ import time
 from speech_recognition.tts_request import tts_post_async
 from dglib_chatbot.services.chatbot_preprocessing import chatbot_preprocessing, ChatRequest
 import base64
+import torch
+import gc
 
 
 
@@ -29,8 +31,8 @@ logger.info("✅ Whisper 모델 (CUDA) 로딩 완료.")
 
 
 VAD_PARAMETERS = {
-    "threshold": 0.5,        
-    "min_speech_duration_ms": 250,   
+    "threshold": 0.3,        
+    "min_speech_duration_ms": 100,   
     "max_speech_duration_s": 30,     
     "min_silence_duration_ms": 500,  
     "speech_pad_ms": 50,            
@@ -59,6 +61,9 @@ async def _transcribe_and_send(writer: asyncio.StreamWriter, audio_buffer: bytea
         writer.write(len(response_json).to_bytes(4, 'big') + response_json)
         await writer.drain()
         return
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        gc.collect()
 
 
     # try:
@@ -118,7 +123,7 @@ async def _transcribe_and_send(writer: asyncio.StreamWriter, audio_buffer: bytea
             if chat_response_clean:
                 tts_audio_data = await tts_post_async(chat_response_clean)
 
-                if tts_audio_data:
+                if tts_audio_data is not None:
                 
                     audio_base64 = base64.b64encode(tts_audio_data).decode('utf-8')
                     
@@ -137,6 +142,18 @@ async def _transcribe_and_send(writer: asyncio.StreamWriter, audio_buffer: bytea
                     response_json = json.dumps(chat_response_json, ensure_ascii=False).encode('utf-8')
                     writer.write(len(response_json).to_bytes(4, 'big') + response_json)
                     await writer.drain()
+                else:
+                    logger.info(f"[{client_addr}] TTS 생성 실패. 음성 데이터가 None입니다.")
+                    chat_response_json = {
+                        "type": "tts_error",
+                        "text": "TTS 생성 실패",
+                        "request_text": result_text,
+                        "clientId": client_id
+                    }
+                    response_json = json.dumps(chat_response_json, ensure_ascii=False).encode('utf-8')
+                    writer.write(len(response_json).to_bytes(4, 'big') + response_json)
+                    await writer.drain()
+                    logger.info("메세지 전송")
 
         
         

@@ -87,6 +87,12 @@ const ChatActionComponent = ({chat}) => {
                 path: `/books/new?page=1&${getDateParams}`,
                 color: 'blue',
             }];
+        } else if (chat.service === "holiday") {
+            return [{
+                text: `📅 휴관일 확인하기`,
+                path: '/usage/calendar',
+                color: 'red'
+            }];
         }
         
         return null;

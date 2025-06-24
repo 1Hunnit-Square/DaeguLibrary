@@ -109,14 +109,14 @@ const RecoComponent = ({type}) => {
     return (
         <div className="p-2 sm:p-4"  ref={containerRef}>
            
-           <div className="hidden xl:flex xl:justify-center xl:gap-15">
+           <div className="hidden xl:flex xl:justify-center gap-6 xl:gap-5">
                 {data.map((bookData) => (
                     <div 
                         key={bookData.isbn}
-                        className='flex flex-col items-center group hover:scale-105 transition-transform duration-200 cursor-pointer flex-1 max-w-[200px]' 
+                        className="flex flex-col items-center group hover:scale-105 transition-transform duration-200 cursor-pointer flex-1 basis-0 min-w-0"
                         onClick={() => handleBookClick(bookData.isbn)}
                     >
-                        <div className="w-full aspect-[3/4] mb-2 overflow-hidden rounded-lg">
+                        <div className="w-full max-w-[200px] aspect-[3/4] mb-2 overflow-hidden rounded-lg">
                             <img 
                                 className="w-full h-full object-cover shadow-md group-hover:shadow-lg transition-shadow duration-200" 
                                 src={bookData.cover} 

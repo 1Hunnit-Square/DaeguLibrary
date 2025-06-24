@@ -21,3 +21,8 @@ export const sendMailPost = async (params) => {
     return res.data;
 
 }
+
+export const delMail = async (path, params) => {
+    const res = await axiosClient.delete(`${prefix}/${path}`, { params : params });
+    return res.data;
+}

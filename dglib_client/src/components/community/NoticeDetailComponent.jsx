@@ -15,6 +15,7 @@ import { API_ENDPOINTS } from "../../api/config";
 import ContentComponent from "../common/ContentComponent";
 
 const NoticeDetailComponent = () => {
+
 const { ano } = useParams();
 const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['noticeDetail', ano],

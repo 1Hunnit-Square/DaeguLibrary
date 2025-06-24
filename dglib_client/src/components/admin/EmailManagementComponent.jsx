@@ -113,7 +113,10 @@ return(
             {searchURLParams.get("mailType") != "SENDER" && <RadioBox list={{"읽지않음":"not", "전체메일":"all"}} className={"w-4 h-4 text-lg"}
             onChange={(e) => handleNotRead(e)} value={ searchURLParams.get("read") || "not"} />}
             </div>
+            <div className="flex gap-3 items-center">
+            <Button className="bg-red-400 hover:bg-red-500">선택 삭제</Button>
             <Button onClick={handleWrite}>메일 쓰기</Button>
+            </div>
             </div>
             <div className="min-w-fit shadow-md rounded-lg overflow-x-hidden">
                 <table className="min-w-full bg-white">

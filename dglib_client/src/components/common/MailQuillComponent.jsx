@@ -9,10 +9,10 @@ import CheckBox from "./CheckBox";
 import { fileSize } from "../../util/commonUtil";
 import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
-import { contentReplace } from "../../util/commonUtil";
-import { trim } from "lodash";
+import { escapeHTML } from "../../util/commonUtil";
+import _ from "lodash";
 
-const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], modMap, searchHandler}) => {
+const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], searchHandler, useForm}) => {
   const quillRef = useRef(null);
   const imgRef = useRef(null);
   const fileRef = useRef(null);
@@ -25,29 +25,49 @@ const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], modMa
   const [mailFocused, setMailFocused] = useState(false);
   const [ sendMe, setSendMe ] = useState(false);
 
-const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
+  const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
 
 useEffect(()=>{
 
-  if(modMap){
+  if(!_.isEmpty(useForm)){
+
+    const head = useForm.sendType == "reply" ? "RE:" : "FW:";
+    setTitle(head+useForm.subject);
+
+    const from = useForm.fromName + " <"+useForm.fromEmail+">";
+    const blockquote = `
+    <blockquote><pre>
+    ----- Original Mail -----
+    From : ${escapeHTML(from)}
+    Subject : ${escapeHTML(useForm.subject)}
+    SentTime : ${useForm.sentTime}
+    </pre></blockquote>
+    ` 
+    console.log(from);
     const editor = quillRef.current?.getEditor();
+    editor.clipboard.dangerouslyPasteHTML("<br><br>"+blockquote || '');
+    if(useForm.sendType == "reply"){
+      setToEmail([from]);
+    } else {
     if(editor){
-    editor.clipboard.dangerouslyPasteHTML(modMap.data.content || '');
+    editor.clipboard.dangerouslyPasteHTML(blockquote+useForm.content || '');
     const length = editor.getLength();
     editor.setSelection(length, 0);
-   
-  }
-    setTitle(modMap.data.title);
+    }
 
-    const modFileList = modMap.data[modMap.fileDTOName]?.map(dto => {
+
+    const mailFileList = useForm["fileList"]?.map(dto => {
       const file  = { name : dto.originalName, size : null, path : dto.filePath};
-      const blobUrl = (!dto.fileType || dto.fileType == "image")? `${API_SERVER_HOST}${API_ENDPOINTS.view}/${dto.filePath}` : null;
+      const blobUrl = (!dto.fileType || dto.fileType == "image")? `${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/${dto.filePath}` : null;
       return {file, blobUrl}
     });
-    modFileList && setFileList(modFileList);
+    mailFileList && setFileList(mailFileList);
+  }
   }
 
-},[])
+  
+
+},[useForm])
 
 
 
@@ -170,9 +190,19 @@ const handleToMail = (e) => {
   setInputEmail(e.target.value.trim())
 }
 
+const urlToFile = async(filePath, fileName, mimeType = 'application/octet-stream') => {
+  const response = await fetch(filePath);
+   if (!response.ok) {
+    console.error(`❌ 파일 다운로드 실패 - 상태 코드: ${response.status}, URL: ${filePath}`);
+      throw new Error(`파일 다운로드 실패: ${response.status}`);
+  }
+  const blob = await response.blob();
+  const file = new File([blob], fileName, { type: mimeType });
+  return file;
+}
 
 
-const handleClick = () => {
+const handleClick = async() => {
      if(!title.trim()){
     alert("제목을 입력해주세요.");
     return ;
@@ -200,21 +230,37 @@ const handleClick = () => {
   !sendMe && toEmail.forEach((to) => {
     paramData.append("to", to);  
   });
-  
-  paramData.append("content", contentReplace(content));
+
+  let recontent = content;
+  if(oldfileList?.length > 0){
+    for (const oldFile of oldfileList) {
+      const url = `${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/${oldFile.file.path}`;
+      const file = await urlToFile(url, oldFile.file.name)
+      const blobUrl = oldFile.blobUrl ? URL.createObjectURL(file) : null;
+      paramData.append("files", file);
+      paramData.append("urlList", blobUrl);
+
+      const pattern = new RegExp(escapeHTML(url), 'g');
+      recontent = recontent.replace(pattern, blobUrl);
+      console.log(url);
+      console.log(blobUrl);
+      console.log(file);
+    }
+
+  }
+  console.log(recontent);
+  paramData.append("content", recontent);
   files.forEach((file) => {
     paramData.append("files", file);
   });
   urlList.forEach((url) => {
     paramData.append("urlList", url);
   });
-  // oldfileList.forEach((file) => {
-  //   paramData.append("oldFiles", file.file.path);
-  // });
 
   onParams(paramData);
 
 }
+console.log(content);
 
   const formats = useMemo(() => ["font", "size", "bold", "italic", "underline", "strike", "align",
   "list", "bullet", "link", "image", "clean",

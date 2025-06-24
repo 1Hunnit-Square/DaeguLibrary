@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { getMailDetail } from "../../api/mailApi";
+import { delMail, getMailDetail } from "../../api/mailApi";
 import _ from "lodash";
 import ContentComponent from "../common/ContentComponent";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { memberRoleSelector, memberIdSelector, memberNameSelector } from "../../atoms/loginState";
 import { useRecoilValue } from "recoil";
 import Loading from "../../routers/Loading";
 import Download from "../common/Download";
 import { API_SERVER_HOST, API_ENDPOINTS } from "../../api/config";
 import Button from "../common/Button";
+import { ReceiptRussianRuble } from "lucide-react";
 
 const EmailReadComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -17,6 +18,7 @@ const EmailReadComponent = () => {
     const role = useRecoilValue(memberRoleSelector);
     const mid = useRecoilValue(memberIdSelector);
     const name = useRecoilValue(memberNameSelector);
+    const navigate = useNavigate();
    
     useEffect(()=> {
         if(role != "ADMIN"){
@@ -28,7 +30,6 @@ const EmailReadComponent = () => {
         getMailDetail(eid, { mailType : searchURLParams.get("mailType")})
         .then(res => {
             setMailDetail(res);
-            console.log(res);
         }).catch(error => {
             console.error(error);
             alert("메일을 읽는 중에 오류가 발생하였습니다.");
@@ -54,6 +55,22 @@ const EmailReadComponent = () => {
         ).join(", ");
     }
 
+    const handleDelete = () => {
+        const checkConfirm = confirm("메일을 삭제하시겠습니까?");
+
+        if(!checkConfirm){
+        return;
+        }
+
+        delMail(eid, { mailType : searchURLParams.get("mailType")}).then(res => {
+            alert("메일이 삭제되었습니다.");
+            window.opener.postMessage({reload : true},"*");
+            window.close();
+        }).catch(error => {
+            alert("삭제에 실패했습니다.");
+        })
+
+    }
 
 return(
     <div className = "mb-15">
@@ -65,9 +82,9 @@ return(
       <hr className="border-t border-gray-300 my-3" />
      <div className="flex justify-between w-4xl px-3 mx-auto">
      <div className="flex gap-3">
-     <Button>답장</Button>
-     <Button className="bg-blue-400 hover:bg-blue-500">전달</Button>
-     <Button className="bg-red-400 hover:bg-red-500">삭제</Button>
+     <Button onClick = {()=> navigate(`/emailWrite?sendType=reply&eid=${eid}`)}>답장</Button>
+     <Button onClick = {()=> navigate(`/emailWrite?sendType=forward&eid=${eid}`)} className="bg-blue-400 hover:bg-blue-500">전달</Button>
+     <Button onClick={handleDelete} className="bg-red-400 hover:bg-red-500">삭제</Button>
      </div>
      <Button onClick={()=>{window.close()}} className="bg-gray-400 hover:bg-gray-500">닫기</Button>
      </div>

@@ -13,7 +13,7 @@ import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -269,7 +269,7 @@ public class MailService {
     
 
 	 public ResponseEntity<Resource> getFile(String type, String eid, int fileNum){
-		InputStreamResource resource;
+		 ByteArrayResource resource;
 		
 		 try {
 		Folder inbox = mailConfig.getFolder(type, true);
@@ -278,14 +278,17 @@ public class MailService {
 	    	
 	   
         resource = MailParseUtil.getFileResource(message, fileNum);
-         
+        
+        mailConfig.closeFolder(inbox, false);
         } catch(Exception e){
         	System.out.println(e);
              return ResponseEntity.internalServerError().build();
          }
+		 
          return ResponseEntity.ok()
         		 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
         		 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        		 .contentLength(resource.contentLength())
         		 .body(resource);
      }
     

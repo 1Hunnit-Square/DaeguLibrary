@@ -8,7 +8,7 @@ import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
 import { imgReplace } from "../../util/commonUtil";
 
@@ -17,12 +17,15 @@ const NoticeModComponent = () => {
 const { moveToLogin } = useMoveTo();
 const navigate = useNavigate();
 const mid = useRecoilValue(memberIdSelector);
-
+const queryClient = useQueryClient();
 const { ano } = useParams();
+const cached = queryClient.getQueryData(['noticeDetail', ano]);
 const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['noticeDetail', ano],
         queryFn: () => getNoticeDetail(ano),
         refetchOnWindowFocus: false,
+        enabled: !cached, // 캐시 없으면 실행
+        initialData: cached
     });
 
 

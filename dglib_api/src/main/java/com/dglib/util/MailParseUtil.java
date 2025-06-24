@@ -1,5 +1,6 @@
 package com.dglib.util;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 
 import com.dglib.dto.mail.MailBasicDTO;
 import com.dglib.dto.mail.MailContentDTO;
@@ -89,13 +91,16 @@ public class MailParseUtil {
 	}
 	
 	
-	public static InputStreamResource getFileResource(Message message, int fileNum) throws Exception {
+	public static ByteArrayResource getFileResource(Message message, int fileNum) throws Exception {
 	    List<Part> fileParts = new ArrayList<>();
 	    findFileParts(message, fileParts);
 
 	    if (fileNum >= 0 && fileNum < fileParts.size()) {
-	        Part target = fileParts.get(fileNum);
-	        return new InputStreamResource(target.getInputStream());
+	    	 Part target = fileParts.get(fileNum);
+	         try (InputStream is = target.getInputStream()) {
+	             byte[] bytes = is.readAllBytes();
+	             return new ByteArrayResource(bytes);
+	         }
 	    }
 
 	    return null;

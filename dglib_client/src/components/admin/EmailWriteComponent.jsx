@@ -13,15 +13,21 @@ import RadioBox from "../common/RadioBox";
 import { getEmailInfoList } from "../../api/memberApi";
 import Loading from "../../routers/Loading";
 import Scrollbars from "react-custom-scrollbars-2";
+import { useSearchParams } from "react-router-dom";
+import { getMailDetail } from "../../api/mailApi";
+import { emailReplace } from "../../util/commonUtil";
 
 const EmailWriteComponent = () =>{
 
+    const [searchURLParams, setSearchURLParams] = useSearchParams();
     const [ isOpen, setIsOpen ] = useState(false);
     const [ mailList, setMailList ] = useState([]);
     const [ nameList, setNameList ] = useState([]);
     const [ searchResults, setSearchResults ] = useState([]);
     const [ searchKey, setSearchKey ] = useState({});
     const [ addkey, setAddkey ] = useState(()=>{});
+    const [ readLoading, setReadLoading ] = useState(false);
+    const [ useForm, setUseForm ] = useState({});
 
     const role = useRecoilValue(memberRoleSelector);
 
@@ -54,7 +60,22 @@ const EmailWriteComponent = () =>{
             alert("권한이 없습니다.");
             window.close();
             return;
-        }},[])
+        }
+            if(searchURLParams.get("sendType") && searchURLParams.get("eid")){
+            setReadLoading(true);
+            getMailDetail(searchURLParams.get("eid"), { mailType : "RECIEVER"})
+                    .then(res => {
+                        setUseForm({ ...res, content: emailReplace(res?.content, true), sendType: searchURLParams.get("sendType")});
+                    }).catch(error =>{
+                        console.error(error);
+                        alert("해당하는 기능을 로드하는데 오류가 발생하였습니다.")
+
+                    }).finally(()=>{
+                        setReadLoading(false);
+                    });
+            }
+
+        },[])
 
 
     const searchMutation = useMutation({
@@ -179,7 +200,8 @@ const EmailWriteComponent = () =>{
 
     
 return(<div className = "flex flex-col items-center mb-10">
-    {(role == "ADMIN") &&<MailQuillComponent onParams={sendParams} onBack={onBack} searchHandler={handleSearchList} setAddkey={setAddkey} />}
+    {readLoading && <Loading />}
+    {(role == "ADMIN") &&<MailQuillComponent onParams={sendParams} onBack={onBack} searchHandler={handleSearchList} useForm={useForm} />}
     <Modal isOpen={isOpen} title={"이메일 검색"} onClose={()=>setIsOpen(false)} className={"!max-w-4xl"}>
         <div className = "flex flex-col max-h-200 my-1 gap-5">
          <div className="flex flex-col gap-5 bg-gray-100 px-10 py-5 items-center">

@@ -1,5 +1,6 @@
 import { API_SERVER_HOST } from "../api/config";
 import { API_ENDPOINTS } from "../api/config";
+import * as cheerio from 'cheerio';
 
 export const fileSize = (bytes) => {
     if(bytes === null) return "";
@@ -29,10 +30,25 @@ export const contentReplace = (content) => {
 }
 
 
-export const emailReplace = (content) => {
+export const emailReplace = (content, rewrite = false) => {
     if(!content){
     return "";
   }
     const replaced = content.replace(/image:\/\//g,`${API_SERVER_HOST}${API_ENDPOINTS.mail}/view/`);
+    if(rewrite){
+      const $ = cheerio.load(replaced);
+      $('.dglib-tracker').remove();
+      return $.html();
+    }
   return replaced;
 }
+
+export const escapeHTML = (str) => {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+

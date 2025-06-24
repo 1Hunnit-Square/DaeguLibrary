@@ -63,7 +63,6 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	//주간 조회
 	@Override
 	public List<ClosedDayDTO> getWeeklyList(LocalDate start, LocalDate end) {
-		
 
 		List<ClosedDay> list = closedDayRepository.findByClosedDateBetween(start, end).stream()
 				.sorted(Comparator.comparing(ClosedDay::getClosedDate)).collect(Collectors.toList());

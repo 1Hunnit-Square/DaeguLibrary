@@ -92,7 +92,7 @@ const ProgramComponent = () => {
     };
 
     const renderStatusBadge = (status) => {
-        const base = "px-4 py-4 rounded text-sm font-semibold whitespace-nowrap";
+        const base = "px-2 py-2 rounded-full text-xs font-semibold whitespace-nowrap";
 
         switch (status) {
             case '신청중':
@@ -179,7 +179,7 @@ const ProgramComponent = () => {
                     {finalPrograms.map((program) => {
                         const status = getProgramStatus(program.applyStartAt, program.applyEndAt, program.current, program.capacity);
                         return (
-                            <div key={program.progNo} className="relative p-7 border rounded-2xl shadow-sm bg-white flex justify-between items-start">
+                            <div key={program.progNo} className="relative p-7 border-gray-700 rounded-2xl drop-shadow-sm bg-white flex justify-between items-start">
                                 <div>
                                     <h3 className='text-lg font-bold mb-2 cursor-pointer hover:underline'
                                         onClick={() => navigate(`/reservation/program/${program.progNo}`)}>

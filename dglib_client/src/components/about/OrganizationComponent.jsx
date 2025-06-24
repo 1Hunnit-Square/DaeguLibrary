@@ -31,7 +31,7 @@ const OrganizationComponent = () => {
 
 
             {/* 연락처 */}
-            <div className="mt-15 border border-gray-300 rounded-lg p-5 bg-gray-50 text-sm text-center flex flex-col sm:flex-row sm:justify-center sm:gap-10 shadow-sm">
+            <div className="mt-15 border border-gray-200 rounded-lg p-5 bg-gray-50 text-sm text-center flex flex-col sm:flex-row sm:justify-center sm:gap-10 shadow-sm">
                 <div className="flex items-center justify-center gap-3 mb-2 sm:mb-0">
                     <span>📞</span>
                     <span className="font-semibold">대표번호:</span>
@@ -48,44 +48,44 @@ const OrganizationComponent = () => {
             <div className="mt-15">
                 <h3 className="text-xl font-bold mb-4">조직 현황</h3>
                 <div className="overflow-x-auto">
-                    <table className="w-full table-auto border border-gray-300 text-sm">
-                        <thead className="bg-gray-100">
+                    <table className="w-full table-auto text-sm border-collapse border-gray-300">
+                        <thead className="bg-gray-200">
                             <tr>
-                                <th className="border px-4 py-3">부서명</th>
-                                <th className="border px-4 py-3">성명</th>
-                                <th className="border px-4 py-3">직위</th>
-                                <th className="border px-4 py-3">담당업무</th>
-                                <th className="border px-4 py-3">전화번호</th>
+                                <th className="border border-gray-300 px-4 py-3">부서명</th>
+                                <th className="border border-gray-300 px-4 py-3">성명</th>
+                                <th className="border border-gray-300 px-4 py-3">직위</th>
+                                <th className="border border-gray-300 px-4 py-3">담당업무</th>
+                                <th className="border border-gray-300 px-4 py-3">전화번호</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td className="border px-4 py-3 text-center">대구도서관</td>
-                                <td className="border px-4 py-3 text-center">백승민</td>
-                                <td className="border px-4 py-3 text-center">도서관장</td>
-                                <td className="border px-4 py-3 text-center">도서관 업무 총괄</td>
-                                <td className="border px-4 py-3 text-center">053-269-0708</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">대구도서관</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">백승민</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">도서관장</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">도서관 업무 총괄</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">053-269-0708</td>
                             </tr>
                             <tr>
-                                <td className="border px-4 py-3 text-center">지식문화팀</td>
-                                <td className="border px-4 py-3 text-center">김대형</td>
-                                <td className="border px-4 py-3 text-center">지식문화팀장</td>
-                                <td className="border px-4 py-3 text-center">지식문화팀 업무 총괄</td>
-                                <td className="border px-4 py-3 text-center">053-269-0709</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">지식문화팀</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">김대형</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">지식문화팀장</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">지식문화팀 업무 총괄</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">053-269-0709</td>
                             </tr>
                             <tr>
-                                <td className="border px-4 py-3 text-center">문화사업팀</td>
-                                <td className="border px-4 py-3 text-center">임효진</td>
-                                <td className="border px-4 py-3 text-center">문화사업팀장</td>
-                                <td className="border px-4 py-3 text-center">문화사업팀 업무 총괄</td>
-                                <td className="border px-4 py-3 text-center">053-269-0710</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">문화사업팀</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">임효진</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">문화사업팀장</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">문화사업팀 업무 총괄</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">053-269-0710</td>
                             </tr>
                             <tr>
-                                <td className="border px-4 py-3 text-center">정보지원팀</td>
-                                <td className="border px-4 py-3 text-center">박지민</td>
-                                <td className="border px-4 py-3 text-center">정보지원팀장</td>
-                                <td className="border px-4 py-3 text-center">정보지원팀 업무 총괄</td>
-                                <td className="border px-4 py-3 text-center">053-269-0711</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">정보지원팀</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">박지민</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">정보지원팀장</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">정보지원팀 업무 총괄</td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">053-269-0711</td>
                             </tr>
                         </tbody>
                     </table>

@@ -20,7 +20,7 @@ const FacilityComponent = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
-      <section className="bg-[#e5f5ec] p-6 rounded-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <section className="bg-[#e5f5ec] p-6 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div className="flex-1">
           <h2 className="text-xl md:text-2xl font-bold text-green-800 mb-2 leading-relaxed">
             대구도서관 시설이용신청 안내
@@ -136,15 +136,15 @@ const FacilityComponent = () => {
         <table className="w-full text-sm text-left border border-gray-300">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="px-4 py-3 border-b text-center">구분</th>
-              <th className="px-4 py-3 border-b text-center">층</th>
-              <th className="px-4 py-3 border-b text-center">용도</th>
-              <th className="px-4 py-3 border-b text-center">인원수(명)</th>
-              <th className="px-4 py-3 border-b text-center">예약</th>
+              <th className="px-4 py-3 text-center">구분</th>
+              <th className="px-4 py-3 text-center">층</th>
+              <th className="px-4 py-3 text-center">용도</th>
+              <th className="px-4 py-3 text-center">인원수(명)</th>
+              <th className="px-4 py-3 text-center">예약</th>
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            <tr className="border-t">
+            <tr className="border border-gray-300">
               <td className="px-4 py-3 text-center">동아리실</td>
               <td className="px-4 py-3 text-center">지하 1층</td>
               <td className="px-4 py-3 text-center">동아리 활동 등</td>
@@ -155,7 +155,7 @@ const FacilityComponent = () => {
                 </button>
               </td>
             </tr>
-            <tr className="border-t">
+            <tr className="border border-gray-300">
               <td className="px-4 py-3 text-center">세미나실</td>
               <td className="px-4 py-3 text-center">지상 3층</td>
               <td className="px-4 py-3 text-center">세미나 활동 등</td>

@@ -111,7 +111,7 @@ const EventBannerComponent = () => {
 
             {/* 등록 폼 카드 */}
             {registerForms.map((form, index) => (
-                <div key={index} className="bg-white w-full max-w-4xl p-6 rounded shadow-2xl">
+                <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl drop-shadow-sm">
                     <div className="flex items-start gap-8">
                         <div className="flex-1 flex flex-col space-y-8">
                             <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ const EventBannerComponent = () => {
                             <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
                         </div>
 
-                        <div className="relative w-36 h-36 border rounded bg-gray-100 flex items-center justify-center">
+                        <div className="relative w-36 h-36 border border-gray-300 shadow rounded-xl bg-gray-100 flex items-center justify-center">
                             {form.file ? (
                                 <>
                                     <img
@@ -172,7 +172,7 @@ const EventBannerComponent = () => {
                                     </button>
                                 </>
                             ) : (
-                                <span className="text-xs text-gray-400">이미지 미리보기</span>
+                                <span className="text-xs text-gray-500">이미지 미리보기</span>
                             )}
                         </div>
 
@@ -208,15 +208,19 @@ const EventBannerComponent = () => {
             {/* 배너 목록 출력 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {banners.map(banner => (
-                    <div key={banner.bno} className="border rounded p-2 shadow">
+                    <div key={banner.bno} className="border border-gray-200 rounded-xl shadow-sm p-2">
                         <img
                             src={getEventBannerImageUrl(banner.imageUrl)}
                             alt="banner"
                             className="w-full h-32 object-cover"
                         />
                         <p className="text-sm text-center mt-2">이벤트: {banner.eno}</p>
-                        <div className="flex justify-end mt-2">
-                            <Button onClick={() => handleDelete(banner.bno)}>삭제</Button>
+                        <div className="flex justify-center mt-4 mb-2">
+                            <Button
+                                onClick={() => handleDelete(banner.bno)}
+                                className="bg-red-700 hover:bg-red-800 text-xs rounded-md"
+                            >
+                                삭제</Button>
                         </div>
                     </div>
                 ))}

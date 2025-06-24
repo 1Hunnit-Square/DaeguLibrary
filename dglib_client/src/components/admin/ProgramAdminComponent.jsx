@@ -91,7 +91,7 @@ const ProgramAdminComponent = () => {
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">프로그램 관리</h1>
 
             {/* 검색 조건 헤더 */}
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-3 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-300 p-3 min-h-30">
                 <SearchSelectComponent
                     options={searchOptions}
                     defaultCategory={defaultCategory}
@@ -153,12 +153,12 @@ const ProgramAdminComponent = () => {
                             </tr>
                         ) : (
                             data.content.map((item, idx) => (
-                                <tr key={idx} className="border-b">
+                                <tr key={idx} className="border border-gray-200">
                                     <td className="py-3">{idx + 1 + (page - 1) * size}</td>
-                                    <td className="py-3 px-4 font-semibold">{item.teachName}</td>
+                                    <td className="py-3 px-4">{item.teachName}</td>
                                     <td
                                         className="py-4 px-4 font-semibold cursor-pointer hover:underline"
-                                        onClick={() => navigate(`/admin/programdetail/${item.progNo}`)}
+                                        onClick={() => navigate(`/admin/progmanagement/programdetail/${item.progNo}`)}
                                     >
                                         {item.progName}
                                     </td>
@@ -174,11 +174,11 @@ const ProgramAdminComponent = () => {
                                         {" / "}
                                         {item.capacity}
                                     </td>
-                                    <td className="py-3 px-4 font-semibold">{item.status}</td>
-                                    <td className="py-3 px-4 font-semibold">{item.createdAt}</td>
+                                    <td className="py-3 px-4">{item.status}</td>
+                                    <td className="py-3 px-4">{item.createdAt}</td>
                                     <td className="py-3 px-4">
                                         <Button
-                                            className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                                            className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded"
                                             onClick={() => {
                                                 const confirmed = window.confirm("정말 삭제하시겠습니까?");
                                                 if (confirmed) {

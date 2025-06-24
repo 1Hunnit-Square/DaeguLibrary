@@ -46,7 +46,7 @@ const UseProgramComponent = () => {
     if (!mid) return null;
 
     return (
-        <div className="p-6 mt-6">
+        <div className="max-w-7xl mx-auto px-6 py-12">
             {isLoading && (
                 <div className="text-center py-6">
                     <Loading />
@@ -60,7 +60,7 @@ const UseProgramComponent = () => {
             )}
 
             {!isLoading && !isError && (
-                <div className="overflow-x-auto shadow-md rounded-lg">
+                <div className="overflow-x-auto shadow-sm rounded-xl">
                     <table className="w-full table-fixed bg-white text-sm">
                         <thead className="bg-[#00893B] text-white text-xs uppercase">
                             <tr>
@@ -85,9 +85,9 @@ const UseProgramComponent = () => {
                                     <tr key={item.progUseNo} className="border-b border-gray-200 hover:bg-gray-50">
                                         <td className="py-3 px-2 text-center">{index + 1}</td>
                                         <td className="py-3 px-2 text-center">
-                                            <div className="font-semibold">{item.progName}</div>
+                                            <div className="font-bold">{item.progName}</div>
                                             <div className='text-xs text-gray-700 flex justify-center items-center gap-2 mt-1'>
-                                                <span className='inline-block font-semibold border border-gray-400 px-2 py-0.5 rounded text-xs leading-tight'>강사</span>
+                                                <span className='inline-block border border-gray-400 px-2 py-0.5 rounded text-xs leading-tight'>강사</span>
                                                 <span className="leading-tight">{item.teachName}</span>
                                             </div>
                                         </td>
@@ -113,7 +113,7 @@ const UseProgramComponent = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="py-3 px-2 text-center font-semibold text-sm">
+                                        <td className="py-3 px-2 text-center text-sm">
                                             {dayjs(item.applyAt).format('YYYY-MM-DD')}
                                         </td>
                                         <td className="py-3 px-2 text-center text-sm">
@@ -148,7 +148,7 @@ const UseProgramComponent = () => {
                                             ) : (
                                                 <button
                                                     onClick={() => handleCancel(item.progUseNo)}
-                                                    className="bg-red-500 text-white px-3 py-1 text-xs rounded hover:bg-red-600 cursor-pointer"
+                                                    className="bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700 cursor-pointer"
                                                 >
                                                     신청취소
                                                 </button>

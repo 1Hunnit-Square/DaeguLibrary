@@ -48,7 +48,7 @@ const UsedFacilityComponent = () => {
   if (!memberId) return null;
 
   return (
-    <div className="p-6 mt-6">
+    <div className="max-w-6xl mx-auto px-6 py-12">
       {isLoading && (
         <div className="text-center py-6">
           <Loading />
@@ -62,7 +62,7 @@ const UsedFacilityComponent = () => {
       )}
 
       {!isLoading && !isError && (
-        <div className="overflow-x-auto shadow-md rounded-lg">
+        <div className="overflow-x-auto shadow-sm rounded-xl">
           <table className="w-full table-fixed bg-white text-sm">
             <thead className="bg-[#00893B] text-white text-xs uppercase">
               <tr>
@@ -89,11 +89,11 @@ const UsedFacilityComponent = () => {
                     <td className="py-3 px-2 text-center align-middle">
                       <div className="flex flex-col items-center justify-center gap-2 text-xs">
                         <div className="flex items-center gap-5">
-                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs">이용일자</span>
+                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs font-semibold">이용일자</span>
                           <span>{item.useDate}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs">이용시간</span>
+                          <span className="border border-gray-400 px-2 py-0.5 rounded text-xs font-semibold">이용시간</span>
                           <span>{item.startTime} ~ {item.endTime}</span>
                         </div>
                       </div>
@@ -116,7 +116,7 @@ const UsedFacilityComponent = () => {
                           cancelMutation.mutate(item.pno);
                         }}
                         disabled={dayjs(item.useDate).isBefore(dayjs(), 'day')}
-                        className={`px-3 py-1 text-xs rounded ${dayjs(item.useDate).isBefore(dayjs(), 'day')
+                        className={`px-2 py-1 text-xs rounded ${dayjs(item.useDate).isBefore(dayjs(), 'day')
                           ? 'bg-gray-300 text-white cursor-not-allowed'
                           : 'bg-red-500 hover:bg-red-600 text-white cursor-pointer'
                           }`}

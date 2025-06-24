@@ -17,6 +17,6 @@ public interface EventRepository extends JpaRepository<Event, Long>{
 	List<Event> findAllByIsPinned(boolean isPinned, Sort sort);
 	
 	@Transactional
-	void deleteByAnoIn(List<Long> ids);
+	void deleteByEnoIn(List<Long> ids);
 }
 

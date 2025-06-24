@@ -264,20 +264,23 @@ public class AdminController {
 			return adminBoardService.getNoticeList(dto, pageable);
 		} else if ("news".equals(dto.getBoardType())) {
 			return adminBoardService.getNewsList(dto, pageable);
+		} else if ("event".equals(dto.getBoardType())) {
+			return adminBoardService.getEventList(dto, pageable);
+		} else if ("gallery".equals(dto.getBoardType())) {
+			return adminBoardService.getGalleryList(dto, pageable);
 		}
 		throw new IllegalArgumentException("지원하지 않는 게시판 타입입니다.");
 	}
 
 	@PutMapping("/board/hide")
 	public ResponseEntity<Void> hideBoards(@RequestBody BoardTypeDTO request) {
-	    adminBoardService.hideBoards(request.getBoardType(), request.getIds(), request.isHidden());
-	    return ResponseEntity.ok().build();
+		adminBoardService.hideBoards(request.getBoardType(), request.getIds(), request.isHidden());
+		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/board")
 	public ResponseEntity<Void> deleteBoards(@RequestBody BoardTypeDTO request) {
-	    adminBoardService.deleteBoards(request.getBoardType(), request.getIds());
-	    return ResponseEntity.ok().build();
+		adminBoardService.deleteBoards(request.getBoardType(), request.getIds());
+		return ResponseEntity.ok().build();
 	}
 }
-

@@ -17,8 +17,7 @@ import jakarta.persistence.criteria.Predicate;
 public class GallerySpecifications {
 	public static Specification<Gallery> fromDTO(GallerySearchDTO dto) {
 		return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
-				.and((root, query, cb) -> cb.equal(root.get("isHidden"), false))
-				.and((root, query, cb) -> cb.equal(root.get("isPinned"), false));
+				.and((root, query, cb) -> cb.equal(root.get("isHidden"), false));
 	}
 
 	public static Specification<Gallery> searchFilter(String option, String queryStr) {

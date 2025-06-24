@@ -22,8 +22,8 @@ const NormalBoardComponent = () => {
       label: "공지사항",
       api: (params) => getBoardList({ ...params, boardType: "notice" }),
       columns: [
-        { key: "pinned", label: "고정", align: "center", width: "4%" },
-        { key: "no", label: "글번호", align: "center", width: "5%" },
+        { key: "no", label: "글번호", align: "center", width: "7%" },
+        { key: "pinned", label: "", align: "center", width: "2%" },
         { key: "title", label: "제목", align: "center", width: "40%" },
         { key: "writerId", label: "작성자", align: "center", width: "12%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
@@ -36,8 +36,8 @@ const NormalBoardComponent = () => {
       label: "보도자료",
       api: (params) => getBoardList({ ...params, boardType: "news" }),
       columns: [
-         { key: "pinned", label: "고정", align: "center", width: "4%" },
-        { key: "no", label: "글번호", align: "center", width: "5%" },
+        { key: "no", label: "글번호", align: "center", width: "7%" },
+        { key: "pinned", label: "", align: "center", width: "2%" },
         { key: "title", label: "제목", align: "center", width: "40%" },
         { key: "writerId", label: "작성자", align: "center", width: "12%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
@@ -50,8 +50,8 @@ const NormalBoardComponent = () => {
       label: "새소식",
       api: (params) => getBoardList({ ...params, boardType: "event" }),
       columns: [
-        { key: "pinned", label: "고정", align: "center", width: "4%" },
-        { key: "no", label: "글번호", align: "center", width: "5%" },
+        { key: "no", label: "글번호", align: "center", width: "7%" },
+        { key: "pinned", label: "", align: "center", width: "2%" },
         { key: "title", label: "제목", align: "center", width: "40%" },
         { key: "writerId", label: "작성자", align: "center", width: "12%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
@@ -64,8 +64,8 @@ const NormalBoardComponent = () => {
       label: "갤러리",
       api: (params) => getBoardList({ ...params, boardType: "gallery" }),
       columns: [
-         { key: "pinned", label: "고정", align: "center", width: "4%" },
-        { key: "no", label: "글번호", align: "center", width: "5%" },
+        { key: "no", label: "글번호", align: "center", width: "7%" },
+        { key: "pinned", label: "", align: "center", width: "2%" },
         { key: "title", label: "제목", align: "center", width: "40%" },
         { key: "writerId", label: "작성자", align: "center", width: "12%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
@@ -89,7 +89,7 @@ const NormalBoardComponent = () => {
 
   const currentBoard = boardMap[boardType];
   const searchFieldMap = { "회원 ID": "id", "작성자": "name", "제목": "title" };
-  const boardOptions = { 공지사항: "notice", 보도자료: "news", 새소식: "event", 갤러리:"gallery" };
+  const boardOptions = { 공지사항: "notice", 보도자료: "news", 새소식: "event", 갤러리: "gallery" };
   const sortOptions = { 최신순: "postedAt,desc", 오래된순: "postedAt,asc" };
   const sizeOptions = { "10개씩": 10, "20개씩": 20 };
   const isHiddenOnly = searchParams.get("hidden") === "true";
@@ -304,11 +304,11 @@ const NormalBoardComponent = () => {
       </div>
 
       <div className="shadow-md rounded-lg overflow-x-auto mt-4">
-        <table className="w-full bg-white table-fixed">
+        <table className="w-full bg-white table-auto">
           <colgroup>
             <col style={{ width: '5%' }} />
-            {currentBoard.columns.map((col, idx) => (
-              <col key={idx} style={{ width: col.width }} />
+            {currentBoard.columns.slice(1).map((col, idx) => (
+              <col key={idx} />
             ))}
           </colgroup>
           <thead className="bg-[#00893B] text-white">
@@ -357,7 +357,7 @@ const NormalBoardComponent = () => {
                       value = item[col.key] ? "Y" : "-";
                     }
                     if (col.key === "pinned") {
-                      value = item[col.key] ? "📌" : "-";
+                      value = item[col.key] ? "📌" : "";
                     }
                     if (col.key === "postedAt" || col.key === "modifiedAt") {
                       value = typeof value === "string" ? value.substring(0, 16) : value;

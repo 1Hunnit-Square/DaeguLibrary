@@ -15,5 +15,5 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
 	Page<Gallery> findAll(Specification<Gallery> spec, Pageable pageable);
 	
 	@Transactional
-	void deleteByAnoIn(List<Long> ids);
+	void deleteByGnoIn(List<Long> ids);
 }

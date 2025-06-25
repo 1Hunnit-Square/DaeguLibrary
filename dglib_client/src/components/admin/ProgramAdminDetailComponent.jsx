@@ -56,6 +56,7 @@ const ProgramAdminDetailComponent = () => {
     }
   };
 
+  // 신청 회원 취소
   const handleCancel = async (progUseNo) => {
     if (window.confirm("이 신청을 취소하시겠습니까?")) {
       try {

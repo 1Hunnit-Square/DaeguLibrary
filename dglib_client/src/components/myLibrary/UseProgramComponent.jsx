@@ -34,8 +34,6 @@ const UseProgramComponent = () => {
         keepPreviousData: true,
     });
 
-    console.log('신청 내역 데이터:', data?.content?.map(item => item.progUseNo));
-
     const handleCancel = async (progUseNo) => {
         if (!window.confirm("정말 신청을 취소하시겠습니까?")) return;
         try {

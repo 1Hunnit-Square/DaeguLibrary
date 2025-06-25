@@ -52,8 +52,6 @@ public interface ProgramService {
 
 	// 프로그램 목록 조회
 	Page<ProgramInfoDTO> getProgramList(Pageable pageable, String title, String content, String status);
-	
-	Page<ProgramUseDTO> getUseListByMemberPaged(String mid, Pageable pageable);
 
 	// 사용자용 목록 조회
 	Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status);
@@ -64,7 +62,7 @@ public interface ProgramService {
 	Page<ProgramInfoDTO> searchAdminProgramList(Pageable pageable, String option, String query, String status);
 
 	// 사용자 신청 리스트
-	List<ProgramUseDTO> getUseListByMember(String mid);
+	Page<ProgramUseDTO> getUseListByMemberPaged(String mid, Pageable pageable);
 
 	// 관리자용: 특정 프로그램의 신청자 목록 조회
 	List<ProgramUseDTO> getApplicantsByProgram(Long progNo);

@@ -199,29 +199,21 @@ public class ProgramController {
 		return ResponseEntity.ok(programService.isAvailable(progNo));
 	}
 
-	// 6. 사용자 신청 리스트
-	@GetMapping("/user/applied")
-	public ResponseEntity<List<ProgramUseDTO>> getProgramUseList(@RequestParam String mid) {
-		return ResponseEntity.ok(programService.getUseListByMember(mid));
-	}
-	
-	// 6-1.  사용자 신청 내역 조회 (페이징)
+	// 4. 사용자 신청 내역 조회 (페이징)
 	@GetMapping("/user/applied/page")
-	public ResponseEntity<Page<ProgramUseDTO>> getUseListByMemberPaged(
-	        @RequestParam String mid,
-	        Pageable pageable) {
+	public ResponseEntity<Page<ProgramUseDTO>> getUseListByMemberPaged(@RequestParam String mid, Pageable pageable) {
 
-	    return ResponseEntity.ok(programService.getUseListByMemberPaged(mid, pageable));
+		return ResponseEntity.ok(programService.getUseListByMemberPaged(mid, pageable));
 	}
 
-	// 7. 사용자 신청 취소
+	// 5. 사용자 신청 취소
 	@DeleteMapping("/cancel/{progUseNo}")
 	public ResponseEntity<Void> cancelProgram(@PathVariable Long progUseNo) {
 		programService.cancelProgram(progUseNo);
 		return ResponseEntity.noContent().build();
 	}
 
-	// 8. 사용자 프로그램 목록 조회
+	// 6. 사용자 프로그램 목록 조회
 	@GetMapping("/user/list")
 	public ResponseEntity<Page<ProgramInfoDTO>> getUserProgramList(@RequestParam(required = false) String option,
 			@RequestParam(required = false) String query, @RequestParam(required = false) String status,

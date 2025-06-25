@@ -16,10 +16,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.dglib.dto.book.ChatbotBookResponseDTO;
 import com.dglib.dto.days.ClosedDayDTO;
-import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
+import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
+import com.dglib.dto.member.ChatMemberReservationBookDTO;
+import com.dglib.dto.member.ChatMemberReservationResponseDTO;
+import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.service.book.BookService;
 import com.dglib.service.days.ClosedDayService;
 import com.dglib.service.member.MemberService;
+import com.dglib.service.program.ProgramService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +38,7 @@ public class ChatbotPythonController {
 	private final BookService bookService;
 	private final MemberService memberService;
 	private final ClosedDayService closedDayService;
+	private final ProgramService programService;
 	
 
 	@GetMapping("/booktitle/{book_title}")
@@ -51,9 +56,9 @@ public class ChatbotPythonController {
 	}
 	
 	@GetMapping("/memberborrow")
-	public ResponseEntity<ChatMemberBorrowResposneDTO> memberBorrow(@RequestHeader("X-User-ID") String mid) {
+	public ResponseEntity<ChatMemberBorrowResponseDTO> memberBorrow(@RequestHeader("X-User-ID") String mid) {
 		LOGGER.info("Member borrow request for mid: {}", mid);
-		ChatMemberBorrowResposneDTO dto = memberService.getChatMemberBorrowState(mid);
+		ChatMemberBorrowResponseDTO dto = memberService.getChatMemberBorrowState(mid);
 		LOGGER.info("Member borrow response: {}", dto);
 		return ResponseEntity.ok(dto);
 		
@@ -105,6 +110,23 @@ public class ChatbotPythonController {
 		List<ClosedDayDTO> response = closedDayService.getWeeklyList(start, end);
 		LOGGER.info("Month holiday range response: {}", response);
 		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/programm")
+	public ResponseEntity<List<ProgramInfoDTO>> programm() {
+		LOGGER.info("Programm request");
+		List<ProgramInfoDTO> response = programService.getAllPrograms();
+		LOGGER.info("Programm response: {}", response);
+		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/memberreservation")
+	public ResponseEntity <ChatMemberReservationResponseDTO> memberReservation(@RequestHeader("X-User-ID") String mid) {
+		LOGGER.info("Member reservation request for mid: {}", mid);
+		ChatMemberReservationResponseDTO dto = memberService.getChatMemberReservationState(mid);
+		LOGGER.info("Member reservation response: {}", dto);
+		return ResponseEntity.ok(dto);
+		
 	}
 
 }

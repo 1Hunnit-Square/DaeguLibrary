@@ -37,7 +37,9 @@ import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
-import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
+import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
+import com.dglib.dto.member.ChatMemberReservationBookDTO;
+import com.dglib.dto.member.ChatMemberReservationResponseDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.EmailInfoListDTO;
@@ -426,8 +428,10 @@ public class MemberServiceImpl implements MemberService {
 			dto.setDueDate(reserve.getLibraryBook().getRentals().stream()
 					.filter(rental -> rental.getState() == RentalState.BORROWED).map(Rental::getDueDate).findFirst()
 					.orElse(null));
-			dto.setReserveCount(reserve.getLibraryBook().getReserves().stream()
-					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned()).count());
+			dto.setReserveRank(reserve.getLibraryBook().getReserves().stream()
+					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned())
+					.sorted((r1, r2) -> r1.getReserveDate().compareTo(r2.getReserveDate())).collect(Collectors.toList())
+					.indexOf(reserve) + 1);
 			dto.setReturned(
 					reserve.getLibraryBook().getRentals().stream().anyMatch(r -> r.getState() == RentalState.RETURNED));
 			return dto;
@@ -669,13 +673,13 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid) {
+	public ChatMemberBorrowResponseDTO getChatMemberBorrowState(String mid) {
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
 		List<Reserve> reserves = reserveRepository.findActiveReserves(mid, ReserveState.RESERVED);
 		List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
 
-		ChatMemberBorrowResposneDTO dto = new ChatMemberBorrowResposneDTO();
+		ChatMemberBorrowResponseDTO dto = new ChatMemberBorrowResponseDTO();
 		dto.setBorrowCount((long) rentals.size());
 		dto.setReservedCount(reserves.stream()
 				.filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
@@ -690,6 +694,52 @@ public class MemberServiceImpl implements MemberService {
 
 		return dto;
 
+	}
+	
+	@Override
+	public ChatMemberReservationResponseDTO getChatMemberReservationState(String mid) {
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+		Sort sort = Sort.by(Sort.Direction.DESC, "reserveId");
+		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED, sort);
+		List<Rental> rentals = rentalRepository.findActiveBorrowedRentals(mid, RentalState.BORROWED);
+		
+		List<ChatMemberReservationBookDTO> dto = reserves.stream().map(reserve -> {
+			ChatMemberReservationBookDTO d = modelMapper.map(reserve, ChatMemberReservationBookDTO.class);
+			d.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
+			d.setAuthor(reserve.getLibraryBook().getBook().getAuthor());
+			d.setUnmanned(reserve.isUnmanned());
+			d.setRank(reserve.getLibraryBook().getReserves().stream()
+					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned())
+					.sorted((r1, r2) -> r1.getReserveDate().compareTo(r2.getReserveDate())).collect(Collectors.toList())
+					.indexOf(reserve) + 1);
+			d.setReturned(
+					reserve.getLibraryBook().getRentals().stream().anyMatch(r -> r.getState() == RentalState.RETURNED));
+			return d;
+		}).collect(Collectors.toList());
+		
+		Long borrowCount = (long) rentals.size();
+		Long unmannedCount = reserves.stream()
+				.filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned()).count();
+		
+		
+		ChatMemberReservationResponseDTO responseDto = new ChatMemberReservationResponseDTO();
+		responseDto.setReservationBooks(dto);
+		responseDto.setState(member.getState());
+		responseDto.setReservedCount(reserves.stream()
+				.filter(reserve -> reserve.getState() == ReserveState.RESERVED && !reserve.isUnmanned()).count());
+		
+		responseDto.setCanBorrowCount(5L - borrowCount - responseDto.getReservedCount() - unmannedCount);
+		responseDto.setCanReserveCount(responseDto.getCanBorrowCount() < 2 ? 0L : 2 - responseDto.getReservedCount());
+		responseDto.setOverdueCount(rentals.stream().filter(
+				rental -> rental.getState() == RentalState.BORROWED && rental.getDueDate().isBefore(LocalDate.now()))
+				.count());
+		
+		return responseDto;
+		
+		
+
+		
 	}
 
 }

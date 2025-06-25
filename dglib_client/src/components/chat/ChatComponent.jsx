@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, memo, useCallback } from "react";
 import ReactMarkdown from 'react-markdown';
 import ChatActionComponent from "./ChatActionComponent";
 import VoiceWebSocketComponent from "./VoiceWebSocketComponent";
-import { getChatbotResponse, resetChatHistory } from "../../api/chatbotApi";
+import { getChatbotResponse, resetChatHistory, pushFeedback } from "../../api/chatbotApi";
 import { useMutation } from '@tanstack/react-query';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import { chatHistoryState, clientIdState } from '../../atoms/chatState';
+import { ThumbsUp, ThumbsDown } from "phosphor-react";
 
 const ChatComponent = ({ onClose }) => {
     const [message, setMessage] = useState("");
@@ -23,13 +24,13 @@ const ChatComponent = ({ onClose }) => {
             return response;
         },
         onSuccess: (data) => {
-            console.log("Chatbot response:", data);
-            setChatHistory(prev => [...prev, { role: "model", parts: data.parts, service: data.service, to: data.to }]);
+            console.log("챗봇 응답:", data);
+            setChatHistory(prev => [...prev, { role: "model", parts: data.parts, service: data.service, to: data.to, entities: data.entities, intent: data.intent, intent_confidence: data.intent_confidence, feedback: null }]);
             setClientId(data.clientId);
         },
         onError: (error) => {
-            console.error("Error fetching chatbot response:", error);
-            setChatHistory(prev => [...prev, { role: "model", parts: "오늘은 쉽니당. 꿈틀꿈틀🌱" }]);
+            console.error("챗봇 에러:", error);
+            setChatHistory(prev => [...prev, { role: "model", parts: "오늘은 쉽니당. 꿈틀꿈틀🌱", feedback: null}]);
         }
     });
 
@@ -41,10 +42,23 @@ const ChatComponent = ({ onClose }) => {
         onSuccess: () => {
             resetChatHistoryState();
             setClientId("");
-            console.log("Chat history reset successfully.");
+            console.log("챗봇 리셋 성공.");
         },
         onError: (error) => {
-            console.error("Error resetting chat history:", error);
+            console.error("챗봇 리셋 실패:", error);
+        }
+    });
+
+    const feedbackMutation = useMutation({
+        mutationFn: async (feedback) => {
+            const response = await pushFeedback(feedback);
+            return response;
+        },
+        onSuccess: (data) => {
+            console.log("피드백이 전달되었습니다.:", data);
+        },
+        onError: (error) => {
+            console.error("피드백 전달이 실패했습니다.:", error);
         }
     });
 
@@ -94,6 +108,49 @@ const ChatComponent = ({ onClose }) => {
         setIsTyping(true);
     };
 
+    const handleFeedback = useCallback((feedbackIndex, feedbackType) => {
+        const modelResponse = chatHistory[feedbackIndex];
+        if (modelResponse.feedback) {
+            return;
+        }
+
+        const userQuery = (feedbackIndex > 0 && chatHistory[feedbackIndex - 1]?.role === 'user')
+            ? chatHistory[feedbackIndex - 1]
+            : null;
+
+        console.log("모델 응답:", modelResponse);
+        if (userQuery) {
+            console.log("이전 사용자 질문:", userQuery.parts);
+        } else {
+            console.log("이전 사용자 질문을 찾을 수 없습니다.");
+        }
+        const { service, to, intent, intent_confidence, entities, ...rest } = modelResponse;
+        const feedback = {
+            ...rest,
+            userQuery: userQuery ? userQuery.parts : "",
+            feedbackType: feedbackType,
+            nlp: {
+              intent,
+              intent_confidence,
+              entities
+            }
+          };
+        feedbackMutation.mutate(feedback);
+
+        const updatedChatHistory = chatHistory.map((chat, index) => {
+            if (index === feedbackIndex) {
+                return {
+                    ...chat,
+                    feedback: feedbackType
+                };
+            }
+            return chat;
+        });
+        setChatHistory(updatedChatHistory);
+        
+    
+    }, [chatHistory, setChatHistory, feedbackMutation]); 
+
     return (
         <>
         <div className="fixed bottom-23 sm:bottom-5 right-4 sm:right-5 md:right-10 lg:right-20 xl:right-40 
@@ -119,7 +176,7 @@ const ChatComponent = ({ onClose }) => {
                     return(
                     <div key={index}>
                         
-                        <div className={`mb-3 sm:mb-4 flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div className={`flex ${chat.role === "user" ? "mb-3 sm:mb-4" : "mb-1"} ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
                             <div
                                 className={`max-w-[85%] sm:max-w-[90%] px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base ${
                                     chat.role === "user"
@@ -144,10 +201,44 @@ const ChatComponent = ({ onClose }) => {
                                     {chat.parts}
                                 </ReactMarkdown>
                             </div>
+                            
                         </div>
+
+                        {chat.role === 'model' && index > 0 && (
+                            <div className="flex justify-start items-center pl-2 mt-4 mb-4">
+                                 <ChatActionComponent chat={chat} />
+                            <div className="flex gap-2">
+                            {!chat.feedback && (
+                                    <>
+                                        <ThumbsUp
+                                            size={20}
+                                            className="text-gray-400 hover:text-green-600 cursor-pointer transition-colors"
+                                            onClick={() => handleFeedback(index, 'like')}
+                                        />
+                                        <ThumbsDown
+                                            size={20}
+                                            className="text-gray-400 hover:text-red-600 cursor-pointer transition-colors"
+                                            onClick={() => handleFeedback(index, 'dislike')}
+                                        />
+                                    </>
+                                )}
+                                {/* 'like'가 선택되었을 때 */}
+                                {chat.feedback === 'like' && (
+                                    <ThumbsUp size={20} weight="fill" className="text-green-600" />
+                                )}
+                                {/* 'dislike'가 선택되었을 때 */}
+                                {chat.feedback === 'dislike' && (
+                                    <ThumbsDown size={20} weight="fill" className="text-red-600" />
+                                )}
+                               
+                            </div>
+                            </div>
+                        )}
+                                    
                         
                         
-                        <ChatActionComponent chat={chat} />
+                        
+                        
                     </div>
                 )})}
                 {isTyping && (

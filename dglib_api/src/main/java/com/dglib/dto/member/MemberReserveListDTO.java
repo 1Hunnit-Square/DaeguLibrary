@@ -12,7 +12,7 @@ public class MemberReserveListDTO {
 	String author;
 	LocalDateTime reserveDate;
 	LocalDate dueDate;
-	Long reserveCount;
+	int reserveRank;
 	boolean isUnmanned;
 	String isbn;
 	boolean isReturned;

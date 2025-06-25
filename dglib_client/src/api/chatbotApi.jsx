@@ -29,3 +29,12 @@ export const checkaccess = async () => {
     });
     return res.data;
 }
+
+export const pushFeedback = async (feedback) => {
+    const res = await axiosClient.post(`${prefix}/feedback`, feedback, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    return res.data;
+}

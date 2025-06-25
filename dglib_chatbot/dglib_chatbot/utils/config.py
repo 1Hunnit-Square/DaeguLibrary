@@ -1,6 +1,5 @@
 import textwrap
-from IPython.display import display
-from IPython.display import Markdown
+
 import logging
 import os
 

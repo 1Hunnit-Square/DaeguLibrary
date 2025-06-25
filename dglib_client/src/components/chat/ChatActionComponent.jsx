@@ -42,12 +42,20 @@ const ChatActionComponent = ({chat}) => {
                 text: `📖 도서 검색하기`,
                 path: `/books/search?tab=info&page=1`,
                 color: 'blue'
+            }, {
+                text: '🔖 희망도서 신청',
+                path: '/reservation/bookrequest',
+                color: 'green'
             }];
         } else if (chat.service === "not_search_author") {
             return [{
                 text: `🖋️ 작가 검색하기`,
                 path: '/books/search?tab=info&page=1&option=저자',
                 color: 'blue'
+            }, {
+                text: '🔖 희망도서 신청',
+                path: '/reservation/bookrequest',
+                color: 'green'
             }];
         } else if (chat.service === "member_borrow") {
             return [{
@@ -93,6 +101,24 @@ const ChatActionComponent = ({chat}) => {
                 path: '/usage/calendar',
                 color: 'red'
             }];
+        } else if (chat.service === "programm") {
+            return [{
+                text: `📅 프로그램 확인 및 신청`,
+                path: '/reservation/program',
+                color: 'blue'
+            }]
+        } else if (chat.service === "location") {
+            return [{
+                text: `🏛️ 시설이용 신청`,
+                path: '/reservation/facility',
+                color: 'green'
+            }]
+        } else if (chat.service === "book_reservation") {
+            return [{
+                text: `📚 도서 예약 현황 보기`,
+                path: '/mylibrary/bookreservation',
+                color: 'blue'
+            }]
         }
         
         return null;
@@ -112,7 +138,7 @@ const ChatActionComponent = ({chat}) => {
     };
 
     return (
-        <div className="mt-4 mb-4 border-gray-200">
+        <div className="border-gray-200">
             {serviceLink.map((lk, index) => (
                 <a 
                     key={index}

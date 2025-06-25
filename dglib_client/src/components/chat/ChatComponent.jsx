@@ -176,7 +176,7 @@ const ChatComponent = ({ onClose }) => {
                     return(
                     <div key={index}>
                         
-                        <div className={`flex ${chat.role === "user" ? "mb-3 sm:mb-4" : "mb-1"} ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div className={`flex ${chat.role === "user" || index === 0 ? "mb-3 sm:mb-4" : "mb-1"} ${chat.role === "user" ? "justify-end" : "justify-start"}`}>
                             <div
                                 className={`max-w-[85%] sm:max-w-[90%] px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base ${
                                     chat.role === "user"

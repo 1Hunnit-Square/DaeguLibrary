@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { memberIdSelector ,memberNameSelector} from '../../atoms/loginState';
+import { memberIdSelector, memberNameSelector } from '../../atoms/loginState';
 import { registerPlace } from '../../api/placeApi';
 import { API_SERVER_HOST } from '../../api/config';
 import axios from 'axios';
@@ -121,7 +121,8 @@ const ApplyFacilityFormComponent = () => {
         if (participantCount !== Number(personCount)) return alert('이용인원 수와 참가자 수가 일치하지 않습니다.');
 
         if (roomName.includes('동아리') && roomName.includes('세미나')) {
-        return alert('하루 중 한 시설만 예약할 수 있습니다.')};
+            return alert('하루 중 한 시설만 예약할 수 있습니다.')
+        };
 
         const dto = {
             memberMid: memberId,
@@ -169,25 +170,43 @@ const ApplyFacilityFormComponent = () => {
                     <div>
                         <label className="block font-medium mb-1">✔ 이용시간 <span className="text-xs text-gray-500 ml-2">※ 1일 최대 3시간까지 연속 선택</span></label>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 border rounded">
-                            {timeSlots.map((slot, idx) => (
-                                <label
-                                    key={idx}
-                                    className={`inline-flex items-center gap-2 border px-2 py-1 rounded cursor-pointer 
-                                        ${durationTime.includes(slot)
-                                            ? 'bg-green-600 text-white'
-                                            : reservedSlots.includes(slot)
-                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                : 'bg-white'}`}
-                                >
-                                    <CheckNonLabel
-                                        checked={durationTime.includes(slot)}
-                                        onChange={() => toggleDuration(slot)}
-                                        inputClassName="w-4 h-4"
-                                        disabled={reservedSlots.includes(slot) || (durationTime.length >= 3 && !durationTime.includes(slot))}
-                                    />
-                                    <span>{slot}</span>
-                                </label>
-                            ))}
+                            {timeSlots.map((slot, idx) => {
+                                const slotStartStr = slot.split(' - ')[0];
+                                const [slotHour, slotMinute] = slotStartStr.split(':').map(Number);
+
+                                const now = new Date();
+                                const selected = new Date(selectedDate);
+                                const isToday = selected.toDateString() === now.toDateString();
+
+                                const slotStart = new Date(selectedDate);
+                                slotStart.setHours(slotHour, slotMinute, 0, 0);
+
+                                const isPast = isToday && slotStart <= now;
+
+                                return (
+                                    <label
+                                        key={idx}
+                                        className={`inline-flex items-center gap-2 border px-2 py-1 rounded cursor-pointer 
+                                            ${durationTime.includes(slot)
+                                                ? 'bg-green-600 text-white'
+                                                : reservedSlots.includes(slot) || isPast
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white'}`}
+                                    >
+                                        <CheckNonLabel
+                                            checked={durationTime.includes(slot)}
+                                            onChange={() => toggleDuration(slot)}
+                                            inputClassName="w-4 h-4"
+                                            disabled={
+                                                reservedSlots.includes(slot) ||
+                                                (durationTime.length >= 3 && !durationTime.includes(slot)) ||
+                                                isPast
+                                            }
+                                        />
+                                        <span>{slot}</span>
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
                     <div>

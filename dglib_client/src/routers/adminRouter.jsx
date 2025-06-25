@@ -67,12 +67,11 @@ const adminRouter = () => ([
         element: <Suspense fallback={<Loading />}><StatsManagement /></Suspense>
     },
     {
-
         path: "progmanagement",
         element: <Suspense fallback={<Loading />}><ProgManagement /></Suspense>
     },
     {
-        path: "programdetail/:progNo",
+        path: "progmanagement/programdetail/:progNo",
         element: <Suspense fallback={<Loading />}><ProgramAdminDetail /></Suspense>
     },
     {
@@ -80,10 +79,10 @@ const adminRouter = () => ([
         element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
     },
     {
-        path: "programregister/:progNo",
+        path: "progmanagement/programregister/:progNo",
         element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
     }
-  
+
 
 
 ])

@@ -50,8 +50,10 @@ public interface ProgramService {
 	// 사용 가능한 강의실 목록 조회
 	Map<String, Boolean> getRoomAvailabilityStatus(ProgramRoomCheckDTO dto);
 
-	// 프로그램 목록 조회 (페이지네이션 + 검색 조건 포함)
+	// 프로그램 목록 조회
 	Page<ProgramInfoDTO> getProgramList(Pageable pageable, String title, String content, String status);
+	
+	Page<ProgramUseDTO> getUseListByMemberPaged(String mid, Pageable pageable);
 
 	// 사용자용 목록 조회
 	Page<ProgramInfoDTO> searchProgramList(Pageable pageable, String option, String query, String status);

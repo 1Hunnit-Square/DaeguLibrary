@@ -6,22 +6,22 @@ const PROGRAM_URL = `${API_SERVER_HOST}${API_ENDPOINTS.program}`;
 
 // 프로그램 배너 목록 조회
 export const getProgramBanners = async () => {
-  const res = await axios.get(`${PROGRAM_URL}/banners`);
-  return res.data;
+  const response = await axios.get(`${PROGRAM_URL}/banners`);
+  return response.data;
 };
 
 // 프로그램 배너 등록
 export const registerProgramBanner = async (formData) => {
-  const res = await axios.post(`${PROGRAM_URL}/banners/register`, formData, {
+  const response = await axios.post(`${PROGRAM_URL}/banners/register`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return res.data;
+  return response.data;
 };
 
 // 프로그램 배너 삭제
 export const deleteProgramBanner = async (bno) => {
-  const res = await axios.delete(`${PROGRAM_URL}/banners/delete/${bno}`);
-  return res.data;
+  const response = await axios.delete(`${PROGRAM_URL}/banners/delete/${bno}`);
+  return response.data;
 };
 
 // 배너 이미지 URL 생성 함수
@@ -102,11 +102,20 @@ export const applyProgram = async (progNo, mid) => {
 
 // 프로그램 신청 내역(회원용)
 export const getProgramUseList = async (mid) => {
-  const res = await axios.get(`${PROGRAM_URL}/user/applied`, {
+  const response = await axios.get(`${PROGRAM_URL}/user/applied`, {
     params: { mid },
   });
-  return Array.isArray(res.data) ? res.data : [];
+  return Array.isArray(response.data) ? response.data : [];
 };
+
+// 프로그램 신청 내역(회원용 - 페이징)
+export const getProgramUseListPaged = async (mid, page = 0, size = 10) => {
+  const response = await axios.get(`${PROGRAM_URL}/user/applied/page`, {
+    params: { mid, page, size },
+  });
+  return response.data;
+};
+
 
 // 프로그램 신청 취소(회원용)
 export const cancelProgram = async (progUseNo) => {
@@ -122,10 +131,10 @@ export const getUserProgramList = async (params) => {
 
 // 프로그램 신청 여부 확인(회원용)
 export const checkAlreadyApplied = async (progNo, mid) => {
-  const res = await axios.get(`${PROGRAM_URL}/applied`, {
+  const response = await axios.get(`${PROGRAM_URL}/applied`, {
     params: { progNo, mid },
   });
-  return res.data === true;
+  return response.data === true;
 };
 
 // 신청 가능 여부 확인 (회원용)

@@ -53,47 +53,41 @@ const GreetingComponent = () => {
     return (
         <div className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-lg">
             <section className="mb-16">
-                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mb-8 pb-1">
+                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mt-10 pb-8">
                     대구 도서관 방문을 진심으로 환영합니다.
                 </h1>
 
-                <div className="bg-gray-50 border-l-4 border-green-700 p-6 md:p-10 rounded-lg shadow-md transition duration-300 hover:shadow-lg text-gray-800 text-[17px] md:text-[17.5px] leading-[1.85] tracking-tight space-y-7">
-                    <p>
-                        대구 도서관은 2025년 4월 29일, 삶이 여유로운 문화예술도시 '책 읽는 대구'를 실현하기 위해 문을 열었습니다.
-                        광역 대표도서관으로서 시민의 삶에 품격과 풍요를 더하며, 지식 정보와 문화의 거점 역할을 충실히 수행하고 있습니다.
-                    </p>
-                    <p>
-                        시민 여러분께서 필요한 정보와 지식을 손쉽게 이용하실 수 있도록, 풍부한 장서 구축과 도서관 간 협력을 통해
-                        어디에서나 불편 없이 도서관 서비스를 누리실 수 있도록 하겠습니다.
-                    </p>
-                    <p>
-                        또한 평생학습과 문화 향유 기회를 확대하기 위해, 다양한 독서문화 프로그램을 제공하겠습니다.
-                        도서관은 책뿐 아니라, 사람과 사람이 만나고 지역이 연결되는 따뜻한 공간입니다.
-                    </p>
-                    <p>
-                        대구 도서관은 단순한 지식 전달을 넘어, 나를 발견하고 꿈을 이루는 공간으로 거듭나겠습니다.
-                        시민과 함께 성장하며, 더 나은 미래를 향해 나아가겠습니다.
-                    </p>
-                    <p>
-                        앞으로도 많은 관심과 사랑 부탁드립니다.
-                    </p>
-                </div>
-
-                <div className="flex flex-row-reverse items-center gap-6 mt-12">
-                    <div className="w-88 h-88 rounded-full overflow-hidden shadow-md">
-                        <img ref={gifRef} src={isGifVisible ? "/director.gif" : "/director.png"} alt="대구 도서관장" className="w-full h-full object-cover" />
+                <div className="flex flex-col md:flex-row items-start gap-10 mt-12">
+                    <div className="md:w-3/4 border border-gray-100 p-10 rounded-2xl shadow-sm text-gray-600 font-semibold space-y-5">
+                        <p>2025년 7월에 개관한 대구도서관은 시민의 삶에 풍요와 품격을 더하는 대구광역시의 지식정보와 문화거점 역할을 충실히 수행하고 있습니다.</p>
+                        <p>시민이 필요한 정보와 지식을 손쉽게 이용할 수 있도록 풍부한 장서를 구축하고 도서관 간 협력을 통해 대구 광역시 어디에서든 이용에 불편함이 없도록 노력하겠습니다.</p>
+                        <p>또한 시민의 평생학습과 문화 향유 기회를 확대하기 위해 다양한 독서문화 프로그램을 제공하겠습니다.</p>
+                        <p>도서관은 책뿐 아니라, 사람과 사람이 만나고 지역이 연결되는 따뜻한 공간입니다.</p>
+                        <p>대구 도서관은 단순한 지식 전달을 넘어 도서관을 통해 나를 발견하고 꿈을 이룰 수 있는 공간으로 시민과 함께 성장해 나가겠습니다.</p>
+                        <p>시민 여러분의 관심과 사랑 부탁드립니다.</p>
                     </div>
-                    <div className="text-right">
-                        <div className="text-gray-700 mb-1">대구 도서관장</div>
-                        <p className="text-xl font-bold">백승민</p>
+
+                    <div className="md:w-2/5 flex flex-col items-center md:items-end mt-10 md:mt-40">
+                        <div className="w-60 h-60 rounded-full overflow-hidden shadow-md mb-5">
+                            <img
+                                ref={gifRef}
+                                src={isGifVisible ? "/director.gif" : "/director.png"}
+                                alt="대구 도서관장"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="text-center md:text-right">
+                            <div className="text-gray-700 mb-1">대구 도서관장</div>
+                            <p className="text-xl font-bold">백승민</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-
-            <section className="mt-20 pt-10 ">
-                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mb-8 pb-4 border-b-2 border-green-700">연혁</h1>
-
+            <section className="mt-20 pt-20 ">
+                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mb-8 pb-4 border-b-2 border-green-700">
+                    연혁
+                </h1>
 
                 <div className="relative">
                     <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gray-300"></div>

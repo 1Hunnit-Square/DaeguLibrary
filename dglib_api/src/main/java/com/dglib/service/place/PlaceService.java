@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.dglib.dto.place.PlaceDTO;
 import com.dglib.dto.place.PlaceSearchConditionDTO;
@@ -20,7 +21,8 @@ public interface PlaceService {
 	void delete(Long pno); // 예약 취소
 
 	// ===== 회원별 예약 목록 =====
-	List<PlaceDTO> getListByMember(String mid); // 회원의 모든 예약 조회
+	List<PlaceDTO> getListByMember(String mid);
+	Page<PlaceDTO> getListByMemberPaged(String mid, Pageable pageable);
 
 	// ===== 달력 월별 예약 현황 =====
 	List<ReservationStatusDTO> getMonthlyReservationStatus(int year, int month); // 날짜+공간별 상태(full/available)

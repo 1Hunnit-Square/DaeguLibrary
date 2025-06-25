@@ -2,9 +2,9 @@ import React from "react";
 
 const ReadingRoomComponent = () => {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
+    <div className="max-w-5xl mx-auto px-12 py-15 bg-white rounded-lg shadow-md">
       {/* 안내 헤더 */}
-      <section className="bg-[#eefbef] p-6 rounded-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <section className="bg-[#eefbef] p-6 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div className="flex-1">
           <h2 className="text-2xl md:text-3xl font-bold text-green-900 mb-10">
             대구 도서관 자료실 안내
@@ -17,7 +17,7 @@ const ReadingRoomComponent = () => {
           <img
             src="/readingRoom_info.png"
             alt="도서관 안내"
-            className="w-full md:w-64 h-auto"
+            className="w-full md:w-60 h-auto"
           />
         </div>
       </section>
@@ -36,33 +36,33 @@ const ReadingRoomComponent = () => {
       <section className="mb-12">
         <h3 className="text-xl md:text-2xl font-bold text-green-800 mb-4 border-b-4 border-green-700 inline-block pb-2">자료실별 이용 시간</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-300">
-            <thead className="bg-gray-100 text-gray-700 text-center">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-200 text-gray-700 text-center">
               <tr>
-                <th className="border px-3 py-2">위치</th>
-                <th className="border px-3 py-2">이용대상</th>
-                <th className="border px-3 py-2">평일</th>
-                <th className="border px-3 py-2">주말</th>
+                <th className="border border-gray-300 px-3 py-2">위치</th>
+                <th className="border border-gray-300 px-3 py-2">이용대상</th>
+                <th className="border border-gray-300 px-3 py-2">평일</th>
+                <th className="border border-gray-300 px-3 py-2">주말</th>
               </tr>
             </thead>
             <tbody className="text-center">
               <tr>
-                <td className="border px-3 py-2">3층</td>
-                <td className="border px-3 py-2">자료실 3·4</td>
-                <td className="border px-3 py-2">09:00 ~ 21:00</td>
-                <td className="border px-3 py-2">09:00 ~ 18:00</td>
+                <td className="border border-gray-300 px-3 py-2">3층</td>
+                <td className="border border-gray-300 px-3 py-2">자료실 3·4</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 21:00</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 18:00</td>
               </tr>
               <tr>
-                <td className="border px-3 py-2">2층</td>
-                <td className="border px-3 py-2">자료실 1·2</td>
-                <td className="border px-3 py-2">09:00 ~ 21:00</td>
-                <td className="border px-3 py-2">09:00 ~ 18:00</td>
+                <td className="border border-gray-300 px-3 py-2">2층</td>
+                <td className="border border-gray-300 px-3 py-2">자료실 1·2</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 21:00</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 18:00</td>
               </tr>
               <tr>
-                <td className="border px-3 py-2">1층</td>
-                <td className="border px-3 py-2">어린이자료실</td>
-                <td className="border px-3 py-2">09:00 ~ 18:00</td>
-                <td className="border px-3 py-2">09:00 ~ 18:00</td>
+                <td className="border border-gray-300 px-3 py-2">1층</td>
+                <td className="border border-gray-300 px-3 py-2">어린이자료실</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 18:00</td>
+                <td className="border border-gray-300 px-3 py-2">09:00 ~ 18:00</td>
               </tr>
             </tbody>
           </table>

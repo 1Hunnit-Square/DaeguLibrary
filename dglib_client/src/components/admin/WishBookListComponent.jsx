@@ -77,7 +77,7 @@ const WishBookListComponent = () => {
                 <Loading text="목록 갱신중.."/>
             )}
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">희망도서 신청목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 bg-gray-300 p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                     <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%] min-w-0"
@@ -111,16 +111,16 @@ const WishBookListComponent = () => {
                 <table className="w-full bg-white table-fixed">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">순번</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">회원ID</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서명</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">저자</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">출판사</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">ISBN</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">비고</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">신청일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">처리일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">상태</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">순번</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">회원ID</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">도서명</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">저자</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">출판사</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">비고</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">신청일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">처리일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">상태</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
@@ -134,16 +134,16 @@ const WishBookListComponent = () => {
                             bookList.map((item, wishNo) => {
                                 return (
                                     <tr key={wishNo} onClick={() => handleModalOpen(item)} className={`border-b border-gray-200 hover:bg-gray-100 hover:cursor-pointer transition-colors duration-200`}>
-                                        <td className="py-4 px-6 text-xs">{item.wishNo}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.mid}>{item.mid}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.author}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.publisher}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.isbn}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[80px] whitespace-nowrap">{item.note || "-"}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[10px] whitespace-nowrap">{item.appliedAt}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.processedAt || "-"}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap font-semibold">
+                                        <td className="py-4 px-6 text-center text-xs">{item.wishNo}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.mid}>{item.mid}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.author}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.publisher}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.isbn}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[80px] whitespace-nowrap">{item.note || "-"}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[10px] whitespace-nowrap">{item.appliedAt}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.processedAt || "-"}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap font-semibold">
                                                 {item.state === "CANCELED" ?  "취소" : item.state === "REJECTED" ? "반려" : item.state === "ACCEPTED" ? "완료" : "처리중" }
                                         </td>
                                     </tr>

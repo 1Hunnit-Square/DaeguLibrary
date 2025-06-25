@@ -22,56 +22,52 @@ const NormalBoardComponent = () => {
       label: "공지사항",
       api: (params) => getBoardList({ ...params, boardType: "notice" }),
       columns: [
-        { key: "no", label: "글번호", align: "center", width: "7%" },
-        { key: "pinned", label: "", align: "center", width: "2%" },
-        { key: "title", label: "제목", align: "center", width: "40%" },
-        { key: "writerId", label: "작성자", align: "center", width: "12%" },
+        { key: "no", label: "글번호", align: "center", width: "6%" },
+        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "45%" },
+        { key: "writerId", label: "작성자", align: "center", width: "7%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
-        { key: "hidden", label: "숨김", align: "center", width: "5%" },
-        { key: "viewCount", label: "조회수", align: "center", width: "5%" },
+        { key: "hidden", label: "숨김", align: "center", width: "6%" },
+        { key: "viewCount", label: "조회수", align: "center", width: "6%" },
       ]
     },
     news: {
       label: "보도자료",
       api: (params) => getBoardList({ ...params, boardType: "news" }),
       columns: [
-        { key: "no", label: "글번호", align: "center", width: "7%" },
-        { key: "pinned", label: "", align: "center", width: "2%" },
-        { key: "title", label: "제목", align: "center", width: "40%" },
-        { key: "writerId", label: "작성자", align: "center", width: "12%" },
+        { key: "no", label: "글번호", align: "center", width: "6%" },
+        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "45%" },
+        { key: "writerId", label: "작성자", align: "center", width: "7%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
-        { key: "hidden", label: "숨김", align: "center", width: "5%" },
-        { key: "viewCount", label: "조회수", align: "center", width: "5%" },
+        { key: "hidden", label: "숨김", align: "center", width: "6%" },
+        { key: "viewCount", label: "조회수", align: "center", width: "6%" },
       ]
     },
     event: {
       label: "새소식",
       api: (params) => getBoardList({ ...params, boardType: "event" }),
       columns: [
-        { key: "no", label: "글번호", align: "center", width: "7%" },
-        { key: "pinned", label: "", align: "center", width: "2%" },
-        { key: "title", label: "제목", align: "center", width: "40%" },
-        { key: "writerId", label: "작성자", align: "center", width: "12%" },
+        { key: "no", label: "글번호", align: "center", width: "6%" },
+        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "45%" },
+        { key: "writerId", label: "작성자", align: "center", width: "7%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
-        { key: "hidden", label: "숨김", align: "center", width: "5%" },
-        { key: "viewCount", label: "조회수", align: "center", width: "5%" },
+        { key: "hidden", label: "숨김", align: "center", width: "6%" },
+        { key: "viewCount", label: "조회수", align: "center", width: "6%" },
       ]
     },
     gallery: {
       label: "갤러리",
       api: (params) => getBoardList({ ...params, boardType: "gallery" }),
       columns: [
-        { key: "no", label: "글번호", align: "center", width: "7%" },
-        { key: "pinned", label: "", align: "center", width: "2%" },
-        { key: "title", label: "제목", align: "center", width: "40%" },
-        { key: "writerId", label: "작성자", align: "center", width: "12%" },
+        { key: "no", label: "글번호", align: "center", width: "6%" },
+        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "45%" },
+        { key: "writerId", label: "작성자", align: "center", width: "7%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
-        { key: "hidden", label: "숨김", align: "center", width: "5%" },
-        { key: "viewCount", label: "조회수", align: "center", width: "5%" },
+        { key: "hidden", label: "숨김", align: "center", width: "6%" },
+        { key: "viewCount", label: "조회수", align: "center", width: "6%" },
       ]
     }
   };
@@ -229,7 +225,7 @@ const NormalBoardComponent = () => {
     <div className="container mx-auto px-4 py-8 w-full">
       <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">게시판 관리</h1>
 
-      <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-5 rounded-xl bg-gray-300 p-4 min-h-30">
+      <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-5 rounded-xl bg-gray-100 shadow p-4 min-h-30">
         <SearchSelectComponent
           options={Object.keys(searchFieldMap)}
           defaultCategory={defaultCategory}
@@ -304,11 +300,11 @@ const NormalBoardComponent = () => {
       </div>
 
       <div className="shadow-md rounded-lg overflow-x-auto mt-4">
-        <table className="w-full bg-white table-auto">
+        <table className="w-full bg-white table-fixed">
           <colgroup>
-            <col style={{ width: '5%' }} />
-            {currentBoard.columns.slice(1).map((col, idx) => (
-              <col key={idx} />
+            <col style={{ width: "4%" }} />
+            {currentBoard.columns.map((col, idx) => (
+              <col key={idx} style={{ width: col.width }} />
             ))}
           </colgroup>
           <thead className="bg-[#00893B] text-white">
@@ -351,23 +347,30 @@ const NormalBoardComponent = () => {
                   {currentBoard.columns.map((col, i) => {
                     let value = item[col.key];
                     if (col.key === "writerId" && item.name) {
-                      value = `${item.name}(${item[col.key]})`;
+                      value = `${item.name} (${item[col.key]})`;
                     }
                     if (col.key === "hidden") {
-                      value = item[col.key] ? "Y" : "-";
+                      value = item[col.key] ? <><span className = "text-white font-semibold text-[11px] bg-gray-400 px-2 rounded-xl p-1">숨김</span>{value}</> : "";
                     }
-                    if (col.key === "pinned") {
-                      value = item[col.key] ? "📌" : "";
+                    if (col.key === "title") {
+                      value = item["pinned"] ? <><span className = "text-white font-semibold text-[11px] bg-red-400 px-1 rounded p-0.5 mr-2">공지</span>{value}</> : `${value}`;
                     }
                     if (col.key === "postedAt" || col.key === "modifiedAt") {
                       value = typeof value === "string" ? value.substring(0, 16) : value;
                     }
+                    const alignClass =
+                      col.bodyAlign ? `text-${col.bodyAlign}` : `text-${col.align}`;
                     return (
                       <td
                         key={i}
-                        className={`py-4 px-2 text-xs text-${col.align}`}
+                        className={`py-4 px-2 text-xs ${alignClass}`}
                         title={typeof value === "string" ? value : ""}
                         onClick={() => handleDetail(item.no)}
+                        style={
+                          col.key === "title"
+                            ? { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+                            : undefined
+                        }
                       >
                         {value}
                       </td>

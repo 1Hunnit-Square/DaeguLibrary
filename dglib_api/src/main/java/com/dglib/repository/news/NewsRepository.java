@@ -15,7 +15,8 @@ import jakarta.transaction.Transactional;
 public interface NewsRepository extends JpaRepository<News, Long> {
 
 	Page<News> findAll(Specification<News> spec, Pageable pageable);
-	List<News> findAllByIsPinned(boolean isPinned, Sort sort);
+
+	List<News> findAllByIsPinnedAndIsHidden(boolean isPinned, boolean isHidden, Sort sort);
 
 	@Transactional
 	void deleteByNnoIn(List<Long> ids);

@@ -217,7 +217,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public List<EventListDTO> findPinned() {
 		Sort sort = Sort.by("postedAt").descending();
-		List<Event> eventList = eventRepository.findAllByIsPinned(true, sort);
+		List<Event> eventList = eventRepository.findAllByIsPinnedAndIsHidden(true, false, sort);
 		List<EventListDTO> dtoList = eventList.stream().map(event -> {
 			EventListDTO eventListDTO = new EventListDTO();
 			modelMapper.map(event, eventListDTO);

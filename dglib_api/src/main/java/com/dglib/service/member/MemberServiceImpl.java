@@ -5,10 +5,12 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -425,9 +427,8 @@ public class MemberServiceImpl implements MemberService {
 			dto.setReserveDate(reserve.getReserveDate());
 			dto.setUnmanned(reserve.isUnmanned());
 			dto.setReserveId(reserve.getReserveId());
-			dto.setDueDate(reserve.getLibraryBook().getRentals().stream()
-					.filter(rental -> rental.getState() == RentalState.BORROWED).map(Rental::getDueDate).findFirst()
-					.orElse(null));
+			dto.setDueDate(reserve.getLibraryBook().getRentals().stream().map(Rental::getDueDate).filter(Objects::nonNull)
+				           .max(Comparator.naturalOrder()).orElse(null));
 			dto.setReserveRank(reserve.getLibraryBook().getReserves().stream()
 					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned())
 					.sorted((r1, r2) -> r1.getReserveDate().compareTo(r2.getReserveDate())).collect(Collectors.toList())

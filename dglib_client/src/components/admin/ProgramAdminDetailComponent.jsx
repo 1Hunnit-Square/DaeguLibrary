@@ -5,6 +5,7 @@ import Button from "../common/Button";
 import Download from "../common/Download";
 import dayjs from "dayjs";
 import { usePagination } from "../../hooks/usePage";
+import Loading from "../../routers/Loading";
 
 const ProgramAdminDetailComponent = () => {
   const { progNo } = useParams();
@@ -89,7 +90,7 @@ const ProgramAdminDetailComponent = () => {
     isLoading
   );
 
-  if (isLoading || !program) return <p>불러오는 중...</p>;
+  if (isLoading || !program) return <Loading text="불러오는 중..." />;
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">

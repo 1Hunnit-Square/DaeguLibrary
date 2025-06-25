@@ -10,7 +10,7 @@ import Button from "../common/Button";
 import RadioBox from "../common/RadioBox";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import _ from "lodash";
-import { getAllPrograms, getApplicantsByProgram } from "../../api/programApi";
+import { getApplicantsByProgram, getProgramNotEnd } from "../../api/programApi";
 import Modal from "../common/Modal";
 
 const SmsSearchComponent = () => {
@@ -69,7 +69,7 @@ const SmsSearchComponent = () => {
 
      const { data, isLoading, error } = useQuery({
     queryKey: ['programSearchList', searchURLParams.toString()],
-    queryFn: () => getAllPrograms(),
+    queryFn: () => getProgramNotEnd(),
     enabled: searchURLParams.get("tab") == "program"
     });
         

@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const NoticeComponent = () => {
 
- const { data: pinnedList } = useQuery({
-  queryKey: ['noticePinnedList'],
+ const { data: TopList } = useQuery({
+  queryKey: ['noticeTopList'],
   queryFn: () => getNoticeTopList({count : 4}) 
     });
 
@@ -18,7 +18,7 @@ const toDate = (dateTime) => {
     return(<div className="px-5">
     <table className="table-fixed w-full">
         <tbody>
-    { Array.isArray(pinnedList) && pinnedList.length !== 0 && pinnedList.map((data, index) => {
+    { Array.isArray(TopList) && TopList.length !== 0 && TopList.map((data, index) => {
         return (
         <tr key = {index} onClick={()=> navigate(`/community/notice/${data.ano}`)} className="cursor-pointer hover:text-green-700">
         <td className="w-3 py-1 px-1">
@@ -28,6 +28,11 @@ const toDate = (dateTime) => {
         <td className="w-32 py-1 px-3 text-right">{toDate(data.postedAt)}</td>
         </tr>
         )})
+    }
+        { !(TopList?.length > 0) &&
+        <tr className="h-full">
+        <td colSpan={3} className="text-center py-10 text-gray-500">등록된 게시글이 없습니다.</td>
+        </tr>
     }
     </tbody>
      </table>

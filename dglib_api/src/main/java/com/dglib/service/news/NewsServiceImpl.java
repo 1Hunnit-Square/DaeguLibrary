@@ -223,7 +223,7 @@ public class NewsServiceImpl implements NewsService {
 	@Override
 	public List<NewsListDTO> findTop(int count) {
 		Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "postedAt"));
-		List<News> newsList = newsRepository.findAll(pageable).getContent();
+		List<News> newsList = newsRepository.findAllByIsHidden(false, pageable).getContent();
 		List<NewsListDTO> dtoList = newsList.stream().map(news -> {
 			NewsListDTO newsListDTO = new NewsListDTO();
 			modelMapper.map(news, newsListDTO);

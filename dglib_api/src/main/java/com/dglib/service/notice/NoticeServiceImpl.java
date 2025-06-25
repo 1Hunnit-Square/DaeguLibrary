@@ -258,7 +258,7 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	public List<NoticeListDTO> findTop(int count) {
 		Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "postedAt"));
-		List<Notice> noticeList = noticeRepository.findAll(pageable).getContent();
+		List<Notice> noticeList = noticeRepository.findAllByIsHidden(false, pageable).getContent();
 		List<NoticeListDTO> dtoList = noticeList.stream()
 				.map(notice -> {
 					NoticeListDTO noticeListDTO = new NoticeListDTO();

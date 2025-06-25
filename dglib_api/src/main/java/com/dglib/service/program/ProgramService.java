@@ -66,5 +66,8 @@ public interface ProgramService {
 
 	// 관리자용: 특정 프로그램의 신청자 목록 조회
 	List<ProgramUseDTO> getApplicantsByProgram(Long progNo);
+	
+	//강의 기간이 끝나지않은 모든 프로그램
+	public List<ProgramInfoDTO> searchNotEndProgramList();
 
 }

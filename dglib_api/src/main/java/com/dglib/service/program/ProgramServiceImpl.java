@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -242,6 +243,17 @@ public class ProgramServiceImpl implements ProgramService {
 			dto.setDayNames(convertToDayNames(p.getDaysOfWeek()));
 			return dto;
 		});
+	}
+	
+	public List<ProgramInfoDTO> searchNotEndProgramList(){
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		List<ProgramInfo> infoList = infoRepository.findByEndDateGreaterThanEqual(LocalDate.now(), sort);
+		return infoList.stream().map(p -> {
+			ProgramInfoDTO dto = modelMapper.map(p, ProgramInfoDTO.class);
+			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
+			return dto;
+		}).collect(Collectors.toList());
+		
 	}
 
 	@Override

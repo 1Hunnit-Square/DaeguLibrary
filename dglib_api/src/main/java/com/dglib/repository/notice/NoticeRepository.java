@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 public interface NoticeRepository extends JpaRepository<Notice, Long>, JpaSpecificationExecutor<Notice> {
 
 	Page<Notice> findAll(Specification<Notice> spec, Pageable pageable);
+	Page<Notice> findAllByIsHidden(boolean isHidden, Pageable pageable);
 	List<Notice> findAllByIsPinnedAndIsHidden(boolean isPinned, boolean isHidden, Sort sort);
 
 	@Transactional

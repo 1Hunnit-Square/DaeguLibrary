@@ -225,4 +225,10 @@ public class ProgramController {
 		return ResponseEntity.ok(result);
 	}
 
+	@GetMapping("/admin/notEnd")
+	public ResponseEntity<List<ProgramInfoDTO>> getUserProgramList() {
+		List<ProgramInfoDTO> result = programService.searchNotEndProgramList();
+		return ResponseEntity.ok(result);
+	}
+	
 }

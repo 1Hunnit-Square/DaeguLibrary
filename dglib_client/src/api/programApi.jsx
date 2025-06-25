@@ -72,6 +72,12 @@ export const getApplicantsByProgram = async (progNo) => {
   return response.data;
 };
 
+// 끝나지않은 프로그램 목록 조회
+export const getProgramNotEnd = async () => {
+  const response = await axios.get(`${PROGRAM_URL}/admin/notEnd`);
+  return response.data;
+};
+
 // ========================= 공통 프로그램 API ========================= //
 
 // 프로그램 상세 조회

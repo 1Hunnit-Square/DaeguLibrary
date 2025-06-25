@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
     return (
         <footer className="bg-[#f4f3f3] text-gray-700 border-t-1 border-gray-200 py-8">
@@ -36,20 +38,9 @@ const Footer = () => {
                 </div>
 
                 <div className="mt-6 pt-4">
-                    <ul className="flex flex-wrap gap-x-4 text-sm text-gray-700">
-                        <li className="mb-2">
-                            <a href="#" className="hover:text-green-700">개인정보처리방침</a>
-                        </li>
-                        <li className="mb-2">
-                            <a href="#" className="hover:text-green-700">이용약관</a>
-                        </li>
-                        <li className="mb-2">
-                            <a href="#" className="hover:text-green-700">이메일수집거부</a>
-                        </li>
-                        <li className="mb-2">
-                            <a href="#" className="hover:text-green-700">사이트맵</a>
-                        </li>
-                    </ul>
+                    <div className="text-xs text-gray-700">
+                   COPYRIGHT (C) <Link to ={"https://github.com/1Hunnit-Square/DaeguLibrary"}><span className="font-bold"> CREATION.</span></Link> ALL RIGHTS RESERVED. FOR DAEGU LIBRARY.
+                    </div>
                 </div>
             </div>
         </footer>

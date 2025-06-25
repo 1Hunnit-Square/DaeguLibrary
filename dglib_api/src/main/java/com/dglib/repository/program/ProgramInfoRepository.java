@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -110,5 +111,8 @@ public interface ProgramInfoRepository extends JpaRepository<ProgramInfo, Long> 
 	boolean existsByRoomAndDateTimeOverlap(@Param("room") String room, @Param("date") LocalDate date,
 			@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime,
 			@Param("dayOfWeek") int dayOfWeek);
+	
+	
+	List<ProgramInfo> findByEndDateGreaterThanEqual(LocalDate endDate, Sort sort); 
 
 }

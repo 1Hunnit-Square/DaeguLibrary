@@ -12,9 +12,9 @@ import { useCallback } from "react";
 
 
 
+
 const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
     const [isChatOpen, setIsChatOpen] = useRecoilState(isChatOpenState);
-
   
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
@@ -51,12 +51,13 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                     </div>
                 </main>
             </div>
-            <div className="fixed bottom-6 sm:bottom-6 right-6 sm:right-10 z-999 cursor-pointer hover:scale-105 transition-transform bg-white rounded-full p-1 sm:p-2 shadow-lg"
+          
+            <div className="fixed bottom-6 sm:bottom-6 right-5 sm:right-7 z-999 cursor-pointer hover:scale-120 transition-transform bg-white rounded-full p-1 sm:p-2 shadow-lg"
            onClick={toggleChat}>
             <img
                 src="/chaticon.png"
                 alt="꿈틀이AI"
-                className="w-14 h-14 sm:w-20 sm:h-20"
+                className="w-14 h-14 sm:w-16 sm:h-16"
             />
         </div>
         {isChatOpen && <ChatComponent onClose={() => setIsChatOpen(false)}/>}

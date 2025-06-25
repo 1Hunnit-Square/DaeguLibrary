@@ -265,11 +265,7 @@ export const getMyEbook = async (param) => {
 }
 
 export const deleteEbook = async (ebookIds) => {
-
-
-
     const headers = {
-
         'Content-Type': 'application/json'
     };
     const res = await axiosClient.delete(`${prefix}/deleteebook`, {
@@ -279,3 +275,8 @@ export const deleteEbook = async (ebookIds) => {
     return res.data;
 }
 
+
+export const getMemberStats = async () => {
+    const response = await axiosClient.get(`${prefix}/getMemberStats`);
+    return response.data;
+};

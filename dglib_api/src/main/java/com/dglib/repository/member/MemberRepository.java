@@ -15,6 +15,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.dglib.dto.member.AgeCountDTO;
+import com.dglib.dto.member.GenderCountDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.entity.member.Member;
 import com.dglib.entity.member.MemberState;
@@ -101,6 +103,48 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	List<Member> findByMidInAndPenaltyDateGreaterThanEqual(Set<String> memberIds, LocalDate date);
 	
 	List<Member> findByMidInAndState(Set<String> memberIds, MemberState state);
+	
+	 @Query("SELECT new com.dglib.dto.member.GenderCountDTO(m.gender, COUNT(m)) " +
+	           "FROM Member m GROUP BY m.gender ORDER BY m.gender ASC")
+	    List<GenderCountDTO> countByGender();
+	 
+	 
+	 @Query(value = """
+			    SELECT
+			      CASE 
+			        WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) + 1 BETWEEN 10 AND 19 THEN '10대'
+			        WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) + 1 BETWEEN 20 AND 29 THEN '20대'
+			        WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) + 1 BETWEEN 30 AND 39 THEN '30대'
+			        WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) + 1 BETWEEN 40 AND 49 THEN '40대'
+			        WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) + 1 BETWEEN 50 AND 59 THEN '50대'
+			        ELSE '60대 이상'
+			      END AS ageGroup,
+			      COUNT(*) AS count
+			    FROM member
+			    GROUP BY ageGroup
+			    ORDER BY count DESC
+			""", nativeQuery = true)
+		List<Object[]> countByAgeGroup();
+	
+			
+		@Query(value = """
+				    SELECT 
+				      CASE 
+				        WHEN addr LIKE '%대구 수성구%' THEN '대구 수성구'
+				        WHEN addr LIKE '%대구 서구%' THEN '대구 서구'
+				        WHEN addr LIKE '%대구 중구%' THEN '대구 중구'
+				        WHEN addr LIKE '%대구 동구%' THEN '대구 동구'
+				        WHEN addr LIKE '%대구 남구%' THEN '대구 남구'
+				        WHEN addr LIKE '%대구 북구%' THEN '대구 북구'
+				        WHEN addr LIKE '%대구 달서구%' THEN '대구 달서구'
+				        ELSE '기타 지역'
+				      END AS regionGroup,
+				      COUNT(*) AS count
+				    FROM member
+				    GROUP BY regionGroup
+				    ORDER BY count DESC
+				""", nativeQuery = true)
+		List<Object[]> countByRegionGroup();
 	
 	
 

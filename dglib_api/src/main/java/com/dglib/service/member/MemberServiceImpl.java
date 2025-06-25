@@ -3,6 +3,7 @@ package com.dglib.service.member;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,6 +39,7 @@ import com.dglib.dto.book.EbookMemberResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.member.AgeCountDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
 import com.dglib.dto.member.ChatMemberReservationBookDTO;
@@ -46,6 +48,7 @@ import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.EmailInfoListDTO;
 import com.dglib.dto.member.EmailInfoSearchDTO;
+import com.dglib.dto.member.GenderCountDTO;
 import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
@@ -63,6 +66,7 @@ import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
+import com.dglib.dto.member.RegionCountDTO;
 import com.dglib.entity.book.Ebook;
 import com.dglib.entity.book.EbookReadingProgress;
 import com.dglib.entity.book.Highlight;
@@ -737,10 +741,39 @@ public class MemberServiceImpl implements MemberService {
 				.count());
 		
 		return responseDto;
-		
-		
 
 		
 	}
 
+	
+	@Override
+	public List<GenderCountDTO> getGenderCount() {
+		return memberRepository.countByGender();
+	}
+	
+	@Override
+	public List<AgeCountDTO> getAgeCount() {
+		List<Object[]> groupCount = memberRepository.countByAgeGroup();
+		List<AgeCountDTO> countDTO = new ArrayList<>();
+		for (Object[] group : groupCount) {
+			 	String ageGroup = (String) group[0];
+		        Number countNumber = (Number) group[1];
+		        Long count = countNumber.longValue();
+		        countDTO.add(new AgeCountDTO(ageGroup, count));
+		}
+		return countDTO;
+	}
+	
+	@Override
+	public List<RegionCountDTO> getRegionCount() {
+		List<Object[]> groupCount = memberRepository.countByRegionGroup();
+		List<RegionCountDTO> countDTO = new ArrayList<>();
+		for (Object[] group : groupCount) {
+			 	String regionGroup = (String) group[0];
+		        Number countNumber = (Number) group[1];
+		        Long count = countNumber.longValue();
+		        countDTO.add(new RegionCountDTO(regionGroup, count));
+		}
+		return countDTO;
+	}
 }

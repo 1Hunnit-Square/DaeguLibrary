@@ -15,14 +15,15 @@ import com.dglib.dto.book.EbookMemberResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.member.AgeCountDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
-import com.dglib.dto.member.ChatMemberReservationBookDTO;
 import com.dglib.dto.member.ChatMemberReservationResponseDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.EmailInfoListDTO;
 import com.dglib.dto.member.EmailInfoSearchDTO;
+import com.dglib.dto.member.GenderCountDTO;
 import com.dglib.dto.member.MemberBasicDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.dto.member.MemberBorrowNowListDTO;
@@ -40,6 +41,7 @@ import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
+import com.dglib.dto.member.RegionCountDTO;
 
 public interface MemberService {
 	
@@ -118,6 +120,12 @@ public interface MemberService {
 	ChatMemberBorrowResponseDTO getChatMemberBorrowState(String mid);
 	
 	ChatMemberReservationResponseDTO getChatMemberReservationState(String mid);
+	
+	List<GenderCountDTO> getGenderCount();
+	
+	List<AgeCountDTO> getAgeCount();
+	
+	List<RegionCountDTO> getRegionCount();
 	
 	
 	

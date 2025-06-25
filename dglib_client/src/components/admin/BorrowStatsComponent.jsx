@@ -49,9 +49,6 @@ const BorrowStatsComponent = () => {
           let chart = root.container.children.push(am5xy.XYChart.new(root, {
             panX: true,
             panY: true,
-            wheelX: "panX",
-            wheelY: "zoomX",
-            pinchZoomX: true,
             paddingLeft:0,
             paddingRight:1
         }));
@@ -90,7 +87,11 @@ const BorrowStatsComponent = () => {
             numberFormat: "#",
             maxPrecision: 0        
         }));
-        
+        xAxis.get("renderer").setAll({
+        cellStartLocation: 0.2,
+        cellEndLocation: 0.8
+        });
+            
        
 
 
@@ -144,16 +145,16 @@ const BorrowStatsComponent = () => {
 
     return (
         <>
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-15 w-[85%] border border-gray-200 mx-auto mt-10">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                     대출 베스트 도서 TOP 10
                 </h2>
                 <div className="flex items-center">
-                    <span className="w-50">대출일</span>
-                    <input type="date" value={dateRange.startDate} onChange={handleDateChange} name="startDate" className="w-full border bg-white rounded-md p-2" />
+                    <span className="mr-5">대출일</span>
+                    <input type="date" value={dateRange.startDate} onChange={handleDateChange} name="startDate" className="w-40 border bg-white rounded-md p-2" />
                     <span className="mx-4">-</span>
-                    <input type="date" value={dateRange.endDate} onChange={handleDateChange} name="endDate" className="w-full border bg-white rounded-md p-2" />
+                    <input type="date" value={dateRange.endDate} onChange={handleDateChange} name="endDate" className="w-40 border bg-white rounded-md p-2" />
                 </div>
                 
             </div>
@@ -161,8 +162,8 @@ const BorrowStatsComponent = () => {
             <div className="w-full">
                 <table className="w-full table-fixed">
                     <thead>
-                        <tr className="bg-gradient-to-r from-green-50 to-emerald-100 border-b-2 border-green-200">
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-16">순위</th>
+                        <tr className="bg-gradient-to-r from-green-50 to-emerald-200 border-b-2 border-green-300">
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-gray-700 w-10">순위</th>
                             <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-1/4">도서명</th>
                             <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-20">저자</th>
                             <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-20">출판사</th>
@@ -181,7 +182,7 @@ const BorrowStatsComponent = () => {
                                     ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}
                                 `}
                             >
-                                <td className="px-3 py-4">
+                                <td className="px-3 py-4 text-center">
                                     <div className={`
                                         inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
                                         ${getRankBadge(index + 1)}
@@ -231,7 +232,7 @@ const BorrowStatsComponent = () => {
             
         </div>
         <div className="mt-8">
-                <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+                <div id="chartdiv" style={{ width: "85%", height: "500px", margin: "0 auto", marginBottom : "50px"}}></div>
             </div>
 
         </>

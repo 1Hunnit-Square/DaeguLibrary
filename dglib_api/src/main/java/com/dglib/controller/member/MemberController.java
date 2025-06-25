@@ -56,6 +56,7 @@ import com.dglib.dto.member.MemberPhoneDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
+import com.dglib.dto.member.MemberStatsDTO;
 import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
@@ -436,5 +437,16 @@ public class MemberController {
 		memberService.deleteMyEbook(dto, mid);
 		return ResponseEntity.ok().build();
 	}
+	
+	@GetMapping("/getMemberStats")
+	public ResponseEntity<MemberStatsDTO> getMemberStats() {
+		MemberStatsDTO statsDTO = new MemberStatsDTO();
+		statsDTO.setGenderCount(memberService.getGenderCount());
+		statsDTO.setAgeCount(memberService.getAgeCount());
+		statsDTO.setRegionCount(memberService.getRegionCount());
+		
+		return ResponseEntity.ok(statsDTO);
+	}
+
 
 }

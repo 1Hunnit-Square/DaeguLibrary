@@ -147,7 +147,6 @@ async def _transcribe_and_send(writer: asyncio.StreamWriter, audio_buffer: bytea
                     chat_response_json = {
                         "type": "tts_error",
                         "text": "TTS 생성 실패",
-                        "request_text": result_text,
                         "clientId": client_id
                     }
                     response_json = json.dumps(chat_response_json, ensure_ascii=False).encode('utf-8')

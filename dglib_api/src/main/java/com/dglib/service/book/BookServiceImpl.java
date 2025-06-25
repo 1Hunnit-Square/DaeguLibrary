@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.hibernate.Hibernate;
@@ -531,6 +532,9 @@ public class BookServiceImpl implements BookService {
 	    
 	    // 검증 및 처리 로직
 	    List<Rental> rentalsToCreate = new ArrayList<>();
+	    Map<Long, List<Reserve>> filteredReserveMap = new HashMap<>();
+	    
+
 	    for (ReserveStateChangeDTO dto : reserveStateChangeDtos) {
 	        Reserve reserve = reserveMap.get(dto.getReserveId());
 	        
@@ -544,20 +548,36 @@ public class BookServiceImpl implements BookService {
 	            throw new IllegalStateException("취소된 예약은 대출 완료로 변경할 수 없습니다.");
 	        }
 	        
-	        // 예약 우선순위 확인
-	        Long libraryBookId = reserve.getLibraryBook().getLibraryBookId();
-	        List<Reserve> bookReserves = reservesByLibraryBook.get(libraryBookId);
-	        int reservationRank = 1;
-	        for (Reserve bookReserve : bookReserves) {
-	            if (!bookReserve.isUnmanned()) {
-	                if (bookReserve.getReserveId().equals(dto.getReserveId())) {
-	                    break;
-	                }
-	                reservationRank++;
+	        // 무인예약이 아닌 경우에만 우선순위 검증
+	        if (!reserve.isUnmanned()) {
+	            // 예약 우선순위 확인
+	            Long libraryBookId = reserve.getLibraryBook().getLibraryBookId();
+	            
+	            List<Reserve> allBookReserves = reservesByLibraryBook.getOrDefault(libraryBookId, List.of());
+	            
+	            int currentPosition = IntStream.range(0, allBookReserves.size())
+	                    .filter(i -> allBookReserves.get(i).getReserveId().equals(reserve.getReserveId()))
+	                    .findFirst()
+	                    .orElse(-1);
+	            
+	            boolean hasUnmannedBefore = allBookReserves.stream()
+	                    .limit(currentPosition)
+	                    .anyMatch(Reserve::isUnmanned);
+	            
+	            if (hasUnmannedBefore) {
+	                throw new IllegalStateException("무인 예약이 있어 대출을 완료할 수 없습니다.");
 	            }
-	        }
-	        if (reservationRank > 1) {
-	            throw new IllegalStateException("예약 우선 순위가 충족되지 않아 대출을 완료할 수 없습니다.");
+	            
+	            List<Reserve> bookReserves = filteredReserveMap.computeIfAbsent(libraryBookId, 
+	                    id -> reservesByLibraryBook.getOrDefault(id, List.of()).stream()
+	                            .filter(r -> !r.isUnmanned())
+	                            .collect(Collectors.toList())
+	            );
+	            
+	            int index = bookReserves.indexOf(reserve);
+	            if (index != 0) {
+	                throw new IllegalStateException("예약 우선 순위가 충족되지 않아 대출을 완료할 수 없습니다.");
+	            }
 	        }
 	        
 	        // 도서 대출 상태 확인
@@ -573,14 +593,12 @@ public class BookServiceImpl implements BookService {
 	        if (penaltyMembers.stream().anyMatch(member -> member.getMid().equals(mid))) {
 	            throw new IllegalStateException("제재 회원은 대출할 수 없습니다. 제재 회원 ID: " + mid);
 	        }
-			if (suspendedMembers.stream().anyMatch(member -> member.getMid().equals(mid))) {
-				throw new IllegalStateException("정지 회원은 대출할 수 없습니다. 정지 회원 ID: " + mid);
-			}
-			if (overdueMembers.stream().anyMatch(member -> member.getMid().equals(mid))) {
-				throw new IllegalStateException("연체 회원은 대출할 수 없습니다. 연체 회원 ID: " + mid);
-			}
-
-		
+	        if (suspendedMembers.stream().anyMatch(member -> member.getMid().equals(mid))) {
+	            throw new IllegalStateException("정지 회원은 대출할 수 없습니다. 정지 회원 ID: " + mid);
+	        }
+	        if (overdueMembers.stream().anyMatch(member -> member.getMid().equals(mid))) {
+	            throw new IllegalStateException("연체 회원은 대출할 수 없습니다. 연체 회원 ID: " + mid);
+	        }
 	        
 	        // 예약 상태 변경 및 대출 생성
 	        reserve.changeState(ReserveState.BORROWED);
@@ -594,7 +612,7 @@ public class BookServiceImpl implements BookService {
 	        
 	        rentalsToCreate.add(rental);
 	    }
-	    
+
 	    // 대출 정보 일괄 저장
 	    rentalRepository.saveAll(rentalsToCreate);
 	}

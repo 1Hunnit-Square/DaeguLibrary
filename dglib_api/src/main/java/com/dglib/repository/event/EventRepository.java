@@ -10,8 +10,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dglib.entity.event.Event;
 
+import jakarta.transaction.Transactional;
+
 public interface EventRepository extends JpaRepository<Event, Long>{
 	Page<Event> findAll(Specification<Event> spec, Pageable pageable);
-	List<Event> findAllByIsPinned(boolean isPinned, Sort sort);
+	
+	List<Event> findAllByIsPinnedAndIsHidden(boolean isPinned, boolean isHidden, Sort sort); 
+	
+	@Transactional
+	void deleteByEnoIn(List<Long> ids);
 }
 

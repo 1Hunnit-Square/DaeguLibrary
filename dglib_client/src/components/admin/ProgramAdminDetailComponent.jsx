@@ -56,6 +56,7 @@ const ProgramAdminDetailComponent = () => {
     }
   };
 
+  // 신청 회원 취소
   const handleCancel = async (progUseNo) => {
     if (window.confirm("이 신청을 취소하시겠습니까?")) {
       try {
@@ -93,21 +94,21 @@ const ProgramAdminDetailComponent = () => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       {/* 상단 버튼 */}
-      <div className="flex gap-4 justify-end mt-4">
-        <Button onClick={() => navigate(`/admin/programregister/${progNo}?from=progmanagement`)}>
+      <div className="flex gap-4 justify-end text-sm mt-4">
+        <Button onClick={() => navigate(`/admin/progmanagement/programregister/${progNo}`)}>
           수정
         </Button>
-        <Button onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+        <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
           삭제
         </Button>
       </div>
 
       {/* 프로그램 상세 정보 */}
-      <div className="flex justify-center font-bold mb-4">
+      <div className="flex justify-center font-bold mb-6">
         <p className="text-xl text-green-800">{program.progName}</p>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-md space-y-2 mb-10">
+      <div className="bg-white p-6 rounded-xl drop-shadow-sm space-y-3 mb-15">
         {[
           ["운영기간", `${program.startDate} ~ ${program.endDate}`],
           ["운영시간", `${program.startTime} ~ ${program.endTime}`],
@@ -143,38 +144,38 @@ const ProgramAdminDetailComponent = () => {
       </div>
 
       {/* 신청자 목록 */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
+      <div className="bg-white p-6 rounded-xl drop-shadow-sm">
         <h3 className="text-xl font-semibold mb-4">신청 회원</h3>
         {Array.isArray(applicants) && applicants.length > 0 ? (
           <>
-            <table className="w-full text-sm border">
+            <table className="w-full text-sm border border-gray-300">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border p-2">번호</th>
-                  <th className="border p-2">회원ID</th>
-                  <th className="border p-2">이름</th>
-                  <th className="border p-2">이메일</th>
-                  <th className="border p-2">연락처</th>
-                  <th className="border p-2">신청일</th>
-                  <th className="border p-2">신청 취소</th>
+                  <th className="p-2">번호</th>
+                  <th className="p-2">회원ID</th>
+                  <th className="p-2">이름</th>
+                  <th className="p-2">이메일</th>
+                  <th className="p-2">연락처</th>
+                  <th className="p-2">신청일</th>
+                  <th className="p-2">신청 취소</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedData.map((a, i) => (
-                  <tr key={a.progUseNo} className="text-center border-t">
-                    <td className="border p-2">
+                  <tr key={a.progUseNo} className="border border-gray-300 text-center">
+                    <td className="p-2">
                       {(currentPage - 1) * pageSize + i + 1}
                     </td>
-                    <td className="border p-2">{a.mid}</td>
-                    <td className="border p-2">{a.name}</td>
-                    <td className="border p-2">{a.email}</td>
-                    <td className="border p-2">{a.phone}</td>
-                    <td className="border p-2">
+                    <td className="p-2">{a.mid}</td>
+                    <td className="p-2">{a.name}</td>
+                    <td className="p-2">{a.email}</td>
+                    <td className="p-2">{a.phone}</td>
+                    <td className="p-2">
                       {a.applyAt
                         ? dayjs(a.applyAt).format("YYYY-MM-DD HH:mm")
                         : "-"}
                     </td>
-                    <td className="border p-2">
+                    <td className="p-2">
                       {a.status === "신청완료" ? (
                         <Button
                           onClick={() => handleCancel(a.progUseNo)}
@@ -195,6 +196,16 @@ const ProgramAdminDetailComponent = () => {
         ) : (
           <p>신청한 회원이 없습니다.</p>
         )}
+      </div>
+
+      {/* 이전 페이지로 돌아가기 */}
+      <div className="flex justify-center mt-12">
+        <Button 
+          onClick={() => navigate(-1)}
+          className="bg-gray-400 hover:bg-gray-500 text-sm font-bold"
+          >
+          목록
+        </Button>
       </div>
     </div>
   );

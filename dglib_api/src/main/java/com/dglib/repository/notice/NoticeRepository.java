@@ -11,9 +11,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.dglib.entity.notice.Notice;
 
-public interface NoticeRepository extends JpaRepository<Notice, Long>, JpaSpecificationExecutor<Notice>{
-	
+import jakarta.transaction.Transactional;
+
+public interface NoticeRepository extends JpaRepository<Notice, Long>, JpaSpecificationExecutor<Notice> {
+
 	Page<Notice> findAll(Specification<Notice> spec, Pageable pageable);
 	List<Notice> findAllByIsPinnedAndIsHidden(boolean isPinned, boolean isHidden, Sort sort);
 
+	@Transactional
+	void deleteByAnoIn(List<Long> ids);
 }

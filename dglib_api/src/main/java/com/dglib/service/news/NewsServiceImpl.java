@@ -209,7 +209,7 @@ public class NewsServiceImpl implements NewsService {
 	@Override
 	public List<NewsListDTO> findPinned() {
 		Sort sort = Sort.by("postedAt").descending();
-		List<News> newsList = newsRepository.findAllByIsPinned(true, sort);
+		List<News> newsList = newsRepository.findAllByIsPinnedAndIsHidden(true, false, sort); 
 		List<NewsListDTO> dtoList = newsList.stream().map(news -> {
 			NewsListDTO newsListDTO = new NewsListDTO();
 			modelMapper.map(news, newsListDTO);

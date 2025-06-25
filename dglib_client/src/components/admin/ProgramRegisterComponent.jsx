@@ -199,41 +199,41 @@ const ProgramRegisterComponent = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-gray-700">프로그램명</label>
-                        <input type="text" name="progName" value={form.progName} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">프로그램명</label>
+                        <input type="text" name="progName" value={form.progName} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">강사명</label>
-                        <input type="text" name="teachName" value={form.teachName} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">강사명</label>
+                        <input type="text" name="teachName" value={form.teachName} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">신청 시작일</label>
-                        <input type="datetime-local" name="applyStartAt" value={formatDateTimeLocal(form.applyStartAt)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">신청 시작일</label>
+                        <input type="datetime-local" name="applyStartAt" value={formatDateTimeLocal(form.applyStartAt)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">신청 종료일</label>
-                        <input type="datetime-local" name="applyEndAt" value={formatDateTimeLocal(form.applyEndAt)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">신청 종료일</label>
+                        <input type="datetime-local" name="applyEndAt" value={formatDateTimeLocal(form.applyEndAt)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
 
                     <div>
-                        <label className="block text-gray-700">수강 시작일</label>
-                        <input type="date" name="startDate" value={formatDateLocal(form.startDate)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">수강 시작일</label>
+                        <input type="date" name="startDate" value={formatDateLocal(form.startDate)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">수강 종료일</label>
-                        <input type="date" name="endDate" value={formatDateLocal(form.endDate)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">수강 종료일</label>
+                        <input type="date" name="endDate" value={formatDateLocal(form.endDate)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">수강 시작 시간</label>
-                        <input type="time" name="startTime" value={formatTimeLocal(form.startTime)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">수강 시작 시간</label>
+                        <input type="time" name="startTime" value={formatTimeLocal(form.startTime)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block text-gray-700">수강 종료 시간</label>
-                        <input type="time" name="endTime" value={formatTimeLocal(form.endTime)} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-gray-800">수강 종료 시간</label>
+                        <input type="time" name="endTime" value={formatTimeLocal(form.endTime)} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" required />
                     </div>
 
                     <div className="col-span-2">
-                        <label className="block text-gray-700 mb-2">수강 요일</label>
+                        <label className="block text-gray-800 mb-2">수강 요일</label>
                         <div className="flex gap-2">
                             {Object.keys(dayToNumber).map((dayName) => (
                                 <CheckBox
@@ -257,9 +257,9 @@ const ProgramRegisterComponent = () => {
                     </div>
 
                     <div className="col-span-2">
-                        <label className="block text-gray-700">강의실</label>
+                        <label className="block text-gray-800">강의실</label>
                         <div className="flex items-center gap-2">
-                            <select name="room" value={form.room} onChange={handleChange} className="flex-grow border p-2 rounded" required>
+                            <select name="room" value={form.room} onChange={handleChange} className="flex-grow border border-gray-500 p-2 rounded" required>
                                 <option value="">선택</option>
                                 {Object.entries(availableRooms).map(([roomName, isAvailable]) => (
                                     <option key={roomName} value={roomName} disabled={!isAvailable}>
@@ -276,7 +276,7 @@ const ProgramRegisterComponent = () => {
                             <button
                                 type="button"
                                 onClick={handleRoomCheck}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-3 rounded text-sm cursor-pointer"
                             >
                                 강의실 확인
                             </button>
@@ -289,12 +289,12 @@ const ProgramRegisterComponent = () => {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700">수강대상</label>
+                        <label className="block text-gray-800">수강대상</label>
                         <select
                             name="target"
                             value={form.target}
                             onChange={handleChange}
-                            className="w-full border p-2 rounded"
+                            className="w-full border border-gray-500 p-2 rounded"
                         >
                             <option value="전체">전체</option>
                             <option value="어린이">어린이</option>
@@ -304,19 +304,19 @@ const ProgramRegisterComponent = () => {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700">모집인원</label>
-                        <input type="number" name="capacity" value={form.capacity} onChange={handleChange} className="w-full border p-2 rounded" min="1" required />
+                        <label className="block text-gray-800">모집인원</label>
+                        <input type="number" name="capacity" value={form.capacity} onChange={handleChange} className="w-full border border-gray-500 p-2 rounded" min="1" required />
                     </div>
                 </div>
 
                 <div className="flex flex-col space-y-4">
-                    <label className="block text-gray-700">첨부 파일</label>
+                    <label className="block text-gray-800">첨부 파일</label>
                     <div className="flex items-center gap-3">
                         <input type="file" id="file-upload" name="file" accept=".pdf,.hwp" className="hidden" onChange={handleChange} />
                         <label htmlFor="file-upload" className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-sm">
                             파일 선택
                         </label>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-800">
                             {form.file ? (
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                     <span>{form.file.name}</span>
@@ -329,7 +329,7 @@ const ProgramRegisterComponent = () => {
                             )}
                         </span>
                     </div>
-                    <textarea name="content" placeholder="내용을 입력하세요" value={form.content} onChange={handleChange} className="w-full border p-2 h-32 rounded" required />
+                    <textarea name="content" placeholder="내용을 입력하세요" value={form.content} onChange={handleChange} className="w-full border border-gray-500 p-2 h-32 rounded" required />
                 </div>
 
                 {/* 버튼 */}
@@ -342,9 +342,13 @@ const ProgramRegisterComponent = () => {
                             ? "처리 중..."
                             : (isEdit ? "수정하기" : "등록하기")}
                     </Button>
-                    <Button type="button" onClick={() => navigate(-1)} className="bg-gray-300 text-black hover:bg-gray-400 cursor-pointer">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="bg-gray-400 text-white hover:bg-gray-500 px-4 py-2 rounded cursor-pointer"
+                    >
                         취소
-                    </Button>
+                    </button>
                 </div>
             </form>
         </div>

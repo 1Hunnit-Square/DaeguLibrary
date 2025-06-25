@@ -92,17 +92,17 @@ const ProgramComponent = () => {
     };
 
     const renderStatusBadge = (status) => {
-        const base = "px-4 py-4 rounded text-sm font-semibold whitespace-nowrap";
+        const base = "text-lg font-semibold whitespace-nowrap";
 
         switch (status) {
             case '신청중':
-                return <span className={`${base} bg-green-600 text-white`}>신청가능</span>;
+                return <span className={`${base} text-green-700`}>〔 신청가능 〕</span>;
             case '신청전':
-                return <span className={`${base} bg-blue-200 text-blue-800`}>신청전</span>;
+                return <span className={`${base} text-blue-600`}>〔 신청전 〕</span>;
             case '모집마감':
-                return <span className={`${base} bg-gray-500 text-white`}>모집마감</span>;
+                return <span className={`${base} text-gray-700`}>〔 모집마감 〕</span>;
             case '신청마감':
-                return <span className={`${base} bg-gray-500 text-white`}>신청마감</span>;
+                return <span className={`${base} text-gray-700`}>〔 신청마감 〕</span>;
             default:
                 return null;
         }
@@ -144,7 +144,7 @@ const ProgramComponent = () => {
                 <div>
                     <h2 className="text-2xl text-gray-800 font-semibold">프로그램 목록</h2>
                     {programs.content.length > 0 && (
-                        <div className="text-center text-sm text-gray-500 mt-4">
+                        <div className="text-center text-sm text-gray-500 mt-5">
                             총 {programs.totalElements}개의 프로그램이 등록되어있습니다.
                         </div>
                     )}
@@ -179,28 +179,30 @@ const ProgramComponent = () => {
                     {finalPrograms.map((program) => {
                         const status = getProgramStatus(program.applyStartAt, program.applyEndAt, program.current, program.capacity);
                         return (
-                            <div key={program.progNo} className="relative p-7 border rounded-2xl shadow-sm bg-white flex justify-between items-start">
-                                <div>
-                                    <h3 className='text-lg font-bold mb-2 cursor-pointer hover:underline'
+                            <div key={program.progNo} className="relative p-8 border-gray-700 rounded-2xl drop-shadow-sm bg-white flex justify-between items-start">
+                                <div className='ml-8'>
+                                    <h3 className='text-[22px] font-bold mb-4 cursor-pointer hover:text-green-700 hover:underline'
                                         onClick={() => navigate(`/reservation/program/${program.progNo}`)}>
                                         {program.progName}
                                     </h3>
-                                    <p className="text-sm mb-2"><strong>신청기간:</strong> {dayjs(program.applyStartAt).format('YYYY-MM-DD HH:mm')} ~ {dayjs(program.applyEndAt).format('YYYY-MM-DD HH:mm')}</p>
-                                    <p className="text-sm mb-2"><strong>수강기간:</strong> {program.startDate} ~ {program.endDate}</p>
-                                    <p className="text-sm mb-2"><strong>수강대상:</strong> {program.target}</p>
-                                    <p className="text-sm mb-2">
-                                        <strong>모집인원:</strong> [선착순]{" "}
-                                        <span className={`
+                                    <div className='ml-2'>
+                                        <p className="text-sm mb-2"><strong>신청기간:</strong> {dayjs(program.applyStartAt).format('YYYY-MM-DD HH:mm')} ~ {dayjs(program.applyEndAt).format('YYYY-MM-DD HH:mm')}</p>
+                                        <p className="text-sm mb-2"><strong>수강기간:</strong> {program.startDate} ~ {program.endDate}</p>
+                                        <p className="text-sm mb-2"><strong>수강대상:</strong> {program.target}</p>
+                                        <p className="text-sm mb-2">
+                                            <strong>모집인원:</strong> [선착순]{" "}
+                                            <span className={`
                                             font-semibold
                                             ${program.current / program.capacity >= 0.8
-                                                ? "text-red-600"
-                                                : "text-blue-600"}
+                                                    ? "text-red-600"
+                                                    : "text-blue-600"}
                                         `}>
-                                            {program.current}
-                                        </span> / {program.capacity}명
-                                    </p>
+                                                {program.current}
+                                            </span> / {program.capacity}명
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="ml-4 self-center">
+                                <div className="mr-8 self-center">
                                     {renderStatusBadge(status)}
                                 </div>
                             </div>

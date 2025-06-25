@@ -8,7 +8,7 @@ const MemberShipComponent = () => {
         <div className="max-w-5xl mx-auto px-12 py-15 bg-white rounded-lg shadow-md">
             <section className="px-5 py-5 max-w-6xl mx-auto text-gray-800">
                 {/* 헤더 영역 */}
-                <div className="bg-[#eefbef] p-6 rounded-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+                <div className="bg-[#eefbef] p-8 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold text-green-900 mb-10">회원가입</h1>
                         <div className="text-sm text-gray-800 space-y-2">
@@ -22,7 +22,7 @@ const MemberShipComponent = () => {
                 {/* 가입 대상 */}
                 <div className="mb-14">
                     <h2 className="text-2xl font-bold text-green-800 mb-6 border-b-4 border-green-700 inline-block pb-2">회원 가입 대상</h2>
-                    <ul className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm text-gray-700 list-disc pl-10 space-y-2 text-sm">
+                    <ul className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm text-gray-700 list-disc pl-10 space-y-2 text-sm">
                         <li>대구시에 주민등록이 되어있는 만 14세 이상의 내국인</li>
                         <li>대구시 소재 학교에 재학 중인 학생, 직장에 재직 중인 자</li>
                         <li>대구시 거주 외국인 등록자(등록증 소지자), 국내 체류 외국인 등록자</li>

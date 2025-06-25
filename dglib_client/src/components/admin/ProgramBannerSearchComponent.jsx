@@ -35,18 +35,18 @@ const ProgramBannerSearchComponent = ({ onSelect, onClose }) => {
           placeholder="프로그램명 검색"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border px-3 py-2 rounded mb-4"
+          className="w-full border border-gray-300 shadow px-3 py-2 rounded-xl mb-4"
         />
 
         <div className="max-h-70 overflow-y-auto space-y-2">
           {filtered.map(program => (
             <div
               key={program.progNo}
-              className="border rounded p-3 hover:bg-yellow-100 cursor-pointer"
+              className="border border-gray-300 rounded-xl shadow p-3 hover:bg-yellow-50 cursor-pointer"
               onClick={() => onSelect(program)}
             >
               <p className="font-semibold">{program.progName}</p>
-              <p className="text-sm font-semibold">강사: {program.teachName}</p>
+              <p className="text-sm">강사: {program.teachName}</p>
               <p className="text-sm text-gray-700">
                 강의 기간: {program.startDate} - {program.endDate}
               </p>

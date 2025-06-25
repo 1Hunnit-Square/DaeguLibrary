@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
 import { imgReplace } from "../../util/commonUtil";
 
@@ -15,13 +15,20 @@ const NewsModComponent = () => {
   const navigate = useNavigate();
   const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
+  const queryClient = useQueryClient();
   const { nno } = useParams();
-
+  const cached = queryClient.getQueryData(['newsDetail', nno]);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['newsDetail', nno],
     queryFn: () => getNewsDetail(nno),
     refetchOnWindowFocus: false,
+    enabled: !cached, // 캐시 없으면 실행
+    initialData: cached
   });
+
+
+
+
 
   const dataMap = useMemo(() => ({ data: { ...data, content: imgReplace(data?.content) }, fileDTOName: "imageDTO" }), [data]);
 

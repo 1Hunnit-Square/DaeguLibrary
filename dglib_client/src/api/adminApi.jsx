@@ -13,6 +13,22 @@ export const getBoardList = async (params) => {
   return response.data;
 };
 
+export const hideBoards = (boardType, ids, hidden) => {
+  return axiosClient.put(`${prefix}/board/hide`, {
+    boardType,
+    ids,
+    hidden,
+  });
+};
+
+export const deleteBoards = (boardType, ids) => {
+  return axiosClient.delete(`${prefix}/board`, {
+    data: { boardType, ids },
+  });
+};
+
+
+
 
 export const regBook = async (bookData) => {
     const res = await axios.post(`${prefix}/regbook`, bookData, { headers: { 'Content-Type': 'application/json' } });

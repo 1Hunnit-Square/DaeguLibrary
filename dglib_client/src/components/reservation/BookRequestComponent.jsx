@@ -17,10 +17,10 @@ const BookRequestComponent = () => {
         navigate('/reservation/bookrequest/form');
     }
     return (
-        <div>
-            <div className="border border-gray-300 drop-shadow-lg bg-gray-200 flex mt-8 p-6 gap-8 items-center">
+        <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
+            <div className="border border-gray-100 rounded-2xl drop-shadow-lg bg-gray-100 flex mt-8 p-6 gap-8 items-center">
                 <div className="flex-shrink-0">
-                    <img src="/requestbook.png" className="w-32 h-32" alt="희망도서신청" />
+                    <img src="/requestbook.png" className="w-30 h-30" alt="희망도서신청" />
                 </div>
                 <div className="space-y-4">
                     <div className="text-2xl">
@@ -30,12 +30,12 @@ const BookRequestComponent = () => {
                         <p className="mb-1 text-sm">이용하고자 하는 도서가 도서관에 없는 경우 희망 도서를 신청할 수 있습니다.</p>
                         <p className="text-sm">신청안내, 진행절차, 선정 제외 도서를 숙지한 후 신청하시기 바랍니다.</p>
                     </div>
-                    <Button children="희망도서신청 바로가기" className="h-12 px-6" onClick={handleRequestClick}/>
+                    <Button children="희망도서신청 바로가기" className="h-10 px-5 text-sm" onClick={handleRequestClick}/>
                 </div>
             </div>
-            <div className="border border-gray-300 drop-shadow-lg bg-gray-200 flex mt-8 p-6 gap-8 items-center">
+            <div className="border border-gray-100 rounded-2xl drop-shadow-lg bg-gray-100 flex mt-10 p-6 gap-8 items-center">
                 <div className="flex-shrink-0">
-                   <img src="/eligibility.png" className="w-32 h-32" alt="신청 자격" />
+                   <img src="/eligibility.png" className="w-30 h-30" alt="신청 자격" />
                 </div>
                  <div className="space-y-4">
                     <div className="text-2xl font-bold">
@@ -46,9 +46,9 @@ const BookRequestComponent = () => {
                     </div>
                 </div>
             </div>
-          <div className="border border-gray-300 drop-shadow-lg bg-gray-200 flex mt-8 p-6 gap-8 items-center">
+          <div className="border border-gray-100 rounded-2xl drop-shadow-lg bg-gray-100 flex mt-10 p-6 gap-8 items-center">
                 <div className="flex-shrink-0">
-                    <img src="/bookcount.png" className="w-32 h-32" alt="신청 책수" />
+                    <img src="/bookcount.png" className="w-30 h-30" alt="신청 책수" />
                 </div>
                 <div className="space-y-4">
                     <div className="text-2xl font-bold">
@@ -59,9 +59,9 @@ const BookRequestComponent = () => {
                     </div>
                 </div>
             </div>
-            <div className="border border-gray-300 drop-shadow-lg bg-gray-200 flex mt-8 p-6 gap-8 items-center">
+            <div className="border border-gray-100 rounded-2xl drop-shadow-lg bg-gray-100 flex mt-10 p-6 gap-8 items-center">
                 <div className="flex-shrink-0">
-                    <img src="/process.png" className="w-32 h-32" alt="진행 절차" />
+                    <img src="/process.png" className="w-30 h-30" alt="진행 절차" />
                 </div>
                 <div className="space-y-4">
                     <div className="text-2xl font-bold">

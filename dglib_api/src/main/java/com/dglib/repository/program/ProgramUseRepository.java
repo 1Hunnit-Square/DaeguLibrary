@@ -19,6 +19,8 @@ public interface ProgramUseRepository extends JpaRepository<ProgramUse, Long> {
 	int countByProgram(@Param("progNo") Long progNo);
 
 	List<ProgramUse> findByMember_Mid(String mid);
+	
+	Page<ProgramUse> findByMember_Mid(String mid, Pageable pageable);
 
 	List<ProgramUse> findByProgramInfo_ProgNo(Long progNo);
 

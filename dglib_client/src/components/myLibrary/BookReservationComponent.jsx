@@ -27,7 +27,7 @@ const BookReservationComponent = () => {
                 <Loading />
             )}
             
-            <div className="w-full max-w-4xl mx-auto border border-green-700 rounded-lg overflow-hidden min-h-[100px] mb-6">
+            <div className="w-full max-w-4xl mx-auto border border-green-700 rounded-2xl overflow-hidden min-h-[100px] mb-6">
                 {isLoading ? (
                     <div className="text-center text-gray-500 text-lg sm:text-xl py-10">
                        예약중인 도서목록을 불러오는 중입니다...

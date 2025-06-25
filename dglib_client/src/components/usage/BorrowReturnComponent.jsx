@@ -19,7 +19,7 @@ const BorrowReturnComponent = () => {
                     </ul>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 도서 반납 */}
             <section className="flex items-start gap-10 mb-15">
@@ -33,7 +33,7 @@ const BorrowReturnComponent = () => {
                     </ul>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 무인 예약 대출 */}
             <section className="flex items-start gap-10 mb-15">
@@ -51,7 +51,7 @@ const BorrowReturnComponent = () => {
                     <p className="mt-2 text-red-600 font-semibold">※ 반드시 대출 가능 알림 문자 수신 후 방문해 주세요.</p>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 무인 도서 반납 */}
             <section className="flex items-start gap-10 mb-15">
@@ -65,7 +65,7 @@ const BorrowReturnComponent = () => {
                     </ul>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 대출 연장 */}
             <section className="flex items-start gap-10 mb-15">
@@ -79,7 +79,7 @@ const BorrowReturnComponent = () => {
                     </ul>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 도서 예약 */}
             <section className="flex items-start gap-10 mb-15">
@@ -93,7 +93,7 @@ const BorrowReturnComponent = () => {
                     </ul>
                 </div>
             </section>
-            <hr className="my-10 border-t border-green-700" />
+            <hr className="my-10 border-t border-gray-300" />
 
             {/* 자료 분실/훼손 */}
             <section className="flex items-start gap-10 mb-5">

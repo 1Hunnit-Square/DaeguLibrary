@@ -153,8 +153,8 @@ const ChatComponent = ({ onClose }) => {
 
     return (
         <>
-        <div className="fixed bottom-23 sm:bottom-5 right-4 sm:right-5 md:right-10 lg:right-20 xl:right-40 
-                        w-[calc(100vw-32px)] sm:w-80 md:w-96 lg:w-[400px] 
+        <div className="fixed bottom-23 sm:bottom-5 sm:right-5 md:right-10 lg:right-20 xl:right-40 
+                        w-[calc(109vw-32px)] sm:w-80 md:w-96 lg:w-[500px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
                         bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col">
             
@@ -222,11 +222,9 @@ const ChatComponent = ({ onClose }) => {
                                         />
                                     </>
                                 )}
-                                {/* 'like'가 선택되었을 때 */}
                                 {chat.feedback === 'like' && (
                                     <ThumbsUp size={20} weight="fill" className="text-green-600" />
                                 )}
-                                {/* 'dislike'가 선택되었을 때 */}
                                 {chat.feedback === 'dislike' && (
                                     <ThumbsDown size={20} weight="fill" className="text-red-600" />
                                 )}

@@ -19,6 +19,13 @@ export const registerPlace = async (dto) => {
   return res.data;
 };
 
+// 예약 취소
+export const deleteReservation = async (pno) => {
+  const res = await axios.delete(`${prefix}/${pno}`);
+  return res.data;
+};
+
+
 // 관리자 전용: 시설대여 신청 목록 조회
 export const getReservationListByAdmin = async (params = {}) => {
   const res = await axios.get(`${prefix}/admin`, { params });
@@ -30,3 +37,12 @@ export const cancelReservationByAdmin = async (pno) => {
   const res = await axios.delete(`${prefix}/admin/delete/${pno}`);
   return res.data;
 };
+
+// 회원별 신청 목록 조회 (페이징)
+export const getReservationListByMemberPaged = async (memberId, page = 0, size = 10) => {
+  const res = await axios.get(`${prefix}/member/${memberId}/page`, {
+    params: { page, size }
+  });
+  return res.data;
+};
+

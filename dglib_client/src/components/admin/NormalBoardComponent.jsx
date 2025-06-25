@@ -33,7 +33,7 @@ const NormalBoardComponent = () => {
       api: (params) => getBoardList({ ...params, boardType: "news" }),
       columns: [
         { key: "no", label: "글번호", align: "center", width: "7%" },
-         { key: "title", label: "제목", align: "center", width: "35%" },
+        { key: "title", label: "제목", align: "center", width: "35%" },
         { key: "writerId", label: "작성자", align: "center", width: "13%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
@@ -176,7 +176,7 @@ const NormalBoardComponent = () => {
     <div className="container mx-auto px-4 py-8 w-full">
       <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">게시판 관리</h1>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-center flex-wrap gap-4 bg-gray-300 p-4 rounded">
+      <div className="flex flex-col md:flex-row md:items-center justify-center flex-wrap gap-4 bg-gray-100 shadow-md p-4 rounded">
 
         <SearchSelectComponent
           options={Object.keys(searchFieldMap)}

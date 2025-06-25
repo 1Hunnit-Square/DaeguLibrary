@@ -62,7 +62,7 @@ const EbookListComponent = () => {
                 <Loading text="목록 갱신중.."/>
             )}
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">EBOOK 목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-300 p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                     <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%] min-w-0"
@@ -88,13 +88,13 @@ const EbookListComponent = () => {
                 <table className="w-full bg-white table-fixed">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서명</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">저자</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">출판사</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">ISBN</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">출판일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">등록일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">설명</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">도서명</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">저자</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">출판사</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">출판일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">등록일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">설명</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
@@ -112,13 +112,13 @@ const EbookListComponent = () => {
                                 dueDate.setHours(0, 0, 0, 0);
                                 return (
                                     <tr key={index} onClick={() => handleModalOpen(item)} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer`}>
-                                        <td className="py-4 px-6 text-xs">{item.ebookTitle}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookAuthor}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookPublisher}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookIsbn}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.ebookPubDate}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.ebookRegDate}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookDescription}</td>
+                                        <td className="py-4 px-6 text-center text-xs">{item.ebookTitle}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookAuthor}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookPublisher}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookIsbn}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.ebookPubDate}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.ebookRegDate}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">{item.ebookDescription}</td>
 
                                     </tr>
                                 );

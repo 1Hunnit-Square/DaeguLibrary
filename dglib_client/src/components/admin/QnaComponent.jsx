@@ -117,7 +117,7 @@ const QnaComponent = () => {
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">QnA 관리</h1>
 
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-300 p-4 min-h-30">                
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">                
                     <SearchSelectComponent
                         options={searchOptions}
                         defaultCategory={defaultCategory}

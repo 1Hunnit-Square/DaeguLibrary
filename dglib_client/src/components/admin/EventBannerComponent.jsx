@@ -111,7 +111,7 @@ const EventBannerComponent = () => {
 
             {/* 등록 폼 카드 */}
             {registerForms.map((form, index) => (
-                <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl drop-shadow-sm">
+                <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl border border-gray-100 shadow">
                     <div className="flex items-start gap-8">
                         <div className="flex-1 flex flex-col space-y-8">
                             <div className="flex items-center gap-3">

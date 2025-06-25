@@ -134,33 +134,33 @@ const FacilityComponent = () => {
           이용시설공간
         </h3>
         <table className="w-full text-sm text-left border border-gray-300">
-          <thead className="bg-gray-100 text-gray-700">
+          <thead className="bg-gray-100 text-gray-800">
             <tr>
-              <th className="px-4 py-3 text-center">구분</th>
-              <th className="px-4 py-3 text-center">층</th>
-              <th className="px-4 py-3 text-center">용도</th>
-              <th className="px-4 py-3 text-center">인원수(명)</th>
-              <th className="px-4 py-3 text-center">예약</th>
+              <th className="border border-gray-300 px-4 py-3 text-center">구분</th>
+              <th className="border border-gray-300 px-4 py-3 text-center">층</th>
+              <th className="border border-gray-300 px-4 py-3 text-center">용도</th>
+              <th className="border border-gray-300 px-4 py-3 text-center">인원수(명)</th>
+              <th className="border border-gray-300 px-4 py-3 text-center">예약</th>
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            <tr className="border border-gray-300">
-              <td className="px-4 py-3 text-center">동아리실</td>
-              <td className="px-4 py-3 text-center">지하 1층</td>
-              <td className="px-4 py-3 text-center">동아리 활동 등</td>
-              <td className="px-4 py-3 text-center">8</td>
-              <td className="px-4 py-3 text-center">
+            <tr>
+              <td className="border border-gray-300 px-4 py-3 text-center">동아리실</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">지하 1층</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">동아리 활동 등</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">8</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">
                 <button onClick={() => handleReserve("동아리실")} className="bg-green-700 hover:bg-green-800 text-white text-sm px-3 py-1 rounded cursor-pointer">
                   바로예약
                 </button>
               </td>
             </tr>
-            <tr className="border border-gray-300">
-              <td className="px-4 py-3 text-center">세미나실</td>
-              <td className="px-4 py-3 text-center">지상 3층</td>
-              <td className="px-4 py-3 text-center">세미나 활동 등</td>
-              <td className="px-4 py-3 text-center">12</td>
-              <td className="px-4 py-3 text-center">
+            <tr>
+              <td className="border border-gray-300 px-4 py-3 text-center">세미나실</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">지상 3층</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">세미나 활동 등</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">12</td>
+              <td className="border border-gray-300 px-4 py-3 text-center">
                 <button onClick={() => handleReserve("세미나실")} className="bg-green-700 hover:bg-green-800 text-white text-sm px-3 py-1 rounded cursor-pointer">
                   바로예약
                 </button>

@@ -126,7 +126,7 @@ const MemberManagementComponent = () => {
             )}
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
-            <div className="flex items-center justify-center mb-10 gap-30 rounded-xl bg-gray-300 h-30">
+            <div className="flex items-center justify-center mb-10 gap-30 rounded-xl bg-gray-100 shadow h-30">
                     <SearchSelectComponent options={["회원ID", "이름","회원번호"]} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%]"

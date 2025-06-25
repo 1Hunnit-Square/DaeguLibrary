@@ -11,13 +11,13 @@ const QMenuComponent = () => {
     ];
 
     return (
-        <div className="my-6 mx-auto">
-            <ul className="flex flex-wrap justify-center gap-12">
+        <div className="my-10 mx-auto">
+            <ul className="flex flex-wrap justify-center gap-15">
                 {menuItems.map((item, index) => (
                     <li key={index} className="text-center">
                         <Link 
                             to={item.link} 
-                            className="flex flex-col justify-center items-center p-4 w-28 h-20 rounded-lg border border-gray-100 hover:border-green-700 hover:border-2 shadow"
+                            className="flex flex-col justify-center items-center p-4 w-28 h-20 rounded-lg border border-gray-100 hover:border-green-700 hover:border-2 shadow-md"
                         >
                             <img src={item.icon} alt={item.name} className="w-12 h-12 mb-1" />
                             <span className="font-medium text-xs">{item.name}</span>

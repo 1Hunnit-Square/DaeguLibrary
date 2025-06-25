@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, JpaSpecific
 
 	// 회원 mid 기준 신청 내역
 	List<Place> findByMember_Mid(String mid);
+	Page<Place> findByMember_Mid(String mid, Pageable pageable);
 
 	// 예약 시간대 중복 확인
 	boolean existsByRoomAndUseDateAndStartTime(String room, LocalDate useDate, LocalTime startTime);

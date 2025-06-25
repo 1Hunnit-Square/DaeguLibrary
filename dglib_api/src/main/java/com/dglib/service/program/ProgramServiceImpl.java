@@ -234,6 +234,15 @@ public class ProgramServiceImpl implements ProgramService {
 	public ProgramInfo getProgramEntity(Long progNo) {
 		return infoRepository.findById(progNo).orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 	}
+	
+	// 회원 ID(mid)를 기준으로 해당 회원이 신청한 프로그램 목록을 페이지 형태로 조회
+	@Override
+	public Page<ProgramUseDTO> getUseListByMemberPaged(String mid, Pageable pageable) {
+	    Page<ProgramUse> result = useRepository.findByMember_Mid(mid, pageable);
+
+	    return result.map(this::toDTO);
+	}
+
 
 	// 프로그램 리스트 조회
 	@Override

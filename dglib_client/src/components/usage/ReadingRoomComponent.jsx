@@ -17,7 +17,7 @@ const ReadingRoomComponent = () => {
           <img
             src="/readingRoom_info.png"
             alt="도서관 안내"
-            className="w-full md:w-64 h-auto"
+            className="w-full md:w-60 h-auto"
           />
         </div>
       </section>

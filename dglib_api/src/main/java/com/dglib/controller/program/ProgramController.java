@@ -204,6 +204,15 @@ public class ProgramController {
 	public ResponseEntity<List<ProgramUseDTO>> getProgramUseList(@RequestParam String mid) {
 		return ResponseEntity.ok(programService.getUseListByMember(mid));
 	}
+	
+	// 6-1.  사용자 신청 내역 조회 (페이징)
+	@GetMapping("/user/applied/page")
+	public ResponseEntity<Page<ProgramUseDTO>> getUseListByMemberPaged(
+	        @RequestParam String mid,
+	        Pageable pageable) {
+
+	    return ResponseEntity.ok(programService.getUseListByMemberPaged(mid, pageable));
+	}
 
 	// 7. 사용자 신청 취소
 	@DeleteMapping("/cancel/{progUseNo}")

@@ -53,7 +53,7 @@ const GreetingComponent = () => {
     return (
         <div className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-lg">
             <section className="mb-16">
-                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mb-8 pb-8">
+                <h1 className="text-2xl md:text-3xl font-bold text-center text-green-800 mt-10 pb-8">
                     대구 도서관 방문을 진심으로 환영합니다.
                 </h1>
 

@@ -83,7 +83,7 @@ const BorrowBookListComponent = () => {
             )}
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">대출 목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-300 p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                     <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
                         className="w-full md:w-[50%]"

@@ -113,6 +113,12 @@ public class PlaceServiceImpl implements PlaceService {
 			throw new IllegalArgumentException("지난 날짜는 선택이 불가능합니다.");
 		}
 
+		if (dto.getUseDate().isEqual(LocalDate.now())) {
+			if (dto.getStartTime().isBefore(LocalTime.now())) {
+				throw new IllegalArgumentException("현재 시간 이전의 시간은 예약할 수 없습니다.");
+			}
+		}
+
 		if (dto.getDurationTime() < MIN_DURATION_HOURS || dto.getDurationTime() > MAX_DURATION_HOURS) {
 			throw new IllegalArgumentException(
 					"이용 시간은 " + MIN_DURATION_HOURS + "~" + MAX_DURATION_HOURS + "시간 사이만 가능합니다.");
@@ -244,7 +250,7 @@ public class PlaceServiceImpl implements PlaceService {
 		placeRepository.delete(place);
 	}
 
-	// 회원별 신청 내역
+	// 회원별 신청 내역(list)
 	@Override
 	public List<PlaceDTO> getListByMember(String mid) {
 		return placeRepository.findByMember_Mid(mid).stream().map(place -> {
@@ -252,6 +258,18 @@ public class PlaceServiceImpl implements PlaceService {
 			dto.setMemberMid(place.getMember().getMid());
 			return dto;
 		}).collect(Collectors.toList());
+	}
+
+	// 회원별 신청 내역(page)
+	@Override
+	public Page<PlaceDTO> getListByMemberPaged(String mid, Pageable pageable) {
+		Page<Place> result = placeRepository.findByMember_Mid(mid, pageable);
+
+		return result.map(place -> {
+			PlaceDTO dto = modelMapper.map(place, PlaceDTO.class);
+			dto.setMemberMid(place.getMember().getMid());
+			return dto;
+		});
 	}
 
 	// 월별 예약 현황 (달력 API)

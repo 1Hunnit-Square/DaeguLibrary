@@ -72,6 +72,19 @@ public class ChatbotController {
         return ResponseEntity.ok().build();
     }
 	
+	@PostMapping("/feedback")
+	public Mono<ResponseEntity<String>> feedback(@RequestBody Map<String, Object> requestBody) {
+	    LOGGER.info("" + requestBody);
+		return webClient.post().uri("/feedback").body(Mono.just(requestBody), Map.class).retrieve()
+				.bodyToMono(String.class).map(response -> {
+					LOGGER.info("Chatbot feedback response: {}", response);
+					return ResponseEntity.ok(response);
+				}).onErrorMap(original -> {
+					LOGGER.error("Python 백엔드 호출 중 오류 발생", original);
+					return new RuntimeException("api 서버와 통신 중 오류가 발생했습니다.", original);
+				});
+	}
+	
 	
 	
 	

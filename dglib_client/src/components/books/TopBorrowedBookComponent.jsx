@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useCheckboxFilter } from "../../hooks/useCheckboxFilter";
 import { useQuery } from "@tanstack/react-query";
 import { getTopBorrowedBookList } from "../../api/bookApi";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { usePagination } from "../../hooks/usePage";
 import Loading from "../../routers/Loading";
 import { Link } from "react-router-dom";
@@ -28,6 +28,9 @@ const TopBorrowedBookComponent = () => {
 
     const { renderPagination } = usePagination(topBookData, searchURLParams, setSearchURLParams, isLoading);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div>

@@ -6,7 +6,11 @@
     "대출베스트",
     "신간추천",
     "봇소개",
-    "회원대출"
+    "회원대출",
+    "휴관일",
+    "프로그램",
+    "장소",
+    "도서예약"
   ],
   "ner_tags": [
     "O",
@@ -15,7 +19,9 @@
     "B-AUTHOR",
     "I-AUTHOR",
     "B-FORMAT",
-    "I-FORMAT"
+    "I-FORMAT",
+    "B-DATE",
+    "I-DATE"
   ],
   "max_length": 128
 }

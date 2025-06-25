@@ -16,7 +16,9 @@ import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
-import com.dglib.dto.member.ChatMemberBorrowResposneDTO;
+import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
+import com.dglib.dto.member.ChatMemberReservationBookDTO;
+import com.dglib.dto.member.ChatMemberReservationResponseDTO;
 import com.dglib.dto.member.ContactListDTO;
 import com.dglib.dto.member.ContactSearchDTO;
 import com.dglib.dto.member.EmailInfoListDTO;
@@ -113,7 +115,9 @@ public interface MemberService {
 	
 	void deleteMyEbook(EbookMemberDeleteDTO dto, String mid);
 	
-	ChatMemberBorrowResposneDTO getChatMemberBorrowState(String mid);
+	ChatMemberBorrowResponseDTO getChatMemberBorrowState(String mid);
+	
+	ChatMemberReservationResponseDTO getChatMemberReservationState(String mid);
 	
 	
 	

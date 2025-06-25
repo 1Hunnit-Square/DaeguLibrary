@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -7,6 +7,7 @@ import 'swiper/css';
 const GenreMenu = ({ Component }) => {
 
     const [ genre , setGenre ] = useState("literature");
+    const navigate = useNavigate();
     const category = {
         "literature":"문학",
         "philosophy":"철학",
@@ -43,16 +44,21 @@ const GenreMenu = ({ Component }) => {
                         {category[key]}
                     </div>
                 ))}
+                <div onClick={() => {
+                        
+                        navigate(`/books/recommend?genre=${genre}&page=1`);
+                    }}
+                        className="font-bold mr-3 cursor-pointer text-2xl leading-none ml-auto">+</div>
             </div>
 
            
-            <div className="xl:hidden">
+            <div className="xl:hidden flex">
                 <Swiper
                     
                     spaceBetween={16}
                     slidesPerView="auto"
                     freeMode={true}
-                    className="w-full"
+                    className="w-[80%]"
                 >
                     {Object.keys(category).map((key) => (
                         <SwiperSlide key={key} className="!w-auto">
@@ -65,6 +71,10 @@ const GenreMenu = ({ Component }) => {
                         </SwiperSlide>
                     ))}
                 </Swiper>
+                <div onClick={() => {
+                        navigate(`/books/recommend?genre=${genre}&page=1`);
+                    }}
+                        className="font-bold mr-3 cursor-pointer text-2xl leading-none ml-auto">+</div>
             </div>
             
             <div className="w-full h-[1px] bg-[#00893B] mt-1 sm:mt-2"></div>

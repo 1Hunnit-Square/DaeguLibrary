@@ -49,10 +49,10 @@ async def tts_post_async(text: str):
             
         else:
             logger.error(f"TTS 요청 실패! 상태 코드: {response.status_code}")
-            return b''
+            return None
             
             
     except Exception as e:
         logger.error(f"TTS 요청 중 오류: {e}")
-        return b''
+        return None
         

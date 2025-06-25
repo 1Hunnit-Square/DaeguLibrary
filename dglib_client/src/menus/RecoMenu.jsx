@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
@@ -7,6 +7,18 @@ import 'swiper/css';
 const RecoMenu = ({ Component }) => {
 
     const [ type , setType ] = useState("topborrow");
+    const navigate = useNavigate();
+    const currentDate = new Date().toDateString();
+    const getDateParams = useMemo(() => {
+        const today = new Date();
+        const aMonthAgo = new Date(today);
+        aMonthAgo.setDate(today.getDate() - 30);
+
+        const endDateStr = today.toLocaleDateString('fr-CA');
+        const startDateStr = aMonthAgo.toLocaleDateString('fr-CA');
+
+        return `startDate=${startDateStr}&endDate=${endDateStr}`;
+    }, [currentDate]);
     const category = {
         "topborrow":"베스트셀러",
         "new":"신착도서"
@@ -36,10 +48,16 @@ const RecoMenu = ({ Component }) => {
                         {category[key]}
                     </div>
                 ))}
+                <div onClick={() => {
+                        if (type === "topborrow") navigate(`/books/top?check=오늘`);
+                        else if (type === "new") navigate(`/books/new?page=1&${getDateParams}`);
+                    }}
+                        className="font-bold mr-3 cursor-pointer text-2xl leading-none ml-auto">+</div>
+                
             </div>
 
            
-            <div className="xl:hidden">
+            <div className="xl:hidden flex">
                 <Swiper
                     
                     spaceBetween={16}
@@ -58,6 +76,11 @@ const RecoMenu = ({ Component }) => {
                         </SwiperSlide>
                     ))}
                 </Swiper>
+                <div onClick={() => {
+                        if (type === "topborrow") navigate(`/books/top?check=오늘`);
+                        else if (type === "new") navigate(`/books/new?page=1&${getDateParams}`);
+                    }}
+                        className="font-bold mr-3 cursor-pointer text-2xl leading-none ml-auto">+</div>
             </div>
             
             <div className="w-full h-[1px] bg-[#00893B] mt-1 sm:mt-2"></div>

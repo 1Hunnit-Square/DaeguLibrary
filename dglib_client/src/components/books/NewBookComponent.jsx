@@ -1,6 +1,6 @@
 
 import { useSearchParams, Link } from "react-router-dom";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useQuery } from '@tanstack/react-query';
 import Button from "../common/Button";
 import { getNewLibraryBookList } from "../../api/bookApi";
@@ -38,6 +38,10 @@ const NewBookComponent = () => {
     }, [dateRange, setSearchURLParams]);
 
     const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading);
+
+    useEffect(() => {
+            window.scrollTo(0, 0);
+        }, []);
 
     return (
         <div>

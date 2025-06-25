@@ -71,11 +71,11 @@ const BookReservationComponent = () => {
                                                     </div>
                                                     <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
                                                         <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">예상반납일</span>
-                                                        <span className="truncate" title={book.dueDate}>{book.dueDate ? new Date(book.reserveDate).toLocaleDateString('en-CA') : "-"}</span>
+                                                        <span className="truncate" title={book.dueDate}>{book.dueDate ? new Date(book.reserveDate).toLocaleDateString('en-CA') : "반납완료"}</span>
                                                     </div>
                                                     <div className="flex flex-col sm:flex-row gap-2 sm:items-center text-center sm:text-left">
                                                         <span className="bg-gray-100 px-2 py-1 rounded font-medium text-xs">우선순위</span>
-                                                        <span className="truncate" title={book.reserveCount}>{book.reserveCount > 0 ? book.reserveCount : "-"}</span>
+                                                        <span className="truncate" title={book.reserveRank}>{book.reserveRank === 1 && !book.dueDate ? "대출가능" : book.reserveRank}</span>
                                                     </div>
                                                 </div>
                                             </div>

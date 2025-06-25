@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from dglib_chatbot.utils.config import logger, web_config
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dglib_chatbot.services.chatbot_response import chatbot_ai, chatbot_history_delete
+from dglib_chatbot.services.chatbot_response import save_chat_log, save_chat_feedback_log
 import uuid
 from dglib_chatbot.services.session_manager import start_scheduler
 from contextlib import asynccontextmanager
@@ -17,6 +17,15 @@ from dglib_chatbot.services.chatbot_preprocessing import chatbot_preprocessing, 
 
 class resetRequest(BaseModel):
     clientId: str
+
+class feedback_request(BaseModel):
+    role: str
+    parts: str
+    userQuery: Optional[str] = None
+    feedbackType: str
+    nlp: Optional[dict] = None
+
+    
 
 tcp_server_task = None
 
@@ -68,6 +77,14 @@ async def chatbot(request: ChatRequest):
 async def reset_chat(request: resetRequest):
     response = await chatbot_history_delete(request.clientId)
     return response
+
+@app.post("/feedback")
+async def feedbacok(request: feedback_request):
+    logger.info(f"피드백 요청: {request}")
+    await save_chat_feedback_log(
+        request.userQuery, request.parts, request.nlp, request.feedbackType
+    )
+
 
 
 

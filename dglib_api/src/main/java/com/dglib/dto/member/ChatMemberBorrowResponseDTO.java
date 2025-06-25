@@ -5,7 +5,7 @@ import com.dglib.entity.member.MemberState;
 import lombok.Data;
 
 @Data
-public class ChatMemberBorrowResposneDTO {
+public class ChatMemberBorrowResponseDTO {
 	
 	private Long borrowCount;
 	private Long reservedCount;

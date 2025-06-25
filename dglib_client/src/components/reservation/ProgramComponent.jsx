@@ -92,17 +92,17 @@ const ProgramComponent = () => {
     };
 
     const renderStatusBadge = (status) => {
-        const base = "px-2 py-2 rounded-full text-xs font-semibold whitespace-nowrap";
+        const base = "px-2 py-2 rounded-full text-[15px] font-semibold whitespace-nowrap";
 
         switch (status) {
             case '신청중':
-                return <span className={`${base} bg-green-600 text-white`}>신청가능</span>;
+                return <span className={`${base} text-green-700`}>신청가능</span>;
             case '신청전':
-                return <span className={`${base} bg-blue-200 text-blue-800`}>신청전</span>;
+                return <span className={`${base} text-blue-800`}>신청전</span>;
             case '모집마감':
-                return <span className={`${base} bg-gray-500 text-white`}>모집마감</span>;
+                return <span className={`${base} text-gray-800`}>모집마감</span>;
             case '신청마감':
-                return <span className={`${base} bg-gray-500 text-white`}>신청마감</span>;
+                return <span className={`${base} text-gray-800`}>신청마감</span>;
             default:
                 return null;
         }

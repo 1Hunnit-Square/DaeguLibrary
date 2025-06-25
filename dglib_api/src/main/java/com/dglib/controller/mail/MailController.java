@@ -84,6 +84,13 @@ public class MailController {
         return ResponseEntity.ok().build();
     }
 	
+	@PostMapping("/delList")
+    public ResponseEntity<String> delMail(@RequestParam String mailType, @RequestParam List<String> eidList) {
+		String mid = JwtFilter.getMid();
+		mailService.deleteListMail(mailType, mid, eidList);
+        return ResponseEntity.ok().build();
+    }
+	
 	
 	 @GetMapping("/view/{eid}")
 	    public ResponseEntity<Resource> viewFile(@PathVariable String eid, @RequestParam int fileNum, @RequestParam String mailType){

@@ -26,3 +26,9 @@ export const delMail = async (path, params) => {
     const res = await axiosClient.delete(`${prefix}/${path}`, { params : params });
     return res.data;
 }
+
+export const delMailList = async (params) => {
+    const header = { headers: { "Content-Type": "x-www-form-urlencoded" } };
+    const res = await axiosClient.post(`${prefix}/delList`, params, header);
+    return res.data;
+}

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
-import { getMailList } from "../../api/mailApi";
+import { delMailList, getMailList } from "../../api/mailApi";
 import Loading from "../../routers/Loading";
 import { usePagination } from "../../hooks/usePage";
 import EmailReadComponent from "./EmailReadComponent";
@@ -10,13 +10,16 @@ import { getMailDetail } from "../../api/mailApi";
 import SelectComponent from "../common/SelectComponent";
 import Button from "../common/Button";
 import RadioBox from "../common/RadioBox";
+import { useItemSelection } from "../../hooks/useItemSelection";
+import CheckNonLabel from "../common/CheckNonLabel";
 
 const EmailComponent = () => {
 
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
+    const [ loading, setLoading ] = useState(false);
 
-    const { data: mailData = { content: [], totalElements: 0 }, isLoading, error, refetch } = useQuery({
+    const { data: mailData = { content: [], totalElements: 0 }, isLoading, error, refetch, isFetching } = useQuery({
         queryKey: ['mailList', searchURLParams.toString()],
         queryFn: () => {
                             const params = {
@@ -36,8 +39,7 @@ const EmailComponent = () => {
     });
 
     const mailList = useMemo(() => mailData.content, [mailData.content]);
-    const mailPage = useMemo(() => mailData.pageable, [mailData.pageable]);
-
+    const { selectedItems, isAllSelected, handleSelectItem, handleSelectAll, resetSelection } = useItemSelection(mailList, 'eid');
     const { renderPagination } = usePagination(mailData, searchURLParams, setSearchURLParams, isLoading);
 
     const readToStr = (read) => {
@@ -72,7 +74,10 @@ const EmailComponent = () => {
     const { reload } = event.data;
     if(!reload)
         return;
-    reload && refetch();  
+    else{
+    setLoading(true);
+    refetch().finally(()=>setLoading(false));
+    }   
     }
 
     window.addEventListener("message", handleMessage);
@@ -99,10 +104,39 @@ const EmailComponent = () => {
         setSearchURLParams(newParams); 
     }
 
+    const handleDeleteList = () => {
+        const checkConfirm = confirm("선택한 메일을 삭제하시겠습니까?");
+        if(!checkConfirm){
+            return;
+        }
+
+        setLoading(true);
+
+        if(selectedItems?.size > 0){
+        const paramData = new FormData();
+        paramData.append("mailType", searchURLParams.get("mailType") || "RECIEVER");
+
+        selectedItems.forEach(eid => {
+            paramData.append("eidList", eid);
+            console.log(eid);
+        });
+
+        delMailList(paramData).then(res => {
+            alert("메일을 삭제하였습니다.");
+            resetSelection();
+            return refetch();
+
+        }).catch(error=> {
+            console.error(error);
+            alert("메일 삭제에 오류가 발생하였습니다.");
+        }).finally(()=> setLoading(false));
+        }
+    }
+
 return(
     <>
     <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-             {isLoading && (
+             {(isLoading || loading) && (
                 <Loading text="목록 갱신중.."/>
             )}
 
@@ -114,7 +148,7 @@ return(
             onChange={(e) => handleNotRead(e)} value={ searchURLParams.get("read") || "not"} />}
             </div>
             <div className="flex gap-3 items-center">
-            <Button className="bg-red-400 hover:bg-red-500">선택 삭제</Button>
+            <Button className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed" onClick={handleDeleteList} disabled={selectedItems?.size == 0}>선택 삭제</Button>
             <Button onClick={handleWrite}>메일 쓰기</Button>
             </div>
             </div>
@@ -122,9 +156,11 @@ return(
                 <table className="min-w-full bg-white">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-3 max-w-15 min-w-15 text-center text-sm uppercase whitespace-nowrap">순번</th>
-                            <th className="py-3 px-3 max-w-70 min-w-70 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "받은 사람" : "보낸 사람"}</th>
-                            <th className="py-3 px-3 max-w-100 min-w-100 text-center text-sm uppercase whitespace-nowrap">제목</th>
+                            <th className="py-3 px-5 max-w-15 min-w-15 whitespace-nowrap">
+                            <CheckNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
+                            </th>
+                            <th className="py-3 px-3 max-w-50 min-w-50 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "받은 사람" : "보낸 사람"}</th>
+                            <th className="py-3 px-3 max-w-90 min-w-90 text-center text-sm uppercase whitespace-nowrap">제목</th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "수신여부" : "읽음여부"}</th>
                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">{searchURLParams.get("mailType") == "SENDER" ? "발송시간" : "도착시간"}</th>
                         </tr>
@@ -141,10 +177,12 @@ return(
 
                                 return (
                                     <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer`} onClick={()=>{handleClick(item.eid)}}>
-                                        <td className="py-4 px-3 max-w-15 min-w-15 whitespace-nowrap text-center">{mailPage.pageNumber * mailPage.pageSize  + index +1}</td>
-                                        <td className="py-4 px-3 max-w-70 min-w-70 truncate whitespace-nowrap text-center">
+                                          <td className="py-4 px-5 max-w-15 min-w-15 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                                                <CheckNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.eid)} onChange={(e) => handleSelectItem(e, item.eid)} />
+                                          </td>
+                                        <td className="py-4 px-3 max-w-50 min-w-50 truncate whitespace-nowrap">
                                             {(searchURLParams.get("mailType") == "SENDER") ? ToListStr(item.toName, item.toEmail): fromToStr(item.fromName, item.fromEmail)}</td>
-                                        <td className="py-4 px-3 max-w-100 min-w-100 truncate whitespace-nowrap text-center">{item.subject}</td>
+                                        <td className="py-4 px-3 max-w-90 min-w-90 truncate whitespace-nowrap">{item.subject}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{readToStr(item.read)}</td>
                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.sentTime}</td>
                                     </tr>

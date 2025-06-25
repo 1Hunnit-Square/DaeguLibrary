@@ -8,8 +8,10 @@ import Loading from "../../routers/Loading";
 import CheckNonLabel from "../common/CheckNonLabel";
 import Button from "../common/Button";
 import RadioBox from "../common/RadioBox";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import _ from "lodash";
+import { getAllPrograms, getApplicantsByProgram } from "../../api/programApi";
+import Modal from "../common/Modal";
 
 const SmsSearchComponent = () => {
     const role = useRecoilValue(memberRoleSelector);
@@ -17,6 +19,7 @@ const SmsSearchComponent = () => {
     const [ searchKey , setSearchKey ] = useState({query: "", type: "전체"});
     const [ searchResults, setSearchResults ] = useState([]);
     const [ addList, setAddList ] = useState([]);
+    const [ isOpen, setIsOpen] = useState(false);
     const tabStyle = "rounded-t-lg w-40 text-center border border-gray-300 py-2 px-2 bg-gray-200 text-gray-400 hover:bg-white hover:text-black";
     const tabClickStyle = "!border-b-white !bg-white !text-black !border-black";
 
@@ -33,6 +36,8 @@ const SmsSearchComponent = () => {
     },[])
 
 
+
+
     const searchMutation = useMutation({
         mutationFn: (memberNumber) => getContactList(memberNumber)
         ,
@@ -46,7 +51,27 @@ const SmsSearchComponent = () => {
             alert("회원 검색에 실패했습니다. " + error.response?.data?.message);
         }
     });
-            
+
+
+    const programMutation = useMutation({
+        mutationFn: (progNo) => getApplicantsByProgram(progNo)
+        ,
+        onSuccess: (res) => {
+            console.log(res);
+            setAddList([]);
+            setSearchResults(res);
+        },
+        onError: (error) => {
+            console.log("회원 검색 오류:", error);
+            alert("회원 조회에 실패했습니다. " + error.response?.data?.message);
+        }
+    });
+
+     const { data, isLoading, error } = useQuery({
+    queryKey: ['programSearchList', searchURLParams.toString()],
+    queryFn: () => getAllPrograms(),
+    enabled: searchURLParams.get("tab") == "program"
+    });
         
 
         const handleUrlParam = (tab) => {
@@ -141,12 +166,32 @@ const SmsSearchComponent = () => {
         }
         }
         
+        const capacityToStr = (current, capacity) => {
+           return(<>
+            <span className={`font-bold ${capacity > 0 && current / capacity >= 0.8? "text-red-600" : "text-blue-700"}`}>
+                {current}</span>{" / "}{capacity}
+             </>);
+        }
+
+        const handleProgramList = (progNo) => {
+            setIsOpen(true);
+            programMutation.mutate(progNo);
+
+        }
+
+        const resetMutation = () => {
+            searchMutation.reset();
+            programMutation.reset();
+            setSearchResults([]);
+        }
+
+
         return(
         <div className="flex flex-col p-10">
         <h2 className="text-3xl font-bold mb-6 pb-2 border-b-2 border-[#00893B] text-[#00893B]">번호 검색</h2>
         <div className="flex">
-            <span onClick={() => handleUrlParam("normal")} className={`${tabStyle} ${searchURLParams.get("tab") == "normal"? tabClickStyle:""}`}>기본 검색</span>
-            <span onClick={() => handleUrlParam("program")} className={`${tabStyle} ${searchURLParams.get("tab") == "program"? tabClickStyle:""}`}>프로그램 검색</span>
+            <span onClick={() => {handleUrlParam("normal"); resetMutation();}} className={`${tabStyle} ${searchURLParams.get("tab") == "normal"? tabClickStyle:""}`}>회원 검색</span>
+            <span onClick={() => {handleUrlParam("program"); resetMutation();}} className={`${tabStyle} ${searchURLParams.get("tab") == "program"? tabClickStyle:""}`}>프로그램 조회</span>
         </div>
         <div className="flex flex-col my-10 gap-5">
            {(searchURLParams.get("tab") == "normal") &&
@@ -218,10 +263,101 @@ const SmsSearchComponent = () => {
                 </table>
                 </Scrollbars>
             </div> 
-            <div className="flex justify-end items-center gap-3">
+            <div className="flex justify-end items-cente">
             <Button onClick={handlePost} className={"disabled:bg-[#82c8a0] disabled:cursor-not-allowed"} disabled={addList?.length == 0} >번호 추가</Button>
             </div>
                                      </>}
+        {isLoading && <Loading text={"목록 조회중..."} />}
+        {(searchURLParams.get("tab") == "program") &&
+         <div className={`min-w-200 shadow-md rounded-t-lg overflow-x-hidden ${!data ? "rounded-b-lg" : ""}`}>
+                <Scrollbars autoHeight autoHeightMax={500} >
+                <table className="w-full bg-white">
+                    <thead className="bg-[#00893B] text-white sticky top-0 z-50">
+                        <tr>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">순번</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">강사명</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">프로그램명</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">신청현황</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">강의상태</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-gray-700">
+                        { !(data?.length > 0)? (
+                            <tr>
+                                <td colSpan="10" className="py-10 px-6 text-center text-gray-500 text-xl">
+                                   프로그램 정보를 불러올 수 없습니다.
+                                </td>
+                            </tr>
+                        ) : (
+                            data.map((item, index) => {
+
+                                return (
+                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200`} onClick={()=>handleProgramList(item.progNo)}>
+                                        <td className="py-4 px-3 max-w-20 min-w-20 whitespace-nowrap text-center">{index+1}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.teachName}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.progName}</td>
+                                         <td className="py-4 px-3 whitespace-nowrap text-center">{capacityToStr(item.current, item.capacity)}</td>
+                                         <td className="py-4 px-3 whitespace-nowrap text-center">{item.status}</td>
+                                          <td className="py-4 px-3 max-w-30 min-w-30 whitespace-nowrap text-center">{item.createdAt}</td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+                </Scrollbars>
+                <Modal isOpen={isOpen} onClose={()=>{ setIsOpen(false); resetMutation();}} title="회원 조회" className={"!max-w-2xl"}>
+                    <div className="flex flex-col gap-5">
+                    <h1 className="text-2xl font-bold text-center text-[#00893B]">신청자 목록</h1>
+                       <div className={`min-w-100 shadow-md rounded-t-lg overflow-x-hidden ${!programMutation.isIdle ? "rounded-b-lg" : ""}`}>
+        <Scrollbars autoHeight autoHeightMax={400} >
+       <table className="w-full bg-white">
+                    <thead className="bg-lime-600 text-white sticky top-0 z-50">
+                        <tr>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap"><CheckNonLabel onChange={handleAllClick} checked={allCheck} checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></th>
+                            <th className="py-3 max-w-20 min-w-20 px-3 text-center text-sm uppercase whitespace-nowrap">회원ID</th>
+                            <th className="py-3 max-w-20 min-w-20 px-3 text-center text-sm uppercase whitespace-nowrap">이름</th>
+                            <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">전화번호</th>
+                             <th className="py-3 px-3 text-center text-sm uppercase whitespace-nowrap">신청일</th>
+
+                        </tr>
+                    </thead>
+                    <tbody className="text-gray-700">
+                        {programMutation.isPending && <Loading />}
+                        {!programMutation.isIdle && searchResults?.length === 0? (
+                            <tr>
+                                <td colSpan="10" className="py-10 px-6 text-center text-gray-500 text-xl">
+                                   회원 정보를 불러올 수 없습니다.
+                                </td>
+                            </tr>
+                        ) : (
+                            searchResults && searchResults.map((item, index) => {
+
+                                return (
+                                    <tr key={index} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200`}>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center"><CheckNonLabel onChange={(e) => handleAddList(e, item.phone)} checked={addList.includes(item.phone)} checkboxClassName="mx-auto" inputClassName="w-4 h-4" /></td>
+                                        <td className="py-4 px-3 max-w-20 min-w-20 whitespace-nowrap text-center">{item.mid}</td>
+                                        <td className="py-4 px-3 max-w-20 min-w-20 whitespace-nowrap text-center">{item.name}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.phone}</td>
+                                        <td className="py-4 px-3 whitespace-nowrap text-center">{item.applyAt}</td>
+
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                    
+                </table>
+               </Scrollbars>
+               </div>
+               <div className="flex justify-end items-center">
+            <Button onClick={handlePost} className={"disabled:bg-[#82c8a0] disabled:cursor-not-allowed"} disabled={addList?.length == 0} >번호 추가</Button>
+            </div>
+            </div>
+                </Modal>
+            </div> 
+        }
         </div>
         </div>
         );

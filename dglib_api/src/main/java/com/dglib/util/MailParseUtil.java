@@ -116,10 +116,6 @@ public class MailParseUtil {
 			for (int i = 0; i < multipart.getCount(); i++) {
 			parsePart(multipart.getBodyPart(i), fileList, plainBuilder, htmlBuilder, eid, mailType);
 			}
-			} else if (part.isMimeType("text/plain")) {
-			plainBuilder.append((String) part.getContent());
-			} else if (part.isMimeType("text/html")) {
-			htmlBuilder.append((String) part.getContent());
 			} else {
 			String disposition = part.getDisposition();
 			String filename = part.getFileName();
@@ -145,8 +141,12 @@ public class MailParseUtil {
 			  htmlBuilder.replace(idx, idx + cidRef.length(), "image://"+path);
 						}
 					}
+				} else if (part.isMimeType("text/plain")) {
+					plainBuilder.append((String) part.getContent());
+				} else if (part.isMimeType("text/html")) {
+					htmlBuilder.append((String) part.getContent());
 				}
-			}
+			} 
 	}
 	
 	private static void findFileParts(Part part, List<Part> fileParts) throws Exception {
@@ -157,11 +157,9 @@ public class MailParseUtil {
 	        }
 	    } else {
 	        String disposition = part.getDisposition();
-	        String mimeType = part.getContentType();
 
 	        boolean isAttachment = Part.ATTACHMENT.equalsIgnoreCase(disposition);
-	        boolean isInlineImage = Part.INLINE.equalsIgnoreCase(disposition)
-	                && mimeType.toLowerCase().startsWith("image/");
+	        boolean isInlineImage = Part.INLINE.equalsIgnoreCase(disposition);
 
 	        if ((isAttachment || isInlineImage) && part.getFileName() != null) {
 	            fileParts.add(part);

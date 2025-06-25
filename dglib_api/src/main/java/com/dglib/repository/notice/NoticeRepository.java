@@ -14,6 +14,6 @@ import com.dglib.entity.notice.Notice;
 public interface NoticeRepository extends JpaRepository<Notice, Long>, JpaSpecificationExecutor<Notice>{
 	
 	Page<Notice> findAll(Specification<Notice> spec, Pageable pageable);
-	List<Notice> findAllByIsPinned(boolean isPinned, Sort sort);
+	List<Notice> findAllByIsPinnedAndIsHidden(boolean isPinned, boolean isHidden, Sort sort);
 
 }

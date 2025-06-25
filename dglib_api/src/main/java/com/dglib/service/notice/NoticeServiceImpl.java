@@ -242,7 +242,7 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	public List<NoticeListDTO> findPinned() {
 		Sort sort = Sort.by("postedAt").descending();
-		List<Notice> noticeList = noticeRepository.findAllByIsPinned(true, sort);
+		List<Notice> noticeList = noticeRepository.findAllByIsPinnedAndIsHidden(true, false, sort);
 		List<NoticeListDTO> dtoList = noticeList.stream()
 				.map(notice -> {
 					NoticeListDTO noticeListDTO = new NoticeListDTO();

@@ -24,8 +24,8 @@ export const contentReplace = (content) => {
     if(!content){
     return "";
   }
-    const pattern = new RegExp(`${API_SERVER_HOST}${API_ENDPOINTS.view}/`, 'g');
-    const replaced = content.replace(pattern,"image://");
+    const target = `${API_SERVER_HOST}${API_ENDPOINTS.view}/`;
+    const replaced = content.replaceAll(target, "image://");
   return replaced;
 }
 
@@ -52,3 +52,31 @@ export const escapeHTML = (str) => {
     .replace(/'/g, "&#39;");
 }
 
+
+export const getMimeType = (fileName) => {
+  const ext = fileName.split('.').pop().toLowerCase();
+
+  const mimeTypes = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+    txt: 'text/plain',
+    html: 'text/html',
+    json: 'application/json',
+    pdf: 'application/pdf',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    csv: 'text/csv',
+    zip: 'application/zip',
+    mp3: 'audio/mpeg',
+    mp4: 'video/mp4',
+    // 필요에 따라 추가 가능
+  };
+
+  return mimeTypes[ext] || 'application/octet-stream';
+};

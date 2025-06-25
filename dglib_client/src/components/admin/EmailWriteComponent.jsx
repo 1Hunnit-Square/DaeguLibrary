@@ -31,7 +31,7 @@ const EmailWriteComponent = () =>{
 
     const role = useRecoilValue(memberRoleSelector);
 
-    const sendParams = (paramData) => {
+    const sendParams = (paramData, set) => {
 
 
     paramData.append("trackPath", `${ORIGIN_URL}${API_ENDPOINTS.mail}/readMail/`);
@@ -44,10 +44,9 @@ const EmailWriteComponent = () =>{
     }).catch(error => {
         console.error(error)
         alert("메일 전송에 오류가 있습니다.");
-    });
-
-    console.log(paramData);
-
+    }).finally(()=> {
+        set.setSending(false);
+    })
     }
 
     const onBack = () => {

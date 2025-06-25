@@ -6,7 +6,7 @@ import 'react-tooltip/dist/react-tooltip.css';
 import Button from "./Button";
 import DOMPurify from 'dompurify';
 import CheckBox from "./CheckBox";
-import { fileSize } from "../../util/commonUtil";
+import { fileSize, getMimeType } from "../../util/commonUtil";
 import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
 import { escapeHTML } from "../../util/commonUtil";
@@ -24,6 +24,7 @@ const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], searc
   const [isFocused, setIsFocused] = useState(false);
   const [mailFocused, setMailFocused] = useState(false);
   const [ sendMe, setSendMe ] = useState(false);
+  const [ sending, setSending ] = useState(false);
 
   const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
 
@@ -43,16 +44,13 @@ useEffect(()=>{
     SentTime : ${useForm.sentTime}
     </pre></blockquote>
     ` 
-    console.log(from);
     const editor = quillRef.current?.getEditor();
-    editor.clipboard.dangerouslyPasteHTML("<br><br>"+blockquote || '');
+    editor.clipboard.dangerouslyPasteHTML("<br>"+blockquote || '');
     if(useForm.sendType == "reply"){
       setToEmail([from]);
     } else {
     if(editor){
-    editor.clipboard.dangerouslyPasteHTML(blockquote+useForm.content || '');
-    const length = editor.getLength();
-    editor.setSelection(length, 0);
+    editor.clipboard.dangerouslyPasteHTML("<br>"+blockquote+useForm.content || '');
     }
 
 
@@ -190,12 +188,9 @@ const handleToMail = (e) => {
   setInputEmail(e.target.value.trim())
 }
 
-const urlToFile = async(filePath, fileName, mimeType = 'application/octet-stream') => {
+const urlToFile = async(filePath, fileName) => {
   const response = await fetch(filePath);
-   if (!response.ok) {
-    console.error(`❌ 파일 다운로드 실패 - 상태 코드: ${response.status}, URL: ${filePath}`);
-      throw new Error(`파일 다운로드 실패: ${response.status}`);
-  }
+  const mimeType = getMimeType(fileName);
   const blob = await response.blob();
   const file = new File([blob], fileName, { type: mimeType });
   return file;
@@ -203,6 +198,10 @@ const urlToFile = async(filePath, fileName, mimeType = 'application/octet-stream
 
 
 const handleClick = async() => {
+  if(sending){
+    alert("메일 전송 중입니다.");
+    return ;
+  }
      if(!title.trim()){
     alert("제목을 입력해주세요.");
     return ;
@@ -217,6 +216,8 @@ const handleClick = async() => {
     alert("내용을 입력해주세요.");
     return ;
   }
+
+  setSending(true);
 
   const oldfileList = fileList.filter(file => file.file.size == null);
   const newfileList = fileList.filter(file => file.file.size != null);
@@ -239,16 +240,14 @@ const handleClick = async() => {
       const blobUrl = oldFile.blobUrl ? URL.createObjectURL(file) : null;
       paramData.append("files", file);
       paramData.append("urlList", blobUrl);
+      
+      if(blobUrl != null){
+      recontent = recontent.replaceAll(escapeHTML(url), blobUrl);
+      }
 
-      const pattern = new RegExp(escapeHTML(url), 'g');
-      recontent = recontent.replace(pattern, blobUrl);
-      console.log(url);
-      console.log(blobUrl);
-      console.log(file);
     }
 
   }
-  console.log(recontent);
   paramData.append("content", recontent);
   files.forEach((file) => {
     paramData.append("files", file);
@@ -257,10 +256,9 @@ const handleClick = async() => {
     paramData.append("urlList", url);
   });
 
-  onParams(paramData);
+  onParams(paramData, {setSending});
 
 }
-console.log(content);
 
   const formats = useMemo(() => ["font", "size", "bold", "italic", "underline", "strike", "align",
   "list", "bullet", "link", "image", "clean",

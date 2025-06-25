@@ -36,17 +36,16 @@ import com.dglib.util.EncryptUtil;
 import com.dglib.util.MailParseUtil;
 
 import jakarta.activation.DataSource;
+import jakarta.mail.Address;
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMessage.RecipientType;
 import jakarta.mail.search.AndTerm;
-import jakarta.mail.search.FromTerm;
+import jakarta.mail.search.FlagTerm;
 import jakarta.mail.search.HeaderTerm;
-import jakarta.mail.search.RecipientTerm;
 import jakarta.mail.search.SearchTerm;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
@@ -141,11 +140,11 @@ public class MailService {
         	try {
         		Folder inbox = mailConfig.getFolder(type, false);
         		
-        		Message[] messages = filterMail(type, inbox, mailId, null);
+        		Message[] messages = listFilterMail(type, inbox, mailId, searchDTO.isNotRead());
         		sortMessages(messages);
         		
-        		int total = messages.length;
-        		int fromIndex = Math.min(page * size, total);
+                int total = messages.length;
+                int fromIndex = Math.min(page * size, total);
         	    int toIndex = Math.min(fromIndex + size, total);
         		
         	    List<MailListDTO> mailList = new ArrayList<>();
@@ -153,17 +152,7 @@ public class MailService {
             for (int i = fromIndex; i < toIndex; i++) {
             	Message msg = messages[i];
             	
-            	Flags flags = msg.getFlags();
-            	
-            	boolean isRead = flags.contains(Flags.Flag.SEEN);
-                if(searchDTO.isNotRead() && isRead && !type.equals("SENDER")) {
-                	continue;
-                }
-                
                 MailBasicDTO basicDTO = MailParseUtil.getBasicInfo(mailId + MAIL_ADDR, type, msg);
-                if(basicDTO == null) {
-                	continue;
-                }
 
             	 String[] header = msg.getHeader("Message-ID");
             	 String eid = null;
@@ -184,13 +173,13 @@ public class MailService {
                 MailListDTO dto = new MailListDTO();
                 modelMapper.map(basicDTO, dto);
                 dto.setEid(eid);
-                dto.setRead(isRead);
+                dto.setRead(msg.getFlags().contains(Flags.Flag.SEEN));
 
                mailList.add(dto);
             }
+  
             
-            
-            mailPage = new PageImpl<>(mailList, PageRequest.of(page, size), mailList.size());
+            mailPage = new PageImpl<>(mailList, PageRequest.of(page, size), total);
             
             mailConfig.closeFolder(inbox, true);
             
@@ -210,13 +199,13 @@ public class MailService {
     	} else {
     	inbox = mailConfig.getFolder(type, false);
     	}
-		Message[] messages = filterMail(type, inbox, mailId, eid);
+		Message[] messages = readFilterMail(type, inbox, eid);
     	Message message = messages[0];
     	
     	MailBasicDTO basicDTO = MailParseUtil.getBasicInfo(mailId + MAIL_ADDR, type, message);
     	
     	if(basicDTO == null) {
-    	return dto;	
+    		throw new RuntimeException("Not Access");
     	}
     	
     	MailContentDTO contentDTO = MailParseUtil.getContentInfo(eid, type, message);
@@ -239,8 +228,15 @@ public class MailService {
     
     	try {
     		Folder inbox = mailConfig.getFolder(type, false);
-			Message[] messages = filterMail(type, inbox, mailId, eid);
+			Message[] messages = readFilterMail(type, inbox, eid);
 			Message message = messages[0];
+			
+	    	MailBasicDTO basicDTO = MailParseUtil.getBasicInfo(mailId + MAIL_ADDR, type, message);
+	    	
+	    	if(basicDTO == null) {
+	    		throw new RuntimeException("Not Access");
+	    	}
+	    	
 			message.setFlag(Flags.Flag.DELETED, true);
 			
 			mailConfig.closeFolder(inbox, true);
@@ -251,11 +247,48 @@ public class MailService {
     	
     }
     
+    
+    
+    public void deleteListMail(String type, String mailId, List<String> eidList) {
+    
+    	try {
+    		Folder inbox = mailConfig.getFolder(type, false);
+    		
+    		eidList.forEach(eid -> {
+    			
+    			Message[] messages;
+				try {
+					messages = readFilterMail(type, inbox, eid);
+	
+	    			Message message = messages[0];
+	    			
+	    	    	MailBasicDTO basicDTO = MailParseUtil.getBasicInfo(mailId + MAIL_ADDR, type, message);
+	    	    	
+		    	    	if(basicDTO == null) {
+		    	    		throw new RuntimeException("Not Access");
+		    	    	}
+	    	    	message.setFlag(Flags.Flag.DELETED, true);		
+    			
+				} catch (MessagingException e) {
+					throw new RuntimeException(e); 
+				}
+    			
+    		});
+			
+			
+			mailConfig.closeFolder(inbox, true);
+		
+    		} catch (MessagingException e) {
+    			throw new RuntimeException(e); 
+    		}
+    	
+    }
+    
     public void readMail(String type, String eid) {
         
     	try {
     		Folder inbox = mailConfig.getFolder(type, false);
-			Message[] messages = filterMail(type, inbox, null, eid);
+			Message[] messages = readFilterMail(type, inbox, eid);
 			Message message = messages[0];
 			message.setFlag(Flags.Flag.SEEN, true);
 			System.out.println("mail read - " + eid);
@@ -273,7 +306,7 @@ public class MailService {
 		
 		 try {
 		Folder inbox = mailConfig.getFolder(type, true);
-		Message[] messages = filterMail(type, inbox, null, eid);
+		Message[] messages = readFilterMail(type, inbox, eid);
 	    Message message = messages[0];
 	    	
 	   
@@ -291,35 +324,66 @@ public class MailService {
         		 .contentLength(resource.contentLength())
         		 .body(resource);
      }
+	 
+	    public Message[] listFilterMail (String type, Folder inbox, String mailId, boolean notRead) throws MessagingException {
+	    	Message[] messages;
+
+	        SearchTerm searchTerm = null;
+
+	        if (mailId != null) {
+	            String fullAddress = mailId + "@dglib.kro.kr";
+
+	            SearchTerm addressTerm = new SearchTerm() {
+	                @Override
+	                public boolean match(Message msg) {
+	                    try {
+	                        Address[] targets = type.equals("SENDER")
+	                            ? msg.getFrom()
+	                            : msg.getRecipients(Message.RecipientType.TO);
+
+	                        if (targets != null) {
+	                            for (Address address : targets) {
+	                                if (address instanceof InternetAddress) {
+	                                    String actual = ((InternetAddress) address).getAddress();
+	                                    if (actual.equalsIgnoreCase(fullAddress)) {
+	                                        return true;
+	                                    }
+	                                }
+	                            }
+	                        }
+	                    } catch (MessagingException e) {
+	                    	throw new RuntimeException(e); 
+	                    }
+	                    return false;
+	                }
+	            };
+	            	if(!type.equals("SENDER")) {
+	            	SearchTerm unreadTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), !notRead);
+	                searchTerm = new AndTerm(addressTerm, unreadTerm);
+	            	} else {
+	            		searchTerm = addressTerm;
+	            	}
+	            	
+	                messages = inbox.search(searchTerm);
+	            }
+	        else {
+	            messages = inbox.getMessages();
+	        }
+
+	        return messages;
+	    }
     
-    public Message[] filterMail (String type, Folder inbox, String mailId, String eid) throws MessagingException {
+    public Message[] readFilterMail (String type, Folder inbox, String eid) throws MessagingException {
     	Message[] messages;
 
-    	if(mailId != null) {
-    		SearchTerm searchTerm;
-    		if(type.equals("SENDER")) {
-    		searchTerm = new FromTerm(new InternetAddress(mailId+"@dglib.kro.kr"));
-    		} else {
-    		searchTerm = new RecipientTerm(RecipientType.TO, new InternetAddress(mailId+"@dglib.kro.kr"));
-    		}
-    		
-    		if(eid != null) {
-    		messages = inbox.search(new AndTerm(searchTerm, new HeaderTerm("Message-ID", EncryptUtil.base64Decode(eid))));
-    		} else {
-    		messages = inbox.search(searchTerm);
-    		}
-    		
-            }else {
-            	
-            	if(eid != null) {
-            	messages = inbox.search(new HeaderTerm("Message-ID", EncryptUtil.base64Decode(eid)));
-            	}
-            	else {
-            	messages = inbox.getMessages();
-            	}
+        SearchTerm searchTerm = null;
+            if (eid != null) {
+                searchTerm = new HeaderTerm("Message-ID", EncryptUtil.base64Decode(eid));
+                messages = inbox.search(searchTerm);
+            } else {
+            	throw new RuntimeException("Not Exist Id");
             }
-  
-    	return messages;
+        return messages;
     }
     
     public static void sortMessages(Message[] messages) {

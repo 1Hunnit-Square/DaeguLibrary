@@ -1,6 +1,6 @@
 
 import { useSearchParams, Link } from "react-router-dom";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from '@tanstack/react-query';
 import Button from "../common/Button";
 import { getNewLibraryBookList } from "../../api/bookApi";
@@ -9,6 +9,7 @@ import { usePagination } from "../../hooks/usePage";
 
 const NewBookComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const didMountRef = useRef(false);
     const [dateRange, setDateRange] = useState({startDate: searchURLParams.get("startDate"), endDate: searchURLParams.get("endDate")});
     const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ["libraryBookId", searchURLParams.toString()],
@@ -16,7 +17,7 @@ const NewBookComponent = () => {
             const params = new URLSearchParams();
             params.set("startDate", dateRange.startDate);
             params.set("endDate", dateRange.endDate);
-            return getNewLibraryBookList(params);
+            return getNewLibraryBookList(searchURLParams);
         }
     })
     const newBooks = useMemo(() => data.content, [data.content]);
@@ -40,8 +41,12 @@ const NewBookComponent = () => {
     const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading);
 
     useEffect(() => {
+        if (didMountRef.current) {
             window.scrollTo(0, 0);
-        }, []);
+        } else {
+            didMountRef.current = true;
+        }
+    }, [searchURLParams.get('page')]);
 
     return (
         <div>

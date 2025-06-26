@@ -6,7 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import { usePagination } from "../../hooks/usePage";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import SelectComponent from "../common/SelectComponent";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 
 
@@ -37,6 +37,11 @@ const BorrowMemberHistoryComponent = () => {
     }, []);
 
     const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [searchURLParams]);
+
     return (
         <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
             {isLoading && (

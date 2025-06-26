@@ -1,4 +1,4 @@
-import { useCallback, useMemo, memo } from "react";
+import { useCallback, useMemo, memo, useEffect, useRef, forwardRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { reserveBook, unMannedReserve, addInterestedBook } from '../../api/memberApi';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 import { useBookActions } from '../../hooks/useBookActions';
 import { useItemSelection } from '../../hooks/useItemSelection';
 
-const NomalSearchBookComponent = () => {
+const NomalSearchBookComponent = forwardRef ( (_, ref ) => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const queryClient = useQueryClient();
     const isChecked = searchURLParams.has("isChecked");
@@ -117,7 +117,7 @@ const NomalSearchBookComponent = () => {
 
     const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
 
-    const { renderPagination } = usePagination(data.books, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
+    const { renderPagination } = usePagination(data.books, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks, ref);
 
 
 
@@ -316,6 +316,6 @@ const NomalSearchBookComponent = () => {
             </div>
         </div>
     );
-}
+})
 
 export default memo(NomalSearchBookComponent);

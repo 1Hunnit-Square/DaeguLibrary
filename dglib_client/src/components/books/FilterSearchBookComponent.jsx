@@ -1,5 +1,5 @@
 import Button from "../common/Button";
-import { useState, useEffect, useMemo, useCallback, memo } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
 import SelectCopmonent from "../common/SelectComponent";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { useBookMutation } from "../../hooks/useBookMutation";
 import { useBookActions } from '../../hooks/useBookActions';
 
 
-const FilterSearchBookComponent = () => {
+const FilterSearchBookComponent = ( ) => {
     const [filters, setFilters] = useState({
         title: "",
         isbn: "",
@@ -96,7 +96,8 @@ const FilterSearchBookComponent = () => {
     }
     }, [handleSearch]);
 
-    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
+    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks, ref);
+
 
     return (
         <div>

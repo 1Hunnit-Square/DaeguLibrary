@@ -1,13 +1,25 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export const usePagination = (
   pageable,
   searchURLParams,
   setSearchURLParams,
   isLoading,
-  onPageReset = () => {}
+  onPageReset = () => {},
+  scrollRef = null
 ) => {
-  const pageClick = useCallback((page) => {
+    const page = searchURLParams.get("page") || "1";
+    const didMountRef = useRef(false);
+    useEffect(() => {
+      if (!isLoading && scrollRef && scrollRef.current) { 
+        if (didMountRef.current) {
+          scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+        } else {
+          didMountRef.current = true;
+        }
+      }
+    }, [page, isLoading, scrollRef]);
+    const pageClick = useCallback((page) => {
     const currentPageFromUrl = parseInt(searchURLParams.get("page") || "1", 10);
 
 

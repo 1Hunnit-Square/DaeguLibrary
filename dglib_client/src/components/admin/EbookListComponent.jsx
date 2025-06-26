@@ -1,5 +1,5 @@
 import { getEbookList } from "../../api/adminApi";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { usePagination } from "../../hooks/usePage";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
@@ -22,7 +22,18 @@ const EbookListComponent = () => {
     const { dateRange, handleDateChange } = useDateRangeHandler();
     const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
     const [ isModalOpen, setIsModalOpen ] = useState(false);
-     const [ detail, setDetail ] = useState(null);
+    const [ detail, setDetail ] = useState(null);
+
+    useEffect(() => {
+            if (isModalOpen) {
+              document.body.style.overflow = 'hidden';
+            } else {
+              document.body.style.overflow = '';
+            }
+            return () => {
+              document.body.style.overflow = '';
+            };
+          }, [isModalOpen]);
 
     const { data: ebookData = { content: [], totalElements: 0 }, isLoading } = useQuery({
         queryKey: ['ebookList', searchURLParams.toString()],
@@ -62,24 +73,24 @@ const EbookListComponent = () => {
                 <Loading text="목록 갱신중.."/>
             )}
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">EBOOK 목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 rounded-xl bg-gray-100 shadow p-4 min-h-30 gap-10">
                     <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
-                        className="w-full md:w-[50%] min-w-0"
+                        className="w-full md:w-[40%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
                         input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center">
-                            <span className="w-50">등록일</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium whitespace-nowrap">등록일</span>
                             <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                             <span className="mx-4">-</span>
                             <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
                         </div>
                     </div>
             </div>
-            <div className="flex justify-end item-center mb-5">
+            <div className="flex justify-end item-center mb-5 gap-3">
                 <SelectComponent onChange={(value) => handleSelectChange('sortBy', value)}  value={searchURLParams.get("sortBy") || "ebookId"}  options={sortByOption} />
                 <SelectComponent onChange={(value) => handleSelectChange('orderBy', value)}  value={searchURLParams.get("orderBy") || "desc"}  options={orderByOption}/>
                 <SelectComponent onChange={(value) => handleSelectChange('size', value)}  value={searchURLParams.get("size") || "10"}    options={sizeOption} />

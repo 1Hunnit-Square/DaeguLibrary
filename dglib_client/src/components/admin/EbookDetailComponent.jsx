@@ -121,7 +121,7 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
             {isUploading && <Loading text="이미지 업로드 중..." />}
             { updateEbookMutation.isPending && <Loading text="EBOOK 수정 중..." />}
             { deleteEbookMutation.isPending && <Loading text="EBOOK 삭제 중..." />}
-            <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-7xl overflow-hidden">
+            <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-7xl max-h-[90vh] overflow-auto">
                 <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
                     <h3 className="font-bold">전자책 상세조회/수정</h3>
                     <div className="flex items-center gap-2">

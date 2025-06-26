@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import CheckNonLabel from "../common/CheckNonLabel";
 import { useQuery} from '@tanstack/react-query';
@@ -146,4 +146,4 @@ const BorrowMemberStateComponent = () => {
     )
 }
 
-export default BorrowMemberStateComponent;
+export default memo(BorrowMemberStateComponent);

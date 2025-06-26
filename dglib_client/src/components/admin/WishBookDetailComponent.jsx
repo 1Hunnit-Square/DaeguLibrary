@@ -3,7 +3,7 @@ import Button from '../common/Button';
 const WishBookDetailComponent = ({ wishBook, setIsModalOpen, handleReject }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-9999 bg-black/50">
-        <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90vh] overflow-auto scrollbar-hidden">
                 <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
                 <h3 className="font-bold">희망도서 상세조회</h3>
                 <div className="flex items-center gap-2">

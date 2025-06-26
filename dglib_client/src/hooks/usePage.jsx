@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const usePagination = (
   pageable,
@@ -8,6 +8,20 @@ export const usePagination = (
   onPageReset = () => {},
   scrollRef = null,
 ) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+      };
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []); 
+
+
     const page = searchURLParams.get("page") || "1";
     const didMountRef = useRef(false);
     useEffect(() => {
@@ -36,9 +50,10 @@ export const usePagination = (
 
   const renderPagination = () => {
     if (!pageable || !pageable.pageable) return null;
+    const pagesPerBlock = isMobile ? 5 : 10;
     const totalPages = pageable.totalPages;
-    const startPage = Math.floor((pageable.pageable.pageNumber) / 10) * 10 + 1;
-    const endPage = Math.min(startPage + 9, totalPages);
+    const startPage = Math.floor((pageable.pageable.pageNumber) / pagesPerBlock) * pagesPerBlock + 1;
+    const endPage = Math.min(startPage + pagesPerBlock - 1, totalPages);
     const pages = [];
 
     for (let i = startPage; i <= endPage; i++) {

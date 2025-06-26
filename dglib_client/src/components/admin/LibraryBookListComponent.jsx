@@ -52,24 +52,24 @@ const LibraryBookListComponent = () => {
                 <Loading text="목록 갱신중.." />
             )}
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">도서 목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                 <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                     dropdownClassName="w-24 md:w-32"
-                    className="w-full md:w-[50%] min-w-0"
+                    className="w-full md:w-[40%]"
                     inputClassName="w-full bg-white"
                     buttonClassName="right-2 top-5"
                     input={searchURLParams.get("query") || ""}
                     handleSearch={handleSearch} />
                 <div className="flex flex-col">
-                    <div className="flex items-center">
-                        <span className="w-50">입고일</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium whitespace-nowrap">입고일</span>
                         <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                         <span className="mx-4">-</span>
                         <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                     </div>
                 </div>
             </div>
-            <div className="flex justify-end item-center mb-5">
+            <div className="flex justify-end item-center mb-5 gap-3">
                 <SelectComponent onChange={(value) => handleSelectChange('sortBy', value)} value={searchURLParams.get("sortBy") || "libraryBookId"} options={sortByOption} />
                 <SelectComponent onChange={(value) => handleSelectChange('orderBy', value)} value={searchURLParams.get("orderBy") || "desc"} options={orderByOption} />
                 <SelectComponent onChange={(value) => handleSelectChange('size', value)} value={searchURLParams.get("size") || "10"} options={sizeOption} />
@@ -119,13 +119,13 @@ const LibraryBookListComponent = () => {
                                         <td className="py-4 px-6 text-center text-xs max-w-[80px] whitespace-nowrap">{item.location}</td>
                                         <td className="py-4 px-6 text-center text-xs max-w-[10px] whitespace-nowrap">{item.callSign}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.regLibraryBookDate}</td>
-                                        <td className={`py-4 px-6 text-center text-xs whitespace-nowrap font-semibold `}>
-                                            <span className={`px-2 py-2 rounded-full ${
+                                        <td className={`py-4 px-6 text-center flex justify-center text-xs whitespace-nowrap font-semibold `}>
+                                            <span className={`block w-fit px-2 py-1 rounded-full ${
                                                 item.rented ?  (isOverdue ? "bg-red-200 text-red-800" : "bg-yellow-200 text-yellow-800") :
-                                                item.unmanned ? "bg-green-200 text-green-800" :
-                                                item.reserveCount > 0 ? "bg-blue-200 text-blue-800" : ""
+                                                item.unmanned ? "bg-blue-200 text-blue-800" :
+                                                item.reserveCount > 0 ? "bg-purple-200 text-purple-800" : ""
                                             }`}>
-                                                 {item.rented ? "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : ""}
+                                                 {item.rented ? "대출중" : item.unmanned ? "무인예약" : item.reserveCount > 0 ? "예약대기" : ""}
                                             </span>
     
                                            

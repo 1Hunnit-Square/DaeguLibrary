@@ -174,9 +174,9 @@ useEffect(() => {
                         <div name="ropdownWrapper" className="relative" ref={dropdownRef}>
                           <div name="dropdownValue">
                             <div name="container" className={`flex items-center justify-between relative w-full h-10
-                            bg-white border-2 box-border px-4 cursor-pointer z-[4] transition-all duration-100 text-left outline-none hover:border-green-500 focus:border-green-500
+                            bg-white border-2 box-border px-4 cursor-pointer z-[4] transition-all duration-100 text-left outline-none hover:border-green-600 focus:border-green-600
                               ${dropdownVisible
-                                ? 'border-green-500 rounded-t-[20px]'
+                                ? 'border-green-600 rounded-t-[20px]'
                                 : 'border-gray-300 rounded-[20px]'
                               }
                             `} title="폰트 선택"
@@ -191,7 +191,7 @@ useEffect(() => {
                           </div>
                           <div name="dropdownItemWrapper" className={`
                             absolute top-full left-0 w-full max-h-[200px] overflow-y-auto
-                            box-border pb-4 bg-white border-2 border-green-500 z-[3]
+                            box-border pb-4 bg-white border-2 border-green-600 z-[3]
                             transition-all duration-400 origin-top
                             ${dropdownVisible
                               ? 'rounded-b-[20px] opacity-100 -translate-y-0.5 scale-y-100'

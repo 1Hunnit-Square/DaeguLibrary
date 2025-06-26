@@ -84,7 +84,7 @@ const ChatComponent = ({ onClose }) => {
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
-    }, [chatHistory]);
+    }, [chatHistory.length]);
 
     useEffect(() => {
         if (chatHistory.length > prevChatLengthRef.current &&

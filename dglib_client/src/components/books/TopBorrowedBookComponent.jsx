@@ -3,13 +3,14 @@ import { useSearchParams } from "react-router-dom";
 import { useCheckboxFilter } from "../../hooks/useCheckboxFilter";
 import { useQuery } from "@tanstack/react-query";
 import { getTopBorrowedBookList } from "../../api/bookApi";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { usePagination } from "../../hooks/usePage";
 import Loading from "../../routers/Loading";
 import { Link } from "react-router-dom";
 
 const TopBorrowedBookComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const didMountRef = useRef(false);
     const { selectedValue: selectedCheck, handleValueChange: handleCheckChange } = useCheckboxFilter(searchURLParams, setSearchURLParams, "check", "전체");
     const { data: topBookData = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ['topBorrowedBookList', searchURLParams.toString()],
@@ -29,8 +30,12 @@ const TopBorrowedBookComponent = () => {
     const { renderPagination } = usePagination(topBookData, searchURLParams, setSearchURLParams, isLoading);
 
     useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+        if (didMountRef.current) {
+            window.scrollTo(0, 0);
+        } else {
+            didMountRef.current = true;
+        }
+    }, [searchURLParams.get('page')]);
 
     return (
         <div>

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEbookList } from '../../api/bookApi';
 import { useSearchParams } from 'react-router-dom';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { usePagination } from "../../hooks/usePage";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
@@ -15,6 +15,7 @@ import SearchSelectComponent from '../common/SearchSelectComponent';
 const EbookListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const mid = useRecoilValue(memberIdSelector);
+    const didMountRef = useRef(false);
     const { moveToLogin } = useMoveTo();
     const { data: ebookList = { content: [] }, isLoading, isError } = useQuery({
         queryKey: ['ebookList', searchURLParams.toString()],
@@ -57,6 +58,15 @@ const EbookListComponent = () => {
 
     const { renderPagination } = usePagination(ebookList, searchURLParams, setSearchURLParams, isLoading);
     const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
+
+    useEffect(() => {
+        if (didMountRef.current) {
+            window.scrollTo(0, 0);
+        } else {
+            didMountRef.current = true;
+        }
+    }, [searchURLParams.get('page')]);
+    
 
     return (
         <div>

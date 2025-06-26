@@ -428,7 +428,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                 <img src={`${isProcessingRef.current ? '/gumtle.gif' : '/gumtle1.png'}`} className="w-50 mx-auto" alt="gumtle"/>
                 
             
-                {isConnected ? (
+                {isConnected && isRecording ? (
                     <div className="mb-3 mt-10 flex justify-center">
                         <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
                             <div className="flex items-center space-x-1">

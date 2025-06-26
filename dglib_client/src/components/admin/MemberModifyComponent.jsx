@@ -118,7 +118,7 @@ const MemberModifyComponent = ({data, refetch}) => {
     </div>
     <div className="flex items-center z-30 relative">
     <span className="mr-5 font-bold">상태</span>
-    <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} selectClassName="!w-30" dropdownClassName="!w-30"/>
+    <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} selectClassName="!w-31" dropdownClassName="!w-31"/>
     {(modData.state == "OVERDUE") ? <><input type="date" value={modData.penaltyDate} onChange={handlePenalty}
     className ="w-40 px-4 py-2 rounded-2xl bg-white border border-[#00893B] mr-3" /> 까지</>
     : <><input type="date" value={""}

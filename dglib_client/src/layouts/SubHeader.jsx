@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
-import { useState, useRef, memo, useCallback } from "react";
+import { useState, useRef, memo, useCallback, useEffect } from "react";
 
 
 
 const SubHeader = ( {subTitle, mainTitle, print} ) => {
     const [showToast, setShowToast] = useState(false);
+
+    useEffect(()=>{
+    document.title = `${mainTitle} > ${subTitle}`;
+
+        return (()=> {document.title = "대구도서관";})
+    },[subTitle, mainTitle])
 
     const handleShare = useCallback(() => {
         navigator.clipboard.writeText(window.location.href)

@@ -2,11 +2,26 @@ import Layout from "../../layouts/Layout";
 import SubHeader from "../../layouts/SubHeader";
 import TermsComponent from "../../components/member/TermsComponent";
 import { useReactToPrint } from "react-to-print";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useRecoilValue } from "recoil";
+import { memberIdSelector } from "../../atoms/loginState";
+import { useNavigate } from "react-router-dom";
 
 const TermsPage = () => {
   const contentRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef });
+  const mid = useRecoilValue(memberIdSelector);
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    if(mid){
+      alert("로그인한 회원은 회원가입 할 수 없습니다.");
+      navigate(-1);
+      return;
+
+    }
+
+  },[])
 
 return (
   

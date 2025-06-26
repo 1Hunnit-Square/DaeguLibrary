@@ -119,11 +119,11 @@ const QnaComponent = () => {
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">QnA 관리</h1>
 
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">                
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">                
                     <SearchSelectComponent
                         options={searchOptions}
                         defaultCategory={defaultCategory}
-                        className="w-full md:w-[50%]"
+                        className="w-full md:w-[40%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
                         dropdownClassName="w-24 md:w-32"
@@ -131,7 +131,7 @@ const QnaComponent = () => {
                         handleSearch={handleSearch}
                     />
 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-2">
                     <span className="text-sm font-medium whitespace-nowrap">등록일</span>
                     <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
                     <span className="mx-1">-</span>

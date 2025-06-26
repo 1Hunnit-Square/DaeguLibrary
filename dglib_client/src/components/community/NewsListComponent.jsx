@@ -6,6 +6,7 @@ import Button from "../common/Button";
 import { getNewsList, getNewsPinnedList } from "../../api/newsApi";
 import TableComponent from "../common/TableComponent";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
+import { useMemo } from "react";
 
 const NewsListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -42,6 +43,16 @@ const NewsListComponent = () => {
         isLoading
     );
 
+            const renderSearchResultCount = useMemo(() => {
+            if (!!searchURLParams.get("query") && newsData?.totalElements !== undefined) {
+              return (
+                <div className="mb-4 text-sm text-gray-600">
+                  "{searchURLParams.get("query")}"에 대한 검색 결과 {newsData.totalElements}건이 있습니다.<br />
+                </div>
+              );
+            }
+            return null;
+          }, [!!searchURLParams.get("query"), newsData, searchURLParams.get("query")]);
 
     const { handleSearch } = useSearchHandler({});
 
@@ -78,6 +89,9 @@ const NewsListComponent = () => {
                     buttonClassName="right-2"
                 />
             </div>
+
+            {renderSearchResultCount}
+
             <TableComponent data={newsData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"nno"} pinnedList={pinnedList} />
 
             <div className="flex justify-end mt-4">

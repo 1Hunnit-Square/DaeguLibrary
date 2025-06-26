@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "file.upload.path",
+    "type": "java.lang.String",
+    "description": "A description for 'file.upload.path'"
+  },
+  {
+    "name": "mail.smtp.host",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.smtp.host'"
+  }
+]}

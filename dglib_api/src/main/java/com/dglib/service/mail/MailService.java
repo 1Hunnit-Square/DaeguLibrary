@@ -357,8 +357,8 @@ public class MailService {
 	                    return false;
 	                }
 	            };
-	            	if(!type.equals("SENDER")) {
-	            	SearchTerm unreadTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), !notRead);
+	            	if(!type.equals("SENDER") && notRead) {
+	            	SearchTerm unreadTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 	                searchTerm = new AndTerm(addressTerm, unreadTerm);
 	            	} else {
 	            		searchTerm = addressTerm;

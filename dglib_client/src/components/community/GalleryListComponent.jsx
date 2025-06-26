@@ -5,6 +5,7 @@ import SearchSelectComponent from "../common/SearchSelectComponent";
 import Button from "../common/Button";
 import { getGalleryList, getGalleryThumbnail } from "../../api/galleryApi";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
+import { useMemo } from "react";
 
 const GalleryListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -39,6 +40,17 @@ const GalleryListComponent = () => {
         isLoading
     );
 
+                const renderSearchResultCount = useMemo(() => {
+                if (!!searchURLParams.get("query") && galleryData?.totalElements !== undefined) {
+                  return (
+                    <div className="mb-4 text-sm text-gray-600">
+                      "{searchURLParams.get("query")}"에 대한 검색 결과 {galleryData.totalElements}건이 있습니다.<br />
+                    </div>
+                  );
+                }
+                return null;
+              }, [!!searchURLParams.get("query"), galleryData, searchURLParams.get("query")]);
+
     const { handleSearch } = useSearchHandler({});
 
     const handleDetail = (gno) => {
@@ -62,6 +74,8 @@ const GalleryListComponent = () => {
                 />
 
             </div>
+
+            {renderSearchResultCount}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-10 mt-10">
                 {galleryData.content.length > 0 ? (

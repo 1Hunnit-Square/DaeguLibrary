@@ -48,6 +48,10 @@ const MemberModifyComponent = ({data, refetch}) => {
     const handlePenalty = (e) => {
         if(new Date(e.target.value) <= new Date()){
             alert("날짜가 현재 날짜보다 이후여야 합니다.");
+            setModData(prev => ({
+            ...prev,
+            ["penaltyDate"] : ""
+        }))
             return;
         }
 
@@ -110,15 +114,15 @@ const MemberModifyComponent = ({data, refetch}) => {
     </div>
     <div className="flex items-center mb-4 z-40 relative">
     <span className="mr-5 font-bold">권한</span>
-    <SelectComponent name="role" onChange={handleRole} value={modData.role}  options={roleMap} />
+    <SelectComponent name="role" onChange={handleRole} value={modData.role}  options={roleMap} selectClassName="!w-30" dropdownClassName="!w-30" />
     </div>
     <div className="flex items-center z-30 relative">
     <span className="mr-5 font-bold">상태</span>
-    <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} />
+    <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} selectClassName="!w-30" dropdownClassName="!w-30"/>
     {(modData.state == "OVERDUE") ? <><input type="date" value={modData.penaltyDate} onChange={handlePenalty}
-    className ="w-37 px-4 py-2 rounded-2xl bg-white border border-[#00893B] mr-3" /> 까지</>
+    className ="w-40 px-4 py-2 rounded-2xl bg-white border border-[#00893B] mr-3" /> 까지</>
     : <><input type="date" value={""}
-    className ="w-37 px-4 py-2 rounded-2xl bg-gray-200 border border-gray-300 mr-3" disabled={true} /> 까지</>}
+    className ="w-40 px-4 py-2 rounded-2xl bg-gray-200 border border-gray-300 mr-3" disabled={true} /> 까지</>}
     </div>
     <div className="flex mt-10 mr-6 justify-center">
         <Button onClick={handleUpdate}>적용</Button>

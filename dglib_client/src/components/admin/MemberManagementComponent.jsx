@@ -80,13 +80,13 @@ const MemberManagementComponent = () => {
     const filterValue = (value) => {
         const roundStyle ="font-semibold px-2 py-1 text-sm rounded-full";
        const data = {
-        "USER" : <span className={`text-black bg-amber-100 ${roundStyle}`}>정회원</span>,
-        "MANAGER" : <span className={`text-blue-500 bg-amber-100 ${roundStyle}`}>사서</span>,
-        "ADMIN" : <span className={`text-green-500 bg-amber-100 ${roundStyle}`}>관리자</span>,
-        "NORMAL" : <span className={`text-black bg-blue-100 ${roundStyle}`}>일반</span>,
-        "OVERDUE" : <span className={`text-purple-500 bg-blue-100 ${roundStyle}`}>제재</span>,
-        "PUNISH" : <span className={`text-orange-800 bg-blue-100 ${roundStyle}`}>정지</span>,
-        "LEAVE" : <span className={`text-red-500 bg-blue-100 ${roundStyle}`}>탈퇴</span>
+        "USER" : <span className={`text-amber-600 font-semibold`}>정회원</span>,
+        "MANAGER" : <span className={`text-lime-700 font-semibold`}>사서</span>,
+        "ADMIN" : <span className={`text-indigo-900 font-semibold`}>관리자</span>,
+        "NORMAL" : <span className={`text-blue-800 bg-blue-100 ${roundStyle}`}>일반</span>,
+        "OVERDUE" : <span className={`text-purple-500 bg-purple-100 ${roundStyle}`}>제재</span>,
+        "PUNISH" : <span className={`text-orange-800 bg-orange-100 ${roundStyle}`}>정지</span>,
+        "LEAVE" : <span className={`text-red-500 bg-red-100 ${roundStyle}`}>탈퇴</span>
        }
 
        return data[value];
@@ -126,16 +126,16 @@ const MemberManagementComponent = () => {
             )}
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">회원 목록</h1>
-            <div className="flex items-center justify-center mb-10 gap-30 rounded-xl bg-gray-100 shadow h-30">
-                    <SearchSelectComponent options={["회원ID", "이름","회원번호"]} defaultCategory={searchURLParams.get("option") || "회원ID"} selectClassName="mr-2 md:mr-5"
+            <div className="flex items-center justify-center mb-10 gap-15 rounded-xl bg-gray-100 shadow h-30">
+                    <SearchSelectComponent options={["회원ID", "이름","회원번호"]} defaultCategory={searchURLParams.get("option") || "회원ID"}
                         dropdownClassName="w-24 md:w-32"
-                        className="w-full md:w-[50%]"
+                        className="w-full md:w-[40%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
                         input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-3 z-110">
+                        <div className="flex items-center gap-1 z-110">
                             <SelectComponent onChange={(e) => handleSelectChange('role', e)} value={searchURLParams.get("role") || "ALL"}  options={roleMap} />
                             <SelectComponent onChange={(e) => handleSelectChange('state', e)} value={searchURLParams.get("state") || "ALL"}  options={stateMap} />
                         </div>

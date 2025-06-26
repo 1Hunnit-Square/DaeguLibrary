@@ -47,6 +47,17 @@ const NoticeListComponent = () => {
     isLoading
   );
 
+    const renderSearchResultCount = useMemo(() => {
+    if (!!searchURLParams.get("query") && noticeData?.totalElements !== undefined) {
+      return (
+        <div className="mb-4 text-sm text-gray-600">
+          "{searchURLParams.get("query")}"에 대한 검색 결과 {noticeData.totalElements}건이 있습니다.<br />
+        </div>
+      );
+    }
+    return null;
+  }, [!!searchURLParams.get("query"), noticeData, searchURLParams.get("query")]);
+
 const { handleSearch } = useSearchHandler({});
 
 const toDate = (dateTime) => {
@@ -83,6 +94,9 @@ const toDate = (dateTime) => {
           buttonClassName="right-2"
         />
       </div>
+
+            {renderSearchResultCount}
+
         <TableComponent data={noticeData} isLoading={isLoading} handleListClick={handleDetail} tableMap={tableMap} defaultKey={"ano"} pinnedList ={pinnedList} />
       
       <div className="flex justify-end mt-4">

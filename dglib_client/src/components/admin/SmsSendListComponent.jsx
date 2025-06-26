@@ -64,8 +64,8 @@ const SmsSendListComponent = ({numList, setNumList}) => {
         </div>
         <div className ="border-4 border-emerald-700 w-80 h-100 rounded-lg overflow-y-auto py-5">
             <div className ="flex flex-col justify-center ml-10 w-60">
-            <div className="text-xl font-bold">수신자 명단 ✉ <span className="text-sm font-normal">({numList.length}명)</span>
-            <Button className="text-sm w-fit !p-1.5 ml-5 bg-amber-600 hover:bg-amber-700" onClick={()=>setNumList([])}>초기화</Button></div>
+            <div className="text-lg font-bold">수신자 명단 ✉ <span className="text-sm font-normal">({numList.length}명)</span>
+            <Button className="text-sm w-fit !p-1.5 ml-3 bg-amber-600 hover:bg-amber-700" onClick={()=>setNumList([])}>초기화</Button></div>
             <table className = "my-5 table-fixed">
                 <thead className = "border-y-3 border-gray-400">
                     <tr>

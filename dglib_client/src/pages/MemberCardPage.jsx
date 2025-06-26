@@ -36,15 +36,15 @@ const MemberCardPage = () => {
     return(
         <Layout sideOn={false}>
         <SubHeader subTitle="모바일 회원증" mainTitle="기타" />
-       <div className="flex justify-center mt-10">
+       <div className="flex justify-center my-10">
   { !_.isEmpty(info) && <div className="bg-white shadow-lg rounded-2xl border border-green-400 p-5">
     <div className="text-center text-green-800 text-xl font-bold mb-4">
       대구도서관 모바일 회원증
     </div>
 
-    <div className="flex flex-row items-start justify-between gap-12">
+    <div className="flex flex-row items-start justify-between gap-1 sm:gap-12">
       {/* 왼쪽: 회원 정보 */}
-      <div className="flex flex-col space-y-2 text-gray-700 font-medium p-2">
+      <div className="flex flex-col space-y-2 text-gray-700 font-medium p-2 text-sm sm:text-base">
         <div>
           회원번호 : <span className="font-semibold ml-1.5">{mno}</span>
         </div>

@@ -222,7 +222,7 @@ return(<div className = "flex flex-col items-center mb-10">
                              onClick={ClickSearch}
                              disabled={searchMutation.isPending}
                              children="검색"
-                             className="w-15"
+                             className="w-15 !px-1"
                          />
                          </div>
             </div>

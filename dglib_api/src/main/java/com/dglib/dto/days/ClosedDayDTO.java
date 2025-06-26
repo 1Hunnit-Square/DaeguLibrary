@@ -19,6 +19,6 @@ public class ClosedDayDTO {
 	private String reason;
 	private Boolean isClosed;
 	private String originalDate;
-
+	private String type;
 
 }

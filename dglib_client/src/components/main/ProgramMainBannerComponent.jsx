@@ -45,7 +45,7 @@ const ProgramMainBannerComponent = () => {
                     pagination={{ clickable: true }} // 페이지네이션을 클릭 가능하게 설정
                     autoplay={{ delay: 5000 }} // 슬라이드 간 지연 시간
                     loop
-                    autoHeight={true} 
+                    autoHeight={true}
                     className="program-swiper w-full h-full"
                 >
                     {banners.map((banner) => (
@@ -75,7 +75,9 @@ const ProgramMainBannerComponent = () => {
                     ))}
                 </Swiper>
             ) : (
-                <p className="text-sm text-gray-500 text-center">등록된 배너가 없습니다.</p>
+                <div className="flex items-center justify-center min-h-[300px]">
+                    <p className="text-sm text-gray-500 text-center mt-15">등록된 배너가 없습니다.</p>
+                </div>
             )}
 
             <style>

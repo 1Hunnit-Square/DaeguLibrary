@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,32 +36,25 @@ public class HolidayApiService {
 	private static final String BASE_URL = "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo";
 
 	public List<HolidayDTO> fetch(int year, int month) {
-		URI uri = UriComponentsBuilder
-			    .fromHttpUrl(BASE_URL)
-			    .queryParam("solYear", year)
-			    .queryParam("solMonth", String.format("%02d", month))
-			    .queryParam("ServiceKey", SERVICE_KEY)
-			    .queryParam("_type", "json")
-			    .queryParam("numOfRows", 30)
-			    .build(true)
-			    .toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(BASE_URL).queryParam("solYear", year)
+				.queryParam("solMonth", String.format("%02d", month)).queryParam("ServiceKey", SERVICE_KEY)
+				.queryParam("_type", "json").queryParam("numOfRows", 30).build(true).toUri();
 
-	    ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-	    
-	    log.info("API 응답 본문 확인: {}", response.getBody());
-	    
-	    if (!response.getHeaders().getContentType().includes(MediaType.APPLICATION_JSON)) {
-	        throw new RuntimeException("API 응답이 JSON이 아님 → 인증키 또는 파라미터 오류일 수 있음");
-	    }
+		ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
 
+		log.info("API 응답 본문 확인: {}", response.getBody());
 
-	    if (response.getStatusCode().is2xxSuccessful()) {
-	        return parse(response.getBody());
-	    } else {
-	        throw new RuntimeException("공휴일 API 호출 실패: " + response.getStatusCode());
-	    }
+		if (!response.getHeaders().getContentType().includes(MediaType.APPLICATION_JSON)) {
+			throw new RuntimeException("API 응답이 JSON이 아님 → 인증키 또는 파라미터 오류일 수 있음");
+		}
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			return parse(response.getBody());
+		} else {
+			throw new RuntimeException("공휴일 API 호출 실패: " + response.getStatusCode());
+		}
 	}
-	
+
 	// 연도 전체 공휴일 조회(1~12월 순회)
 	public List<HolidayDTO> getHolidays(int year) {
 		List<HolidayDTO> result = new ArrayList<>();
@@ -70,6 +62,16 @@ public class HolidayApiService {
 			result.addAll(fetch(year, month));
 		}
 		return result;
+	}
+
+	// 공휴일 여부 확인 메서드 추가(서비스 공휴일 삭제 불가)
+	public boolean isNationalHoliday(LocalDate date) {
+		int year = date.getYear();
+		int month = date.getMonthValue();
+
+		List<HolidayDTO> holidays = fetch(year, month);
+
+		return holidays.stream().anyMatch(dto -> dto.getDate().equals(date));
 	}
 
 	// JSON 파싱
@@ -81,17 +83,17 @@ public class HolidayApiService {
 			JsonNode itemsNode = root.path("response").path("body").path("items");
 
 			if (itemsNode.isMissingNode() || itemsNode.isEmpty() || itemsNode.toString().equals("\"\"")) {
-			    return result;
+				return result;
 			}
 
 			JsonNode itemNode = itemsNode.path("item");
 
 			if (itemNode.isArray()) {
-			    for (JsonNode item : itemNode) {
-			        result.add(parseItem(item));
-			    }
+				for (JsonNode item : itemNode) {
+					result.add(parseItem(item));
+				}
 			} else if (itemNode.isObject()) {
-			    result.add(parseItem(itemNode));
+				result.add(parseItem(itemNode));
 			}
 
 		} catch (Exception e) {

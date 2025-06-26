@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Button from "../common/Button";
 import EventBannerSearchComponent from "./EventBannerSearchComponent";
 import { getEventBanners, registerEventBanner, deleteEventBanner, getEventBannerImageUrl } from "../../api/eventApi";
@@ -7,6 +7,7 @@ const EventBannerComponent = () => {
     const [banners, setBanners] = useState([]);
     const [registerForms, setRegisterForms] = useState([]);
     const [showSearch, setShowSearch] = useState(null);
+    const fileInputRefs = useRef([]);
     const MAX_COUNT = 6;
 
     useEffect(() => {
@@ -113,6 +114,8 @@ const EventBannerComponent = () => {
             {registerForms.map((form, index) => (
                 <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl border border-gray-100 shadow">
                     <div className="flex items-start gap-8">
+
+                        {/* 새소식 선택, 이미지 업로드 */}   
                         <div className="flex-1 flex flex-col space-y-8">
                             <div className="flex items-center gap-3">
                                 <p className="font-semibold text-s text-gray-700">
@@ -129,7 +132,7 @@ const EventBannerComponent = () => {
                             <div className="text-start space-y-1">
                                 <label
                                     htmlFor={`file-upload-${index}`}
-                                    className="cursor-pointer text-sm font-bold text-blue-700 hover:underline inline-block"
+                                    className="cursor-pointer text-sm font-bold text-blue-500 underline hover:text-blue-600 inline-block"
                                 >
                                     이미지 업로드
                                     <input
@@ -150,7 +153,12 @@ const EventBannerComponent = () => {
                             <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
                         </div>
 
-                        <div className="relative w-36 h-36 border border-gray-300 shadow rounded-xl bg-gray-100 flex items-center justify-center">
+                        {/* 이미지 업로드 및 이미지 미리보기 */}
+                        <div
+                            className="relative w-36 h-36 border border-gray-300 shadow rounded-xl bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                            onClick={() => fileInputRefs.current[index]?.click()}
+                            title="클릭하여 이미지 업로드"
+                        >
                             {form.file ? (
                                 <>
                                     <img
@@ -160,7 +168,8 @@ const EventBannerComponent = () => {
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             const newForms = [...registerForms];
                                             newForms[index].file = null;
                                             setRegisterForms(newForms);
@@ -174,6 +183,14 @@ const EventBannerComponent = () => {
                             ) : (
                                 <span className="text-xs text-gray-500">이미지 미리보기</span>
                             )}
+
+                            <input
+                                ref={(el) => (fileInputRefs.current[index] = el)}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(index, e.target.files[0])}
+                                className="hidden"
+                            />
                         </div>
 
                         <div className="flex flex-col-reverse items-center gap-7">
@@ -205,7 +222,6 @@ const EventBannerComponent = () => {
                 </div>
             ))}
 
-            {/* 배너 목록 출력 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {banners.map(banner => (
                     <div key={banner.bno} className="border border-gray-200 rounded-xl shadow-sm p-2">

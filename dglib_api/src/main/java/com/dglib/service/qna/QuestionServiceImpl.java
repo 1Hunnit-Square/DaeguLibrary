@@ -20,6 +20,7 @@ import com.dglib.entity.qna.Question;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.qna.QuestionRepository;
 import com.dglib.repository.qna.QuestionSpecifications;
+import com.dglib.security.jwt.JwtFilter;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public Long newQuestion(QuestionNewDTO newDTO) {
 		Member member = memberRepository.findById(newDTO.getMemberMid())
-	            .orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+				.orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
 
 		Question question = modelMapper.map(newDTO, Question.class);
 		question.setMember(member);
@@ -77,21 +78,21 @@ public class QuestionServiceImpl implements QuestionService {
 				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
 		String writerMid = question.getMember().getMid();
-		boolean isOwner = requesterMid != null && writerMid.equals(requesterMid);
+//		boolean isOwner = requesterMid != null && writerMid.equals(requesterMid);
 		boolean isPublic = question.isCheckPublic();
-		boolean isAdmin = "admin".equals(requesterMid);
-		
-		if (!isOwner && !isPublic &&!isAdmin) {
-			System.out.println("질문을 가져올 수 없음");
-			throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
+		boolean hasAuth = JwtFilter.checkMember(writerMid, isPublic);
+
+		if (!hasAuth) {
+		    System.out.println("질문을 가져올 수 없음");
+		    throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
 		}
 		question.setViewCount(question.getViewCount() + 1);
-		
+
 		QuestionDetailDTO dto = modelMapper.map(question, QuestionDetailDTO.class);
 		dto.setName(question.getMember().getName());
 		dto.setWriterMid(question.getMember().getMid());
-		
-		if(question.getAnswer() != null) {
+
+		if (question.getAnswer() != null) {
 			AnswerDTO answerDto = modelMapper.map(question.getAnswer(), AnswerDTO.class);
 			dto.setAnswer(answerDto);
 		}
@@ -128,22 +129,22 @@ public class QuestionServiceImpl implements QuestionService {
 		} else {
 			throw new IllegalArgumentException("공개여부는 반드시 선택해야 합니다.");
 		}
-		
+
 		System.out.println("수정 요청 도착");
 	}
 
 	// 삭제
 	@Override
 	public void delete(Long qno, String requesterMid) {
-	    Question question = questionRepository.findById(qno)
-	        .orElseThrow(() -> new IllegalArgumentException("해당 질문이 존재하지 않습니다."));
-	    boolean isAdmin = "admin".equals(requesterMid);
-	    
-	    if (!question.getMember().getMid().equals(requesterMid) && !isAdmin) {
-	        throw new IllegalArgumentException("삭제 권한이 없습니다.");
-	    }
+		Question question = questionRepository.findById(qno)
+				.orElseThrow(() -> new IllegalArgumentException("해당 질문이 존재하지 않습니다."));
+		boolean isAdmin = "admin".equals(requesterMid);
 
-	    questionRepository.delete(question);
+		if (!question.getMember().getMid().equals(requesterMid) && !isAdmin) {
+			throw new IllegalArgumentException("삭제 권한이 없습니다.");
+		}
+
+		questionRepository.delete(question);
 	}
 
 }

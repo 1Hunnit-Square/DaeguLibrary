@@ -157,10 +157,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		
 	public static boolean checkAuth(String mid) {
-		if((mid != null && JwtFilter.getMid().equals(mid)) || JwtFilter.getRoleName().equals("ROLE_ADMIN"))
+		if((mid != null && JwtFilter.getMid() != null && JwtFilter.getMid().equals(mid)) || JwtFilter.getRoleName() !=null && JwtFilter.getRoleName().equals("ROLE_ADMIN"))
 			return true;
 		else
 			return false;
+	}
+	
+	public static boolean checkMember(String mid, boolean isPublic) {
+		if(isPublic) {
+			return true;
+		} else
+			return JwtFilter.checkAuth(mid);
 	}
 	
 }

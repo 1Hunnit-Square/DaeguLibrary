@@ -49,7 +49,18 @@ const QnaListComponent = () => {
     keepPreviousData: true,
   });
 
-  const qnaItems = data?.content || [];
+  // 🔹 여기서 title을 가공
+  const qnaItems = useMemo(() => {
+    if (!data?.content) return [];
+    return data.content.map((item) => ({
+      ...item,
+      title: {
+        text: item.title,
+        isPrivate: item.checkPublic === false,
+      }
+    }));
+  }, [data]);
+
   const pageable = data || {};
 
   const handleSearch = (newQuery, newOption) => {
@@ -83,19 +94,24 @@ const QnaListComponent = () => {
     table: {
       status: "처리상황",
       title: "제목",
-      checkPublic: "공개여부",
       name: "작성자",
       postedAt: "작성일",
       viewCount: "조회수"
     },
     trans: {
       status: (val) => <StatusBadge status={val} />,
-      checkPublic: (val) => val ? "" : <LockIcon />,
       postedAt: (val) => val?.substring(0, 10),
+      title: (val) => (
+        <span className="flex items-center gap-1">
+          {val?.isPrivate && <LockIcon />}
+          {val?.text}
+        </span>
+      ),
     },
     style: {
-      title: "max-w-100 min-w-100",
+      title: "max-w-70 min-w-70",
     },
+    leftKey: ["title"],
     overKey: ["title"],
     lineKey: ["title"],
     noneMsg: "등록된 글이 없습니다.",
@@ -124,7 +140,7 @@ const QnaListComponent = () => {
       {renderSearchResultCount}
 
       <TableComponent
-        data={pageable}
+        data={{ ...pageable, content: qnaItems }}
         isLoading={isLoading}
         handleListClick={handleDetail}
         tableMap={tableMap}

@@ -1,5 +1,5 @@
 import Button from "../common/Button";
-import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, useRef, forwardRef } from "react";
 import SelectCopmonent from "../common/SelectComponent";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { useBookMutation } from "../../hooks/useBookMutation";
 import { useBookActions } from '../../hooks/useBookActions';
 
 
-const FilterSearchBookComponent = ( ) => {
+const FilterSearchBookComponent = forwardRef( ( _, ref ) => {
     const [filters, setFilters] = useState({
         title: "",
         isbn: "",
@@ -189,7 +189,7 @@ const FilterSearchBookComponent = ( ) => {
                                             <div key={index}
                                                 className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-4 md:gap-6 p-4 md:p-6 mx-2 md:mx-0"
                                             >
-                                                <div className="flex flex-row md:flex-col items-start md:items-center md:w-40 lg:w-48 gap-3 md:gap-2">
+                                                <div className="flex flex-row md:flex-col items-start  md:w-40 lg:w-48 gap-3 md:gap-2">
                                                     <CheckNonLabel 
                                                         checked={selectedBooks.has(book.libraryBookId)} 
                                                         onChange={(e) => handleSelectBooks(e, book.libraryBookId)} 
@@ -282,6 +282,6 @@ const FilterSearchBookComponent = ( ) => {
             </div>
         </div>
     );
-}
+})
 
 export default memo(FilterSearchBookComponent);

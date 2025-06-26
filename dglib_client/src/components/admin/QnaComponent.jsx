@@ -55,6 +55,8 @@ const QnaComponent = () => {
             }),
     });
 
+    
+
     const filteredContent = useMemo(() => {
         let list = status === "전체" ? data.content : data.content.filter((item) => item.status === status);
         list = [...list].sort((a, b) => {
@@ -154,13 +156,13 @@ const QnaComponent = () => {
             <div className="shadow-md rounded-lg overflow-x-auto mt-4">
                 <table className="w-full bg-white table-fixed">
                     <colgroup>
-                        <col style={{ width: '5%' }} /> {/* 번호 */}
-                        <col style={{ width: '8%' }} /> {/* 상태 */}
-                        <col style={{ width: '35%' }} /> {/* 제목 */}
-                        <col style={{ width: '13%' }} /> {/* 작성자 */}
-                        <col style={{ width: '12%' }} /> {/* 등록일 */}
-                        <col style={{ width: '12%' }} /> {/* 수정일 */}
-                        <col style={{ width: '8%' }} /> {/* 조회수 */}
+                        <col style={{ width: '5%' }} />
+                        <col style={{ width: '8%' }} />
+                        <col style={{ width: '35%' }} /> 
+                        <col style={{ width: '13%' }} />
+                        <col style={{ width: '12%' }} />
+                        <col style={{ width: '12%' }} />
+                        <col style={{ width: '8%' }} />
                     </colgroup>
                     <thead className="bg-[#00893B] text-white">
                         <tr>

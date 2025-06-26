@@ -115,12 +115,12 @@ async def get_member_reco_books(isbn_list: list[str], gender: int = 0, age: int 
                 logger.error(f"알라딘 정보 없음: ISBN {isbn}")
                 continue
 
-            book['bookname'] = aladin_info['title']
-            book['authors'] = aladin_info['author']
-            book['bookImageURL'] = aladin_info['cover_url']
-            book['description'] = aladin_info['description']
-            book['publisher'] = aladin_info['publisher']
-            book['publication_year'] = aladin_info['pubDate']
+            book['bookname'] = aladin_info.get('title')
+            book['authors'] = aladin_info.get('author')
+            book['bookImageURL'] = aladin_info.get('cover_url')
+            book['description'] = aladin_info.get('description')
+            book['publisher'] = aladin_info.get('publisher')
+            book['publication_year'] = aladin_info.get('pubDate')
 
 
             result["docs"].append({"book": book})

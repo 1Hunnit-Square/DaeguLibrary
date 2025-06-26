@@ -6,7 +6,7 @@ export const usePagination = (
   setSearchURLParams,
   isLoading,
   onPageReset = () => {},
-  scrollRef = null
+  scrollRef = null,
 ) => {
     const page = searchURLParams.get("page") || "1";
     const didMountRef = useRef(false);

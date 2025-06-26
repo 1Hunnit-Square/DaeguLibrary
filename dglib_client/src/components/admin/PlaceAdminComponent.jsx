@@ -84,38 +84,34 @@ const PlaceAdminComponent = () => {
         return entry ? entry[0] : "회원ID";
     }, [option]);
 
-    const searchOptions = Object.keys(searchFieldMap);
-
     return (
         <div className="container mx-auto px-4 py-8 w-full">
             {isLoading && <Loading text="목록 불러오는 중..." />}
+
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">시설대여 관리</h1>
 
-            {/* 검색 조건 */}
             {/* 검색 조건 헤더 */}
             <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                 <SearchSelectComponent
-                    options={searchOptions}
+                    options={Object.keys(searchFieldMap)}
                     defaultCategory={defaultCategory}
                     input={query}
                     handleSearch={handleSearch}
                     className="w-full md:w-[40%]"
                     inputClassName="w-full bg-white"
-                    selectClassName="mr-2 md:mr-2 whitespace-nowrap"
+                    selectClassName="mr-2 whitespace-nowrap"
                     dropdownClassName="w-28 md:w-32 whitespace-nowrap"
                 />
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium whitespace-nowrap mx-2">신청기간</span>
-                        <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
-                        <span className="mx-2">-</span>
-                        <input type="date" name="endDate" value={endDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
-                    </div>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium whitespace-nowrap mx-2">신청기간</span>
+                    <input type="date" name="startDate" value={startDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
+                    <span className="mx-2">-</span>
+                    <input type="date" name="endDate" value={endDate} onChange={handleDateChange} className="border bg-white rounded-md p-2" />
                 </div>
             </div>
 
             {/* 정렬 */}
-            <div className="flex justify-end items-center mb-5 gap-3">
+            <div className="flex justify-end items-center mb-5 gap-2">
                 <SelectComponent onChange={(v) => setSearchParams(prev => {
                     const p = new URLSearchParams(prev); p.set("sortBy", v); return p;
                 })} value={sortBy} options={sortByOption} />

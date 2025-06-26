@@ -183,6 +183,8 @@ const ChatComponent = ({ onClose }) => {
         };
     }, [composing]);
 
+    
+
     return (
         <>
         <div className="fixed bottom-23 sm:bottom-5 sm:right-5 md:right-10 lg:right-20 xl:right-40 

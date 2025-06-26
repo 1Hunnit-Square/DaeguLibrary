@@ -119,8 +119,16 @@ const LibraryBookListComponent = () => {
                                         <td className="py-4 px-6 text-center text-xs max-w-[80px] whitespace-nowrap">{item.location}</td>
                                         <td className="py-4 px-6 text-center text-xs max-w-[10px] whitespace-nowrap">{item.callSign}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.regLibraryBookDate}</td>
-                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap font-semibold">
-                                            {item.rented ? "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : ""}
+                                        <td className={`py-4 px-6 text-center text-xs whitespace-nowrap font-semibold `}>
+                                            <span className={`px-2 py-2 rounded-full ${
+                                                item.rented ?  (isOverdue ? "bg-red-200 text-red-800" : "bg-yellow-200 text-yellow-800") :
+                                                item.unmanned ? "bg-green-200 text-green-800" :
+                                                item.reserveCount > 0 ? "bg-blue-200 text-blue-800" : ""
+                                            }`}>
+                                                 {item.rented ? "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : ""}
+                                            </span>
+    
+                                           
                                         </td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.reserveCount}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.deleted === false ? "소장중" : "부재"}</td>

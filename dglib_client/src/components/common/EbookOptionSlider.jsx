@@ -13,7 +13,7 @@ const EbookOptionSlider = ({active, title, minValue, maxValue, defaultValue, ste
                         <div name="sliderBar"
                             className={`
                             absolute top-1/2 left-0 -translate-y-1/2 h-[6px] rounded-l-[6px] z-[1]
-                            ${active ? 'bg-green-400' : 'bg-gray-300'}
+                            ${active ? 'bg-green-600' : 'bg-gray-300'}
                             `}
                             style={{ width: `${percentage}%` }}>
                         </div>
@@ -32,9 +32,9 @@ const EbookOptionSlider = ({active, title, minValue, maxValue, defaultValue, ste
                                 [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200
                                 [&::-webkit-slider-thumb]:shadow-[0px_8px_12px_rgba(0,0,0,0.2)]
                                 ${active
-                                ? `[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:cursor-pointer
+                                ? `[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-600 [&::-webkit-slider-thumb]:cursor-pointer
                                 hover:[&::-webkit-slider-thumb]:bg-green-100 hover:[&::-webkit-slider-thumb]:shadow-[0px_8px_12px_rgba(0,0,0,0.2)]
-                                active:[&::-webkit-slider-thumb]:shadow-none active:[&::-webkit-slider-thumb]:bg-green-500
+                                active:[&::-webkit-slider-thumb]:shadow-none active:[&::-webkit-slider-thumb]:bg-green-600
                                 focus:[&::-webkit-slider-thumb]:shadow-none focus:[&::-webkit-slider-thumb]:bg-green-500`
                                 : '[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-gray-400 [&::-webkit-slider-thumb]:cursor-default'
                                 }

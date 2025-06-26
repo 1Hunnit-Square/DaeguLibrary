@@ -42,17 +42,16 @@ const NewBookComponent = () => {
 
     return (
         <div ref={topRef}>
-            <div className="w-full max-w-4xl mx-auto p-4 md:p-6 bg-white rounded-lg mt-10 shadow-md border border-gray-200">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 sm:gap-4">
+            <div className="w-full max-w-4xl mx-auto p-4 md:p-6 bg-white rounded-lg mt-10 shadow-md">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                     <span className="w-full sm:w-20 font-medium text-gray-700 text-sm sm:text-base">입고일</span>
-                    <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#00893B]" />
-                    <span className="mx-1 text-center sm:mx-4">-</span>
-                    <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#00893B]" />
-                    
-                    <Button children="검색" onClick={handleSearch} className= "ml-5" />
-                   
+                    <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#00893B]" />
+                    <span className="mx-1 sm:mx-4">-</span>
+                    <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#00893B]" />
                 </div>
-                
+                <div className="flex justify-center mt-4">
+                    <Button children="검색" onClick={handleSearch} />
+                </div>
             </div>
 
             <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">

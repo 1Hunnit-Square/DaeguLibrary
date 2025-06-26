@@ -6,11 +6,11 @@ import { useSearchParams } from "react-router-dom";
 import { usePagination } from "../../hooks/usePage";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import SelectComponent from "../common/SelectComponent";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, forwardRef, memo } from "react";
 
 
 
-const BorrowMemberHistoryComponent = () => {
+const BorrowMemberHistoryComponent = forwardRef(( _, ref) => {
    const [searchURLParams, setSearchURLParams] = useSearchParams();
    const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
    const { data = {content: [], totalElements: 0}, isLoading, isError } = useQuery({
@@ -36,11 +36,9 @@ const BorrowMemberHistoryComponent = () => {
         return months;
     }, []);
 
-    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading);
+    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, undefined, ref);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [searchURLParams]);
+   
 
     return (
         <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
@@ -145,6 +143,6 @@ const BorrowMemberHistoryComponent = () => {
             </div>
         </div>
     )
-}
+})
 
-export default BorrowMemberHistoryComponent;
+export default memo(BorrowMemberHistoryComponent);

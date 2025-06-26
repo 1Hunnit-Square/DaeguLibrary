@@ -1,5 +1,5 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import CheckNonLabel from "../common/CheckNonLabel";
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { useBookMutation } from '../../hooks/useBookMutation';
 const InterestedComponent = () => {
 
     const [searchURLParams, setSearchURLParams] = useSearchParams();
+    const topRef = useRef(null);
 
     const { data = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ["interestedBooks", searchURLParams.toString()],
@@ -70,11 +71,7 @@ const InterestedComponent = () => {
 
 
 
-    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [searchURLParams]);
+    const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks, topRef);
 
 
 

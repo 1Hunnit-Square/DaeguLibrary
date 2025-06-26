@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import DynamicTab from "../../menus/DynamicTab";
 import { useSearchParams } from "react-router-dom";
 import BorrowMemberStateComponent from './BorrowMemberStateComponent';
@@ -8,6 +8,7 @@ import BorrowMemberHistoryComponent from './BorrowMemberHistoryComponent';
 const BorrowMemberComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const year =  new Date().getFullYear();
+    const componentTopRef = useRef(null);
 
 
 
@@ -30,7 +31,7 @@ const BorrowMemberComponent = () => {
         setSearchURLParams(newParams);
     }, [searchURLParams, setSearchURLParams]);
 
-    const myTabs = useMemo(() => [
+    const myTabs =  [
         {
             id: 'borrownow',
             label: '대출현황',
@@ -39,13 +40,13 @@ const BorrowMemberComponent = () => {
         {
         id: 'borrowpast',
         label: '대출이력',
-        content: <BorrowMemberHistoryComponent />
+        content: <BorrowMemberHistoryComponent ref={componentTopRef} />
         },
 
-    ], []);
+    ];
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6" ref={componentTopRef}>
         <DynamicTab
             tabsConfig={myTabs}
             activeTabId={activeTab}

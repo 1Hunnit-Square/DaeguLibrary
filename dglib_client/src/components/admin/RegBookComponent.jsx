@@ -357,8 +357,8 @@ const RegBookComponent = () => {
                 <div className="flex flex-col w-full md:w-auto">
                   <label className="font-medium text-gray-700 mb-1">위치</label>
                   <SelectComponent
-                  selectClassName="bg-white border rounded-lg shadow-lg"
-                  dropdownClassName="border-[#666666]"
+                  selectClassName="min-h-[42px] bg-white border rounded-lg shadow-lg"
+                  dropdownClassName=""
                   selectStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 }}
                   dropdownStyle={{ zIndex: 1000 + (libraryBooks.length - index) * 2 - 1 }}
                   value={libraryBook.location || ""}

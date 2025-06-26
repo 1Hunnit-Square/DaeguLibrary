@@ -83,33 +83,61 @@ const BorrowBookListComponent = () => {
             )}
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">대출 목록</h1>
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-4 rounded-xl bg-gray-100 shadow p-4 min-h-30">
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">
                     <SearchSelectComponent options={options} defaultCategory={searchURLParams.get("option")} selectClassName="mr-2 md:mr-5"
                         dropdownClassName="w-24 md:w-32"
-                        className="w-full md:w-[50%]"
+                        className="w-full md:w-[40%]"
                         inputClassName="w-full bg-white"
                         buttonClassName="right-2 top-5"
                         value={searchURLParams.get("query")}
                         input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center">
-                            <span className="w-50">대출일</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium whitespace-nowrap">대출일</span>
                             <input type="date" value={dateRange.startDate} onChange={handleDateChange} name="startDate" className="w-full border bg-white rounded-md p-2" />
                             <span className="mx-4">-</span>
                             <input type="date" value={dateRange.endDate} onChange={handleDateChange} name="endDate" className="w-full border bg-white rounded-md p-2" />
                         </div>
-                        <div className="flex gap-5 mt-5 ">
-                             <CheckNonLabel label="전체"
-                             checked={selectedCheck === "전체"}
-                             onChange={() => handleCheckChange("전체")} />
-                             <CheckNonLabel label="대출중"
-                             checked={selectedCheck === "대출중"}
-                             onChange={() => handleCheckChange("대출중")} />
-                             <CheckNonLabel label="연체"
-                             checked={selectedCheck === "연체"}
-                             onChange={() => handleCheckChange("연체")} />
+                        <div className="flex gap-5 mt-5">
+                            <label className="flex items-center gap-1 text-sm font-medium">
+                                <input
+                                type="radio"
+                                name="statusFilter"
+                                className="w-4 h-4 accent-green-700"
+                                value="전체"
+                                checked={selectedCheck === "전체"}
+                                onChange={() => handleCheckChange("전체")}
+                                />
+                                전체
+                            </label>
+
+                            <label className="flex items-center gap-1 text-sm font-medium">
+                                <input
+                                type="radio"
+                                name="statusFilter"
+                                className="w-4 h-4 accent-green-700"
+                                value="대출중"
+                                checked={selectedCheck === "대출중"}
+                                onChange={() => handleCheckChange("대출중")}
+                                />
+                                대출중
+                            </label>
+
+                            <label className="flex items-center gap-1 text-sm font-medium">
+                                <input
+                                type="radio"
+                                name="statusFilter"
+                                className="w-4 h-4 accent-green-700"
+                                value="연체"
+                                checked={selectedCheck === "연체"}
+                                onChange={() => handleCheckChange("연체")}
+                                />
+                                연체
+                            </label>
                         </div>
+                        
+                       
 
                     </div>
             </div>
@@ -134,19 +162,19 @@ const BorrowBookListComponent = () => {
                 <table className="w-full bg-white table-fixed">
                     <thead className="bg-[#00893B] text-white">
                         <tr>
-                            <th className="py-3 px-4 text-left">
+                            <th className="py-3 px-4">
                                 <CheckNonLabel inputClassName="h-4 w-4" checked={isAllSelected} onChange={handleSelectAll} />
                             </th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">회원ID</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서명</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">저자</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">도서번호</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">ISBN</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">대출일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">반납예정일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">반납일</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">상태</th>
-                            <th className="py-3 px-6 text-left text-xs font-semibold uppercase">연체 여부</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">회원ID</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">도서명</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">저자</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">도서번호</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">ISBN</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">대출일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">반납예정일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">반납일</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">상태</th>
+                            <th className="py-3 px-6 text-center text-xs font-semibold uppercase">연체 여부</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-700">
@@ -170,15 +198,15 @@ const BorrowBookListComponent = () => {
                                         <td className="py-4 px-4">
                                             <CheckNonLabel inputClassName="h-4 w-4" checked={selectedItems.has(item.rentId)} onChange={(e) => handleSelectItem(e, item.rentId)} />
                                         </td>
-                                        <td className="py-4 px-6 text-xs">{item.mid}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
-                                        <td className="py-4 px-6 text-xs max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.libraryBookId}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.isbn}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.rentStartDate}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.dueDate}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">{item.returnDate || '-'}</td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap ">
+                                        <td className="py-4 px-6 text-center text-xs">{item.mid}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.bookTitle}>{item.bookTitle}</td>
+                                        <td className="py-4 px-6 text-center text-xs max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title={item.author}>{item.author}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.libraryBookId}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.isbn}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.rentStartDate}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.dueDate}</td>
+                                        <td className="py-4 px-6 text-center text-center text-xs whitespace-nowrap">{item.returnDate || '-'}</td>
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap ">
                                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                                                 item.state === "BORROWED" ? (isOverdue ? "bg-red-200 text-red-800" : "bg-yellow-200 text-yellow-800") :
                                                 item.state === "RETURNED" ? "bg-green-200 text-green-800" : "bg-gray-200 text-gray-800"
@@ -186,7 +214,7 @@ const BorrowBookListComponent = () => {
                                                 {item.state === "BORROWED" ?  "대출중" : "반납완료"}
                                             </span>
                                         </td>
-                                        <td className="py-4 px-6 text-xs whitespace-nowrap">
+                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap">
                                             {isOverdue ? (
                                                 <span className="text-red-600 font-semibold">연체중</span>
                                             ) : (

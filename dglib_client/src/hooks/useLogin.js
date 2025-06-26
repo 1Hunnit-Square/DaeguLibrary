@@ -4,6 +4,7 @@ import { useResetRecoilState, useRecoilState } from "recoil";
 import RecoilLoginState from "../atoms/loginState";
 import { loginKakao } from "../api/kakaoApi";
 import { chatHistoryState, isChatOpenState, clientIdState } from '../atoms/chatState';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useLogin = () => {
     
@@ -12,6 +13,7 @@ const [loginState, setLoginState ] = useRecoilState(RecoilLoginState);
 const resetChatHistory = useResetRecoilState(chatHistoryState);
 const resetClientId = useResetRecoilState(clientIdState);
 const resetIsChatOpen = useResetRecoilState(isChatOpenState);
+const queryClient = useQueryClient();
 
 const doLogin = async (loginParam) => {
     const result = await loginPost(loginParam);
@@ -30,6 +32,7 @@ const doLogout = () => {
             resetChatHistory();
             resetClientId();
             resetIsChatOpen();
+            queryClient.clear();
         }
 
         

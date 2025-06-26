@@ -8,8 +8,13 @@ import RecoMenu from "../menus/RecoMenu";
 import RecoComponent from "../components/main/RecoComponent";
 import ProgramMainBannerComponent from "../components/main/ProgramMainBannerComponent";
 import EventMainBannerComponent from "../components/main/EventMainBannerComponent";
+import { useEffect } from "react";
 
 const MainPage = () => {
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
     return (
         <Layout sideOn={false}>
             <div className="bg-white">

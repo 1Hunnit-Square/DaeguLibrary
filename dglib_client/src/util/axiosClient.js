@@ -1,6 +1,7 @@
 import { API_SERVER_HOST, API_ENDPOINTS } from "../api/config";
 import { getCookie, setCookie } from "./cookieUtil";
 import { useLogin } from "../hooks/useLogin";
+import { logoutHelper } from "./logoutHelper";
 
 import axios from "axios";
 
@@ -67,7 +68,7 @@ const beforeRes = async (res) => {
     const result = await refreshToken(memberCookie.accessToken, memberCookie.refreshToken);
     if(!result){
         alert("토큰이 만료되었습니다. 다시 로그인해주세요."); 
-        localStorage.setItem('token_expired', Date.now());
+        logoutHelper();
         return Promise.reject(new Error("REQUIRE_RELOGIN"));
     }
 

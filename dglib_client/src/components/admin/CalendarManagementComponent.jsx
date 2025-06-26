@@ -8,9 +8,7 @@ import SelectComponent from '../common/SelectComponent';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
 import Loading from '../../routers/Loading';
-
 import { getClosedDays, createClosedDay, updateClosedDay, deleteClosedDay, registerAutoAllEvents } from '../../api/closedDayApi';
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // 날짜 문자열 변환 YYYY.MM.DD
@@ -47,10 +45,7 @@ const CalendarManagementComponent = () => {
   const [title, setTitle] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const [autoRegisteredYears, setAutoRegisteredYears] = useState(() => {
-    const saved = localStorage.getItem('autoRegisteredYears');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const [isYearLoading, setIsYearLoading] = useState(false);
 
   const { data: events = [], refetch, isLoading, isError } = useQuery({
     queryKey: ['closedDays', selectedYear, selectedMonth],
@@ -58,26 +53,25 @@ const CalendarManagementComponent = () => {
     enabled: !!selectedYear && !!selectedMonth,
   });
 
-  // 일정 등록 또는 수정 요청을 서버에 보내는 비동기 처리 ,성공 시: 해당 연도/월의 일정 데이터를 자동으로 최신화함, 실패 시: 에러 메시지 출력
+  // 일정 등록 또는 수정 요청(isEditMode에 따라 분기), 성공 시: 일정 목록 갱신 + 모달 닫기, 실패 시: 서버 오류 메시지 알림 표시
   const saveMutation = useMutation({
     mutationFn: (dto) => (isEditMode ? updateClosedDay(dto) : createClosedDay(dto)),
     onSuccess: () => {
       queryClient.invalidateQueries(['closedDays', selectedYear, selectedMonth]);
       resetModal();
     },
-    onError: (err) => alert('저장 중 오류 발생: ' + (err.response?.data?.message || err.message)),
+    onError: (err) => alert((err.response?.data?.message || err.message)),
   });
 
-  // 일정 삭제 요청을 서버에 보내는 비동기 처리, 성공 시: 자동으로 현재 연/월 일정 목록을 다시 불러옴, 실패 시: 에러 메시지 출력
+  // 일정 삭제 요청(공휴일은 서버에서 삭제 차단), 성공 시: 해당 월 일정 새로고침, 실패 시: 오류 메시지 표시
   const deleteMutation = useMutation({
     mutationFn: (date) => deleteClosedDay(date),
     onSuccess: () => {
       queryClient.invalidateQueries(['closedDays', selectedYear, selectedMonth]);
       resetModal();
     },
-    onError: (err) => alert('삭제 중 오류 발생: ' + (err.response?.data?.message || err.message)),
+    onError: (err) => alert((err.response?.data?.message || err.message)),
   });
-
 
   // 모달 닫을 때 모든 입력값과 상태 초기화
   const resetModal = () => {
@@ -113,21 +107,29 @@ const CalendarManagementComponent = () => {
     setSelectedYear(newYear);
 
     const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) {
-      calendarApi.gotoDate(new Date(newYear, calendarApi.getDate().getMonth(), 1));
-    }
+    if (!calendarApi) return;
 
-    if (!autoRegisteredYears.has(newYear)) {
-      try {
-        await registerAutoAllEvents(newYear); // 백엔드에서 월요일, 공휴일, 개관일 자동 등록
-        const updatedSet = new Set(autoRegisteredYears);
-        updatedSet.add(newYear);
-        setAutoRegisteredYears(updatedSet);
-        localStorage.setItem('autoRegisteredYears', JSON.stringify([...updatedSet]));
-        refetch(); // 등록 이후, 해당 연도 일정 다시 불러옴
-      } catch (error) {
-        console.warn('자동 등록 실패', error);
+    const currentMonth = calendarApi.getDate().getMonth(); // 0부터 시작
+    calendarApi.gotoDate(new Date(newYear, currentMonth, 1)); // 연도만 변경, 월은 유지
+
+    setIsYearLoading(true);
+
+    try {
+      const existing = await getClosedDays(newYear, currentMonth + 1); // 현재 보고 있는 월
+      const alreadyRegistered = Array.isArray(existing) && existing.length > 0;
+
+      if (!alreadyRegistered) {
+        await registerAutoAllEvents(newYear);
+        alert(`${newYear}년 자동 등록 완료`);
+      } else {
+        console.log(`${newYear}년은 이미 등록돼 있어요`);
       }
+
+      refetch(); // 등록 여부와 관계없이 최신화
+    } catch (error) {
+      alert('자동 등록 중 오류 발생: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsYearLoading(false);
     }
   };
 
@@ -141,6 +143,7 @@ const CalendarManagementComponent = () => {
     setTitle(target?.reason || '');
     setOriginalDate(target?.closedDate || null);
     setSelectedDate(arg);
+    setSelectedType(target?.type || '기념일');
     setIsModalOpen(true);
   };
 
@@ -153,11 +156,13 @@ const CalendarManagementComponent = () => {
       setIsClosed(target.isClosed);
       setTitle(target.reason);
       setOriginalDate(target.closedDate);
+      setSelectedType(target?.type || '기념일');
     } else {
       setIsEditMode(false);
       setIsClosed(false);
       setTitle('');
       setOriginalDate(null);
+      setSelectedType('기념일');
     }
   }
 
@@ -168,6 +173,7 @@ const CalendarManagementComponent = () => {
       closedDate: selectedDate,
       isClosed,
       reason: title,
+      type: selectedType,
       ...(isEditMode ? { originalDate } : {})
     };
     saveMutation.mutate(dto);
@@ -206,8 +212,12 @@ const CalendarManagementComponent = () => {
           onChange={handleYearChange}
           selectClassName="w-28 cursor-pointer"
           dropdownClassName="w-28"
+          disabled={isYearLoading}
         />
-        <Button onClick={handleGoToday} className="h-10">오늘</Button>
+        <Button onClick={handleGoToday} className="h-10" disabled={isYearLoading}>
+          오늘
+        </Button>
+        {isYearLoading && <Loading size="24px" />}
       </div>
 
       {isLoading && <Loading />}
@@ -254,20 +264,20 @@ const CalendarManagementComponent = () => {
         ) : (
           <Button
             onClick={async () => {
-              const year = new Date().getFullYear();
+              const year = selectedYear;
 
-              if (autoRegisteredYears.has(year)) {
-                alert(`${year}년은 자동 등록되어 있어요🙂`);
-                return;
-              }
-
-              setIsRegisterLoading(true);
               try {
+                const existing = await getClosedDays(year, 1);
+                const alreadyRegistered = Array.isArray(existing) && existing.length > 0;
+
+                if (alreadyRegistered) {
+                  alert(`${year}년은 이미 일정이 존재해요🙂`);
+                  return;
+                }
+
+                setIsRegisterLoading(true);
                 await registerAutoAllEvents(year);
-                const updatedSet = new Set(autoRegisteredYears);
-                updatedSet.add(year);
-                setAutoRegisteredYears(updatedSet);
-                localStorage.setItem('autoRegisteredYears', JSON.stringify([...updatedSet]));
+
                 alert('공휴일 및 휴관일이 등록되었습니다.');
                 refetch();
               } catch (e) {

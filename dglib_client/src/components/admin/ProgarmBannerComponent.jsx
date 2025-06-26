@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Button from "../common/Button";
 import ProgramBannerSearchComponent from "./ProgramBannerSearchComponent";
 import { getProgramBanners, registerProgramBanner, deleteProgramBanner, getProgramBannerImageUrl } from "../../api/programApi";
@@ -7,6 +7,7 @@ const ProgramBannerComponent = () => {
     const [banners, setBanners] = useState([]);
     const [registerForms, setRegisterForms] = useState([]);
     const [showSearch, setShowSearch] = useState(null);
+    const fileInputRefs = useRef([]);
     const MAX_COUNT = 6;
 
     useEffect(() => {
@@ -135,7 +136,7 @@ const ProgramBannerComponent = () => {
                 <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl border border-gray-100 shadow">
                     <div className="flex items-start gap-8">
 
-                        {/* 왼쪽: 프로그램 선택, 파일 업로드 */}
+                        {/* 프로그램 선택, 이미지 업로드 */}
                         <div className="flex-1 flex flex-col space-y-8">
                             <div className="flex items-center gap-3">
                                 <p className="font-semibold text-s text-gray-700">
@@ -147,7 +148,7 @@ const ProgramBannerComponent = () => {
                             <div className="text-start space-y-1">
                                 <label
                                     htmlFor={`file-upload-${index}`}
-                                    className="cursor-pointer text-sm font-bold text-blue-700 hover:underline inline-block"
+                                    className="cursor-pointer text-sm font-bold text-blue-500 underline hover:text-blue-600 inline-block"
                                 >
                                     이미지 업로드
                                     <input
@@ -168,8 +169,12 @@ const ProgramBannerComponent = () => {
                             <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
                         </div>
 
-                        {/* 가운데: 이미지 미리보기 */}
-                        <div className="relative w-36 h-36 border border-gray-300 shadow rounded-xl bg-gray-100 flex items-center justify-center">
+                        {/* 이미지 업로드 및 이미지 미리보기 */}
+                        <div
+                            className="relative w-36 h-36 border border-gray-300 shadow rounded-xl bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                            onClick={() => fileInputRefs.current[index]?.click()}
+                            title="클릭하여 이미지 업로드"
+                        >
                             {form.file ? (
                                 <>
                                     <img
@@ -177,10 +182,10 @@ const ProgramBannerComponent = () => {
                                         alt="미리보기"
                                         className="w-full h-full object-cover rounded"
                                     />
-                                    {/* 미리보기 이미지 X 버튼 */}
                                     <button
                                         type="button"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             const newForms = [...registerForms];
                                             newForms[index].file = null;
                                             setRegisterForms(newForms);
@@ -194,9 +199,16 @@ const ProgramBannerComponent = () => {
                             ) : (
                                 <span className="text-xs text-gray-500">이미지 미리보기</span>
                             )}
+
+                            <input
+                                ref={(el) => (fileInputRefs.current[index] = el)}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(index, e.target.files[0])}
+                                className="hidden"
+                            />
                         </div>
 
-                        {/* 오른쪽: 삭제(X) 위, 등록 아래 */}
                         <div className="flex flex-col-reverse items-center gap-7">
                             <Button
                                 onClick={() => handleRegister(index)}

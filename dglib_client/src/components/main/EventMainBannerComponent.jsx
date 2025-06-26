@@ -68,7 +68,9 @@ const EventMainBannerComponent = () => {
                     ))}
                 </Swiper>
             ) : (
-                <p className="text-sm text-gray-500 text-center">등록된 새소식 배너가 없습니다.</p>
+                <div className="flex items-center justify-center min-h-[230px]">
+                    <p className="text-sm text-gray-500 text-center">등록된 새소식 배너가 없습니다.</p>
+                </div>
             )}
 
             <style>

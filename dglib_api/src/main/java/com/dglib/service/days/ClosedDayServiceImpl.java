@@ -51,16 +51,16 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 
 		return modelMapper.map(entity, ClosedDayDTO.class);
 	}
+
 	// 챗봇용 단일 조회
 	@Override
 	public ClosedDayDTO getByChat(LocalDate date) {
-		ClosedDay entity = closedDayRepository.findById(date).orElse(
-				ClosedDay.builder().isClosed(false).build());
+		ClosedDay entity = closedDayRepository.findById(date).orElse(ClosedDay.builder().isClosed(false).build());
 
 		return modelMapper.map(entity, ClosedDayDTO.class);
 	}
-	
-	//주간 조회
+
+	// 주간 조회
 	@Override
 	public List<ClosedDayDTO> getWeeklyList(LocalDate start, LocalDate end) {
 
@@ -79,9 +79,12 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 		List<ClosedDay> list = closedDayRepository.findByClosedDateBetween(start, end).stream()
 				.sorted(Comparator.comparing(ClosedDay::getClosedDate)).collect(Collectors.toList());
 
-		return list.stream().map(day -> modelMapper.map(day, ClosedDayDTO.class)).collect(Collectors.toList());
+		return list.stream().map(day -> {
+			ClosedDayDTO dto = modelMapper.map(day, ClosedDayDTO.class);
+			dto.setType(day.getIsClosed() ? "공휴일" : "기념일");
+			return dto;
+		}).collect(Collectors.toList());
 	}
-	
 
 	// 수정
 	@Override
@@ -105,6 +108,10 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	// 삭제
 	@Override
 	public void delete(LocalDate date) {
+		if (holidayApiService.isNationalHoliday(date)) {
+			throw new IllegalArgumentException("공휴일은 삭제할 수 없습니다.");
+		}
+
 		ClosedDay day = closedDayRepository.findById(date)
 				.orElseThrow(() -> new IllegalArgumentException("삭제할 휴관일이 존재하지 않습니다."));
 

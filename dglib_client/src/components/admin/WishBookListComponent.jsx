@@ -144,7 +144,14 @@ const WishBookListComponent = () => {
                                         <td className="py-4 px-6 text-center text-xs max-w-[10px] whitespace-nowrap">{item.appliedAt}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.processedAt || "-"}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap font-semibold">
-                                                {item.state === "CANCELED" ?  "취소" : item.state === "REJECTED" ? "반려" : item.state === "ACCEPTED" ? "완료" : "처리중" }
+                                        <span className={`px-2 py-2 rounded-full ${
+                                                item.state === "CANCELED" ?  "bg-gray-200 text-gray-800" :
+                                                item.state === "REJECTED" ? "bg-red-200 text-red-800" :
+                                                item.state === "ACCEPTED" ? "bg-green-200 text-green-800" : "bg-yellow-200 text-yellow-800"
+                                            }`}>
+                                                 {item.state === "CANCELED" ?  "취소" : item.state === "REJECTED" ? "반려" : item.state === "ACCEPTED" ? "완료" : "처리중" }
+                                            </span>
+                                                
                                         </td>
                                     </tr>
                                 );

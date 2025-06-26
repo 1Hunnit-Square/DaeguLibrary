@@ -46,10 +46,13 @@ const MemberStatsComponent = () => {
       alignLabels: true,
       innerRadius: am5.percent(50),
     });
+
+    series1.ticks.template.set("visible", false);
+
     series1.labels.template.setAll({
       textType: "adjusted",
       inside: true,
-      radius: 10,
+      radius: 40,
       maxWidth: 60,
       fill: am5.color(0x000000),
     });
@@ -96,13 +99,16 @@ const MemberStatsComponent = () => {
     series2.labels.template.setAll({
       textType: "adjusted",
       inside: true,
-      radius: 10,
+      radius: 40,
       maxWidth: 60,
       fill: am5.color(0x000000),
     });
+
+    series2.ticks.template.set("visible", false);
     series2.data.setAll(
      data.ageCount.map(v => ({ "value" : v.count, "category": v.age}))
     );
+
     series2.set("alignLabels", false);
     series2.appear(1000, 100);
 

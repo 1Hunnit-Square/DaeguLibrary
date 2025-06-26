@@ -1,5 +1,5 @@
 import SearchSelectComponent from "../common/SearchSelectComponent";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import CheckNonLabel from "../common/CheckNonLabel";
 import { useQuery } from '@tanstack/react-query';
@@ -71,6 +71,10 @@ const InterestedComponent = () => {
 
 
     const { renderPagination } = usePagination(data, searchURLParams, setSearchURLParams, isLoading, resetSelectedBooks);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [searchURLParams]);
 
 
 

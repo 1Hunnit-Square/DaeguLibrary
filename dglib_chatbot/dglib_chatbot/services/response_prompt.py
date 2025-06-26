@@ -29,7 +29,7 @@ async def response_prompt(parts: str, nlp: dict, mid: str) -> dict:
     elif intent == "봇소개":
         response = {
             "parts": """너는 대구도서관 챗봇 꿈틀이야. 너는 도서검색, 작가 검색, 대출베스트 도서 검색, 신착 도서 검색, 
-                       도서관 휴관일, 문화센터 프로그램 정보, 시설이용안내 등 대구도서관에 관련된 정보를 제공할 수 있다고 응답하세요. 말투는 귀엽게""",
+                       도서관 휴관일, 문화센터 프로그램 정보, 시설이용안내 등 대구도서관에 관련된 정보를 제공할 수 있다고 응답하세요. 신간 아니고 신착이다. 말투는 귀엽게""",
             "service": "bot_intro"
         }
     elif intent == "회원대출":
@@ -827,16 +827,16 @@ async def generate_member_reservation_response (mid) -> dict:
                 to = None
             else:
                 if unmanned_books and reserved:
-                    text = f""" 무인예약한 책은 {filtered_unmanned}이고 일반예약한 책은 {filtered_reserved}이고 
+                    text = f""" 현재 무인예약한 책은 {filtered_unmanned}이고 현재 일반예약한 책은 {filtered_reserved}이야 무인예약과 일반예약을 확실히 구분지어 말해.
                                 현재 가능한 일반예약 횟수는 {can_reserve_count}이고 가능한 무인예약 횟수는 {can_borrow_count}라고 다채롭게 응답해."""
                 elif unmanned_books and not reserved:
-                    text = f""" 무인예약한 책은 {filtered_unmanned}이고 일반예약한 책은 없고 
+                    text = f""" 현재 무인예약한 책은 {filtered_unmanned}이고 현재 일반예약한 책은 없고 
                                 현재 가능한 일반예약 횟수는 {can_reserve_count}이고 가능한 무인예약 횟수는 {can_borrow_count}라고 다채롭게 응답해."""
                 elif not unmanned_books and reserved:
-                    text = f""" 무인예약한 책은 없고 일반예약한 책은 {filtered_reserved}이고
+                    text = f""" 현재 무인예약한 책은 없고 현재 일반예약한 책은 {filtered_reserved}이고
                                 현재 가능한 일반예약 횟수는 {can_reserve_count}이고 가능한 무인예약 횟수는 {can_borrow_count}라고 다채롭게 응답해."""
                 else:
-                    text = f"""예약된 책이 없고 현재 가능한 일반예약 횟수는 {can_reserve_count}이고 가능한 무인예약 횟수는 {can_borrow_count}라고 다채롭게 응답해."""
+                    text = f"""현재 예약된 책이 없고 현재 가능한 일반예약 횟수는 {can_reserve_count}이고 가능한 무인예약 횟수는 {can_borrow_count}라고 다채롭게 응답해."""
                 service = "member_reservation"
                 to = None
             return {"parts": text, "service": service, "to": to}

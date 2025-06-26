@@ -2,11 +2,12 @@ import DynamicTab from "../../menus/DynamicTab";
 import NomalSearchBookComponent from "./NomalSearchBookComponent";
 import FilterSearchBookComponent from "./FilterSearchBookComponent";
 import { useSearchParams } from "react-router-dom";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useRef } from "react";
 
 
 const BookSearchComponent = () => {
   const [searchURLParams, setSearchURLParams] = useSearchParams();
+  const componentTopRef = useRef(null);
 
 
   const activeTab = useMemo(() => {
@@ -26,21 +27,21 @@ const BookSearchComponent = () => {
     setSearchURLParams(newParams);
   }, [searchURLParams, setSearchURLParams]);
 
-  const myTabs = useMemo(() => [
+  const myTabs = [
     {
       id: 'info',
       label: '일반검색',
-      content: <NomalSearchBookComponent />
+      content: <NomalSearchBookComponent ref={componentTopRef} />
     },
     {
       id: 'settings',
       label: '상세검색',
-      content: <FilterSearchBookComponent />
+      content: <FilterSearchBookComponent ref={componentTopRef} />
     }
-  ], []);
+  ];
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6" ref={componentTopRef}>
       <DynamicTab
         tabsConfig={myTabs}
         activeTabId={activeTab}

@@ -1,5 +1,5 @@
 import SelectComponent from "../common/SelectComponent";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +12,7 @@ const RecommendBookComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const { handleSelectChange } = useSelectHandler(searchURLParams, setSearchURLParams);
     const option = useMemo(() => ({"문학": "literature", "철학": "philosophy", "종교": "religion", "역사": "history", "언어": "language", "예술": "art", "사회과학": "social-sciences", "자연과학": "natural-sciences", "기술과학": "technology"}), []);
-
+    const didMountRef = useRef(false);
     const { data: recoBookData = { content: [], totalElements: 0 }, isLoading, isError } = useQuery({
         queryKey: ['recoBookList', searchURLParams.toString()],
         queryFn: () => getBookrecoList(searchURLParams.get("genre") || "literature", searchURLParams.get("page") || "1"),
@@ -22,8 +22,12 @@ const RecommendBookComponent = () => {
     console.log(recoBookData)
 
     useEffect(() => {
-                window.scrollTo(0, 0);
-            }, []);
+        if (didMountRef.current) {
+            window.scrollTo(0, 0);
+        } else {
+            didMountRef.current = true;
+        }
+    }, [searchURLParams.get('page')]);
 
     
 

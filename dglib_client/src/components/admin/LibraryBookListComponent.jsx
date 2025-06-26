@@ -63,9 +63,9 @@ const LibraryBookListComponent = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center">
                         <span className="w-50">입고일</span>
-                        <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                         <span className="mx-4">-</span>
-                        <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                     </div>
                 </div>
             </div>
@@ -119,8 +119,16 @@ const LibraryBookListComponent = () => {
                                         <td className="py-4 px-6 text-center text-xs max-w-[80px] whitespace-nowrap">{item.location}</td>
                                         <td className="py-4 px-6 text-center text-xs max-w-[10px] whitespace-nowrap">{item.callSign}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.regLibraryBookDate}</td>
-                                        <td className="py-4 px-6 text-center text-xs whitespace-nowrap font-semibold">
-                                            {item.rented ? "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : ""}
+                                        <td className={`py-4 px-6 text-center text-xs whitespace-nowrap font-semibold `}>
+                                            <span className={`px-2 py-2 rounded-full ${
+                                                item.rented ?  (isOverdue ? "bg-red-200 text-red-800" : "bg-yellow-200 text-yellow-800") :
+                                                item.unmanned ? "bg-green-200 text-green-800" :
+                                                item.reserveCount > 0 ? "bg-blue-200 text-blue-800" : ""
+                                            }`}>
+                                                 {item.rented ? "대출중" : item.unmanned ? "무인예약중" : item.reserveCount > 0 ? "예약대기중" : ""}
+                                            </span>
+    
+                                           
                                         </td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.reserveCount}</td>
                                         <td className="py-4 px-6 text-center text-xs whitespace-nowrap">{item.deleted === false ? "소장중" : "부재"}</td>

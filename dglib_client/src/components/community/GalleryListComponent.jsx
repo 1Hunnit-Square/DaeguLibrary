@@ -63,7 +63,7 @@ const GalleryListComponent = () => {
 
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-10 mt-10">
                 {galleryData.content.length > 0 ? (
                     galleryData.content.map((item) => {
                         return (
@@ -88,7 +88,7 @@ const GalleryListComponent = () => {
                                         <div className="text-2xl">-</div>
                                     )}
                                 </div>
-                                <div className="mt-1 text-center text-sm ">{item.title || "{제목}"}</div>
+                                <div className="mt-3 text-center truncate">{item.title || "{제목}"}</div>
                             </div>
                         );
                     })

@@ -25,7 +25,7 @@ const FacilityComponent = () => {
           <h2 className="text-xl md:text-2xl font-bold text-green-800 mb-2 leading-relaxed">
             대구도서관 시설이용신청 안내
           </h2>
-          <div className="w-10 border-b-2 border-green-800 mb-4"></div>
+          <div className="w-15 border-b-2 border-green-800 mb-4"></div>
           <p className="text-sm md:text-base text-gray-700 leading-relaxed tracking-wide">
             대구도서관의 시설은 시민 누구나 자유롭게 이용하실 수 있습니다. <br />
             시설 이용을 희망하시는 시민 여러분의 많은 참여를 부탁드립니다.
@@ -39,7 +39,7 @@ const FacilityComponent = () => {
         </div>
       </section>
 
-      <section className="mb-12">
+      <section className="mb-12 pl-5">
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
           이용시간
         </h3>
@@ -62,11 +62,11 @@ const FacilityComponent = () => {
         </div>
       </section>
 
-      <section className="mb-16">
+      <section className="mb-16  pl-5 ">
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
           참고 및 주의사항
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-5">
           <div className="flex items-start gap-4">
             <img src="/caution_1_fan.png" alt="냉난방 안내 아이콘" className="w-8 h-8 mt-1" />
             <p className="text-sm text-gray-700 leading-snug">
@@ -107,7 +107,7 @@ const FacilityComponent = () => {
       </section>
 
       <section className="mb-16">
-        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
+        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 pl-5">
           이용방법
         </h3>
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
@@ -130,7 +130,7 @@ const FacilityComponent = () => {
       </section>
 
       <section className="mb-14">
-        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
+        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 pl-5">
           이용시설공간
         </h3>
         <table className="w-full text-sm text-left border border-gray-300">

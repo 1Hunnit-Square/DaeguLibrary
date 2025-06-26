@@ -178,7 +178,7 @@ const ProgramAdminComponent = () => {
                                     <td className="py-3 px-4">{item.createdAt}</td>
                                     <td className="py-3 px-4">
                                         <Button
-                                            className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded"
+                                            className="bg-red-600 hover:bg-red-700 text-white text-xs !px-2 !py-1.5 rounded"
                                             onClick={() => {
                                                 const confirmed = window.confirm("정말 삭제하시겠습니까?");
                                                 if (confirmed) {

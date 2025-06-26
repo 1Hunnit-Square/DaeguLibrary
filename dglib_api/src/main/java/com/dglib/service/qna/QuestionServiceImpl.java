@@ -78,13 +78,13 @@ public class QuestionServiceImpl implements QuestionService {
 				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
 		String writerMid = question.getMember().getMid();
-		boolean isOwner = requesterMid != null && writerMid.equals(requesterMid);
+//		boolean isOwner = requesterMid != null && writerMid.equals(requesterMid);
 		boolean isPublic = question.isCheckPublic();
-		boolean hasAuth = JwtFilter.checkAuth(writerMid);
+		boolean hasAuth = JwtFilter.checkMember(writerMid, isPublic);
 
-		if (!isPublic && !hasAuth) {
-			System.out.println("질문을 가져올 수 없음");
-			throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
+		if (!hasAuth) {
+		    System.out.println("질문을 가져올 수 없음");
+		    throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
 		}
 		question.setViewCount(question.getViewCount() + 1);
 

@@ -28,7 +28,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
             <MainMenu />
             <div className="w-full
                 aspect-[5/1] sm:aspect-[6.2/1] md:aspect-[6.1/1] lg:aspect-[6/1]
-                p-4 sm:p-6 md:p-8 lg:p-12 xl:p-15 shadow-xl 
+                p-4 sm:p-6 md:p-8 lg:p-12 xl:p-15 shadow-lg 
                 flex items-center justify-center" 
                 style={{
                 backgroundImage: 'url(/main.png)', 

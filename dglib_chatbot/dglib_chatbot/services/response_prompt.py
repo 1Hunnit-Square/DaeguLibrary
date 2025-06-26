@@ -236,6 +236,7 @@ async def generate_member_borrow_response (mid) -> dict:
             return {"parts": text, "service": service, "to": to}
         
     except Exception as e:
+        logger.error(f"Error generating member borrow response: {e}")
         text = f"""서버 상태가 이상해서 파업할꺼니까 나중에 다시 오라고 귀엽게 얘기하세요."""
         service = "member_borrow"
         return {"parts": text, "service": service}
@@ -787,6 +788,7 @@ async def generate_member_reservation_response (mid) -> dict:
             data = response.json()
             error_items = [item for item in data if isinstance(item, dict) and item.get("error")]
             if error_items:
+                logger.error(f"Error items found in response: {error_items}")
                 raise Exception("서버 에러")
             reserved_count = data.get("reservedCount")
             can_reserve_count = data.get("canReserveCount")

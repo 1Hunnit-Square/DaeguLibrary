@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from dglib_chatbot.utils.config import logger, web_config
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dglib_chatbot.services.chatbot_response import save_chat_log, save_chat_feedback_log
+from dglib_chatbot.services.chatbot_response import save_chat_log, save_chat_feedback_log, chatbot_history_delete
 import uuid
 from dglib_chatbot.services.session_manager import start_scheduler
 from contextlib import asynccontextmanager

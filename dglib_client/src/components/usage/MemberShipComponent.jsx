@@ -31,13 +31,13 @@ const MemberShipComponent = () => {
 
                 {/* 가입 절차 */}
                 <div className="mb-14">
-                    <div className="flex flex-col md:flex-row md:items-center gap-10 mb-5">
+                    <div className="flex flex-col md:flex-row md:items-center gap-8 mb-5">
                         <h2 className="text-2xl font-bold text-green-800 border-b-4 border-green-700 inline-block pb-2 mb-4 md:mb-0">
                             회원 가입 절차
                         </h2>
                         <Button
                             onClick={() => navigate(`/signup`)}
-                            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-2 py-2"
+                            className="bg-green-700 hover:bg-green-800 text-white font-semibold px-2 py-2"
                         >
                             회원가입하기
                         </Button>
@@ -61,7 +61,7 @@ const MemberShipComponent = () => {
                         <h3 className="text-lg font-semibold text-gray-800 mb-4">도서관 방문</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm">
                             {["STEP 01", "STEP 02", "STEP 03"].map((step, i) => (
-                                <div key={i} className="rounded-lg p-5 shadow bg-white border border-gray-300">
+                                <div key={i} className="rounded-lg px-3 py-5 shadow bg-white border border-gray-300">
                                     <p className="text-green-700 font-bold text-base mb-2">{step}</p>
                                     <p>{["회원가입 신청서 작성", "도서관 방문 및 구비서류 제출", "회원증 발급 및 도서 대출 서비스 이용"][i]}</p>
                                 </div>

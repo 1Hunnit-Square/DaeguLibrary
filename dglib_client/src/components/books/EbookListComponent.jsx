@@ -15,7 +15,7 @@ import SearchSelectComponent from '../common/SearchSelectComponent';
 const EbookListComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
     const mid = useRecoilValue(memberIdSelector);
-    const didMountRef = useRef(false);
+    const topRef = useRef(null);
     const { moveToLogin } = useMoveTo();
     const { data: ebookList = { content: [] }, isLoading, isError } = useQuery({
         queryKey: ['ebookList', searchURLParams.toString()],
@@ -56,20 +56,12 @@ const EbookListComponent = () => {
         }, [setSearchURLParams]);
 
 
-    const { renderPagination } = usePagination(ebookList, searchURLParams, setSearchURLParams, isLoading);
+    const { renderPagination } = usePagination(ebookList, searchURLParams, setSearchURLParams, isLoading, undefined, topRef);
     const searchOption = useMemo(() => ["전체", "제목", "저자", "출판사"], []);
-
-    useEffect(() => {
-        if (didMountRef.current) {
-            window.scrollTo(0, 0);
-        } else {
-            didMountRef.current = true;
-        }
-    }, [searchURLParams.get('page')]);
     
 
     return (
-        <div>
+        <div ref={topRef}>
             <div className="w-full max-w-4xl mx-auto p-4 md:p-6 bg-white mt-10 rounded-lg shadow-md">
                 <SearchSelectComponent
                     options={searchOption}

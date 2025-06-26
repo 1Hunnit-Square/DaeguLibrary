@@ -36,7 +36,7 @@ const ProgramMainBannerComponent = () => {
 
     return (
         <div className="w-full h-full">
-            <h2 className="text-ms font-bold text-gray-800">이달의 프로그램</h2>
+            <h2 className="text-ms pl-3 font-bold text-gray-800">이달의 프로그램</h2>
             {banners.length > 0 ? (
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}

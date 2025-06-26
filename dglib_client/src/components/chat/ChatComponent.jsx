@@ -17,6 +17,10 @@ const ChatComponent = ({ onClose }) => {
     const [clientId, setClientId] = useRecoilState(clientIdState);
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
+    const [composing, setComposing] = useState(false);
+    const inputRef = useRef(null);
+
+    
 
     const chatMutation = useMutation({
         mutationFn: async (param) => {
@@ -149,7 +153,35 @@ const ChatComponent = ({ onClose }) => {
         setChatHistory(updatedChatHistory);
         
     
-    }, [chatHistory, setChatHistory, feedbackMutation]); 
+    }, [chatHistory, setChatHistory, feedbackMutation]);
+    
+    useEffect(() => {
+        const input = inputRef.current;
+        if (!input) return;
+    
+        const handleCompositionStart = () => setComposing(true);
+        const handleCompositionEnd = () => setComposing(false);
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter' && !composing) {
+              if (e.shiftKey) {
+                return;
+              } else {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }
+          };
+
+        input.addEventListener('compositionstart', handleCompositionStart);
+        input.addEventListener('compositionend', handleCompositionEnd);
+        input.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            input.removeEventListener('compositionstart', handleCompositionStart);
+            input.removeEventListener('compositionend', handleCompositionEnd);
+            input.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [composing]);
 
     return (
         <>
@@ -256,13 +288,14 @@ const ChatComponent = ({ onClose }) => {
             <form onSubmit={handleSendMessage} className="p-2 sm:p-3 bg-white border-t flex gap-2">
                 <textarea
                     value={message}
+                    ref={inputRef}
                     onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            if (message.trim()) handleSendMessage(e);
-                        }
-                    }}
+                    // onKeyDown={(e) => {
+                    //     if (e.key === 'Enter' && !e.shiftKey) {
+                    //         e.preventDefault();
+                    //         if (message.trim()) handleSendMessage(e);
+                    //     }
+                    // }}
                     rows="1"
                     style={{ resize: 'none' }}
                     placeholder="메시지를 입력하세요..."

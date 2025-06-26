@@ -23,8 +23,8 @@ const NormalBoardComponent = () => {
       api: (params) => getBoardList({ ...params, boardType: "notice" }),
       columns: [
         { key: "no", label: "글번호", align: "center", width: "6%" },
-        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "45%" },
-        { key: "writerId", label: "작성자", align: "center", width: "7%" },
+        { key: "title", label: "제목", align: "center", bodyAlign: "left", width: "40%" },
+        { key: "writerId", label: "작성자", align: "center", width: "12%" },
         { key: "postedAt", label: "작성일", align: "center", width: "12%" },
         { key: "modifiedAt", label: "수정일", align: "center", width: "12%" },
         { key: "hidden", label: "숨김", align: "center", width: "6%" },

@@ -30,8 +30,7 @@ public class AdminQnaSpecifications {
 			}
 
 			if (dto.getStart() != null && dto.getEnd() != null) {
-				// 여기 수정됨
-				predicates.add(cb.between(root.get("postedAt"), dto.getStart(), dto.getEnd()));
+				predicates.add(cb.between(root.get("postedAt"), dto.getStart(), dto.getEnd().plusDays(1)));
 			}
 
 			return cb.and(predicates.toArray(new Predicate[0]));

@@ -78,28 +78,29 @@ const QnaListComponent = () => {
     }
     return null;
   }, [isSearched, pageable, queryParams.query]);
-
-  const tableMap = {
-    table: {
-      status: "처리상황",
-      title: "제목",
-      checkPublic: "공개여부",
-      name: "작성자",
-      postedAt: "작성일",
-      viewCount: "조회수"
-    },
-    trans: {
-      status: (val) => <StatusBadge status={val} />,
-      checkPublic: (val) => val ? "" : <LockIcon />,
-      postedAt: (val) => val?.substring(0, 10),
-    },
-    style: {
-      title: "max-w-100 min-w-100",
-    },
-    overKey: ["title"],
-    lineKey: ["title"],
-    noneMsg: "등록된 글이 없습니다.",
-  };
+const tableMap = {
+  table: {
+    status: "처리상황",
+    title: "제목",
+    checkPublic: "공개여부",
+    name: "작성자",
+    postedAt: "작성일",
+    viewCount: "조회수"
+  },
+  trans: {
+    status: (val) => <StatusBadge status={val} />,
+    checkPublic: (val) => val ? "" : <LockIcon />,
+    postedAt: (val) => val?.substring(0, 10),
+  },
+  style: {
+    title: "max-w-100 min-w-100",
+  },
+  // 추가된 항목들
+  leftKey: ["title"],
+  overKey: ["title"],
+  lineKey: ["title"],
+  noneMsg: "등록된 글이 없습니다.",
+};
 
   const handleDetail = (qno) => {
     navigate(`/community/qna/${qno}`);

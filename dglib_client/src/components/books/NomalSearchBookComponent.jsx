@@ -145,7 +145,7 @@ const NomalSearchBookComponent = forwardRef ( (_, ref ) => {
             <div className="w-full px-4 md:w-[70%] lg:w-[50%] mx-auto mt-3">
                 <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
                     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start gap-2">
-                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap sm:mr-2">✨인기검색어</span>
+                        <span className="text-sm pl-3 my-auto font-bold text-gray-700 whitespace-nowrap sm:mr-2">인기검색어</span>
                         <div className="flex flex-wrap gap-2">
                             {data.keywords && data.keywords.length > 0 ? (
                                 data.keywords.map((keyword, index) => (
@@ -231,7 +231,7 @@ const NomalSearchBookComponent = forwardRef ( (_, ref ) => {
                                                 className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden border border-white hover:border hover:border-[#0CBA57] gap-4 md:gap-6 p-4 md:p-6 mx-2 md:mx-0"
                                             >
                                                 
-                                                <div className="flex flex-row md:flex-col items-start md:items-center md:w-40 lg:w-48 gap-3 md:gap-2">
+                                                <div className="flex flex-row md:flex-col items-start md:w-40 lg:w-48 gap-3 md:gap-2">
                                                     <CheckNonLabel
                                                         checked={selectedBooks.has(book.libraryBookId)}
                                                         onChange={(e) => handleSelectBooks(e, book.libraryBookId)}

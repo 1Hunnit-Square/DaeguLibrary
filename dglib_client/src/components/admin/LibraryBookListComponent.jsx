@@ -63,9 +63,9 @@ const LibraryBookListComponent = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center">
                         <span className="w-50">입고일</span>
-                        <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <input type="date" value={dateRange.startDate} name="startDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                         <span className="mx-4">-</span>
-                        <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-full border bg-white rounded-md p-2" />
+                        <input type="date" value={dateRange.endDate} name="endDate" onChange={handleDateChange} className="w-[80%] border bg-white rounded-md p-2" />
                     </div>
                 </div>
             </div>

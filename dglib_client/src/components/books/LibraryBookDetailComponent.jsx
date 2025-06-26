@@ -242,7 +242,7 @@ const LibraryBookDetailComponent = () => {
                             <div className="space-y-3 sm:space-y-4 mt-4 lg:mt-20">
                                 <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2">
                                     <span className="w-full sm:w-24 font-semibold text-gray-600 mb-1 sm:mb-0">저자</span>
-                                    <span className="break-words">{bookDetails.author}</span>
+                                    <span className="break-words ">{bookDetails.author}</span>
                                 </div>
     
                                 <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2">

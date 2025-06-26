@@ -76,7 +76,7 @@ const CalendarComponent = ({
             options={Array.from({ length: 10 }, (_, i) => `${now.getFullYear() - 5 + i}년`)}
             value={`${selectedYear}년`}
             onChange={handleYearChange}
-            selectClassName="w-28 text-sm"
+            selectClassName="w-28"
             dropdownClassName="w-28"
           />
         )}

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Web_config:
-    API_GATE_URL: str = "http://localhost:8090"
+    API_GATE_URL: str = "https://dglib.kro.kr/"
     API_GATE_ENDPOINT: str = "/api/chatbotpy"
     SECRET_KEY = 'gumtlegumtle_gumtlegumtle_gumtlegumtle_gumtlegumtle'
     

@@ -204,7 +204,7 @@ const CalendarManagementComponent = () => {
           options={getYearOptions()}
           value={`${selectedYear}년`}
           onChange={handleYearChange}
-          selectClassName="w-28 text-sm cursor-pointer"
+          selectClassName="w-28 cursor-pointer"
           dropdownClassName="w-28"
         />
         <Button onClick={handleGoToday} className="h-10">오늘</Button>
@@ -276,10 +276,10 @@ const CalendarManagementComponent = () => {
                 setIsRegisterLoading(false);
               }
             }}
-            className='h-10 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded cursor-pointer'
+            className='h-10 bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded cursor-pointer mt-5'
           >
             {isRegisterLoading && <Loading size="20px" />}
-            공휴일 수동 등록
+            공휴일 업데이트
           </Button>
         )}
       </div>

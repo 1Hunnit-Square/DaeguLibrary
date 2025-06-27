@@ -42,6 +42,10 @@ public class JwtFilter extends OncePerRequestFilter {
 	    String roleName = (String) claims.get("roleName");
 		
 		MemberDTO memberDTO = new MemberDTO(mid, "", name, mno, roleName);
+		
+	
+		
+		
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 		
@@ -66,7 +70,6 @@ public class JwtFilter extends OncePerRequestFilter {
 	    
 	    String path = request.getRequestURI();
 	    String authHeader = request.getHeader("Authorization");
-
 
 	    
 	    if (path.equals("/favicon.ico") || path.startsWith("/api/member/refresh")) {

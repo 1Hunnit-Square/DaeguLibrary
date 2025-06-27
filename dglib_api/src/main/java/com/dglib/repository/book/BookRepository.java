@@ -38,6 +38,7 @@ public interface BookRepository extends JpaRepository<Book, String> {
 			WHERE lb.is_deleted = false
 			AND lb.reg_library_book_date BETWEEN :startDate AND :endDate
 			GROUP BY b.isbn, b.book_title, b.author, b.publisher, b.pub_date, b.description, b.cover
+			ORDER BY MAX(lb.reg_library_book_date) DESC
 			LIMIT 5
 			""", nativeQuery = true)
 	List<Book> findTop5NewBooks(

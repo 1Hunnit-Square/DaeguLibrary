@@ -187,7 +187,7 @@ const ChatComponent = ({ onClose }) => {
 
     return (
         <>
-        <div className="fixed bottom-23 sm:bottom-5 sm:left-5 md:left-10 lg:left-20 xl:left-40 
+        <div className="fixed bottom-23 sm:bottom-5 sm:right-5 md:right-10 lg:right-20 xl:right-40 
                         w-[calc(109vw-32px)] sm:w-80 md:w-96 lg:w-[500px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
                         bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col">

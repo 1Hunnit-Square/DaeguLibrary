@@ -4,19 +4,7 @@ const GreetingComponent = () => {
     const [isGifVisible, setIsGifVisible] = useState(false);
     const gifRef = useRef(null);
 
-    const gifSources = [
-        '/director1.gif',
-        '/director2.gif',
-        '/director3.gif',
-        '/director4.gif',
-        '/director5.gif',
-        '/director6.gif',
-    ];
-    const [selectedGif, setSelectedGif] = useState('');
-
     useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * gifSources.length);
-        setSelectedGif(gifSources[randomIndex]);
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -83,7 +71,7 @@ const GreetingComponent = () => {
                         <div className="w-60 h-60 rounded-full overflow-hidden shadow-md mb-5">
                             <img
                                 ref={gifRef}
-                                src={isGifVisible ? selectedGif  : "/director.png"}
+                                src={isGifVisible ? "/director.gif" : "/director.png"}
                                 alt="대구 도서관장"
                                 className="w-full h-full object-cover"
                             />

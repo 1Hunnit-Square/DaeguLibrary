@@ -52,7 +52,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                 </main>
             </div>
           
-            <div className="fixed bottom-6 sm:bottom-6 left-5 sm:left-7 z-999 cursor-pointer hover:scale-120 transition-transform bg-white rounded-full p-1 sm:p-2 shadow-lg"
+            <div className="fixed bottom-6 sm:bottom-6 right-5 sm:right-7 z-999 cursor-pointer hover:scale-120 transition-transform bg-white rounded-full p-1 sm:p-2 shadow-lg"
            onClick={toggleChat}>
             <img
                 src="/chaticon.png"

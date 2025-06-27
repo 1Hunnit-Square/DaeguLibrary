@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Navigate } from "react-router-dom";
 import Loading from "./Loading";
+import ProtectedAdminRoute from "./ProtectedAdminRoute";
 
 const RegBook = lazy(() => import("../components/admin/RegBookComponent"));
 const BorrowBook = lazy(() => import("../components/admin/BorrowBookComponent"));
@@ -40,11 +41,11 @@ const adminRouter = () => ([
     },
     {
         path: "membermanagement",
-        element: <Suspense fallback={<Loading />}><MemberManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><MemberManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "calendarmanagement",
-        element: <Suspense fallback={<Loading />}><CalendarManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><CalendarManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "ebookmanagement",
@@ -52,35 +53,35 @@ const adminRouter = () => ([
     },
     {
         path: "bannermanagement",
-        element: <Suspense fallback={<Loading />}><BannerManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><BannerManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "boardmanagement",
-        element: <Suspense fallback={<Loading />}><BoardManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><BoardManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "messengermanagement",
-        element: <Suspense fallback={<Loading />}><MessengerManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><MessengerManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "statsmanagement",
-        element: <Suspense fallback={<Loading />}><StatsManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><StatsManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "progmanagement",
-        element: <Suspense fallback={<Loading />}><ProgManagement /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><ProgManagement /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "progmanagement/programdetail/:progNo",
-        element: <Suspense fallback={<Loading />}><ProgramAdminDetail /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><ProgramAdminDetail /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "programregister",
-        element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><ProgramRegister /></Suspense></ProtectedAdminRoute>
     },
     {
         path: "progmanagement/programregister/:progNo",
-        element: <Suspense fallback={<Loading />}><ProgramRegister /></Suspense>
+        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><ProgramRegister /></Suspense></ProtectedAdminRoute>
     }
 
 

@@ -12,6 +12,7 @@ import communityRouter from "./communityRouter";
 import myLibraryRouter from "./myLibraryRouter";
 import ProtectedRoute from "./ProtectedRoute";
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
+import ProtectedManagerRoute from "./ProtectedManagerRoute";
 
 
 
@@ -94,7 +95,7 @@ const root = createBrowserRouter([
     },
     {
         path: "admin",
-        element: <ProtectedAdminRoute><Suspense fallback={<Loading />}><Admin /></Suspense></ProtectedAdminRoute>,
+        element: <ProtectedManagerRoute><Suspense fallback={<Loading />}><Admin /></Suspense></ProtectedManagerRoute>,
         children: adminRouter()
     },
     {

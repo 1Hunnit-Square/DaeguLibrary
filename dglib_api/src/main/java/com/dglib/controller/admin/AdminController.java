@@ -55,7 +55,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
@@ -64,6 +63,7 @@ public class AdminController {
 	private final AdminBoardService adminBoardService;
 
 	@PostMapping("/regbook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> regBook(@RequestBody BookRegistrationDTO bookRegistration) {
 		LOGGER.info("도서 등록 요청: {}", bookRegistration);
 		bookService.registerBook(bookRegistration);
@@ -72,6 +72,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/regbookcheck/{isbn}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<BookRegistrationDTO> regBookCheck(@PathVariable String isbn) {
 		LOGGER.info("isbn: {}", isbn);
 		BookRegistrationDTO regBookCheckDto = bookService.getLibraryBookList(isbn);
@@ -79,6 +80,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/changelibrarybook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> deleteLibraryBook(@RequestBody LibraryBookChangeDTO libraryBookChangeDto) {
 		LOGGER.info("도서 삭제 요청: {}", libraryBookChangeDto);
 		bookService.changeLibraryBook(libraryBookChangeDto.getLibraryBookId(), libraryBookChangeDto.getState());
@@ -86,6 +88,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/borrowbook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> rentBook(@RequestBody RentBookDTO rentBookDto) {
 		LOGGER.info("도서 대출 요청: {}", rentBookDto);
 		bookService.rentBook(rentBookDto.getLibraryBookId(), rentBookDto.getMno());
@@ -93,6 +96,7 @@ public class AdminController {
 	}
 
 	@GetMapping("searchmembernumber/{memberNumber}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<MemberSearchByMnoDTO>> searchMemberNumber(@PathVariable String memberNumber,
 			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("memberNumber: {}", memberNumber);
@@ -103,6 +107,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/searchlibrarybook/{libraryBookId}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<LibraryBookSearchByBookIdDTO>> searchMemberNumber(@PathVariable Long libraryBookId,
 			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		LOGGER.info("libraryBookId: {}", libraryBookId);
@@ -112,7 +117,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/rentallist")
-
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<RentalPageDTO> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
 		LOGGER.info(borrowedBookSearchDto + " ");
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);
@@ -129,6 +134,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/returnbook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> returnBook(@RequestBody List<RentalStateChangeDTO> rentalStateChangeDto) {
 		LOGGER.info("도서 반납 요청: {}", rentalStateChangeDto);
 		bookService.completeBookReturn(rentalStateChangeDto);
@@ -136,6 +142,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/reservebooklist")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<ReserveBookListDTO>> reserveBookList(
 			@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
 		LOGGER.info(borrowedBookSearchDto + " ");
@@ -154,6 +161,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/cancelreservebook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> cancelReserveBook(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 		LOGGER.info("도서 예약 취소 요청: {}", reserveStateChangeDtos);
 		bookService.cancelReserveBook(reserveStateChangeDtos);
@@ -161,6 +169,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/completeborrowing")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> completeBorrowing(@RequestBody List<ReserveStateChangeDTO> reserveStateChangeDtos) {
 		LOGGER.info("도서 대출 완료 요청: {}", reserveStateChangeDtos);
 		bookService.completeBorrowing(reserveStateChangeDtos);
@@ -168,6 +177,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/librarybooklist")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<LibraryBookSummaryDTO>> getLibraryBookList(
 			@ModelAttribute LibraryBookSearchDTO libraryBookSearchDto) {
 		LOGGER.info(libraryBookSearchDto + " ");
@@ -185,6 +195,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/updateoverduemember")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> updateOverdueMember() {
 		LOGGER.info("연체 회원 업데이트 요청");
 		memberService.executeOverdueCheck();
@@ -192,6 +203,7 @@ public class AdminController {
 	}
 
 	@GetMapping("wishbooklist")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<AdminWishBookListDTO>> getWishBookList(AdminWishBookSearchDTO dto) {
 		LOGGER.info("위시리스트 도서 조회 요청 {}", dto);
 		int page = Optional.ofNullable(dto.getPage()).orElse(1);
@@ -205,6 +217,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/rejectwishbook/{wishNo}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> rejectWishBook(@PathVariable Long wishNo) {
 		LOGGER.info("위시리스트 도서 거절 요청: {}", wishNo);
 		bookService.rejectWishBook(wishNo);
@@ -212,6 +225,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/regebook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> regEbook(EbookRegistrationDTO dto) {
 		LOGGER.info("전자책 등록 요청 {}", dto);
 
@@ -222,6 +236,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/ebooklist")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<EbookSummaryDTO>> getEbookList(@ModelAttribute EbookSearchDTO dto) {
 		LOGGER.info(dto + " ");
 		int page = Optional.ofNullable(dto.getPage()).orElse(1);
@@ -238,6 +253,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/updateebook")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> updateEbook(@ModelAttribute EbookUpdateDTO dto) {
 		LOGGER.info("전자책 수정 요청 {}", dto);
 		bookService.updateEbook(dto);
@@ -245,6 +261,7 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/deleteebook/{ebookId}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> deleteEbook(@PathVariable Long ebookId) {
 		LOGGER.info("전자책 삭제 요청: {}", ebookId);
 		bookService.deleteEbook(ebookId);
@@ -252,6 +269,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/top10books")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<Top10Books>> getTop10Books(@RequestParam(required = false) LocalDate startDate,
 			@RequestParam(required = false) LocalDate endDate) {
 		LOGGER.info("Top 10 books request with startDate: {}, endDate: {}", startDate, endDate);
@@ -262,6 +280,7 @@ public class AdminController {
 
 	// 관리자 게시판 리스트
 	@GetMapping("/board")
+	@PreAuthorize("hasRole('ADMIN')")
 	public Page<BoardListDTO> getBoards(@ModelAttribute BoardSearchDTO dto, Pageable pageable) {
 		if ("notice".equals(dto.getBoardType())) {
 			return adminBoardService.getNoticeList(dto, pageable);
@@ -276,12 +295,14 @@ public class AdminController {
 	}
 
 	@PutMapping("/board/hide")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> hideBoards(@RequestBody BoardTypeDTO request) {
 		adminBoardService.hideBoards(request.getBoardType(), request.getIds(), request.isHidden());
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/board")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> deleteBoards(@RequestBody BoardTypeDTO request) {
 		adminBoardService.deleteBoards(request.getBoardType(), request.getIds());
 		return ResponseEntity.ok().build();

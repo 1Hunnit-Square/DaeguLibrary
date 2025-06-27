@@ -116,6 +116,20 @@ const defaultMenuItems = [
       ]
     }];
 
+  }else if(role == "MANAGER") {
+      return [ ...items, {
+
+        id: 7,
+        title: '관리자',
+        link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}`,
+        subMenus: [
+          { name: '도서관리', link: `/admin/bookmanagement?tab=booklist&option=도서명&page=1&${dateParams}` },
+          { name: "EBOOK 관리", link: `/admin/ebookmanagement?tab=ebooklist&page=1&option=도서명&${dateParams}` },
+          { name: '대출예약관리', link: '/admin/borrow?tab=borrow&page=1' },
+
+        ]
+      }];
+
   }else {
       return items;
     }

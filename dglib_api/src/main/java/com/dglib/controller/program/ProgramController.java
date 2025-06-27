@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -57,12 +58,14 @@ public class ProgramController {
 	// 관리자용 Api
 	// 1. 배너 목록 조회
 	@GetMapping("/banners")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<List<ProgramBannerDTO>> getAllBanners() {
 		return ResponseEntity.ok(programService.getAllBanners());
 	}
 
 	// 1-1. 배너 등록
 	@PostMapping("/banners/register")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<String> registerBanner(@ModelAttribute ProgramBannerDTO dto,
 			@RequestParam("file") MultipartFile file) {
 		programService.registerBanner(dto, file);
@@ -71,6 +74,7 @@ public class ProgramController {
 
 	// 1-2. 배너 삭제
 	@DeleteMapping("/banners/delete/{bno}")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Void> deleteBanner(@PathVariable Long bno) {
 		programService.deleteBanner(bno);
 		return ResponseEntity.noContent().build();
@@ -78,6 +82,7 @@ public class ProgramController {
 
 	// 1-3. 배너 이미지 조회
 	@GetMapping("/banners/view")
+	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Resource> viewBannerImage(@RequestParam String filePath) {
 		if (filePath == null || filePath.isBlank()) {
 			return ResponseEntity.badRequest().build();

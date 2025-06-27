@@ -115,7 +115,7 @@ const EventBannerComponent = () => {
                 <div key={index} className="bg-white w-full max-w-4xl p-6 rounded-xl border border-gray-100 shadow">
                     <div className="flex items-start gap-8">
 
-                        {/* 새소식 선택, 이미지 업로드 */}   
+                        {/* 새소식 선택, 이미지 업로드 */}
                         <div className="flex-1 flex flex-col space-y-8">
                             <div className="flex items-center gap-3">
                                 <p className="font-semibold text-s text-gray-700">
@@ -132,9 +132,17 @@ const EventBannerComponent = () => {
                             <div className="text-start space-y-1">
                                 <label
                                     htmlFor={`file-upload-${index}`}
-                                    className="cursor-pointer text-sm font-bold text-blue-500 underline hover:text-blue-600 inline-block"
+                                    className="flex items-center cursor-pointer"
                                 >
-                                    이미지 업로드
+                                    <img
+                                        src="/upload.png"
+                                        alt="업로드 아이콘"
+                                        className="w-8 h-8 align-middle"
+                                    />
+                                    <span className="text-sm font-bold text-gray-600 hover:underline">
+                                        이미지 첨부
+                                    </span>
+
                                     <input
                                         id={`file-upload-${index}`}
                                         type="file"

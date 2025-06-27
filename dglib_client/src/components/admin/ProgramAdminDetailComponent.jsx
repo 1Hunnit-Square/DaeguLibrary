@@ -136,7 +136,7 @@ const ProgramAdminDetailComponent = () => {
             <Download
               link={`/api/programs/file/${program.progNo}`}
               fileName={program.originalName || "파일 다운로드"}
-              className="text-blue-600 underline"
+              className="text-gray-600 hover:underline"
             />
           ) : (
             <span>첨부파일 없음</span>

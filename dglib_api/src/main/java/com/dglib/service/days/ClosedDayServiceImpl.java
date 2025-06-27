@@ -108,10 +108,6 @@ public class ClosedDayServiceImpl implements ClosedDayService {
 	// 삭제
 	@Override
 	public void delete(LocalDate date) {
-		if (holidayApiService.isNationalHoliday(date)) {
-			throw new IllegalArgumentException("공휴일은 삭제할 수 없습니다.");
-		}
-
 		ClosedDay day = closedDayRepository.findById(date)
 				.orElseThrow(() -> new IllegalArgumentException("삭제할 휴관일이 존재하지 않습니다."));
 

@@ -130,7 +130,7 @@ export const getProgramBanners = async () => {
 
 // 배너 등록
 export const registerProgramBanner = async (formData) => {
-  const response = await axios.post(`${PROGRAM_URL}/banners/register`, formData, {
+  const response = await axiosClient.post(`${PROGRAM_URL}/banners/register`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
@@ -138,7 +138,7 @@ export const registerProgramBanner = async (formData) => {
 
 // 배너 삭제
 export const deleteProgramBanner = async (bno) => {
-  const response = await axios.delete(`${PROGRAM_URL}/banners/delete/${bno}`);
+  const response = await axiosClient.delete(`${PROGRAM_URL}/banners/delete/${bno}`);
   return response.data;
 };
 

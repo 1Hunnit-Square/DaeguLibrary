@@ -58,7 +58,6 @@ public class ProgramController {
 	// 관리자용 Api
 	// 1. 배너 목록 조회
 	@GetMapping("/banners")
-	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<List<ProgramBannerDTO>> getAllBanners() {
 		return ResponseEntity.ok(programService.getAllBanners());
 	}
@@ -82,7 +81,6 @@ public class ProgramController {
 
 	// 1-3. 배너 이미지 조회
 	@GetMapping("/banners/view")
-	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Resource> viewBannerImage(@RequestParam String filePath) {
 		if (filePath == null || filePath.isBlank()) {
 			return ResponseEntity.badRequest().build();

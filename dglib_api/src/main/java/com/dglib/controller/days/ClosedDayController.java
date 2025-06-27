@@ -1,7 +1,10 @@
 package com.dglib.controller.days;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dglib.dto.days.ClosedDayDTO;
+import com.dglib.dto.days.HolidayDTO;
 import com.dglib.service.days.ClosedDayService;
+import com.dglib.service.days.HolidayApiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClosedDayController {
 
 	private final ClosedDayService closedDayService;
+	private final HolidayApiService holidayApiService;
 
 	// 수동 등록
 	@PostMapping("/register")
@@ -36,7 +42,7 @@ public class ClosedDayController {
 		return ResponseEntity.ok(date);
 	}
 
-	// 자동 등록 안됐을 경우 수동 등록(프론트)
+	// 자동 등록 안됐을 경우 등록(프론트)
 	@PostMapping("/auto-register")
 	public ResponseEntity<String> registerAllClosedDaysManually() {
 		int year = LocalDate.now().getYear();
@@ -54,6 +60,18 @@ public class ClosedDayController {
 		LocalDate date = LocalDate.parse(dateStr);
 		ClosedDayDTO dto = closedDayService.get(date);
 		return ResponseEntity.ok(dto);
+	}
+
+	// 공휴일 여부 및 이름 확인 (프론트 모달 표시용)
+	@GetMapping("/holidayInfo")
+	public ResponseEntity<Map<String, Object>> getHolidayInfo(@RequestParam LocalDate date) {
+		Optional<HolidayDTO> holiday = holidayApiService.getHolidayByDate(date);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("isHoliday", holiday.isPresent());
+		result.put("holidayName", holiday.map(HolidayDTO::getName).orElse(null));
+
+		return ResponseEntity.ok(result);
 	}
 
 	// 월별 조회

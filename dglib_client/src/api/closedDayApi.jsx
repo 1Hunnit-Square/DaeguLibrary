@@ -19,6 +19,14 @@ export const getClosedDays = async (year, month) => {
     return res.data;
 };
 
+// 특정 날짜의 공휴일 여부 및 이름 조회 (모달창 표시용)
+export const getHolidayInfoByDate = async (date) => {
+    const res = await axios.get(`${prefix}/holidayInfo`, {
+        params: { date }
+    });
+    return res.data;
+};
+
 // 수정
 export const updateClosedDay = async (dto) => {
     const res = await axios.put(`${prefix}/modify`, dto, {

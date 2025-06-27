@@ -26,6 +26,19 @@ const isPurposeValid = (purpose) => {
     return true;
 };
 
+// 중복 아이디 체크 함수
+const findDuplicateIds = (array) => {
+    const counts = {};
+    const duplicates = [];
+    array.forEach(id => {
+        counts[id] = (counts[id] || 0) + 1;
+    });
+    for (const [id, count] of Object.entries(counts)) {
+        if (count > 1) duplicates.push(id);
+    }
+    return duplicates;
+};
+
 
 const ApplyFacilityFormComponent = () => {
     const location = useLocation();
@@ -114,6 +127,12 @@ const ApplyFacilityFormComponent = () => {
         if (!isConsecutive(sorted)) return alert('이용 시간을 다시 선택하세요.\n(예: 09:00-10:00, 10:00-11:00, 11:00-12:00)');
 
         const mids = participants.split(',').map(p => p.trim()).filter(p => p);
+
+        const duplicateIds = findDuplicateIds(mids);
+        if (duplicateIds.length > 0) {
+            return alert(`중복된 참가자 ID가 있습니다:\n${duplicateIds.join(', ')}`);
+        }
+        
         const result = await validateParticipantIds(mids);
         if (!result.valid) return alert(`존재하지 않는 아이디입니다:\n${result.invalidIds.join(', ')}`);
 
@@ -135,13 +154,14 @@ const ApplyFacilityFormComponent = () => {
             purpose,
         };
 
+
         try {
             await registerPlace(dto);
             alert('신청 예약이 완료되었습니다. 내 서재 > 신청내역에서 확인할 수 있습니다.');
             navigate('/reservation/facility');
         } catch (err) {
-            const fallback = err.response?.data?.message || '신청 중 오류가 발생했습니다. 다시 시도해 주세요.';
-            alert(fallback);
+            const msg = err.response?.data?.message || '신청 중 오류가 발생했습니다. 다시 시도해 주세요.';
+            alert(msg);
         }
     };
 

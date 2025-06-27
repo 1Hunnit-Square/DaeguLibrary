@@ -139,7 +139,7 @@ const ProgramDetailComponent = () => {
                                 <Download
                                     link={`/api/programs/file/${program.progNo}`}
                                     fileName={program.originalName}
-                                    className="text-blue-600"
+                                    className="text-gray-600 hover:underline"
                                 />
                             ) : (
                                 '없음'

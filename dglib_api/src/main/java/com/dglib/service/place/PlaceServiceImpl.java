@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -134,40 +137,56 @@ public class PlaceServiceImpl implements PlaceService {
 		}
 
 		// 참여자 유효성 검사 최적화
-		List<String> participantIds = List.of(participantsArray).stream().map(String::trim)
-				.collect(Collectors.toList());
+		// 회원 중복 검사
+		List<String> participantIds = Arrays.stream(participantsArray).map(String::trim).collect(Collectors.toList());
 
-		List<Member> existingParticipants = memberRepository.findAllById(participantIds);
+		Map<String, Long> idCounts = participantIds.stream()
+				.collect(Collectors.groupingBy(id -> id, Collectors.counting()));
 
-		if (existingParticipants.size() != participantIds.size()) {
-			List<String> foundIds = existingParticipants.stream().map(Member::getMid).collect(Collectors.toList());
-			String missingId = participantIds.stream().filter(id -> !foundIds.contains(id)).findFirst()
+		List<String> duplicateIds = idCounts.entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey)
+				.toList();
+
+		if (!duplicateIds.isEmpty()) {
+			throw new IllegalArgumentException("참가자 ID는 중복될 수 없습니다. 중복 ID: " + String.join(", ", duplicateIds));
+		}
+
+		// 회원 존재 여부 검사
+		Set<String> uniqueParticipantIds = new HashSet<>(participantIds);
+
+		List<Member> existingParticipants = memberRepository.findAllById(uniqueParticipantIds);
+
+		if (existingParticipants.size() != uniqueParticipantIds.size()) {
+			List<String> foundIds = existingParticipants.stream().map(Member::getMid).toList();
+
+			String missingId = uniqueParticipantIds.stream().filter(id -> !foundIds.contains(id)).findFirst()
 					.orElse("Unknown");
 
 			throw new IllegalArgumentException("참가자 ID '" + missingId + "' 는 존재하지 않는 회원입니다.");
 		}
 
+		// 동아리실 인원 제한
 		if (dto.getRoom().equals("동아리실")) {
-
 			if (dto.getPeople() < CLUB_ROOM_MIN_PEOPLE || dto.getPeople() > CLUB_ROOM_MAX_PEOPLE) {
 				throw new IllegalArgumentException(
 						"동아리실은 " + CLUB_ROOM_MIN_PEOPLE + "인 이상 " + CLUB_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
 			}
 		}
 
+		// 세미나실 인원 제한
 		if (dto.getRoom().equals("세미나실")) {
-
 			if (dto.getPeople() < SEMINAR_ROOM_MIN_PEOPLE || dto.getPeople() > SEMINAR_ROOM_MAX_PEOPLE) {
 				throw new IllegalArgumentException(
 						"세미나실은 " + SEMINAR_ROOM_MIN_PEOPLE + "인 이상 " + SEMINAR_ROOM_MAX_PEOPLE + "인 이하만 예약할 수 있습니다.");
 			}
 		}
 
+		// 동일 시간대 예약 여부
 		boolean alreadyExists = placeRepository.existsBySchedule(dto.getRoom(), dto.getUseDate(), dto.getStartTime());
 		if (alreadyExists) {
 			throw new IllegalArgumentException("선택하신 해당 공간의 시간대는 이미 예약되어 있습니다.");
 		}
 
+		// 동일 시설 중복 예약 여부
 		boolean duplicateReservation = placeRepository.existsByMember_MidAndRoomAndUseDate(dto.getMemberMid(),
 				dto.getRoom(), dto.getUseDate());
 		if (duplicateReservation) {

@@ -148,9 +148,17 @@ const ProgramBannerComponent = () => {
                             <div className="text-start space-y-1">
                                 <label
                                     htmlFor={`file-upload-${index}`}
-                                    className="cursor-pointer text-sm font-bold text-blue-500 underline hover:text-blue-600 inline-block"
+                                    className="flex items-center cursor-pointer"
                                 >
-                                    이미지 업로드
+                                    <img
+                                        src="/upload.png"
+                                        alt="업로드 아이콘"
+                                        className="w-8 h-8 align-middle"
+                                    />
+                                    <span className="text-sm font-bold text-gray-600 hover:underline">
+                                        이미지 첨부
+                                    </span>
+
                                     <input
                                         id={`file-upload-${index}`}
                                         type="file"
@@ -165,7 +173,7 @@ const ProgramBannerComponent = () => {
                                     </div>
                                 )}
                             </div>
-
+                            
                             <p className="text-xs text-gray-500">※ 권장 사이즈: 1200x400px</p>
                         </div>
 

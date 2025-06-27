@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -64,14 +65,14 @@ public class HolidayApiService {
 		return result;
 	}
 
-	// 공휴일 여부 확인 메서드 추가(서비스 공휴일 삭제 불가)
-	public boolean isNationalHoliday(LocalDate date) {
+	// 공휴일 여부 및 이름 확인
+	public Optional<HolidayDTO> getHolidayByDate(LocalDate date) {
 		int year = date.getYear();
 		int month = date.getMonthValue();
 
 		List<HolidayDTO> holidays = fetch(year, month);
 
-		return holidays.stream().anyMatch(dto -> dto.getDate().equals(date));
+		return holidays.stream().filter(dto -> dto.getDate().equals(date)).findFirst();
 	}
 
 	// JSON 파싱

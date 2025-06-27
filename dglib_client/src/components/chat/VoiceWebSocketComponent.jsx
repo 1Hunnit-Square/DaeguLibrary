@@ -17,6 +17,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     const [IsNotconnected, setIsNotconnected] = useState(false);
     const [clientId, setClientId] = useRecoilState(clientIdState); 
     const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+    const [isGumtleSpeaking, setIsGumtleSpeaking] = useState(false);
     const prevSpeakingRef = useRef(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
@@ -49,18 +50,22 @@ const VoiceWebSocketComponent = ({ onClose }) => {
             console.log("에러 사운드 재생 완료");
             setIsProcessing(false);
             isProcessingRef.current = false;
+            setIsGumtleSpeaking(false);
         }; 
         errorAudio.onerror = (error) => {
             console.error("에러 사운드 재생 오류:", error);
             setIsProcessing(false);
             isProcessingRef.current = false;
+            setIsGumtleSpeaking(false);
         };
 
         console.log("에러 사운드 재생 시작");
+        setIsGumtleSpeaking(true);
         errorAudio.play().catch(error => {
             console.error("에러 사운드 재생 실패:", error);
             setIsProcessing(false);
             isProcessingRef.current = false;
+            setIsGumtleSpeaking(false);
         });
     };
 
@@ -86,6 +91,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                 console.log("오디오 재생 완료");
                 setIsProcessing(false);
                 isProcessingRef.current = false;
+                setIsGumtleSpeaking(false);
             };
 
             audio.onerror = (error) => {
@@ -93,14 +99,17 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                 URL.revokeObjectURL(audioUrl);
                 setIsProcessing(false);
                 isProcessingRef.current = false;
+                setIsGumtleSpeaking(false);
             };
 
             console.log("TTS 오디오 재생 시작");
+            setIsGumtleSpeaking(true);
             audio.play().catch(error => {
                 console.error("오디오 재생 실패:", error);
                 URL.revokeObjectURL(audioUrl);
                 setIsProcessing(false);
                 isProcessingRef.current = false;
+                setIsGumtleSpeaking(false);
             });
 
         } catch (error) {
@@ -418,14 +427,14 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     
     return (
         <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="bg-[#fdfcfb] rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">음성 대화</h3>
                     <button onClick={() => handleClose(false)} className="text-gray-500 hover:text-gray-700">
                         ✕
                     </button>
                 </div>
-                <img src={`${isProcessingRef.current ? '/gumtle.gif' : '/gumtle1.png'}`} className="w-50 mx-auto" alt="gumtle"/>
+                <img src={`${ isGumtleSpeaking ? '/gumtle_talking.gif' : isProcessingRef.current ? '/gumtle_walking.gif' :  (isMicrophoneActive || isUserSpeaking) ?  "/gumtle_hearing.gif" : '/gumtle_standing.jpg'}`} className="w-50 mx-auto" alt="gumtle"/>
                 
             
                 {isConnected && isRecording ? (

@@ -139,7 +139,7 @@ const ProgramComponent = () => {
         });
 
     return (
-        <div className="max-w-5xl mx-auto mt-20 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl mx-auto mt-20 mb-10 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
             <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
                 <div>
                     <h2 className="text-2xl text-gray-800 font-semibold">프로그램 목록</h2>

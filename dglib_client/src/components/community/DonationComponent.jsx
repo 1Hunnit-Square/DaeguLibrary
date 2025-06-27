@@ -2,7 +2,7 @@ import Download from '../common/Download';
 import Button from "../common/Button";
 const DonationComponent = () => {
     return (
-        <div className="max-w-5xl mx-auto px-15 py-15 bg-white rounded-lg shadow-md mt-15 border border-gray-200 mb-10">
+        <div className="max-w-5xl mx-auto px-15 py-15 bg-white rounded-lg shadow-md mt-20 border border-gray-200 mb-10">
 
             {/* 수집 기간 */}
             <section className="flex items-start gap-10 mb-10">

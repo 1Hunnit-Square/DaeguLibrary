@@ -2,7 +2,7 @@ import React from "react";
 
 const ReadingRoomComponent = () => {
   return (
-    <div className="max-w-5xl mx-auto px-12 py-15 bg-white rounded-lg shadow-md">
+    <div className="max-w-5xl mx-auto mt-20 mb-10 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
       {/* 안내 헤더 */}
       <section className="bg-[#eefbef] p-6 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div className="flex-1">

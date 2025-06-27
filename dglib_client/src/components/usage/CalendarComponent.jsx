@@ -69,7 +69,7 @@ const CalendarComponent = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12">
+    <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-lg shadow mt-12 mb-10">
       <div className="mb-4 flex justify-end items-center gap-2">
         {showYearSelect && (
           <SelectComponent

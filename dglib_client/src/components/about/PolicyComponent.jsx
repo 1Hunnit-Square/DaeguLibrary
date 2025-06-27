@@ -2,7 +2,7 @@ import React from "react";
 
 const PolicyComponent = () => {
     return (
-        <div className="max-w-5xl mx-auto p-6 md:p-10 bg-gray-50 rounded-lg">
+        <div className="max-w-5xl mx-auto mt-20 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg mb-10 shadow-md">
             {/* 비전 */}
             <section className="relative mt-5 text-center py-10 px-6 rounded-2xl shadow-md bg-green-800">
                 <p className="text-3xl text-white mt-2 mb-3 leading-relaxed">

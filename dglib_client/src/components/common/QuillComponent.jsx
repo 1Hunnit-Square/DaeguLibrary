@@ -10,6 +10,7 @@ import { fileSize } from "../../util/commonUtil";
 import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
 import { contentReplace } from "../../util/commonUtil";
+import Loading from "../../routers/Loading";
 
 const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, upload = ["file", "image"], modMap}) => {
   const quillRef = useRef(null);
@@ -21,6 +22,7 @@ const QuillComponent = ({onParams, onBack, useTitle, usePinned, usePublic, uploa
   const [ pinned, setPinned ] = useState(false);
   const [ checkPublic, setCheckPublic ] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
+  const [ post, setPost ] = useState(false);
 
 const [ tooltip, setTooltip ] = useState({visible : false, content : ""});
 
@@ -139,13 +141,22 @@ setTitle(e.target.value);
 }
 
 const handleClick = () => {
+  if(post){
+  alert("글을 등록 중입니다.");
+  return;
+}
+
+  setPost(true);
+  
      if(useTitle && !title.trim()){
     alert("제목을 입력해주세요.");
+    setPost(false);
     return ;
   }
 
   if(isEmptyQuill(content)){
     alert("내용을 입력해주세요.");
+    setPost(false);
     return ;
   }
 
@@ -170,7 +181,7 @@ const handleClick = () => {
 
   usePinned && paramData.append("pinned", pinned);
   usePublic && paramData.append("checkPublic", checkPublic);
-  onParams(paramData);
+  onParams(paramData,{setPost});
 
 }
 
@@ -224,6 +235,7 @@ const handleClick = () => {
           <Button onClick={onBack} className="bg-gray-400 hover:bg-gray-500">돌아가기</Button>
           <Button onClick={handleClick}>글쓰기</Button>
           </div>
+          {post && <Loading text ="글 등록 중..." /> }
             </div>
 
             

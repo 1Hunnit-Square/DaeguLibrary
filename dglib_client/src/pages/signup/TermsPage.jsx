@@ -15,7 +15,7 @@ const TermsPage = () => {
 
   useEffect(()=>{
     if(mid){
-      alert("로그인한 회원은 회원가입 할 수 없습니다.");
+      alert("이미 회원입니다.");
       navigate(-1);
       return;
 

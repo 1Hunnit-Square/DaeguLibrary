@@ -13,7 +13,7 @@ const NewsNewComponent = () => {
     const navigate = useNavigate();
     const mid = useRecoilValue(memberIdSelector);
 
-    const sendParams = (paramData) => {
+    const sendParams = (paramData, post) => {
         paramData.append("mid", mid);
         console.log(paramData);
 
@@ -23,7 +23,10 @@ const NewsNewComponent = () => {
         }).catch(error => {
             alert("글 등록에 실패했습니다.");
             console.error(error);
-        });
+        })
+        .finally(()=>{
+        post.setPost(false);
+        })
     };
 
     const onBack = () => {

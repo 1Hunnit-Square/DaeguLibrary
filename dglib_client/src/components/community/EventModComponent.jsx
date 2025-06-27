@@ -31,7 +31,7 @@ const EventModComponent = () => {
 
   const dataMap = useMemo(() => ({ data: { ...data, content: imgReplace(data?.content) }, fileDTOName: "imageDTO" }), [data]);
 
-  const sendParams = (paramData) => {
+  const sendParams = (paramData, post) => {
 
     console.log(paramData);
 
@@ -43,7 +43,9 @@ const EventModComponent = () => {
       .catch((error) => {
         alert("글 수정에 실패했습니다.");
         console.error(error);
-      });
+      }).finally(()=>{
+      post.setPost(false);
+    })
   };
 
   const onBack = () => {

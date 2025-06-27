@@ -43,7 +43,7 @@ const QnaEditComponent = () => {
 
   const handleBack = () => navigate(-1);
 
-  const handleUpdate = (paramData) => {
+  const handleUpdate = (paramData, post) => {
     const title = paramData.get("title");
     const content = paramData.get("content");
     const checkPublic = paramData.get("checkPublic") === "true";
@@ -56,13 +56,16 @@ const QnaEditComponent = () => {
         checkPublic,
         writerMid: mid,
       },
-    });
+    },{
+    onSettled: () => {
+      post.setPost(false);
+    }});
   };
 
   if (isLoading || !modData) return <Loading />;
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
+    <div className="flex flex-col justify-center bt-5 mb-10">
       <QuillComponent
         onParams={handleUpdate}
         onBack={handleBack}

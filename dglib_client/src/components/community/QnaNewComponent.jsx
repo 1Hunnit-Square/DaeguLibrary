@@ -7,7 +7,7 @@ const QnaNewComponent = () => {
   const navigate = useNavigate();
   const createQuestionMutation = useCreateQuestion();
 
-  const sendParams = (paramData) => {
+  const sendParams = (paramData, post) => {
     const title = paramData.get("title");
     const content = paramData.get("content");
     const checkPublic = paramData.get("checkPublic") === "true";
@@ -16,7 +16,10 @@ const QnaNewComponent = () => {
       title,
       content,
       checkPublic,
-    });
+    },{
+    onSettled: () => {
+      post.setPost(false);
+    }});
   };
 
   const onBack = () => {

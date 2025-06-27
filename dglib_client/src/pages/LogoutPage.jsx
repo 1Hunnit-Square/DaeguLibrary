@@ -4,6 +4,7 @@ import { useLogin } from "../hooks/useLogin";
 import { useMoveTo } from "../hooks/useMoveTo";
 import { useEffect } from "react";
 import { memberIdSelector } from "../atoms/loginState";
+import Loading from "../routers/Loading";
 
 
 
@@ -26,9 +27,7 @@ const LogoutPage = () => {
     },[]);
 
     return (
-        <>
-        Logout...
-        </>
+        <Loading text = "로그아웃 중..." />
     )
 }
 

@@ -23,7 +23,7 @@ const AnswerEditComponent = () => {
     navigate(`/community/qna/${qno}`);
   });
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = (formData, post) => {
     console.log("전송할 content:", formData.get("content"));
     console.log("qno:", qno);
     console.log("adminMid:", adminMid);
@@ -33,7 +33,10 @@ const AnswerEditComponent = () => {
     updateAnswerMutation.mutate({
       qno,
       answerData: formData,
-    });
+    },{
+    onSettled: () => {
+      post.setPost(false);
+    }});
   };
 
   if (isLoading || !question) return <Loading text="질문 정보를 불러오는 중입니다..." />;

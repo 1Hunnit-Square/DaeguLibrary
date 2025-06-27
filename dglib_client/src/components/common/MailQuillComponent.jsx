@@ -11,6 +11,7 @@ import { API_SERVER_HOST } from "../../api/config";
 import { API_ENDPOINTS } from "../../api/config";
 import { escapeHTML } from "../../util/commonUtil";
 import _ from "lodash";
+import Loading from "../../routers/Loading";
 
 const MailQuillComponent = ({onParams, onBack, upload = ["file", "image"], searchHandler, useForm}) => {
   const quillRef = useRef(null);
@@ -317,6 +318,7 @@ const handleClick = async() => {
   
 
                 </div>
+                {sending && <Loading text="메일 전송중..." />}
            </div> 
     );
 }

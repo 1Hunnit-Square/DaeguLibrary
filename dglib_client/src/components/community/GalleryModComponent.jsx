@@ -31,9 +31,15 @@ const GalleryModComponent = () => {
 
   const dataMap = useMemo(() => ({ data: { ...data, content: imgReplace(data?.content) }, fileDTOName: "imageDTO" }), [data]);
 
-  const sendParams = (paramData) => {
+  const sendParams = (paramData, post) => {
 
     console.log(paramData);
+
+    if (!paramData.get("files") && !paramData.get("oldFiles")){
+            alert("이미지를 반드시 첨부해야합니다.");
+            post.setPost(false);
+            return ;
+        }
 
     modGallery(gno, paramData)
       .then(res => {
@@ -43,7 +49,9 @@ const GalleryModComponent = () => {
       .catch((error) => {
         alert("글 수정에 실패했습니다.");
         console.error(error);
-      });
+      }).finally(()=>{
+      post.setPost(false);
+})
   };
 
   const onBack = () => {

@@ -112,6 +112,12 @@ const SmsManagementComponent = () =>{
     }
 
     const handleToSend = () => {
+        const checkConfirm = confirm("문자를 전송하시겠습니까?");
+
+        if(!checkConfirm){
+            return;
+        }
+        
         if(numList?.length == 0){
             alert("수신자 명단에 번호가 없습니다.");
             return;

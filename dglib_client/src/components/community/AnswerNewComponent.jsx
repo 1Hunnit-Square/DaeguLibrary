@@ -23,10 +23,13 @@ const AnswerNewComponent = () => {
     navigate(`/community/qna/${qno}`);
   });
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = (formData, post) => {
     formData.append("qno", qno);
     formData.append("adminMid", adminMid);
-    createAnswerMutation.mutate(formData);
+    createAnswerMutation.mutate(formData,{
+    onSettled: () => {
+      post.setPost(false);
+    }});
   };
 
   if (isLoading || !question) return <Loading text="질문 정보를 불러오는 중입니다..." />;

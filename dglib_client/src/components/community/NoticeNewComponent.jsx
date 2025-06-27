@@ -17,7 +17,7 @@ const mid = useRecoilValue(memberIdSelector);
 const role = useRecoilValue(memberRoleSelector);
 
 
-const sendParams = (paramData) => {
+const sendParams = (paramData, post) => {
 
 console.log(paramData);
 
@@ -30,7 +30,12 @@ regNotice(paramData).then(res => {
   alert("글 등록에 실패했습니다.");
   console.error(error);
 })
+.finally(()=>{
+  post.setPost(false);
+})
+
 }
+
 
 const onBack = () => {
   navigate(-1);
@@ -54,7 +59,6 @@ useEffect(() => {
     return (
          <div className = "flex flex-col justify-center bt-5 mb-10">
       {(role == "ADMIN") &&<QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
-     
      </div>     
     );
 }

@@ -5,7 +5,7 @@ import QuillComponent from "../common/QuillComponent";
 import { modGallery, getGalleryDetail } from "../../api/galleryApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 import { useQuery, useQueryClient  } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
@@ -15,8 +15,23 @@ const GalleryModComponent = () => {
   const navigate = useNavigate();
   const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
+  const role = useRecoilValue(memberRoleSelector);
   const { gno } = useParams();
 
+    useEffect(() => {
+
+    if (!mid) {
+      moveToLogin();
+      return;
+    }
+
+    if (role != "ADMIN") {
+      alert("글 수정 권한이 없습니다.");
+      navigate("/community/gallery", { replace: true });
+    }
+
+  }, []);
+  
   const queryClient = useQueryClient();
   const cached = queryClient.getQueryData(['galleryDetail', gno]);
   const { data, isLoading, error, refetch } = useQuery({
@@ -58,9 +73,7 @@ const GalleryModComponent = () => {
     navigate(-1);
   };
 
-  useEffect(() => {
-    if (!mid) moveToLogin();
-  }, []);
+
 
   return (
     <div className="flex flex-col justify-center bt-5 mb-10">

@@ -5,13 +5,14 @@ import QuillComponent from "../common/QuillComponent";
 import { regEvent } from "../../api/eventApi";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 
 const EventNewComponent = () => {
     const { moveToLogin } = useMoveTo();
     const navigate = useNavigate();
     const mid = useRecoilValue(memberIdSelector);
+    const role = useRecoilValue(memberRoleSelector);
 
     const sendParams = (paramData, post) => {
         paramData.append("mid", mid);
@@ -23,9 +24,9 @@ const EventNewComponent = () => {
         }).catch(error => {
             alert("글 등록에 실패했습니다.");
             console.error(error);
-        }).finally(()=>{
-        post.setPost(false);
-})
+        }).finally(() => {
+            post.setPost(false);
+        })
     };
 
     const onBack = () => {
@@ -33,10 +34,18 @@ const EventNewComponent = () => {
     };
 
     useEffect(() => {
+
         if (!mid) {
             moveToLogin();
+            return;
         }
-    }, [mid, moveToLogin]);
+
+        if (role != "ADMIN") {
+            alert("글쓰기 권한이 없습니다.");
+            navigate("/community/notice", { replace: true });
+        }
+
+    }, []);
 
     return (
         <div className="flex flex-col justify-center bt-5 mb-10">

@@ -1,17 +1,35 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
 import { useCreateAnswer } from "../../hooks/useAnswerMutation";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import Loading from "../../routers/Loading";
 import QuillComponent from "../common/QuillComponent";
 import { useQuery } from "@tanstack/react-query";
 import { getQnaDetail } from "../../api/qnaApi";
 import DOMPurify from "dompurify";
+import { useMoveTo } from "../../hooks/useMoveTo";
 
 const AnswerNewComponent = () => {
+  const { moveToLogin } = useMoveTo();
   const { qno } = useParams();
   const adminMid = useRecoilValue(memberIdSelector);
+  const role = useRecoilValue(memberRoleSelector);
   const navigate = useNavigate();
+
+  useEffect(() => {
+
+    if (!adminMid) {
+      moveToLogin();
+      return;
+    }
+
+    if (role != "ADMIN") {
+      alert("글쓰기 권한이 없습니다.");
+      navigate("/community/qna", { replace: true });
+    }
+
+  }, []);
 
   const { data: question, isLoading } = useQuery({
     queryKey: ["getQnaDetail", qno],
@@ -26,10 +44,11 @@ const AnswerNewComponent = () => {
   const handleSubmit = (formData, post) => {
     formData.append("qno", qno);
     formData.append("adminMid", adminMid);
-    createAnswerMutation.mutate(formData,{
-    onSettled: () => {
-      post.setPost(false);
-    }});
+    createAnswerMutation.mutate(formData, {
+      onSettled: () => {
+        post.setPost(false);
+      }
+    });
   };
 
   if (isLoading || !question) return <Loading text="질문 정보를 불러오는 중입니다..." />;

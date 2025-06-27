@@ -84,7 +84,7 @@ public class QuestionServiceImpl implements QuestionService {
 
 		if (!hasAuth) {
 		    System.out.println("질문을 가져올 수 없음");
-		    throw new IllegalArgumentException("비공개 글은 작성자만 볼 수 있습니다.");
+		    throw new IllegalArgumentException("Not Access Question");
 		}
 		question.setViewCount(question.getViewCount() + 1);
 
@@ -138,9 +138,11 @@ public class QuestionServiceImpl implements QuestionService {
 	public void delete(Long qno, String requesterMid) {
 		Question question = questionRepository.findById(qno)
 				.orElseThrow(() -> new IllegalArgumentException("해당 질문이 존재하지 않습니다."));
-		boolean isAdmin = "admin".equals(requesterMid);
 
-		if (!question.getMember().getMid().equals(requesterMid) && !isAdmin) {
+		String writerMid = question.getMember().getMid();
+		boolean hasAuth = JwtFilter.checkAuth(writerMid);
+		
+		if (!hasAuth) {
 			throw new IllegalArgumentException("삭제 권한이 없습니다.");
 		}
 

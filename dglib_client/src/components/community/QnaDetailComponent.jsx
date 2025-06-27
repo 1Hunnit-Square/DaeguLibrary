@@ -19,13 +19,18 @@ const QnaDetailComponent = () => {
 
   const { data: question, isLoading, isError } = useQuery({
     queryKey: ["qnaDetail", qno, mid],
-    queryFn: () => getQnaDetail(qno, mid),
+    queryFn: async () => { 
+      
+      return await getQnaDetail(qno, mid).then(res =>  res)
+      .catch(err => {
+        if(err.response?.data?.message == "Not Access Question")
+          return null;
+        else
+          throw err;
+      })
+     },
     enabled: !!qno,
     retry: false,
-    onError: (err) => {
-      const message = err.response?.data?.message;
-      alert(message || "QnA 조회하지 못했습니다.");
-    },
   });
 
   const renderAdminButtons = () => (
@@ -119,7 +124,8 @@ const QnaDetailComponent = () => {
     navigate(`/community/qna/${qno}`);
   })
 
-  if (isError) {
+  if(!question && isLoading) return (<Loading />);
+  if (!question && !isLoading) {
     return (
       <div>
         <div className="text-center mt-20 text-red-600 font-semibold">
@@ -132,7 +138,7 @@ const QnaDetailComponent = () => {
     );
   }
 
-  if (!question) return null;
+ 
 
   console.log("로그인 ID:", mid);
   console.log("질문 작성자 ID:", question.writerMid);
@@ -144,7 +150,7 @@ const QnaDetailComponent = () => {
   return (
     <div className="max-w-4xl mx-auto my-10">
       {isLoading && <Loading />}
-
+    
       <table className="w-full mb-8 text-sm">
         <thead>
           <tr>

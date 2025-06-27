@@ -16,73 +16,73 @@ import ContentComponent from "../common/ContentComponent";
 
 const NoticeDetailComponent = () => {
 
-const { ano } = useParams();
-const { data, isLoading, error, refetch } = useQuery({
+    const { ano } = useParams();
+    const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['noticeDetail', ano],
         queryFn: () => getNoticeDetail(ano),
         refetchOnWindowFocus: false,
     });
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const checkAuthLoadable = useRecoilValueLoadable(checkAuthSelector(data?.writerMid));
+    const checkAuthLoadable = useRecoilValueLoadable(checkAuthSelector(data?.writerMid));
 
-  const checkAuth = useMemo(()=> checkAuthLoadable.contents, [checkAuthLoadable]);
+    const checkAuth = useMemo(() => checkAuthLoadable.contents, [checkAuthLoadable]);
 
 
-const handleDelete = () => {
-    const delCheck = confirm("글을 정말로 삭제하시겠습니까?");
-    delCheck && delNotice(ano).then(res =>{
-        alert("글 삭제가 완료되었습니다.");
-        navigate("/community/notice");
+    const handleDelete = () => {
+        const delCheck = confirm("글을 정말로 삭제하시겠습니까?");
+        delCheck && delNotice(ano).then(res => {
+            alert("글 삭제가 완료되었습니다.");
+            navigate("/community/notice");
+        }
+        ).catch(error => {
+            console.log(error);
+            alert("삭제 중 오류가 발생했습니다.");
+        })
+
     }
-    ).catch( error => {
-        console.log(error);
-        alert("글 삭제에 오류가 있습니다.");
-    })
 
-}
-
-       return (
-         <div className = "my-10">
-         {isLoading && <Loading />}
+    return (
+        <div className="my-10">
+            {isLoading && <Loading />}
             <div className="max-w-4xl mx-auto text-sm">
-                
-    
-                 {data && <table className="w-full mb-8">
+
+
+                {data && <table className="w-full mb-8">
                     <thead>
-                    <tr>
-                    <th colSpan ={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">{data.title}</th>
-                    </tr>
+                        <tr>
+                            <th colSpan={6} className="text-xl border-[#00893B] border-t-2 border-b-2 text-center p-3">{data.title}</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr className="border-b border-gray-300">
                             <td className="w-1/6 p-2 font-semibold text-center">작성자</td>
                             <td className="w-2/6 p-2 pl-3">{data.name}</td>
-                               
+
                             <td className="p-2 w-1/6 font-semibold text-center">조회수</td>
                             <td className="w-2/6 p-2 pl-3">{data.viewCount}</td>
-                     
+
                         </tr>
                         <tr className="border-b border-gray-300">
                             <td className="p-2 font-semibold text-center">작성일</td>
                             <td className="p-2 pl-3">{data.postedAt}</td>
-                        {data.modifiedAt && <>
+                            {data.modifiedAt && <>
                                 <td className="p-2 font-semibold text-center">수정일</td>
                                 <td className="p-2 pl-3">{data.modifiedAt}</td></>}
-                            </tr>
-                        
+                        </tr>
+
                         {!!data.fileDTO.length && (
-                            
-                                data.fileDTO.map((file, index) => 
-                                        <tr key={index} className="border-b border-gray-300">
-                                        <td className="p-2 font-semibold text-center">첨부 파일 ({index+1})</td>
-                                        <td colSpan={4} className="p-2 pl-3">
-                                            <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${file.filePath}`} fileName={file.originalName} />
-                                        </td>
-                                        </tr>
-                                )
-                                
-                           
+
+                            data.fileDTO.map((file, index) =>
+                                <tr key={index} className="border-b border-gray-300">
+                                    <td className="p-2 font-semibold text-center">첨부 파일 ({index + 1})</td>
+                                    <td colSpan={4} className="p-2 pl-3">
+                                        <Download link={`${API_SERVER_HOST}${API_ENDPOINTS.view}/${file.filePath}`} fileName={file.originalName} />
+                                    </td>
+                                </tr>
+                            )
+
+
                         )}
                         <tr><td className={"p-2"}></td></tr>
                         <tr>
@@ -92,21 +92,21 @@ const handleDelete = () => {
                     </tbody>
                 </table>
 
-                   }
-    
+                }
+
                 <div className="flex justify-end gap-2">
                     {checkAuth && (
                         <>
                             <Button onClick={() => navigate(`/community/notice/edit/${ano}`)}
-                            className="bg-blue-500 hover:bg-blue-600">수정하기</Button>
-                            <Button onClick={handleDelete} 
-                            className="bg-red-500 hover:bg-red-600">삭제하기</Button>
+                                className="bg-blue-500 hover:bg-blue-600">수정하기</Button>
+                            <Button onClick={handleDelete}
+                                className="bg-red-500 hover:bg-red-600">삭제하기</Button>
                         </>
                     )}
                     <Button onClick={() => navigate(-1)}>돌아가기</Button>
                 </div>
-                 </div>
-           </div>
-);
+            </div>
+        </div>
+    );
 }
 export default NoticeDetailComponent;

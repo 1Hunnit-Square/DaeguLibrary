@@ -98,9 +98,9 @@ const handleDelete = () => {
                     {checkAuth && (
                         <>
                             <Button onClick={() => navigate(`/community/notice/edit/${ano}`)}
-                            className="bg-gray-500 hover:bg-gray-600">수정하기</Button>
+                            className="bg-blue-500 hover:bg-blue-600">수정하기</Button>
                             <Button onClick={handleDelete} 
-                            className="bg-gray-500 hover:bg-gray-600">삭제하기</Button>
+                            className="bg-red-500 hover:bg-red-600">삭제하기</Button>
                         </>
                     )}
                     <Button onClick={() => navigate(-1)}>돌아가기</Button>

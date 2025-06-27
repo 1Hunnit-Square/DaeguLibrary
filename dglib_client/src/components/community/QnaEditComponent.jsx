@@ -18,10 +18,10 @@ const QnaEditComponent = () => {
   const cached = queryClient.getQueryData(["qnaDetail", qno]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["qnaDetail", qno],
+    queryKey: ["qnaDetail", qno, mid],
     queryFn: () => getQnaDetail(qno, mid),
     enabled: !cached,
-    initialData: () => cached,
+    initialData: cached,
     refetchOnWindowFocus: false,
   });
 

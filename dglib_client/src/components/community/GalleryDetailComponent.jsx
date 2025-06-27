@@ -96,13 +96,13 @@ const GalleryDetailComponent = () => {
                         <>
                             <Button
                                 onClick={() => navigate(`/community/gallery/edit/${gno}`)}
-                                className="bg-gray-500 hover:bg-gray-600"
+                                className="bg-blue-500 hover:bg-blue-600"
                             >
                                 수정하기
                             </Button>
                             <Button
                                 onClick={handleDelete}
-                                className="bg-gray-500 hover:bg-gray-600"
+                                className="bg-red-500 hover:bg-red-600"
                             >
                                 삭제하기
                             </Button>

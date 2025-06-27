@@ -1,17 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import { getGalleryDetail, deleteGallery } from "../../api/galleryApi";
 import { useParams } from "react-router-dom";
 import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../routers/Loading";
 import { memberIdSelector } from "../../atoms/loginState";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilValueLoadable } from "recoil";
 import DOMPurify from 'dompurify';
 import { API_SERVER_HOST } from "../../api/config";
 import Download from "../common/Download";
 import { imgReplace } from "../../util/commonUtil";
 import { API_ENDPOINTS } from "../../api/config";
 import ContentComponent from "../common/ContentComponent";
+import { checkAuthSelector } from "../../atoms/loginState";
 
 const GalleryDetailComponent = () => {
     const { gno } = useParams();
@@ -21,7 +23,10 @@ const GalleryDetailComponent = () => {
         refetchOnWindowFocus: false,
     });
     const navigate = useNavigate();
-    const mid = useRecoilValue(memberIdSelector);
+
+    const checkAuthLoadable = useRecoilValueLoadable(checkAuthSelector(data?.writerMid));
+
+    const checkAuth = useMemo(() => checkAuthLoadable.contents, [checkAuthLoadable]);
 
     const handleDelete = () => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
@@ -92,7 +97,7 @@ const GalleryDetailComponent = () => {
                 }
 
                 <div className="flex justify-end gap-2">
-                    {mid && (
+                    {checkAuth && (
                         <>
                             <Button
                                 onClick={() => navigate(`/community/gallery/edit/${gno}`)}

@@ -12,55 +12,55 @@ import { useMoveTo } from "../../hooks/useMoveTo";
 const NoticeNewComponent = () => {
 
   const { moveToLogin } = useMoveTo();
-const navigate = useNavigate();
-const mid = useRecoilValue(memberIdSelector);
-const role = useRecoilValue(memberRoleSelector);
+  const navigate = useNavigate();
+  const mid = useRecoilValue(memberIdSelector);
+  const role = useRecoilValue(memberRoleSelector);
 
 
-const sendParams = (paramData, post) => {
+  const sendParams = (paramData, post) => {
 
-console.log(paramData);
-
-
-regNotice(paramData).then(res => {
-  alert("글을 등록하였습니다.");
-  navigate("/community/notice");
-
-}).catch(error => {
-  alert("글 등록에 실패했습니다.");
-  console.error(error);
-})
-.finally(()=>{
-  post.setPost(false);
-})
-
-}
+    console.log(paramData);
 
 
-const onBack = () => {
-  navigate(-1);
-}
+    regNotice(paramData).then(res => {
+      alert("글을 등록하였습니다.");
+      navigate("/community/notice");
 
+    }).catch(error => {
+      alert("글 등록에 실패했습니다.");
+      console.error(error);
+    })
+      .finally(() => {
+        post.setPost(false);
+      })
 
-useEffect(() => {
-  
-  if(!mid){
-   moveToLogin();
-   return;
-  } 
-
-  if(role != "ADMIN"){
-    alert("글쓰기 권한이 없습니다.");
-    navigate("/community/notice",{replace: true});
   }
 
-},[]);
 
-    return (
-         <div className = "flex flex-col justify-center bt-5 mb-10">
-      {(role == "ADMIN") &&<QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
-     </div>     
-    );
+  const onBack = () => {
+    navigate(-1);
+  }
+
+
+  useEffect(() => {
+
+    if (!mid) {
+      moveToLogin();
+      return;
+    }
+
+    if (role != "ADMIN") {
+      alert("글쓰기 권한이 없습니다.");
+      navigate("/community/notice", { replace: true });
+    }
+
+  }, []);
+
+  return (
+    <div className="flex flex-col justify-center bt-5 mb-10">
+      {(role == "ADMIN") && <QuillComponent onParams={sendParams} onBack={onBack} useTitle={true} usePinned={true} usePublic={false} />}
+    </div>
+  );
 }
 
 export default NoticeNewComponent;

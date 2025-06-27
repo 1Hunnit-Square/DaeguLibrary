@@ -5,8 +5,8 @@ import { useParams } from "react-router-dom";
 import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../routers/Loading";
-import { memberIdSelector } from "../../atoms/loginState";
-import { useRecoilValue } from "recoil";
+import { checkAuthSelector } from "../../atoms/loginState";
+import { useRecoilValueLoadable } from "recoil";
 import DOMPurify from 'dompurify';
 import { API_SERVER_HOST } from "../../api/config";
 import Download from "../common/Download";
@@ -14,6 +14,7 @@ import { imgReplace } from "../../util/commonUtil";
 import { API_ENDPOINTS } from "../../api/config";
 import { deleteEvent } from "../../api/eventApi";
 import ContentComponent from "../common/ContentComponent";
+import { useMemo } from "react";
 
 const EventDetailComponent = () => {
     const { eno } = useParams();
@@ -23,7 +24,9 @@ const EventDetailComponent = () => {
         refetchOnWindowFocus: false,
     });
     const navigate = useNavigate();
-    const mid = useRecoilValue(memberIdSelector);
+    const checkAuthLoadable = useRecoilValueLoadable(checkAuthSelector(data?.writerMid));
+    
+      const checkAuth = useMemo(()=> checkAuthLoadable.contents, [checkAuthLoadable]);
 
     const handleDelete = () => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
@@ -94,7 +97,7 @@ const EventDetailComponent = () => {
                 }
 
                 <div className="flex justify-end gap-2">
-                    {mid && (
+                    {checkAuth && (
                         <>
                             <Button
                                 onClick={() => navigate(`/community/event/edit/${eno}`)}

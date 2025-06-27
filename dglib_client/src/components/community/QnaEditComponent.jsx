@@ -1,18 +1,35 @@
 import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { getQnaDetail } from "../../api/qnaApi";
 import QuillComponent from "../common/QuillComponent";
 import { useUpdateQuestion } from "../../hooks/useQuestionMutation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { imgReplace } from "../../util/commonUtil";
 import Loading from "../../routers/Loading";
+import { useMoveTo } from "../../hooks/useMoveTo";
 
 const QnaEditComponent = () => {
+  const { moveToLogin } = useMoveTo();
   const { qno } = useParams();
   const mid = useRecoilValue(memberIdSelector);
+  const role = useRecoilValue(memberRoleSelector);
   const navigate = useNavigate();
+
+  useEffect(() => {
+
+    if (!mid) {
+      moveToLogin();
+      return;
+    }
+
+    if (role != "ADMIN") {
+      alert("글 수정 권한이 없습니다.");
+      navigate("/community/qna", { replace: true });
+    }
+
+  }, []);
 
   const queryClient = useQueryClient();
   const cached = queryClient.getQueryData(["qnaDetail", qno]);
@@ -37,9 +54,7 @@ const QnaEditComponent = () => {
     };
   }, [data]);
 
-  useEffect(() => {
-    if (!mid) navigate("/login");
-  }, [mid, navigate]);
+  
 
   const handleBack = () => navigate(-1);
 
@@ -56,10 +71,11 @@ const QnaEditComponent = () => {
         checkPublic,
         writerMid: mid,
       },
-    },{
-    onSettled: () => {
-      post.setPost(false);
-    }});
+    }, {
+      onSettled: () => {
+        post.setPost(false);
+      }
+    });
   };
 
   if (isLoading || !modData) return <Loading />;

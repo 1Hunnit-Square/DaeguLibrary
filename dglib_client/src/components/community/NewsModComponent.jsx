@@ -5,7 +5,7 @@ import QuillComponent from "../common/QuillComponent";
 import { modNews, getNewsDetail } from "../../api/newsApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { memberIdSelector } from "../../atoms/loginState";
+import { memberIdSelector, memberRoleSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../../routers/Loading";
@@ -15,6 +15,22 @@ const NewsModComponent = () => {
   const navigate = useNavigate();
   const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
+  const role = useRecoilValue(memberRoleSelector);
+
+  useEffect(() => {
+
+    if (!mid) {
+      moveToLogin();
+      return;
+    }
+
+    if (role != "ADMIN") {
+      alert("글 수정 권한이 없습니다.");
+      navigate("/community/news", { replace: true });
+    }
+
+  }, []);
+  
   const queryClient = useQueryClient();
   const { nno } = useParams();
   const cached = queryClient.getQueryData(['newsDetail', nno]);
@@ -44,18 +60,16 @@ const NewsModComponent = () => {
       .catch((error) => {
         alert("글 수정에 실패했습니다.");
         console.error(error);
-      }).finally(()=>{
+      }).finally(() => {
         post.setPost(false);
-        })
+      })
   };
 
   const onBack = () => {
     navigate(-1);
   };
 
-  useEffect(() => {
-    if (!mid) moveToLogin();
-  }, []);
+  
 
   return (
     <div className="flex flex-col justify-center bt-5 mb-10">

@@ -33,10 +33,10 @@ public class AnswerServiceImpl implements AnswerService {
 		Member member = memberRepository.findById(dto.getAdminMid())
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
 
-		if(!"ROLE_ADMIN".equals(JwtFilter.getRoleName())) {
+		if (!"ROLE_ADMIN".equals(JwtFilter.getRoleName())) {
 			throw new IllegalArgumentException("작성 권한이 없습니다.");
 		}
-		
+
 		Question question = questionRepository.findById(dto.getQno())
 				.orElseThrow(() -> new IllegalArgumentException("찾으시는 질문이 없습니다."));
 
@@ -67,7 +67,7 @@ public class AnswerServiceImpl implements AnswerService {
 
 		Member member = memberRepository.findById(dto.getAdminMid())
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보 없습니다."));
-		
+
 		Answer answer = answerRepository.findByQuestion_Qno(qno)
 				.orElseThrow(() -> new RuntimeException("답변이 존재하지 않습니다."));
 
@@ -88,7 +88,7 @@ public class AnswerServiceImpl implements AnswerService {
 		System.out.println(">> 삭제 요청자: " + requesterMid);
 		System.out.println(">> 실제 작성자: " + answer.getMember().getMid());
 
-		if (!JwtFilter.checkAuth(answer.getMember().getMid())) {
+		if (!JwtFilter.checkAuth(null)) {
 			throw new IllegalArgumentException("삭제 권한이 없습니다.");
 		}
 

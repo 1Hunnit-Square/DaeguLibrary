@@ -17,7 +17,7 @@ const BookRequestComponent = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 bg-white">
+        <div className="max-w-5xl mx-auto mt-20 mb-10 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
            
             <section className="bg-[#eefbef] p-8 rounded-lg flex flex-col md:flex-row items-center gap-8 mb-12 shadow-md">
                 <div className="flex-shrink-0">

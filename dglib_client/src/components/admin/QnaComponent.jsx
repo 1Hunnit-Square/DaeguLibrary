@@ -55,7 +55,7 @@ const QnaComponent = () => {
             }),
     });
 
-    
+
 
     const filteredContent = useMemo(() => {
         let list = status === "전체" ? data.content : data.content.filter((item) => item.status === status);
@@ -119,17 +119,17 @@ const QnaComponent = () => {
 
             <h1 className="text-3xl font-bold mb-8 text-center text-[#00893B]">QnA 관리</h1>
 
-            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">                
-                    <SearchSelectComponent
-                        options={searchOptions}
-                        defaultCategory={defaultCategory}
-                        className="w-full md:w-[40%]"
-                        inputClassName="w-full bg-white"
-                        buttonClassName="right-2 top-5"
-                        dropdownClassName="w-24 md:w-32"
-                        input={query}
-                        handleSearch={handleSearch}
-                    />
+            <div className="flex flex-col flex-wrap md:flex-row items-center justify-center mb-10 gap-10 rounded-xl bg-gray-100 shadow p-4 min-h-30">
+                <SearchSelectComponent
+                    options={searchOptions}
+                    defaultCategory={defaultCategory}
+                    className="w-full md:w-[40%]"
+                    inputClassName="w-full bg-white"
+                    buttonClassName="right-2 top-5"
+                    dropdownClassName="w-24 md:w-32"
+                    input={query}
+                    handleSearch={handleSearch}
+                />
 
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium whitespace-nowrap">등록일</span>
@@ -156,13 +156,14 @@ const QnaComponent = () => {
             <div className="shadow-md rounded-lg overflow-x-auto mt-4">
                 <table className="w-full bg-white table-fixed">
                     <colgroup>
-                        <col style={{ width: '5%' }} />
-                        <col style={{ width: '8%' }} />
-                        <col style={{ width: '35%' }} /> 
-                        <col style={{ width: '13%' }} />
-                        <col style={{ width: '12%' }} />
-                        <col style={{ width: '12%' }} />
-                        <col style={{ width: '8%' }} />
+                        <col style={{ width: '5%' }} />   {/* 번호 */}
+                        <col style={{ width: '7%' }} />   {/* 상태 */}
+                        <col style={{ width: '35%' }} />  {/* 제목 */}
+                        <col style={{ width: '7%' }} />   {/* 공개여부 */}
+                        <col style={{ width: '10%' }} />  {/* 작성자 */}
+                        <col style={{ width: '14%' }} />  {/* 등록일 */}
+                        <col style={{ width: '14%' }} />  {/* 수정일 */}
+                        <col style={{ width: '8%' }} />   {/* 조회수 */}
                     </colgroup>
                     <thead className="bg-[#00893B] text-white">
                         <tr>
@@ -192,15 +193,15 @@ const QnaComponent = () => {
                                 >
                                     <td className="py-4 px-2 text-xs text-center">{(page - 1) * size + idx + 1}</td>
                                     <td className="py-4 px-2 text-xs text-center">
-                                        <span className={`px-2 py-1 rounded text-white text-xs ${item.status === "완료" ? "bg-yellow-500" : "bg-gray-400"}`}>
+                                        <span className={`px-1 py-1 rounded text-white text-xs ${item.status === "완료" ? "bg-yellow-500" : "bg-gray-400"}`}>
                                             {item.status}
                                         </span>
                                     </td>
                                     <td className="py-4 px-2 text-xs truncate" title={item.title}>{item.title}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.checkPublic ? "-" : "🔒︎"}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.name}</td>
-                                    <td className="py-4 px-2 text-xs text-center">{item.postedAt}</td>
-                                    <td className="py-4 px-2 text-xs text-center">{item.modifiedAt}</td>
+                                    <td className="py-4 px-2 text-xs text-center">{item.postedAt.substring(0, 16)}</td>
+                                    <td className="py-4 px-2 text-xs text-center">{item.modifiedAt ? `${item.modifiedAt.substring(0, 16)}` : ""}</td>
                                     <td className="py-4 px-2 text-xs text-center">{item.viewCount}</td>
                                 </tr>
                             ))

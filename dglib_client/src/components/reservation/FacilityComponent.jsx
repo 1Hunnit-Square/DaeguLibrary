@@ -19,7 +19,7 @@ const FacilityComponent = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-lg shadow-md">
+    <div className="max-w-5xl mx-auto mt-20 mb-10 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
       <section className="bg-[#e5f5ec] p-6 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div className="flex-1">
           <h2 className="text-xl md:text-2xl font-bold text-green-800 mb-2 leading-relaxed">

@@ -1,6 +1,6 @@
 const BorrowReturnComponent = () => {
     return (
-        <div className="max-w-5xl mx-auto px-15 py-15 bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl mx-auto px-15 py-15 bg-white rounded-lg shadow-md mt-20 border border-gray-200 mb-10">
 
             {/* 도서 대출 */}
             <section className="flex items-start gap-10 mb-10">

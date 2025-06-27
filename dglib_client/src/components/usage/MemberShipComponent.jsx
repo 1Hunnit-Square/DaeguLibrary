@@ -5,7 +5,7 @@ const MemberShipComponent = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="max-w-5xl mx-auto px-12 py-15 bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl mx-auto mt-20 mb-10 border border-gray-100 px-6 pt-10 sm:pt-10 md:pt-10 pb-16 bg-white rounded-lg shadow-md">
             <section className="px-5 py-5 max-w-6xl mx-auto text-gray-800">
                 {/* 헤더 영역 */}
                 <div className="bg-[#eefbef] p-8 rounded-2xl shadow flex flex-col md:flex-row items-center justify-between gap-6 mb-12">

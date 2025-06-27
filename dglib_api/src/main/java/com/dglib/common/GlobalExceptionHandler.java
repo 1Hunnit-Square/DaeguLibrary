@@ -4,6 +4,7 @@ import java.nio.file.AccessDeniedException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -50,6 +51,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
 		ErrorResponse error = new ErrorResponse("엔티티를 찾을 수 없음", ex.getMessage());
 		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+		System.out.println("권한이 거부되었습니다: " + ex.getMessage());
+		ErrorResponse error = new ErrorResponse("접근 권한이 없습니다.", "접근 권한이 없습니다.");
+		return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
 	}
 
 }

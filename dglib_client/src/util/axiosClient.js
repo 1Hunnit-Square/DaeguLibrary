@@ -67,8 +67,7 @@ const beforeRes = async (res) => {
 
     const result = await refreshToken(memberCookie.accessToken, memberCookie.refreshToken);
     if(!result){
-        alert("토큰이 만료되었습니다. 다시 로그인해주세요."); 
-        logoutHelper();
+        console.log("아무거나")
         return Promise.reject(new Error("REQUIRE_RELOGIN"));
     }
 

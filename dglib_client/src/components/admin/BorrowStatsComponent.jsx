@@ -27,9 +27,9 @@ const BorrowStatsComponent = () => {
     const getRankBadge = (rank) => {
         if (rank <= 3) {
             const colors = {
-                1: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white',
-                2: 'bg-gradient-to-r from-gray-300 to-gray-500 text-white',
-                3: 'bg-gradient-to-r from-amber-600 to-amber-800 text-white'
+                1: 'bg-yellow-600 text-white',
+                2: 'bg-gray-500 text-white',
+                3: 'bg-amber-800 text-white'
             };
             return colors[rank];
         }
@@ -162,15 +162,15 @@ const BorrowStatsComponent = () => {
             <div className="w-full">
                 <table className="w-full table-fixed">
                     <thead>
-                        <tr className="bg-gradient-to-r from-green-50 to-emerald-200 border-b-2 border-green-300">
-                            <th className="px-3 py-3 text-center text-sm font-semibold text-gray-700 w-10">순위</th>
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-1/4">도서명</th>
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-20">저자</th>
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-20">출판사</th>
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-24">ISBN</th>
-                            <th className="px-3 py-3 text-left text-sm font-semibold text-gray-700 w-20">출판일</th>
-                            <th className="px-3 py-3 text-center text-sm font-semibold text-gray-700 w-16">보유</th>
-                            <th className="px-3 py-3 text-center text-sm font-semibold text-gray-700 w-20">대출횟수</th>
+                        <tr className="bg-green-700">
+                            <th className="px-3 text-center text-sm font-semibold text-white w-11 rounded-tl-lg">순위</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-1/4">도서명</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-20">저자</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-20">출판사</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-24">ISBN</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-20">출판일</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-16">보유</th>
+                            <th className="px-3 py-3 text-center text-sm font-semibold text-white w-20 rounded-tr-lg">대출횟수</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -195,16 +195,16 @@ const BorrowStatsComponent = () => {
                                         {book.bookTitle}
                                     </div>
                                 </td>
-                                <td className="px-3 py-4 text-gray-600 text-sm truncate" title={book.author}>
+                                <td className="px-3 py-4 text-gray-600 text-sm text-center truncate" title={book.author}>
                                     {book.author}
                                 </td>
-                                <td className="px-3 py-4 text-gray-600 text-sm truncate" title={book.publisher}>
+                                <td className="px-3 py-4 text-gray-600 text-sm  text-center truncate" title={book.publisher}>
                                     {book.publisher}
                                 </td>
-                                <td className="px-3 py-4 text-gray-600 text-xs font-mono truncate" title={book.isbn}>
+                                <td className="px-3 py-4 text-gray-600 text-xs  text-center font-mono truncate" title={book.isbn}>
                                     {book.isbn}
                                 </td>
-                                <td className="px-3 py-4 text-gray-600 text-sm truncate">
+                                <td className="px-3 py-4 text-gray-600 text-sm  text-center truncate">
                                     {book.pubDate}
                                 </td>
                                 <td className="px-3 py-4 text-center">

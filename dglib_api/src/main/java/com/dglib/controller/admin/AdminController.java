@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -54,6 +55,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(BookController.class);
@@ -110,6 +112,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/rentallist")
+
 	public ResponseEntity<RentalPageDTO> getRentalList(@ModelAttribute BorrowedBookSearchDTO borrowedBookSearchDto) {
 		LOGGER.info(borrowedBookSearchDto + " ");
 		int page = Optional.ofNullable(borrowedBookSearchDto.getPage()).orElse(1);

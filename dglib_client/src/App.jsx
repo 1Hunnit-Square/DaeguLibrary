@@ -1,5 +1,5 @@
 // App.jsx
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider} from 'react-router-dom';
 import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import root from './routers/root';
 import { ToastContainer, toast } from 'react-toastify';
@@ -7,12 +7,34 @@ import './App.css';
 import RecoilLoginState from './atoms/loginState';
 import { useRecoilState, RecoilRoot } from 'recoil';
 import { useEffect } from 'react';
-import { useLogin } from './hooks/useLogin';
+import { logoutHelper } from "./util/logoutHelper";
+
 
 
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (count, error) => {
+        if (error.message === "REQUIRE_RELOGIN") return false;
+        if (error.response?.status === 403) return false;
+
+        return count < 3;
+      },
+    },
+  },
   queryCache: new QueryCache({
+
     onError: (error) => {
+      if (error.message === "REQUIRE_RELOGIN") {
+        alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+        logoutHelper();
+      }
+      if (error.response?.status === 403) {
+        alert("접근 권한이 없습니다.");
+        root.navigate('/');
+        
+        return;
+      }
       console.error('Query error:', error);
       toast.error(`데이터 불러오기 실패: ${error?.response?.data?.message ?? '서버와 연결이 실패했습니다'}`, {
         position: 'top-center',
@@ -35,15 +57,11 @@ function App() {
 
 function InnerApp() {
   const [loginState, setLoginState] = useRecoilState(RecoilLoginState);
-  const { doLogout } = useLogin(); 
 
   useEffect(() => {
     const syncLogout = (event) => {
       if (event.key === 'logout') {
         setLoginState({});
-      }
-      if (event.key === 'token_expired') {
-        doLogout();
       }
     };
 

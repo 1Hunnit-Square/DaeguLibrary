@@ -333,9 +333,9 @@ const CalendarManagementComponent = () => {
 
             <div className='flex flex-col gap-2'>
               {/* 공휴일 여부 출력 */}
-              <div className="text-ms text-gray-700 font-semibold pl-1">
+              <div className="text-ms text-gray-700 font-semibold p-1">
                 공휴일 여부 : {' '}
-                <span className={`font-semibold ${holidayInfo != '⨉' ? 'text-blue-600' : 'text-red-500'}`}>
+                <span className={`font-semibold ${holidayInfo != '⨉' ? 'text-blue-600' : 'text-red-500 text-xl leading-none'}`}>
                   {holidayInfo || <span className="!text-black">확인 중...</span>}
                 </span>
               </div>

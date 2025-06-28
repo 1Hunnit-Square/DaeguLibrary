@@ -15,8 +15,8 @@ const Modal = ({ isOpen, title, children, onClose, dragOn=true, className=""}) =
           <h2 className="drag-handle flex-1 text-xl font-semibold">{title}</h2>
           {onClose && (<button
             onClick={onClose}
-            className="text-white text-xl font-semibold leading-none hover:text-gray-200">
-            X
+            className="text-white text-xl font-semibold leading-none hover:text-gray-200 cursor-pointer">
+            ✕
           </button>)}
         </div>
         <div className="text-gray-700 p-5">

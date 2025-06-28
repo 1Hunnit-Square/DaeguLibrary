@@ -12,13 +12,22 @@ const Align = Quill.import('formats/align');
 Align.whitelist = ['right', 'center'];
 Quill.register(Align, true);
 
+const Font = Quill.import("formats/font");
+Font.whitelist = ["serif", "monospace", "hakgyoansim", "kccganpan","dolbom"];
+Quill.register(Font, true);
+
 
 const QuillToolbar = ({ tooltip, upload }) => (
   <div id="toolbar" data-for="tip" className="flex gap-2 mb-4 border-b pb-2">
-    <select className="ql-font">
+    <select className="ql-font !w-35" defaultValue="">
       <option value="">기본</option>
       <option value="serif">Serif</option>
       <option value="monospace">Monospace</option>
+      <option value="dolbom">문화재돌봄체</option>
+      <option value="kccganpan">KCC 간판체</option>
+      <option value="hakgyoansim">학교안심 받아쓰기</option>
+     
+      
     </select>
     <select className="ql-size" defaultValue="16px">
       <option value="8px">8px</option>

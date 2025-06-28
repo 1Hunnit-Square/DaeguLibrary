@@ -195,12 +195,12 @@ const ChatComponent = ({ onClose }) => {
             <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
                 <h3 className="font-bold text-sm sm:text-base">도서관 도우미 꿈틀이</h3>
                 <div className="flex items-center gap-4">
-                    <img src="/reset.png" title="초기화" className="w-4 h-4 mt-1.5 items-center hover:cursor-pointer" onClick={resetHandler} />
+                    <img src="/reset.png" title="초기화" className="w-4 h-4 items-center hover:cursor-pointer select-none" onClick={resetHandler} />
                     <button
                         onClick={onClose}
-                        className="text-white text-3xl sm:text-xl hover:text-gray-200 hover:cursor-pointer "
+                        className="text-white text-lg hover:text-gray-200 hover:cursor-pointer select-none"
                     >
-                        &times;
+                        ✕
                     </button>
                 </div>
             </div>
@@ -287,7 +287,7 @@ const ChatComponent = ({ onClose }) => {
                 <div ref={chatEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-2 sm:p-3 bg-white border-t flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-2 sm:p-3 bg-white border-t border-gray-200 flex gap-2">
                 <textarea
                     value={message}
                     ref={inputRef}
@@ -301,7 +301,7 @@ const ChatComponent = ({ onClose }) => {
                     rows="1"
                     style={{ resize: 'none' }}
                     placeholder="메시지를 입력하세요..."
-                    className="flex-1 border rounded-lg px-2 sm:px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-500 
+                    className="flex-1 border border-gray-400 rounded-lg px-2 sm:px-3 pt-2.5 pb-2 focus:outline-none focus:ring-1 focus:ring-green-500 
                              min-h-[36px] sm:min-h-[40px] max-h-[100px] sm:max-h-[120px] overflow-y-auto text-base
                              [&::-webkit-scrollbar]:w-2
                              [&::-webkit-scrollbar-thumb]:bg-gray-400

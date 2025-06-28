@@ -13,7 +13,7 @@ Align.whitelist = ['right', 'center'];
 Quill.register(Align, true);
 
 const Font = Quill.import("formats/font");
-Font.whitelist = ["serif", "monospace", "hakgyoansim", "kccganpan","dolbom"];
+Font.whitelist = ["serif", "monospace", "hakgyoansim", "dolbom"];
 Quill.register(Font, true);
 
 
@@ -24,7 +24,6 @@ const QuillToolbar = ({ tooltip, upload }) => (
       <option value="serif">Serif</option>
       <option value="monospace">Monospace</option>
       <option value="dolbom">문화재돌봄체</option>
-      <option value="kccganpan">KCC 간판체</option>
       <option value="hakgyoansim">학교안심 받아쓰기</option>
      
       

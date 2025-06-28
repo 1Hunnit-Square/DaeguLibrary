@@ -36,11 +36,6 @@
 }
 
 @font-face {
-  font-family: 'KCC-Ganpan';
-  src: url('/fonts/KCC-Ganpan.ttf') format('truetype');
-}
-
-@font-face {
   font-family: 'Dolbom';
   src: url('/fonts/Munhwa Dolbom Bold.ttf') format('truetype');
 }
@@ -55,9 +50,6 @@
 
 .ql-font-hakgyoansim {
   font-family: 'Hakgyoansim Badasseugi', sans-serif;
-}
-.ql-font-kccganpan {
-  font-family: 'KCC-Ganpan', sans-serif;
 }
 .ql-font-dolbom {
   font-family: 'Dolbom', sans-serif;

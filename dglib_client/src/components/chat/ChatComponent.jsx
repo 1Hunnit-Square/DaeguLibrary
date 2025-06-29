@@ -17,7 +17,6 @@ const ChatComponent = ({ onClose }) => {
     const [clientId, setClientId] = useRecoilState(clientIdState);
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
-    const [composing, setComposing] = useState(false);
     const inputRef = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -163,29 +162,24 @@ const ChatComponent = ({ onClose }) => {
         const input = inputRef.current;
         if (!input) return;
     
-        const handleCompositionStart = () => setComposing(true);
-        const handleCompositionEnd = () => setComposing(false);
         const handleKeyDown = (e) => {
-            if (e.key === 'Enter' && !composing) {
+            if (e.key === 'Enter' && !e.isComposing) {
               if (e.shiftKey) {
                 return;
               } else {
                 e.preventDefault();
                 handleSendMessage(e);
+    
               }
             }
           };
 
-        input.addEventListener('compositionstart', handleCompositionStart);
-        input.addEventListener('compositionend', handleCompositionEnd);
         input.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            input.removeEventListener('compositionstart', handleCompositionStart);
-            input.removeEventListener('compositionend', handleCompositionEnd);
             input.removeEventListener('keydown', handleKeyDown);
         };
-    }, [composing]);
+    }, [message]);
 
     
 

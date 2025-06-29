@@ -59,7 +59,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                 alt="꿈틀이AI"
                 className="w-14 h-14 sm:w-16 sm:h-16"
             />
-        </div>
+        </div>  
         {isChatOpen && <ChatComponent onClose={() => setIsChatOpen(false)}/>}
             <Footer />
         </div>

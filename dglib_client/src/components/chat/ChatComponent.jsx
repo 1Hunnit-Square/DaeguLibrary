@@ -19,7 +19,11 @@ const ChatComponent = ({ onClose }) => {
     const prevChatLengthRef = useRef(chatHistory.length);
     const [composing, setComposing] = useState(false);
     const inputRef = useRef(null);
+    const [isOpen, setIsOpen] = useState(false);
 
+    useEffect(()=>{
+        setIsOpen(true);
+    },[])
     
 
     const chatMutation = useMutation({
@@ -187,10 +191,11 @@ const ChatComponent = ({ onClose }) => {
 
     return (
         <>
-        <div className="fixed bottom-23 sm:bottom-5 sm:left-5 md:left-10 lg:left-20 xl:left-40 
+        <div className={`fixed bottom-23 sm:bottom-5 sm:left-5 md:left-10 lg:left-20 xl:left-40 
                         w-[calc(109vw-32px)] sm:w-80 md:w-96 lg:w-[500px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
-                        bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col">
+                        bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col
+                        transform transition-all duration-300 ease-in-out ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} origin-bottom-left`}>
             
             <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
                 <h3 className="font-bold text-sm sm:text-base">도서관 도우미 꿈틀이</h3>

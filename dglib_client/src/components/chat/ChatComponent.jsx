@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useCallback } from "react";
+import { useState, useEffect, useRef, memo, useCallback, useLayoutEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import ChatActionComponent from "./ChatActionComponent";
 import VoiceWebSocketComponent from "./VoiceWebSocketComponent";
@@ -18,12 +18,17 @@ const ChatComponent = ({ onClose }) => {
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
     const inputRef = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const [ isStart, setIsStart ] = useState(false);
+    const chatRef = useRef(null);
 
-    useEffect(()=>{
-        setIsOpen(true);
+    useLayoutEffect(()=>{
+        setIsStart(true);
+        setTimeout(()=>{
+            chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
+           chatRef.current.classList.remove('invisible');
+           chatRef.current.classList.add('visible');
+        },200)
     },[])
-    
 
     const chatMutation = useMutation({
         mutationFn: async (param) => {
@@ -189,22 +194,23 @@ const ChatComponent = ({ onClose }) => {
                         w-[calc(109vw-32px)] sm:w-80 md:w-96 lg:w-[500px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
                         bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col
-                        transform transition-all duration-300 ease-in-out ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} origin-bottom-left`}>
+                        transform transition-all duration-150 ease-in-out ${(isStart)? 'scale-100 opacity-100' : 'scale-0 opacity-0'} origin-bottom-left
+                        `}>
             
             <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
                 <h3 className="font-bold text-sm sm:text-base">도서관 도우미 꿈틀이</h3>
                 <div className="flex items-center gap-4">
-                    <img src="/reset.png" title="초기화" className="w-4 h-4 items-center hover:cursor-pointer select-none" onClick={resetHandler} />
+                    <img src="/reset.png" title="초기화" className="w-3.5 h-3.5 sm:w-4 sm:h-4 items-center hover:cursor-pointer select-none" onClick={resetHandler} />
                     <button
                         onClick={onClose}
-                        className="text-white text-lg hover:text-gray-200 hover:cursor-pointer select-none"
+                        className="text-white text-xl sm:text-lg hover:text-gray-200 hover:cursor-pointer select-none"
                     >
                         ✕
                     </button>
                 </div>
             </div>
-
-            <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-gray-100">
+            <div className="flex-1 bg-gray-100 min-h-0">
+                <div ref={chatRef} className="invisible p-2 sm:p-4 w-full h-full overflow-y-auto">
             {chatHistory.map((chat, index) => { 
                     return(
                     <div key={index}>
@@ -284,8 +290,9 @@ const ChatComponent = ({ onClose }) => {
                     </div>
                 )}
                 <div ref={chatEndRef} />
+                </div>
             </div>
-
+            
             <form onSubmit={handleSendMessage} className="p-2 sm:p-3 bg-white border-t border-gray-200 flex gap-2">
                 <textarea
                     value={message}

@@ -1,7 +1,8 @@
 package com.dglib.controller.chatbot;
 
 import com.dglib.security.jwt.JwtFilter;
-import com.dglib.service.websocket.VoiceSessionService;
+
+import com.dglib.service.websocket.VoiceSessionServiceNetty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,11 +20,13 @@ import java.util.Map;
 public class StompController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(StompController.class);
-    private final VoiceSessionService voiceSessionService;
+    private final VoiceSessionServiceNetty voiceSessionService;
     private final ObjectMapper objectMapper;
 
     @MessageMapping("/voice")
     public void handleVoiceMessage(String payload, StompHeaderAccessor headerAccessor) {
+    	
+    	 
     	        
         try {
            
@@ -53,10 +56,16 @@ public class StompController {
                     voiceSessionService.startSession(uuid, clientId, mid);
                     break;
                 case "audio_chunk":
+
+//                    LOGGER.debug("Executing 'audio_chunk' for UUID: {}", uuid); 
                     String base64AudioData = message.get("audioData");
                     if (base64AudioData != null) {
-                        byte[] audioData = Base64.getDecoder().decode(base64AudioData);
-                        voiceSessionService.processAudioChunk(uuid, audioData);
+                        try {
+                            byte[] audioData = Base64.getDecoder().decode(base64AudioData);
+                            voiceSessionService.processAudioChunk(uuid, audioData);
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.error("Invalid Base64 audio data for UUID: {}", uuid, e);
+                        }
                     } else {
                         LOGGER.warn("Received 'audio_chunk' without 'audioData' for UUID: {}", uuid);
                     }

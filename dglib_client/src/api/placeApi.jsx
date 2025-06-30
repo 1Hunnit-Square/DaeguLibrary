@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_ENDPOINTS, API_SERVER_HOST } from './config';
+import axiosClient from '../util/axiosClient';
 
 const prefix = `${API_SERVER_HOST}${API_ENDPOINTS.place}`;
 
@@ -39,12 +40,12 @@ export const getReservationStatus = async (year, month) => {
 
 // 전체 시설 예약 목록 조회
 export const getReservationListByAdmin = async (params = {}) => {
-  const res = await axios.get(`${prefix}/admin`, { params });
+  const res = await axiosClient.get(`${prefix}/admin`, { params });
   return res.data;
 };
 
 // 특정 예약 강제 취소
 export const cancelReservationByAdmin = async (pno) => {
-  const res = await axios.delete(`${prefix}/admin/delete/${pno}`);
+  const res = await axiosClient.delete(`${prefix}/admin/delete/${pno}`);
   return res.data;
 };

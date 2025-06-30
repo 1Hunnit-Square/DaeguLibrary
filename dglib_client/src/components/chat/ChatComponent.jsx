@@ -21,6 +21,7 @@ const ChatComponent = ({ onClose }) => {
     const [ isStart, setIsStart ] = useState(false);
     const chatRef = useRef(null);
 
+
     useLayoutEffect(()=>{
         setIsStart(true);
         setTimeout(()=>{

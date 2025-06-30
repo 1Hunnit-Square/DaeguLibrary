@@ -38,6 +38,7 @@ const KakaoRedirect = lazy(() => import("../pages/KakaoRedirectPage"));
 const SmsSearch = lazy(() => import("../components/admin/SmsSearchComponent"));
 const EmailRead = lazy(() => import("../components/admin/EmailReadComponent"));
 const EmailWrite = lazy(() => import("../components/admin/EmailWriteComponent"));
+const QRScan = lazy(() => import("../components/admin/QRScanComponent"));
 
 
 const root = createBrowserRouter([
@@ -138,6 +139,10 @@ const root = createBrowserRouter([
       {
             path: "emailWrite",
             element: <Suspense fallback={<Loading />}><EmailWrite /></Suspense>
+     },
+      {
+            path: "qrscan",
+            element: <Suspense fallback={<Loading />}><QRScan /></Suspense>
      },
 
 

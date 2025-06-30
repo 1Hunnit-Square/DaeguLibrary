@@ -27,6 +27,7 @@
     "dompurify": "^3.2.6",
     "epub.js": "^0.2.15",
     "framer-motion": "^12.10.5",
+    "html5-qrcode": "^2.3.8",
     "lodash": "^4.17.21",
     "lucide-react": "^0.516.0",
     "phosphor-react": "^1.4.1",

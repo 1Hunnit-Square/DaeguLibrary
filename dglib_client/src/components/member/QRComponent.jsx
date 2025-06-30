@@ -13,6 +13,7 @@ const { data, error, isLoading, refetch } = useQuery({
     queryKey : ['card'],
     queryFn: () => getCard({mid : mid}),
     enabled: !!mid,
+    refetchOnWindowFocus: false,
     });
 
 const handleReload = useCallback(() => {

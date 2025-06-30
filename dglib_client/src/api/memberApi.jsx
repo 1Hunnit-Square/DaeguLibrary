@@ -29,6 +29,14 @@ export const getCard = async (param) => {
     return res.data;
 }
 
+
+export const QrScan = async (params) => {
+    const header = { headers: { 'Content-Type': 'application/json' } };
+    const res = await axios.post(`${prefix}/qrscan`, params, header);
+    return res.data;
+}
+
+
 export const idExist = async (param) => {
     const res = await axios.get(`${prefix}/existId`, { params: param });
     return res.data;

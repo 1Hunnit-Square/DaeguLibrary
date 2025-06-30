@@ -31,14 +31,25 @@
 
 
 @font-face {
-  font-family: 'Hakgyoansim Badasseugi';
-  src: url('/fonts/Hakgyoansim Badasseugi TTF L.ttf') format('truetype');
+  font-family: 'MaruBuri';
+  src: url('/fonts/MaruBuri-Regular.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Dolbom';
-  src: url('/fonts/Munhwa Dolbom Bold.ttf') format('truetype');
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquareR.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'BMYEONSUNG';
+  src: url('/fonts/BMYEONSUNG_ttf.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'BMJUA';
+  src: url('/fonts/BMJUA_ttf.ttf') format('truetype');
+}
+
 
 .ql-container {
   border: none !important;
@@ -48,11 +59,17 @@
   display: none !important;
 }
 
-.ql-font-hakgyoansim {
-  font-family: 'Hakgyoansim Badasseugi', sans-serif;
+.ql-font-maruburi, .ql-picker-item[data-value="maruburi"]{
+  font-family: 'MaruBuri', sans-serif;
 }
-.ql-font-dolbom {
-  font-family: 'Dolbom', sans-serif;
+.ql-font-nanumsquare, .ql-picker-item[data-value="nanumsquare"]{
+  font-family: 'NanumSquare', sans-serif;
+}
+.ql-font-yeonsung, .ql-picker-item[data-value="yeonsung"]{
+  font-family: 'BMYEONSUNG', sans-serif;
+}
+.ql-font-jua, .ql-picker-item[data-value="jua"]{
+  font-family: 'BMJUA', sans-serif;
 }
 
 

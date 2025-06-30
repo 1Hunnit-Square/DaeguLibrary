@@ -160,7 +160,7 @@ const MemberSearchComponent = () => {
               </table>
             </div>
           )}
-          <Modal isOpen={isOpen} title="회원증 조회" onClose={()=>setIsOpen(false)} dragOn={false} ><QRScanComponent handleScanner={handleScanner} /></Modal>
+          <Modal isOpen={isOpen} title="회원증 조회" onClose={()=>setIsOpen(false)} dragOn={false} >{<QRScanComponent handleScanner={handleScanner} />}</Modal>
         </div>
       );
     }

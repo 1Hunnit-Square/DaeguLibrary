@@ -32,7 +32,9 @@ useEffect(()=>{
 
   useEffect(() => { 
     if(cameras.length < 1) return; 
-
+    if(QrRef.current){
+      QrRef.current = null;
+    }
     QrRef.current = new Html5Qrcode(scannerId);
     const scanCam = camId ? camId :  { facingMode: "environment" };
     QrRef.current
@@ -69,7 +71,6 @@ useEffect(()=>{
             QrScan(param).then(res => {
                 setResult(res);
                 if(handleScanner){
-                    handleStopCam();
                     handleScanner(res);
                 }
 
@@ -96,16 +97,18 @@ useEffect(()=>{
     setCamId(e.target.value);
   }
 
-  const handleStopCam = () => {
-    if (QrRef.current && QrRef.current._isScanning) {
-        QrRef.current
-            .stop()
-            .then(() => QrRef.current.clear())
-            .catch(e => {
-            console.warn("정리 중 오류 ", e.message);
-            });
-    }
-}
+const handleStopCam = () => {
+  if (!QrRef.current) return;
+
+  const currentScanner = QrRef.current;
+  QrRef.current = null;
+
+  currentScanner
+    .stop()
+    .catch((e) => {
+      console.warn("정리 중 오류", e); // 전체 오류 로그 확인
+    });
+};
 
   return (
     <div className="mx-auto p-3 w-90 text-center">

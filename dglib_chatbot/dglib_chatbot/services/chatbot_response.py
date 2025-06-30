@@ -34,7 +34,7 @@ async def chatbot_ai(clientId: str, parts: str, nlp: dict, mid: str) -> dict:
         update_session_activity(clientId)
 
     session = chat_sessions[clientId]
-    response = session["chat"].send_message(generate.get("text"))
+    response = await session["chat"].send_message_async(generate.get("text"))
 
     await save_chat_log(parts, response.text, nlp)
 

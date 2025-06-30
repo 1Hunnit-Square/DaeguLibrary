@@ -144,13 +144,13 @@ const MemberManagementComponent = () => {
 
                     </div>
             </div>
-            <div className="flex justify-between item-center mb-5">
-                <Button onClick={()=>window.open(`/qrscan`, "_blank", "width=1000,height=750")} className="bg-blue-500 hover:bg-blue-600 ml-1">회원증 검사</Button>
-                <div className="flex gap-1">
+            <div className="flex justify-end item-center mb-5">
+                {/* <Button onClick={()=>window.open(`/qrscan`, "_blank", "width=1000,height=750")} className="bg-blue-500 hover:bg-blue-600 ml-1">회원증 검사</Button> */}
+              
                 <SelectComponent onChange={(e) => handleSelectChange('sortBy', e)} value={searchURLParams.get("sortBy") || "mno"}  options={sortMap} />
                 <SelectComponent onChange={(e) => handleSelectChange('orderBy', e)} value={searchURLParams.get("orderBy") || "desc"}  options={orderMap}/>
                 <SelectComponent onChange={(e) => handleSelectChange('size', e)} value={searchURLParams.get("size") || "10"}  options={sizeMap} />
-                </div>
+              
             </div>
             <div className="min-w-fit shadow-md rounded-lg overflow-x-hidden">
                 <table className="min-w-full bg-white">

@@ -11,6 +11,17 @@ import Loading from "../../routers/Loading";
 import Button from "../common/Button";
 
 const ProgramAdminComponent = () => {
+    const getProgramStatus = (applyStartAt, applyEndAt, current, capacity) => {
+        const now = new Date();
+        const start = new Date(applyStartAt);
+        const end = new Date(applyEndAt);
+
+        if (now < start) return '신청전';
+        if (now > end) return '신청마감';
+        if (current >= capacity) return '모집마감';
+        return '신청중';
+    };
+
     const searchFieldMap = {
         "프로그램명": "progName",
         "강사명": "teachName",
@@ -171,7 +182,9 @@ const ProgramAdminComponent = () => {
                                         {" / "}
                                         {item.capacity}
                                     </td>
-                                    <td className="py-3 px-4">{item.status}</td>
+                                    <td className="py-3 px-4">
+                                        {getProgramStatus(item.applyStartAt, item.applyEndAt, item.current, item.capacity)}
+                                    </td>
                                     <td className="py-3 px-4">{item.createdAt}</td>
                                     <td className="py-3 px-4">
                                         <Button

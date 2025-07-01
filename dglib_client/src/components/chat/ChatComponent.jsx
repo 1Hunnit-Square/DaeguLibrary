@@ -5,7 +5,7 @@ import VoiceWebSocketComponent from "./VoiceWebSocketComponent";
 import { getChatbotResponse, resetChatHistory, pushFeedback } from "../../api/chatbotApi";
 import { useMutation } from '@tanstack/react-query';
 import { useRecoilState, useResetRecoilState } from 'recoil';
-import { chatHistoryState, clientIdState } from '../../atoms/chatState';
+import { chatHistoryState, clientIdState, isChatAnimatingState } from '../../atoms/chatState';
 import { ThumbsUp, ThumbsDown } from "phosphor-react";
 
 const ChatComponent = ({ onClose }) => {
@@ -18,18 +18,31 @@ const ChatComponent = ({ onClose }) => {
     const chatEndRef = useRef(null);
     const prevChatLengthRef = useRef(chatHistory.length);
     const inputRef = useRef(null);
-    const [ isStart, setIsStart ] = useState(false);
     const chatRef = useRef(null);
+    const [isChatAnimating, setIsChatAnimating] = useRecoilState(isChatAnimatingState);
 
 
-    useLayoutEffect(()=>{
-        setIsStart(true);
-        setTimeout(()=>{
+    useLayoutEffect(() => {
+        if (isChatAnimating) {
+            setTimeout(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
+                chatRef.current?.classList.remove('invisible');
+                chatRef.current?.classList.add('visible');
+            }, 200);
+        } else {
             chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
-           chatRef.current.classList.remove('invisible');
-           chatRef.current.classList.add('visible');
-        },200)
-    },[])
+            chatRef.current?.classList.remove('invisible');
+            chatRef.current?.classList.add('visible');
+        }
+    }, [isChatAnimating]);
+
+
+    const handleClose = () => {
+        setIsChatAnimating(true);
+        setTimeout(() => {
+            onClose();
+        }, 200);
+    }
 
     const chatMutation = useMutation({
         mutationFn: async (param) => {
@@ -195,7 +208,7 @@ const ChatComponent = ({ onClose }) => {
                         w-[calc(109vw-32px)] sm:w-80 md:w-96 lg:w-[500px] 
                         h-[calc(100dvh-130px)] sm:h-[600px] md:h-[650px] lg:h-[600px] 
                         bg-white rounded-lg sm:rounded-xl shadow-xl z-150 overflow-hidden flex flex-col
-                        transform transition-all duration-150 ease-in-out ${(isStart)? 'scale-100 opacity-100' : 'scale-0 opacity-0'} origin-bottom-left
+                        transform transition-all duration-150 ease-in-out ${!isChatAnimating ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} origin-bottom-left
                         `}>
             
             <div className="bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
@@ -203,7 +216,7 @@ const ChatComponent = ({ onClose }) => {
                 <div className="flex items-center gap-4">
                     <img src="/reset.png" title="초기화" className="w-3.5 h-3.5 sm:w-4 sm:h-4 items-center hover:cursor-pointer select-none" onClick={resetHandler} />
                     <button
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="text-white text-xl sm:text-lg hover:text-gray-200 hover:cursor-pointer select-none"
                     >
                         ✕

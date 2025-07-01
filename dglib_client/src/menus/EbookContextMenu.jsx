@@ -29,7 +29,7 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
     const getCurrentHighlight = () => {
         const paragraphCfi = getParagraphCfi(selection.cfiRange);
         if (!paragraphCfi) return null;
-        const filtered = highlights.filter(h => h.key === paragraphCfi + selection.cfiRange);
+        const filtered = highlights.filter(h => h.cfiRange === selection.cfiRange);
         return filtered.length ? filtered[0] : null;
     };
 
@@ -52,7 +52,7 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
         const paragraphCfi = getParagraphCfi(selection.cfiRange);
         if (!paragraphCfi) return;
 
-        const filtered = highlights.filter(h => h.key === paragraphCfi + selection.cfiRange);
+        const filtered = highlights.filter(h => h.cfiRange === selection.cfiRange);
         if (!filtered.length) return;
 
         const currentHighlight = filtered[0];
@@ -81,7 +81,7 @@ const EbookContextMenu = ({active, viewerRef, selection, onAddHighlight, highlig
         const paragraphCfi = getParagraphCfi(selection.cfiRange);
         if (!paragraphCfi) return;
 
-        const filtered = highlights.filter(h => h.key === paragraphCfi + selection.cfiRange);
+        const filtered = highlights.filter(h => h.cfiRange === selection.cfiRange);
 
         // if(!filtered.length) return;
 

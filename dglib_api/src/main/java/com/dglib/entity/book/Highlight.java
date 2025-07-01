@@ -31,11 +31,7 @@ public class Highlight {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long highlightId;
 	
-	
-	@Column(name = "highlightKey", nullable = false)
-	private String key;
-	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 25)
 	private String color;
 	
 	 @Column(nullable = false)
@@ -48,12 +44,10 @@ public class Highlight {
 	 private String chapterName;
 	 
 	 
-	 private Integer pageNum;
-	 
 	 @Column(nullable = false, columnDefinition = "TEXT")
 	 private String content;
 	 
-	
+	 @Column(nullable = false)
 	 private LocalDateTime createdAt;
 	 
 	

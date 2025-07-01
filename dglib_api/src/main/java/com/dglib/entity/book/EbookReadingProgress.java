@@ -33,6 +33,7 @@ public class EbookReadingProgress {
 	@Column(nullable = false, length = 1000)
 	private String startCfi;
 	
+	@Column(nullable = false)
 	private LocalDateTime lastReadTime;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

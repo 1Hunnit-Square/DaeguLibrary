@@ -532,7 +532,7 @@ async def generate_holiday_response(date: list) -> dict:
      
         for text in cleaned_texts:
             
-            match = re.search(r"^(?:(\d{4}|\d{2})년\s*)?(\d{1,2})월$", text.strip())
+            match = re.search(r"^(?:(\d{4}|\d{2})년\s*)?(\d{1,2})월(?:달)?$", text.strip())
             if match:
                 year_str, month_str = match.groups()
                 month = int(month_str)
@@ -686,6 +686,7 @@ async def generate_holiday_response(date: list) -> dict:
 
         # 상대 날짜 조회
         relative_day_map = {
+            "오늘": 0, "오늘날": 0, "오늘이": 0, 
             "내일": 1, "낼": 1,
             "모레": 2, "이틀": 2,
             "글피": 3, "사흘": 3,
@@ -706,7 +707,7 @@ async def generate_holiday_response(date: list) -> dict:
 
             target_date = today + timedelta(days=days_offset)
 
-            if keyword in ["내일", "모레", "글피", "낼"]:
+            if keyword in ["오늘", "내일", "모레", "글피", "낼"]:
                 display_name = keyword
             else:
                 display_name = f"{keyword} 뒤"

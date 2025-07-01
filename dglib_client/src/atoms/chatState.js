@@ -16,3 +16,8 @@ export const clientIdState = atom({
   key: 'clientIdState',
   default: ""
 });
+
+export const isChatAnimatingState = atom({
+  key: 'isChatAnimatingState',
+  default: false
+});

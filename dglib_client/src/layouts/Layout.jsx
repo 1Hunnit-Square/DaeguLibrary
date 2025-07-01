@@ -7,7 +7,7 @@ import ChatComponent from "../components/chat/ChatComponent";
 import { getChatbotResponse, resetChatHistory } from "../api/chatbotApi";
 import { useMutation } from '@tanstack/react-query';
 import { useRecoilState} from 'recoil';
-import { isChatOpenState } from '../atoms/chatState';
+import { isChatOpenState, isChatAnimatingState } from '../atoms/chatState';
 import { useCallback } from "react";
 
 
@@ -15,10 +15,31 @@ import { useCallback } from "react";
 
 const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
     const [isChatOpen, setIsChatOpen] = useRecoilState(isChatOpenState);
-  
+    const [isChatAnimating, setIsChatAnimating] = useRecoilState(isChatAnimatingState);
+
     const toggleChat = () => {
-        setIsChatOpen(!isChatOpen);
-    }
+        if (!isChatOpen) {
+            setIsChatAnimating(true); 
+            setIsChatOpen(true);
+            setTimeout(() => {
+                setIsChatAnimating(false); 
+            }, 10);
+        } else {
+            setIsChatAnimating(true); 
+            setTimeout(() => {
+                setIsChatOpen(false);
+            }, 200);
+        }
+    };
+
+    const handleChatClose = () => {
+        setIsChatAnimating(true); 
+        setTimeout(() => {
+            setIsChatOpen(false);
+        }, 200);
+    };
+
+
    
 
   
@@ -63,7 +84,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                 className="w-14 h-14 sm:w-16 sm:h-16"
             />
         </div>  
-        {isChatOpen && <ChatComponent onClose={()=> setIsChatOpen(false)} />}
+        {isChatOpen && <ChatComponent onClose={handleChatClose} />}
             <Footer />
         </div>
     );

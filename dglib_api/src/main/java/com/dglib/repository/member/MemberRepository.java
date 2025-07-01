@@ -145,6 +145,17 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 				    ORDER BY count DESC
 				""", nativeQuery = true)
 		List<Object[]> countByRegionGroup();
+		
+		
+		@Query("""
+			    SELECT m.phone, COUNT(r), m.name 
+			    FROM Member m 
+			    JOIN m.rentals r 
+			    WHERE r.dueDate = :today 
+			    AND r.state = com.dglib.entity.book.RentalState.BORROWED
+			    GROUP BY m.phone, m.name
+			    """)
+			List<Object[]> findPhonesWithBookCountByDueDate(@Param("today") LocalDate today);
 	
 
 }

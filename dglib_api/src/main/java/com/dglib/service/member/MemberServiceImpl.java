@@ -67,6 +67,7 @@ import com.dglib.dto.member.MemberWishBookListDTO;
 import com.dglib.dto.member.ModMemberDTO;
 import com.dglib.dto.member.RegMemberDTO;
 import com.dglib.dto.member.RegionCountDTO;
+import com.dglib.dto.sms.SmsReturnRequestDTO;
 import com.dglib.entity.book.Ebook;
 import com.dglib.entity.book.EbookReadingProgress;
 import com.dglib.entity.book.Highlight;
@@ -96,6 +97,7 @@ import com.dglib.repository.book.WishBookSpecifications;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.member.MemberSpecifications;
 import com.dglib.security.jwt.JwtFilter;
+import com.dglib.service.sms.SmsService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +115,7 @@ public class MemberServiceImpl implements MemberService {
 	private final RentalRepository rentalRepository;
 	private final ReserveRepository reserveRepository;
 	private final WishBookRepository wishBookRepository;
+	private final SmsService smsService;
 
 	private final String KAKAO_URL = "https://kapi.kakao.com/v2/user/me";
 
@@ -775,5 +778,25 @@ public class MemberServiceImpl implements MemberService {
 		        countDTO.add(new RegionCountDTO(regionGroup, count));
 		}
 		return countDTO;
+	}
+	
+	@Override
+	public void sendBookReturnNotification() {
+	
+		LocalDate today = LocalDate.now();
+		Map<String, String> result = memberRepository.findPhonesWithBookCountByDueDate(today)
+			    .stream()
+			    .collect(Collectors.toMap(
+			        row -> (String) row[0],
+			        row -> {
+			            Long count = (Long) row[1];
+			            String name = (String) row[2];
+			            return name + "님, 안녕하세요. 대구도서관입니다. 현재 반납 기한이 오늘인 도서 " + count + "권이 확인되었습니다. 잊지 말고 반납해 주세요!";
+			        }
+			    ));
+		SmsReturnRequestDTO smsBookRequestDTO = new SmsReturnRequestDTO();
+		smsBookRequestDTO.setPhoneMap(result);
+		smsService.sendReturnDueApi(smsBookRequestDTO);
+	
 	}
 }

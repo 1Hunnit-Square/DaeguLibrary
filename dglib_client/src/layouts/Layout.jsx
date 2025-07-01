@@ -21,6 +21,9 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
     }
    
 
+  
+
+
 
     return(
         <div className="flex flex-col min-h-screen ">
@@ -60,7 +63,7 @@ const Layout = ({children, sideOn = true, LMainMenu, LSideMenu}) => {
                 className="w-14 h-14 sm:w-16 sm:h-16"
             />
         </div>  
-        {isChatOpen && <ChatComponent onClose={() => setIsChatOpen(false)}/>}
+        {isChatOpen && <ChatComponent onClose={()=> setIsChatOpen(false)} />}
             <Footer />
         </div>
     );

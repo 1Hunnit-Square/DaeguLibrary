@@ -3,12 +3,15 @@ import { searchMemberNumber  } from "../../api/adminApi";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Button from "../common/Button";
 import Loading from "../../routers/Loading";
+import Modal from "../common/Modal";
+import QRScanComponent from "./QRScanComponent";
 
 const MemberSearchComponent = () => {
 
     const [memberNumber, setMemberNumber] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState(null);
+    const [ isOpen, setIsOpen ] = useState(false);
     const handleSearch = (e) => {
         setMemberNumber(e.target.value);
     }
@@ -69,6 +72,17 @@ const MemberSearchComponent = () => {
 
     }
 
+    const handleScanner = (result) => {
+      if(result.expired){
+        alert("회원증 유효시간이 만료되었습니다.");
+        return;
+      }
+
+      searchMutation.mutate(result.mno);
+      setIsOpen(false);
+
+    }
+
     return (
         <div className="max-w-7xl mx-auto p-8">
           {searchMutation.isPending && (
@@ -88,6 +102,11 @@ const MemberSearchComponent = () => {
                   onClick={!searchMutation.isPending ? ClickSearch : undefined}
                   disabled={searchMutation.isPending}
                   children="검색"
+              />
+              <Button
+                  onClick={()=>setIsOpen(true)}
+                  children="스캔"
+                  className="bg-blue-500 hover:bg-blue-600"
               />
           </div>
 
@@ -141,6 +160,7 @@ const MemberSearchComponent = () => {
               </table>
             </div>
           )}
+          <Modal isOpen={isOpen} title="회원증 조회" onClose={()=>setIsOpen(false)} dragOn={false} >{<QRScanComponent handleScanner={handleScanner} />}</Modal>
         </div>
       );
     }

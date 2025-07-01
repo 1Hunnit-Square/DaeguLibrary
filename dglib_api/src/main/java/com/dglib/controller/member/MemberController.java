@@ -54,6 +54,7 @@ import com.dglib.dto.member.MemberListDTO;
 import com.dglib.dto.member.MemberManageDTO;
 import com.dglib.dto.member.MemberPhoneDTO;
 import com.dglib.dto.member.MemberReserveListDTO;
+import com.dglib.dto.member.MemberScanDTO;
 import com.dglib.dto.member.MemberSearchByMnoDTO;
 import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.dto.member.MemberStatsDTO;
@@ -138,6 +139,11 @@ public class MemberController {
 	@GetMapping("/cardinfo")
 	public ResponseEntity<Map<String, String>> getCardInfo(@RequestParam String mid) {
 		return ResponseEntity.ok(cardService.setQRinfo(mid));
+	}
+	
+	@PostMapping("/qrscan")
+	public ResponseEntity<MemberScanDTO> qrScan(@RequestBody Map<String, String> qrinfo) {
+		return ResponseEntity.ok(cardService.verifyQRinfo(qrinfo));
 	}
 
 	@GetMapping("/existId")

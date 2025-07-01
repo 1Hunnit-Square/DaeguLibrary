@@ -146,9 +146,5 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 				""", nativeQuery = true)
 		List<Object[]> countByRegionGroup();
 	
-	
-
-
-	
 
 }

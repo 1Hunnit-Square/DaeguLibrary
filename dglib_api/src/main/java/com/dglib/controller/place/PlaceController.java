@@ -74,7 +74,6 @@ public class PlaceController {
 
 	// 관리자 예약 취소
 	@DeleteMapping("/admin/delete/{pno}")
-	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<?> cancelReservationByAdmin(@PathVariable Long pno) {
 		placeService.cancelByAdmin(pno);
 		return ResponseEntity.ok().build();
@@ -123,7 +122,6 @@ public class PlaceController {
 
 	// 관리자 - 조건 검색 및 페이징
 	@GetMapping("/admin")
-	@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 	public ResponseEntity<Page<PlaceDTO>> getListByAdmin(@ModelAttribute PlaceSearchConditionDTO cond) {
 		Page<PlaceDTO> list = placeService.getListByAdmin(cond);
 		return ResponseEntity.ok(list);

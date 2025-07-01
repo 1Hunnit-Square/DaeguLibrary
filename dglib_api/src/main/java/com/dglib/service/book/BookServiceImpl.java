@@ -952,7 +952,7 @@ public class BookServiceImpl implements BookService {
 		Ebook ebook = ebookRepository.findById(requestDto.getEbookId())
 				.orElseThrow(() -> new EntityNotFoundException("해당 전자책을 찾을 수 없습니다."));
 
-		Optional<Highlight> existing = highlightRepository.findByMemberMidAndEbookEbookIdAndKey(mid, requestDto.getEbookId(), requestDto.getKey());
+		Optional<Highlight> existing = highlightRepository.findByMemberMidAndEbookEbookIdAndCfiRange(mid, requestDto.getEbookId(), requestDto.getCfiRange());
 		if (existing.isPresent()) {
 			throw new IllegalStateException("이미 존재하는 책갈피입니다.");
 		}

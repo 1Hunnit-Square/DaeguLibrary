@@ -219,13 +219,11 @@ const useHighlight = (viewerRef, setIsContextMenu, bookStyle, bookFlow, ebookId 
 
         const highlightData = {
             ebookId: ebookId,
-            key: paragraphCfi + selection.cfiRange,
             createTime: new Date().toLocaleDateString('en-CA'),
             color,
             paragraphCfi,
             cfiRange: selection.cfiRange,
             chapterName: currentLocation.chapterName || '',
-            pageNum: currentLocation.currentPage,
             content: selection.content,
         }
 

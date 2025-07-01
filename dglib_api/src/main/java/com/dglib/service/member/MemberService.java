@@ -127,6 +127,8 @@ public interface MemberService {
 	
 	List<RegionCountDTO> getRegionCount();
 	
+	void sendBookReturnNotification();
+	
 	
 	
 

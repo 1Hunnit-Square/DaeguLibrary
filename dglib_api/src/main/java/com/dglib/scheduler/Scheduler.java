@@ -78,4 +78,14 @@ public class Scheduler {
 			LOGGER.error("{}년도 자동 등록 실패: {}", year, e.getMessage(), e);
 		}
 	}
+	
+	@Scheduled(cron = "00 09 00 * * *", zone = "Asia/Seoul")
+	public void bookReturnSmsScheduler() {
+		try {
+			memberService.sendBookReturnNotification();
+			LOGGER.info("연체 알림 SMS가 성공적으로 전송되었습니다.");
+		} catch (Exception e) {
+			LOGGER.error("연체 알림 SMS 전송 중 오류 발생: {}", e.getMessage());
+		}
+	}
 }

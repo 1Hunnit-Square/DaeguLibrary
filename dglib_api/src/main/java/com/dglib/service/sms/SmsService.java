@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,7 +23,7 @@ import com.google.gson.Gson;
 
 import lombok.extern.log4j.Log4j2;
 
-@Service @Log4j2 @PropertySource("classpath:app-secret.properties") 
+@Service @Log4j2
 public class SmsService {
 	private final String URL = "https://api.coolsms.co.kr/messages/v4/send-many/detail";
 	private final String SMS_KEY = "CREATION";

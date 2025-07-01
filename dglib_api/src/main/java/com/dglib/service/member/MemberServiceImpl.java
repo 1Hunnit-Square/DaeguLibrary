@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -268,11 +269,11 @@ public class MemberServiceImpl implements MemberService {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> response = null;
+
+		ResponseEntity<Map<String, Object>> response = null;
 
 		try {
-			response = restTemplate.exchange(KAKAO_URL, HttpMethod.GET, requestEntity, Map.class);
+			response = restTemplate.exchange(KAKAO_URL, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<Map<String, Object>>() {});
 		} catch (HttpClientErrorException e) {
 			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
 				throw new IllegalArgumentException("Expired Token");
@@ -281,7 +282,6 @@ public class MemberServiceImpl implements MemberService {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		Map<String, Object> body = response.getBody();
 
 		if (body == null)

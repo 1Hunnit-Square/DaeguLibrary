@@ -17,7 +17,9 @@ public class MailConfig {
 	private String HOST;
 	private final String RECIEVER = "creation";
 	private final String SENDER = "archive"; 
-    private final String PASSWORD = "0601";
+	
+	@Value("${server.creation.password}")
+    private String PASSWORD;
     private final Properties props = new Properties();
     
     @PostConstruct

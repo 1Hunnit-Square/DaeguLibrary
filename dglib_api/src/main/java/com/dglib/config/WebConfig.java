@@ -24,6 +24,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
@@ -81,6 +84,9 @@ public class WebConfig implements WebMvcConfigurer {
 
 	        return modelMapper;
 	   }
+
+
+	 
 	 @Bean
 	    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
 	        return builder -> {

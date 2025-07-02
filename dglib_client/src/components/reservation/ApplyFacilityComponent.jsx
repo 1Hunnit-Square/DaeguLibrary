@@ -50,7 +50,6 @@ const ApplyFacilityComponent = () => {
           <h2 className="text-xl md:text-2xl font-bold text-green-800 mb-2 leading-relaxed">이용신청 시 유의사항</h2>
           <div className="w-10 border-b-2 border-green-800 mb-4"></div>
           <p className="text-sm md:text-base text-gray-700 leading-relaxed tracking-wide">
-            시설 이용은 관리자 최종 승인 완료 후 가능.<br />
             자격: 독서토론 및 독서진흥 활동을 위한 모임
           </p>
           <p className='text-sm md:text-base text-red-600 leading-relaxed tracking-wide'>

@@ -37,7 +37,7 @@ const MemberCardPage = () => {
         <Layout sideOn={false}>
         <SubHeader subTitle="모바일 회원증" mainTitle="기타" />
        <div className="flex justify-center my-10">
-  { !_.isEmpty(info) && <div className="bg-white shadow-lg rounded-2xl border border-green-400 p-5">
+  { !_.isEmpty(info) && <div className="bg-white shadow-lg rounded-2xl border border-green-400 px-3 py-4 sm:p-5">
     <div className="text-center text-green-800 text-xl font-bold mb-4">
       대구도서관 모바일 회원증
     </div>

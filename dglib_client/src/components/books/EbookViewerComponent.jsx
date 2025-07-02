@@ -18,6 +18,7 @@ import useHighlight from '../../hooks/useHighlight'
 import { API_SERVER_HOST } from '../../api/config';
 import usePageSaver from '../../hooks/usePageSaver';
 import { API_ENDPOINTS } from '../../api/config'
+import { set } from 'lodash'
 
 
 const EbookViewerComponent = () => {
@@ -39,6 +40,8 @@ const EbookViewerComponent = () => {
     // const [ isisloadoing , setIsLoading ] = useState(false);
     const { savedPage, restorePosition } = usePageSaver(ebookId, currentLocation, viewerRef);
     const [hasRestoredOnce, setHasRestoredOnce] = useState(false);
+    const [isOptimized, setIsOptimized] = useState(false);
+    const optimizedRef = useRef(false);
     // useEffect(() => {
     //     setTimeout(() => {
     //         setIsLoading(false);
@@ -50,7 +53,7 @@ const EbookViewerComponent = () => {
 
 
     const [ bookStyle, setBookStyle ] = useState({
-        fontFamily: 'Origin',
+        fontFamily: '맑은 고딕',
         fontSize: 18,
         lineHeight: 1.4,
         marginHorizontal: 15,
@@ -61,6 +64,8 @@ const EbookViewerComponent = () => {
         resizeOnOrientationChange: true,
         spread: "auto"
     });
+
+   
     const { selection, highlights, onSelection, onClickHighlight, onAddHighlight, onRemoveHighlight, onUpdateHighlight} = useHighlight(viewerRef, setIsContextMenu, bookStyle, bookOption.flow, ebookId);
 
     const { data = {}, isLoading, isError } = useQuery({
@@ -77,7 +82,28 @@ const EbookViewerComponent = () => {
     }, [data, setBookInfo]);
 
     useEffect(() => {
-        if (data && !isLoading && viewerRef.current && savedPage && !showRestoreLoading && !hasRestoredOnce) {
+        console.log("꼈다뺐다");
+        if ((!isLoading || !showRestoreLoading) && data && data.ebookId ) {
+            setIsOptimized(true);
+            setBookOption({
+                ...bookOption,
+                flow: "scrolled-doc"
+            })
+            const timer = setTimeout(() => {
+                setBookOption(prev => ({
+                    ...prev,
+                    flow: "paginated"
+                }));
+                setIsOptimized(false);
+                optimizedRef.current = true;
+            }, 2000);
+            
+        }
+
+    }, [data])
+
+    useEffect(() => {
+        if (data && !isLoading && viewerRef.current && savedPage && !showRestoreLoading && !hasRestoredOnce && optimizedRef.current) {
             setShowRestoreLoading(true);
             setHasRestoredOnce(true);
             const timer = setTimeout(() => {
@@ -92,7 +118,7 @@ const EbookViewerComponent = () => {
                 setShowRestoreLoading(false);
             }
         }
-    }, [data, isLoading, restorePosition]);
+    }, [data, isLoading, restorePosition, optimizedRef.current]);
 
 
 //     useEffect(() => {
@@ -184,11 +210,16 @@ const EbookViewerComponent = () => {
 
     return (
         <>
-        {(isLoading ) && (
-            <Loading text={"전자책을 불러오는 중입니다..." } />
-        )}
-        {(showRestoreLoading) && (
-            <Loading text={"저장된 위치로 이동 중입니다..."} />
+        {(isLoading || showRestoreLoading || isOptimized) && (
+            <Loading
+                text={
+                    isLoading
+                        ? "전자책을 불러오는 중입니다..."
+                        : showRestoreLoading
+                        ? "저장된 위치로 이동 중입니다..."
+                        : "전자책을 최적화하는 중입니다..."
+                }
+            />
         )}
         {!isLoading && data && data.ebookFilePath &&  (
         <div className="relative w-screen h-screen overflow-x-hidden flex flex-col scrollbar-hidden">

@@ -155,7 +155,6 @@ const BookRequestFormComponent = () => {
               <p>- 작품성이 낮은 판타지, 로맨스, 선정적인 자료, 무협지, 만화류</p>
               <p>- 특정 분야의 전문적인 자료, 대학교재</p>
               <p>- 그 외 도서관 자료로 부적합한 도서</p>
-              <p className="mt-1.5">자세한 선정제외도서는 <button type="button" className="text-blue-600 hover:underline focus:outline-none">바로가기</button> 를 통해 확인해주세요.</p>
             </div>
           </div>
 

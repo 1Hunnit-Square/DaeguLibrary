@@ -8,6 +8,9 @@ import RecoilLoginState from './atoms/loginState';
 import { useRecoilState, RecoilRoot } from 'recoil';
 import { useEffect } from 'react';
 import { logoutHelper } from "./util/logoutHelper";
+import { set } from 'lodash';
+
+let isTokenExpiredAlertShown = false;
 
 
 
@@ -26,8 +29,15 @@ const queryClient = new QueryClient({
 
     onError: (error) => {
       if (error.message === "REQUIRE_RELOGIN") {
-        alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
-        logoutHelper();
+        if (!isTokenExpiredAlertShown) {
+          isTokenExpiredAlertShown = true;
+          alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+          logoutHelper();
+          setTimeout(() => {
+            isTokenExpiredAlertShown = false;
+          }, 1000);
+        }
+        return;
       }
       if (error.response?.status === 403) {
         alert("접근 권한이 없습니다.");

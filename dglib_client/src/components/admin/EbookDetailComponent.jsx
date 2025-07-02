@@ -130,7 +130,7 @@ const EbookDetailComponent = ({ eBook, setIsModalOpen }) => {
                         </button>
                     </div>
                 </div>
-                <div className="min-h-[90vh] p-6">
+                <div className="p-6">
                     <div className="bg-white rounded-md shadow-sm mb-6">
                         <div className="p-5 flex gap-6">
                             <div className="flex-1 space-y-1">

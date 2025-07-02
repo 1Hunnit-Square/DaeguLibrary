@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { menuItemsSelector } from './menuItems';
 import { useRecoilValue } from 'recoil';
 import { useNavigate } from 'react-router-dom';
@@ -20,13 +20,32 @@ const MainMenu = () => {
     const navigate = useNavigate();
     
 
-    useEffect(() => {
-        if (menuRefs.current.length === menuItems.length) {
-            const widths = menuRefs.current.map(ref =>
-                ref?.getBoundingClientRect().width || 0
-            );
-            setMenuWidths(widths);
-        }
+    useLayoutEffect(() => {
+        const calculateWidths = () => {
+            if (window.innerWidth >= 1024 && menuRefs.current.length === menuItems.length) {
+                const widths = menuRefs.current.map(ref => 
+                    ref ? ref.getBoundingClientRect().width : 0
+                );
+                setMenuWidths(widths);
+            }
+        };
+
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) {
+                setTimeout(calculateWidths, 150);
+            } else {
+                setMenuWidths([]);
+            }
+        };
+
+       
+        calculateWidths();
+
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
     }, [menuItems.length]);
 
     const handleNavigation = (e, path) => {
@@ -75,9 +94,7 @@ const MainMenu = () => {
                             <div
                                 key={menu.id}
                                 ref={el => {
-                                    if (el && !menuRefs.current[index]) {
-                                        menuRefs.current[index] = el;
-                                    }
+                                    menuRefs.current[index] = el; 
                                 }}
                                 className="px-12 relative"
                                 onMouseEnter={() => handleMouseEnter(index)}

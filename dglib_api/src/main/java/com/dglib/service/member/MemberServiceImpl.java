@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+import com.dglib.dto.book.BookStatusInfoDTO;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +33,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.dglib.dto.book.AddInterestedBookDTO;
+import com.dglib.dto.book.BookStatusDTO;
 import com.dglib.dto.book.EbookMemberDeleteDTO;
 import com.dglib.dto.book.EbookMemberRequestDTO;
 import com.dglib.dto.book.EbookMemberResponseDTO;
 import com.dglib.dto.book.InteresdtedBookDeleteDTO;
 import com.dglib.dto.book.InterestedBookRequestDTO;
 import com.dglib.dto.book.InterestedBookResponseDTO;
+import com.dglib.dto.book.RentalStatusDTO;
+import com.dglib.dto.book.ReserveStatusDTO;
 import com.dglib.dto.member.AgeCountDTO;
 import com.dglib.dto.member.BorrowHistoryRequestDTO;
 import com.dglib.dto.member.ChatMemberBorrowResponseDTO;
@@ -426,24 +429,54 @@ public class MemberServiceImpl implements MemberService {
 	public List<MemberReserveListDTO> getMemberReserveList(String mid) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "reserveId");
 		List<Reserve> reserves = reserveRepository.findReservesByMemberMidAndState(mid, ReserveState.RESERVED, sort);
+		
+		
+		List<Long> libraryBookIds = reserves.stream()
+		        .map(reserve -> reserve.getLibraryBook().getLibraryBookId())
+		        .distinct()
+		        .collect(Collectors.toList());
+		
+		Map<Long, List<Rental>> rentalsByLibraryBookId = rentalRepository
+		        .findByLibraryBookIdIn(libraryBookIds)
+		        .stream()
+		        .collect(Collectors.groupingBy(rental -> rental.getLibraryBook().getLibraryBookId()));
+		
+		Map<Long, List<Reserve>> reservesByLibraryBookId = reserveRepository
+		        .findReservedByLibraryBookIdIn(libraryBookIds)
+		        .stream()
+		        .collect(Collectors.groupingBy(reserve -> reserve.getLibraryBook().getLibraryBookId()));
+		
+		
 		return reserves.stream().map(reserve -> {
-			MemberReserveListDTO dto = modelMapper.map(reserve, MemberReserveListDTO.class);
-			dto.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
-			dto.setAuthor(reserve.getLibraryBook().getBook().getAuthor());
-			dto.setIsbn(reserve.getLibraryBook().getBook().getIsbn());
-			dto.setReserveDate(reserve.getReserveDate());
-			dto.setUnmanned(reserve.isUnmanned());
-			dto.setReserveId(reserve.getReserveId());
-			dto.setDueDate(reserve.getLibraryBook().getRentals().stream().map(Rental::getDueDate).filter(Objects::nonNull)
-				           .max(Comparator.naturalOrder()).orElse(null));
-			dto.setReserveRank(reserve.getLibraryBook().getReserves().stream()
-					.filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned())
-					.sorted((r1, r2) -> r1.getReserveDate().compareTo(r2.getReserveDate())).collect(Collectors.toList())
-					.indexOf(reserve) + 1);
-			dto.setReturned(
-					reserve.getLibraryBook().getRentals().stream().anyMatch(r -> r.getState() == RentalState.RETURNED));
-			return dto;
-		}).collect(Collectors.toList());
+	        MemberReserveListDTO dto = modelMapper.map(reserve, MemberReserveListDTO.class);
+	        dto.setBookTitle(reserve.getLibraryBook().getBook().getBookTitle());
+	        dto.setAuthor(reserve.getLibraryBook().getBook().getAuthor());
+	        dto.setIsbn(reserve.getLibraryBook().getBook().getIsbn());
+	        dto.setReserveDate(reserve.getReserveDate());
+	        dto.setUnmanned(reserve.isUnmanned());
+	        dto.setReserveId(reserve.getReserveId());
+	        
+	        Long libraryBookId = reserve.getLibraryBook().getLibraryBookId();
+	        List<Rental> rentals = rentalsByLibraryBookId.getOrDefault(libraryBookId, Collections.emptyList());
+	        List<Reserve> allReserves = reservesByLibraryBookId.getOrDefault(libraryBookId, Collections.emptyList());
+	        
+	        dto.setDueDate(rentals.stream()
+	            .map(Rental::getDueDate)
+	            .filter(Objects::nonNull)
+	            .max(Comparator.naturalOrder())
+	            .orElse(null));
+	        
+	        List<Reserve> sortedReserves = allReserves.stream()
+	            .filter(r -> r.getState() == ReserveState.RESERVED && !r.isUnmanned())
+	            .sorted(Comparator.comparing(Reserve::getReserveDate))
+	            .collect(Collectors.toList());
+	        dto.setReserveRank(sortedReserves.indexOf(reserve) + 1);
+	        
+	        dto.setReturned(rentals.stream()
+	            .anyMatch(r -> r.getState() == RentalState.RETURNED));
+	        
+	        return dto;
+	    }).collect(Collectors.toList());
 	}
 
 	@Override
@@ -607,28 +640,14 @@ public class MemberServiceImpl implements MemberService {
 			InterestedBookRequestDTO interestedBookRequestDto, String mid) {
 		Specification<InterestedBook> spec = InterestedBookSpecifications.ibFilter(interestedBookRequestDto, mid);
 		Page<InterestedBook> interestedBooks = interestedBookRepository.findAll(spec, pageable);
+		
+		List<Long> libraryBookIds = interestedBooks.getContent().stream()
+		        .map(ib -> ib.getLibraryBook().getLibraryBookId())
+		        .collect(Collectors.toList());
+		Map<Long, BookStatusInfoDTO> statusMap = getBookStatusMap(libraryBookIds);
 
-		return interestedBooks.map(interestedBook -> {
-			InterestedBookResponseDTO dto = new InterestedBookResponseDTO();
-			boolean isReserved = interestedBook.getLibraryBook().getReserves().stream()
-					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false);
-			boolean isUnmanned = interestedBook.getLibraryBook().getReserves().stream()
-					.anyMatch(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == true);
-			boolean isBorrowed = interestedBook.getLibraryBook().getRentals().stream()
-					.anyMatch(rental -> rental.getState() == RentalState.BORROWED);
-			Long reserveCount = interestedBook.getLibraryBook().getReserves().stream()
-					.filter(reserve -> reserve.getState() == ReserveState.RESERVED && reserve.isUnmanned() == false)
-					.count();
-			modelMapper.map(interestedBook.getLibraryBook(), dto);
-			modelMapper.map(interestedBook.getLibraryBook().getBook(), dto);
-			modelMapper.map(interestedBook, dto);
-			dto.setReserved(isReserved);
-			dto.setUnmanned(isUnmanned);
-			dto.setBorrowed(isBorrowed);
-			dto.setReserveCount(reserveCount);
-			return dto;
-		});
-
+		return interestedBooks.map(interestedBook -> 
+        createInterestedBookResponseDTO(interestedBook, statusMap.get(interestedBook.getLibraryBook().getLibraryBookId())));
 	}
 
 	@Override
@@ -799,4 +818,63 @@ public class MemberServiceImpl implements MemberService {
 		smsService.sendReturnDueApi(smsBookRequestDTO);
 	
 	}
+
+
+
+//////////////////////////////////////////////
+
+private Map<Long, BookStatusInfoDTO> getBookStatusMap(List<Long> libraryBookIds) {
+    if (libraryBookIds.isEmpty()) {
+        return Collections.emptyMap();
+    }
+    
+    // 예약 정보 조회
+    List<ReserveStatusDTO> reserveStatuses = reserveRepository.findReserveStatusByLibraryBookIds(libraryBookIds);
+    
+    // 대여 정보 조회  
+    List<RentalStatusDTO> rentalStatuses = rentalRepository.findRentalStatusByLibraryBookIds(libraryBookIds);
+    
+    Map<Long, BookStatusInfoDTO> statusMap = new HashMap<>();
+    
+    // 예약 정보 처리
+    Map<Long, List<ReserveStatusDTO>> reserveMap = reserveStatuses.stream()
+            .collect(Collectors.groupingBy(ReserveStatusDTO::getLibraryBookId));
+    
+    // 대여 정보 처리
+    Map<Long, Boolean> rentalMap = rentalStatuses.stream()
+        .collect(Collectors.toMap(
+            RentalStatusDTO::getLibraryBookId,
+            RentalStatusDTO::isBorrowed
+//            (existing, replacement) -> existing || replacement
+        ));
+    
+    // 최종 상태 정보 생성
+    for (Long libraryBookId : libraryBookIds) {
+        List<ReserveStatusDTO> reserves = reserveMap.getOrDefault(libraryBookId, Collections.emptyList());
+        boolean isBorrowed = rentalMap.getOrDefault(libraryBookId, false);
+        
+        boolean isReserved = reserves.stream().anyMatch(r -> !r.isUnmanned());
+        boolean isUnmanned = reserves.stream().anyMatch(ReserveStatusDTO::isUnmanned);
+        long reserveCount = reserves.stream().filter(r -> !r.isUnmanned()).count();
+        
+        statusMap.put(libraryBookId, new BookStatusInfoDTO(isReserved, isUnmanned, isBorrowed, reserveCount));
+    }
+    
+    return statusMap;
+}
+
+private InterestedBookResponseDTO createInterestedBookResponseDTO(InterestedBook interestedBook, BookStatusInfoDTO statusInfoDTO) {
+    InterestedBookResponseDTO dto = new InterestedBookResponseDTO();
+    
+    modelMapper.map(interestedBook.getLibraryBook(), dto);
+    modelMapper.map(interestedBook.getLibraryBook().getBook(), dto);
+    modelMapper.map(interestedBook, dto);
+    
+    dto.setReserved(statusInfoDTO.isReserved());
+    dto.setUnmanned(statusInfoDTO.isUnmanned());
+    dto.setBorrowed(statusInfoDTO.isBorrowed());
+    dto.setReserveCount(statusInfoDTO.getReserveCount());
+    
+    return dto;
+}
 }

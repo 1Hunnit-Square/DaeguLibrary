@@ -4,6 +4,9 @@ import java.time.LocalDate;
 
 import java.util.List;
 import java.util.Set;
+
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -55,17 +58,20 @@ public class LibraryBook {
 	@OneToMany(mappedBy = "libraryBook")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @BatchSize(size = 50)
 	private Set<Rental> rentals;
 	
 	
 	@OneToMany(mappedBy = "libraryBook")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @BatchSize(size = 50)
 	private Set<Reserve> reserves;
 	
 	@OneToMany(mappedBy = "libraryBook")
 	@ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @BatchSize(size = 50)
 	private List<InterestedBook> interestedBooks;
 	
 	

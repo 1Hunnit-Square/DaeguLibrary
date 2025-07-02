@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.dglib.dto.book.ReservationCountDTO;
+import com.dglib.dto.book.ReserveStatusDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
@@ -54,10 +55,23 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	@EntityGraph(attributePaths = {"member", "libraryBook"})
 	List<Reserve> findByLibraryBookLibraryBookIdInAndStateOrderByReserveDateAsc(Set<Long> libraryBookIds, ReserveState state);
 	
-	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book", "libraryBook.rentals", "libraryBook.reserves"})
+	@EntityGraph(attributePaths = {"libraryBook", "member", "libraryBook.book"})
 	List<Reserve> findReservesByMemberMidAndState(String mid, ReserveState reserved, Sort sort);
+	
+	
+	
+	@Query("SELECT r FROM Reserve r WHERE r.libraryBook.libraryBookId IN :libraryBookIds AND r.state = 'RESERVED'")
+	List<Reserve> findReservedByLibraryBookIdIn(@Param("libraryBookIds") List<Long> libraryBookIds);
 	
 	@Query("SELECT rs FROM Reserve rs WHERE rs.member.mid = :mid AND rs.state = :state")
 	List<Reserve> findActiveReserves(String mid, ReserveState state);
+	
+	@Query("SELECT new com.dglib.dto.book.ReserveStatusDTO(r.libraryBook.libraryBookId, r.isUnmanned) " +
+		       "FROM Reserve r WHERE r.libraryBook.libraryBookId IN :libraryBookIds AND r.state = 'RESERVED'")
+		List<ReserveStatusDTO> findReserveStatusByLibraryBookIds(@Param("libraryBookIds") List<Long> libraryBookIds);
+	
+	@Query("SELECT r FROM Reserve r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.state = :state")
+	List<Reserve> findReservesByLibraryBookIdAndState(@Param("libraryBookId") Long libraryBookId, 
+	                                                 @Param("state") ReserveState state);
 	
 }

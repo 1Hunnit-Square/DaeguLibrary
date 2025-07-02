@@ -14,8 +14,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.dglib.dto.book.BookStatusCountDto;
+import com.dglib.dto.book.BookStatusDTO;
 import com.dglib.dto.book.BookSummaryDTO;
 import com.dglib.dto.book.LibraryBookSearchByBookIdDTO;
+import com.dglib.dto.book.LibraryBookStatusDTO;
 import com.dglib.dto.book.ReservationCountDTO;
 import com.dglib.entity.book.Book;
 import com.dglib.entity.book.LibraryBook;
@@ -26,12 +28,9 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 	@EntityGraph(attributePaths = "book")
 	Optional<LibraryBook> findByLibraryBookId(Long id);
-	
-	@EntityGraph(attributePaths = {"rentals", "reserves"})
-	Optional<LibraryBook> findWithDetailsByLibraryBookId(Long id);
-	
 
 	
+
 	
 	@EntityGraph(attributePaths = "book")
 	@Query("SELECT new com.dglib.dto.book.LibraryBookSearchByBookIdDTO(" + "b.bookTitle, " + "b.author, " + "b.publisher, "
@@ -42,11 +41,46 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 			+ ") " + "FROM LibraryBook lb JOIN lb.book b WHERE lb.libraryBookId = :libraryBookId")
 	Page<LibraryBookSearchByBookIdDTO> findBookByLibraryBookId(Long libraryBookId, Pageable pageable);
 	
-	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
+	@EntityGraph(attributePaths = {"book"})
 	Optional<LibraryBook> findByLibraryBookIdAndIsDeletedFalse(Long libraryBookId);
 	
-	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
+	
+	@Query("SELECT COUNT(r) > 0 FROM Rental r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.state = :state")
+	boolean existsRentalByLibraryBookIdAndState(@Param("libraryBookId") Long libraryBookId, 
+	                                           @Param("state") RentalState state);
+	
+	
+	@Query("SELECT COUNT(r) > 0 FROM Rental r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.member.mid = :mid AND r.state = :state")
+	boolean existsRentalByLibraryBookIdAndMemberAndState(@Param("libraryBookId") Long libraryBookId,
+	                                                    @Param("mid") String mid,
+	                                                    @Param("state") RentalState state);
+
+	@Query("SELECT COUNT(r) > 0 FROM Reserve r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.member.mid = :mid AND r.state = :state AND r.isUnmanned = :unmanned")
+	boolean existsReserveByLibraryBookIdAndMemberAndStateAndUnmanned(@Param("libraryBookId") Long libraryBookId,
+	                                                                @Param("mid") String mid,
+	                                                                @Param("state") ReserveState state,
+	                                                                @Param("unmanned") boolean unmanned);
+	
+	@Query("SELECT COUNT(r) > 0 FROM Reserve r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.state = :state AND r.isUnmanned = :unmanned")
+	boolean existsReserveByLibraryBookIdAndStateAndUnmanned(@Param("libraryBookId") Long libraryBookId,
+	                                                       @Param("state") ReserveState state,
+	                                                       @Param("unmanned") boolean unmanned);
+	
+	@EntityGraph(attributePaths = {"book"})
 	Optional<LibraryBook> findFirstByBookIsbnAndIsDeletedFalse(String isbn);
+	
+	
+	@Query(value = """
+		    SELECT lb.library_book_id, lb.call_sign, lb.location,
+	           (SELECT COUNT(*) FROM reserve r WHERE r.library_book_id = lb.library_book_id AND r.state = 'RESERVED') as reserve_count,
+	           (SELECT COUNT(*) FROM rental rt WHERE rt.library_book_id = lb.library_book_id AND rt.state = 'BORROWED') as borrow_count,
+	           (SELECT COUNT(*) FROM reserve r WHERE r.library_book_id = lb.library_book_id AND r.state = 'RESERVED' AND r.is_unmanned = true) as unmanned_count,
+	           (SELECT rt.due_date FROM rental rt WHERE rt.library_book_id = lb.library_book_id AND rt.state = 'BORROWED' LIMIT 1) as due_date
+	    FROM library_book lb 
+	    JOIN book b ON lb.isbn = b.isbn
+	    WHERE b.isbn = :isbn AND lb.is_deleted = false
+	    """, nativeQuery = true)
+	List<Object[]> findLibraryBookStatusByIsbn(@Param("isbn") String isbn);
 	
 	
 	
@@ -67,8 +101,18 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	
 
 	
-	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
+//	@EntityGraph(attributePaths = {"book", "rentals", "reserves"})
 	Page<LibraryBook> findAll(Specification<LibraryBook> spec, Pageable pageable);
+	
+	
+	@Query("SELECT new com.dglib.dto.book.BookStatusDTO (" +
+		       "lb.libraryBookId, " +
+		       "CASE WHEN EXISTS(SELECT 1 FROM Rental r WHERE r.libraryBook = lb AND r.state = 'BORROWED') THEN true ELSE false END, " +
+		       "CASE WHEN EXISTS(SELECT 1 FROM Reserve rv WHERE rv.libraryBook = lb AND rv.state = 'RESERVED' AND rv.isUnmanned = true) THEN true ELSE false END, " +
+		       "CASE WHEN EXISTS(SELECT 1 FROM Rental r WHERE r.libraryBook = lb AND r.state = 'BORROWED' AND r.dueDate < CURRENT_DATE) THEN true ELSE false END, " +
+		       "(SELECT COUNT(rv) FROM Reserve rv WHERE rv.libraryBook = lb AND rv.state = 'RESERVED')" +
+		       ") FROM LibraryBook lb")
+		List<BookStatusDTO> findBookStatuses(List<Long> libraryBookIds);
 	
 	
 	
@@ -128,12 +172,15 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 	 @Param("startDate") LocalDate startDate,
 	 @Param("endDate") LocalDate endDate);
 	
-	@EntityGraph(attributePaths = {"book", "book.libraryBooks" ,"rentals"})
-	List<LibraryBook> findByBookBookTitleIgnoreCaseContainingAndIsDeletedFalse(String book_title);
 	
-	@EntityGraph(attributePaths = {"book", "book.libraryBooks", "rentals"})
+	
+	
+	@EntityGraph(attributePaths = {"book"})
 	@Query("SELECT lb FROM LibraryBook lb WHERE REPLACE(LOWER(lb.book.bookTitle), ' ', '') LIKE CONCAT('%', REPLACE(LOWER(:bookTitle), ' ', ''), '%') AND lb.isDeleted = false")
 	List<LibraryBook> findByBookTitleIgnoringSpacesAndCase(@Param("bookTitle") String book_title);
+	
+	@Query("SELECT lb FROM LibraryBook lb LEFT JOIN FETCH lb.rentals WHERE lb.book.isbn = :isbn AND lb.isDeleted = false")
+	List<LibraryBook> findAllByBookIsbnWithRentals(@Param("isbn") String isbn);
 	
 	@Query("SELECT COUNT(lb) FROM LibraryBook lb WHERE REPLACE(LOWER(lb.book.author), ' ', '') LIKE CONCAT('%', REPLACE(LOWER(:author), ' ', ''), '%') AND lb.isDeleted = false")
 	Long countByAuthorIgnoringSpacesAndCase(@Param("author") String author);

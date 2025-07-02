@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.dglib.dto.book.RentalStatusDTO;
 import com.dglib.dto.member.MemberBorrowHistoryDTO;
 import com.dglib.entity.book.LibraryBook;
 import com.dglib.entity.book.Rental;
@@ -73,8 +74,19 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	List<Rental> findActiveBorrowedRentals(String mid, RentalState state);
 	
 	
+	@Query("SELECT new com.dglib.dto.book.RentalStatusDTO(r.libraryBook.libraryBookId, true) " +
+		       "FROM Rental r WHERE r.libraryBook.libraryBookId IN :libraryBookIds AND r.state = 'BORROWED'")
+	List<RentalStatusDTO> findRentalStatusByLibraryBookIds(@Param("libraryBookIds") List<Long> libraryBookIds);
 	
 	
+	
+	@Query("SELECT r FROM Rental r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.state = :state")
+	List<Rental> findRentalsByLibraryBookIdAndState(@Param("libraryBookId") Long libraryBookId, 
+	                                               @Param("state") RentalState state);
+	
+	@Query("SELECT r FROM Rental r WHERE r.libraryBook.libraryBookId IN :libraryBookIds")
+	List<Rental> findByLibraryBookIdIn(@Param("libraryBookIds") List<Long> libraryBookIds);
+
 
 	
 

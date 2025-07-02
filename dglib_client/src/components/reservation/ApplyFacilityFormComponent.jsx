@@ -257,7 +257,7 @@ const ApplyFacilityFormComponent = () => {
                         onClick={() => navigate('/mylibrary/usedfacility')}
                         className="text-green-700 underline hover:text-green-900 cursor-pointer"
                     >
-                        내서재 &gt; 이용 신청 내역
+                        내서재 &gt; 시설이용 신청 내역
                     </button>{' '}
                     에서 확인 가능합니다.
                 </p>

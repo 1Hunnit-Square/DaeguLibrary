@@ -7,15 +7,12 @@ import EbookOptionSlider from "../components/common/EbookOptionSlider";
 const EbookOptionMenu = ( {control, bookStyle, emitEvent, bookFlow, onToggle, bookOption, onBookStyleChange, onBookOptionChange}, ref ) => {
     const [fontFamily, setFontFamily] = useState(bookStyle.fontFamily)
     const valueList = [
-    "Origin",
-    "Arial",
-    "Times New Roman",
-    "Calibri",
-    "Segoe UI",
-    "Verdana",
-    "Tahoma",
-    "Georgia"
-];
+      "맑은 고딕",           
+      "굴림",               
+      "돋움",
+      "바탕",
+      "궁서",      
+  ];
     const [fontSize, setFontSize] = useState(bookStyle.fontSize);
     const [lineHeight, setLineHeight] = useState(bookStyle.lineHeight);
     const [marginHorizontal, setMarginHorizontal] = useState(bookStyle.marginHorizontal);
@@ -27,7 +24,7 @@ const EbookOptionMenu = ( {control, bookStyle, emitEvent, bookFlow, onToggle, bo
     })
     const dropdownRef = useRef(null);
     const [dropdownVisible, setDropdownVisible] = useState(false);
-    const value = fontFamily === "Origin" ? "Original" : fontFamily;
+    const value = fontFamily === "맑은 고딕" ? "맑은 고딕" : fontFamily;
     const dropDownOnToggle = useCallback(() => setDropdownVisible(!dropdownVisible), [dropdownVisible]);
     const onDropdownClose = useCallback((e) => {
       if (!dropdownRef || !dropdownRef.current) return;

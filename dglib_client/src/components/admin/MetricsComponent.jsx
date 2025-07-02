@@ -297,8 +297,8 @@ console.log(data);
       <ul className="space-y-1 text-sm">
         <li>총 전송량: <span className="text-green-700 font-mono">{(data.network.bytesSentGauge / 1024 ** 3).toFixed(2)} GB</span></li>
         <li>총 수신량: <span className="text-green-700 font-mono">{(data.network.bytesRecvGauge / 1024 ** 3).toFixed(2)} GB</span></li>
-        <li>전송 속도: <span className="text-green-700 font-mono">{(data.network.bytesSentRatePerSec / 1024).toFixed(2)} KB/s</span></li>
-        <li>수신 속도: <span className="text-green-700 font-mono">{(data.network.bytesRecvRatePerSec / 1024).toFixed(2)} KB/s</span></li>
+        <li>전송 속도: <span className="text-green-700 font-mono">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
+        <li>수신 속도: <span className="text-green-700 font-mono">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
       </ul>
     </div>
   </div>

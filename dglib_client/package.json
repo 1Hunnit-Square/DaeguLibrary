@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@amcharts/amcharts5": "^5.12.2",
+    "@amcharts/amcharts5": "^5.13.3",
     "@amcharts/amcharts5-fonts": "^5.0.1",
     "@amcharts/amcharts5-geodata": "^5.1.4",
     "@fingerprintjs/fingerprintjs": "^4.6.2",

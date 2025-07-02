@@ -3,6 +3,7 @@ import { useMemo, useCallback } from "react";
 import DynamicTab from "../../menus/DynamicTab";
 import BorrowStatsComponent from "./BorrowStatsComponent";
 import MemberStatsComponent from "./MemberStatsComponent";
+import MetricsComponent from "./MetricsComponent";
 
 const StatsManagementComponent = () => {
     const [searchURLParams, setSearchURLParams] = useSearchParams();
@@ -14,7 +15,7 @@ const StatsManagementComponent = () => {
 
     const activeTab = useMemo(() => {
         const tabParam = searchURLParams.get("tab");
-        return (tabParam && (tabParam === 'borrow' || tabParam === 'member')) ? tabParam : 'borrow';
+        return (tabParam && (tabParam === 'borrow' || tabParam === 'member' || tabParam == 'metrics')) ? tabParam : 'borrow';
     }, [searchURLParams]);
 
 
@@ -40,6 +41,11 @@ const StatsManagementComponent = () => {
         id: 'member',
         label: '회원 통계',
         content: <MemberStatsComponent />
+        },
+         {
+        id: 'metrics',
+        label: '시스템 통계',
+        content: <MetricsComponent />
         }
     ], []);
 

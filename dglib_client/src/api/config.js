@@ -20,7 +20,8 @@ export const API_ENDPOINTS = {
   bookapi: '/api/bookapi',
   view : '/api/view',
   program: '/api/programs',
-  mail: '/api/mail'
+  mail: '/api/mail',
+  metrics: '/api/metrics'
 };
 
 export const SMS_KEY = "CREATION";

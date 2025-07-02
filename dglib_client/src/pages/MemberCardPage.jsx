@@ -6,6 +6,7 @@ import { memberIdSelector, memberNameSelector, memberMnoSelector } from "../atom
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMemberBasicInfo } from "../api/memberApi";
+import { useMoveTo } from "../hooks/useMoveTo";
 import _ from "lodash";
 
 const MemberCardPage = () => {
@@ -14,12 +15,11 @@ const MemberCardPage = () => {
     const name = useRecoilValue(memberNameSelector);
     const mno = useRecoilValue(memberMnoSelector);
     const [ info, setInfo ] = useState({});
-    const navigate = useNavigate();
+    const { moveToLogin } = useMoveTo();
 
     useEffect(()=>{
     if(!mid){
-        alert("로그인이 필요한 서비스입니다.");
-        navigate("/");
+        moveToLogin();
     }
 
     getMemberBasicInfo().then(res => {

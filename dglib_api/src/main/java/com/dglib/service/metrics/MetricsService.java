@@ -1,6 +1,9 @@
 package com.dglib.service.metrics;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -144,6 +147,41 @@ public class MetricsService {
 		
 	}
 	
+	public int getSensors() {
+		String PATH = "/api/4/sensors";
+		
+		ResponseEntity<List<Map<String, Object>>> response = getResponse(PATH, new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+        
+        List<Map<String, Object>> responseList = response.getBody();
+        int sensors = 0;
+        
+
+        if(responseList != null) {
+        	sensors = (int) responseList.get(0).get("value");
+        
+	}
+        return sensors;
+	}
+	
+	public LocalDateTime getBootTime() {
+		String PATH = "/api/4/uptime";
+		
+		ResponseEntity<String> response = getResponse(PATH,  new ParameterizedTypeReference<String>() {});
+        
+        String uptime = response.getBody();
+       
+        LocalDateTime result = null;
+        if(uptime != null) {
+        	 if (uptime.startsWith("\"") && uptime.endsWith("\"")) {
+        	        uptime = uptime.substring(1, uptime.length() - 1);
+        	    }
+        	long bootSeconds = Instant.now().getEpochSecond() - timeToSec(uptime);
+        	result = LocalDateTime.ofInstant(Instant.ofEpochSecond(bootSeconds), ZoneId.of("Asia/Seoul"));
+
+	}
+        return result;
+	}
+	
 	
 
 	<T> ResponseEntity<T> getResponse(String PATH, ParameterizedTypeReference<T> typeRef){
@@ -160,6 +198,25 @@ public class MetricsService {
 	    
 	    return response;
 	}
+	
+	
+    private long timeToSec(String uptime) {
+        long days = 0;
+        String timePart = uptime;
+
+        if (uptime.contains("days")) {
+            String[] parts = uptime.split(", ");
+            days = Long.parseLong(parts[0].split(" ")[0]);
+            timePart = parts[1];
+        }
+
+        String[] hms = timePart.split(":");
+        long hours = Long.parseLong(hms[0]);
+        long minutes = Long.parseLong(hms[1]);
+        long seconds = Long.parseLong(hms[2]);
+
+        return days * 86400 + hours * 3600 + minutes * 60 + seconds;
+    }
 
         
 }

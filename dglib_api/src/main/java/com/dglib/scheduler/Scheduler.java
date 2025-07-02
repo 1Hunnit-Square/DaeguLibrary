@@ -79,7 +79,7 @@ public class Scheduler {
 		}
 	}
 	
-	@Scheduled(cron = "00 09 00 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
 	public void bookReturnSmsScheduler() {
 		try {
 			memberService.sendBookReturnNotification();

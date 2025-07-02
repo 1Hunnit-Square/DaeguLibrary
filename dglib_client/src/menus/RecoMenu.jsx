@@ -20,7 +20,7 @@ const RecoMenu = ({ Component }) => {
         return `startDate=${startDateStr}&endDate=${endDateStr}`;
     }, [currentDate]);
     const category = {
-        "topborrow":"베스트셀러",
+        "topborrow":"대출베스트",
         "new":"신착도서"
     }
 

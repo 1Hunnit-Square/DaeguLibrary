@@ -19,98 +19,106 @@ const MemberStatsComponent = () => {
     if(!data){
         return;
     }
-    // 1. 첫 번째 파이 차트
-    let root1 = am5.Root.new("piechartdiv1");
-    root1.setThemes([am5themes_Animated.new(root1)]);
-    let chart1 = root1.container.children.push(
-      am5percent.PieChart.new(root1, {
-        layout: root1.verticalLayout,
-      })
-    );
-    let series1 = chart1.series.push(
-      am5percent.PieSeries.new(root1, {
-        valueField: "value",
-        categoryField: "category",
-      })
-    );
-    const pieColors1 = [am5.color(0x64b5f6), am5.color(0xf48fb1)];
-    series1.slices.template.adapters.add("fill", (fill, target) => {
-      const index = series1.slices.indexOf(target);
-      return pieColors1[index % pieColors1.length];
-    });
-    series1.slices.template.setAll({
-      stroke: am5.color(0xffffff),
-      strokeWidth: 1,
-    });
-    series1.setAll({
-      alignLabels: true,
-      innerRadius: am5.percent(50),
-    });
+     const pieRoot = am5.Root.new("piechartscontainer");
+  pieRoot.setThemes([am5themes_Animated.new(pieRoot)]);
 
-    series1.ticks.template.set("visible", false);
+  const pieContainer = pieRoot.container.children.push(
+    am5.Container.new(pieRoot, {
+      layout: pieRoot.horizontalLayout,
+      width: am5.percent(100),
+      height: am5.percent(100),
+      gap: 20,
+    })
+  );
 
-    series1.labels.template.setAll({
-      textType: "adjusted",
-      inside: true,
-      radius: 40,
-      maxWidth: 60,
-      fill: am5.color(0x000000),
-    });
-    series1.data.setAll(
-       data.genderCount.map(v => ({ "value" : v.count, "category": v.gender}))
-    );
-    series1.set("alignLabels", false);
-    series1.appear(1000, 100);
+  // 첫 번째 파이 차트
+  const chart1 = pieContainer.children.push(
+    am5percent.PieChart.new(pieRoot, {
+      layout: pieRoot.verticalLayout,
+      width: am5.percent(50),
+      height: am5.percent(100),
+    })
+  );
+  const series1 = chart1.series.push(
+    am5percent.PieSeries.new(pieRoot, {
+      valueField: "value",
+      categoryField: "category",
+    })
+  );
+  const pieColors1 = [am5.color(0x64b5f6), am5.color(0xf48fb1)];
+  series1.slices.template.adapters.add("fill", (fill, target) => {
+    const index = series1.slices.indexOf(target);
+    return pieColors1[index % pieColors1.length];
+  });
+  series1.slices.template.setAll({
+    stroke: am5.color(0xffffff),
+    strokeWidth: 1,
+  });
+  series1.setAll({
+    alignLabels: true,
+    innerRadius: am5.percent(50),
+  });
+  series1.ticks.template.set("visible", false);
+  series1.labels.template.setAll({
+    textType: "adjusted",
+    inside: true,
+    radius: 40,
+    maxWidth: 60,
+    fill: am5.color(0x000000),
+  });
+  series1.data.setAll(
+    data.genderCount.map((v) => ({ value: v.count, category: v.gender }))
+  );
+  series1.set("alignLabels", false);
+  series1.appear(1000, 100);
 
-    // 2. 두 번째 파이 차트
-    let root2 = am5.Root.new("piechartdiv2");
-    root2.setThemes([am5themes_Animated.new(root2)]);
-    let chart2 = root2.container.children.push(
-      am5percent.PieChart.new(root2, {
-        layout: root2.verticalLayout,
-      })
-    );
-    let series2 = chart2.series.push(
-      am5percent.PieSeries.new(root2, {
-        valueField: "value",
-        categoryField: "category",
-      })
-    );
-    const pieColors2 = [
-      am5.color(0xffb74d),
-      am5.color(0xaed581),
-      am5.color(0x4db6ac),
-      am5.color(0xba68c8),
-      am5.color(0xfff176),
-      am5.color(0x81d4fa),
-    ];
-    series2.slices.template.adapters.add("fill", (fill, target) => {
-      const index = series2.slices.indexOf(target);
-      return pieColors2[index % pieColors2.length];
-    });
-    series2.setAll({
-      alignLabels: true,
-      innerRadius: am5.percent(50),
-    });
-    series2.slices.template.setAll({
-      stroke: am5.color(0xffffff),
-      strokeWidth: 1,
-    });
-    series2.labels.template.setAll({
-      textType: "adjusted",
-      inside: true,
-      radius: 40,
-      maxWidth: 60,
-      fill: am5.color(0x000000),
-    });
-
-    series2.ticks.template.set("visible", false);
-    series2.data.setAll(
-     data.ageCount.map(v => ({ "value" : v.count, "category": v.age}))
-    );
-
-    series2.set("alignLabels", false);
-    series2.appear(1000, 100);
+  // 두 번째 파이 차트
+  const chart2 = pieContainer.children.push(
+    am5percent.PieChart.new(pieRoot, {
+      layout: pieRoot.verticalLayout,
+      width: am5.percent(50),
+      height: am5.percent(100),
+    })
+  );
+  const series2 = chart2.series.push(
+    am5percent.PieSeries.new(pieRoot, {
+      valueField: "value",
+      categoryField: "category",
+    })
+  );
+  const pieColors2 = [
+    am5.color(0xffb74d),
+    am5.color(0xaed581),
+    am5.color(0x4db6ac),
+    am5.color(0xba68c8),
+    am5.color(0xfff176),
+    am5.color(0x81d4fa),
+  ];
+  series2.slices.template.adapters.add("fill", (fill, target) => {
+    const index = series2.slices.indexOf(target);
+    return pieColors2[index % pieColors2.length];
+  });
+  series2.setAll({
+    alignLabels: true,
+    innerRadius: am5.percent(50),
+  });
+  series2.slices.template.setAll({
+    stroke: am5.color(0xffffff),
+    strokeWidth: 1,
+  });
+  series2.labels.template.setAll({
+    textType: "adjusted",
+    inside: true,
+    radius: 40,
+    maxWidth: 60,
+    fill: am5.color(0x000000),
+  });
+  series2.ticks.template.set("visible", false);
+  series2.data.setAll(
+    data.ageCount.map((v) => ({ value: v.count, category: v.age }))
+  );
+  series2.set("alignLabels", false);
+  series2.appear(1000, 100);
 
     // 3. 가로 막대그래프 (XYChart)
     let barChartRoot = am5.Root.new("barchartdiv");
@@ -132,10 +140,14 @@ const MemberStatsComponent = () => {
         categoryField: "category",
         renderer: am5xy.AxisRendererY.new(barChartRoot, {
           inversed: true,
-          minGridDistance: 20,
+          minGridDistance: 30,
         }),
       })
     );
+
+    categoryAxis.get("renderer").labels.template.setAll({
+  paddingRight: 15,
+});
 
     // 가로축(valueAxis)
     let valueAxis = barChart.xAxes.push(
@@ -169,13 +181,12 @@ const MemberStatsComponent = () => {
 
     barSeries.columns.template.setAll({
     height: 30,
-    strokeWidth: 2,
     tooltipText: "{category}: {value}",
     });
 
 
     barSeries.data.setAll(
-  data.regionCount.map(v => ({ "value" : v.count, "category": v.region +" "}))
+  data.regionCount.map(v => ({ "value" : v.count, "category": v.region}))
 
     );
 
@@ -185,29 +196,25 @@ const MemberStatsComponent = () => {
 
     // 컴포넌트 언마운트 시 리소스 정리
     return () => {
-      root1.dispose();
-      root2.dispose();
+      pieRoot.dispose();
       barChartRoot.dispose();
     };
   }, [data]);
 
-  console.log(data);
+
   return (
     <div
       className="mx-auto w-[80%] h-[1300px]"
       style={{ display: "flex", flexDirection: "column", gap: "50px" }}
     >
                 <div className="border border-gray-300 min-h-20 flex items-center justify-center w-full sm:w-full md:max-w-[75%] lg:max-w-[85%] xl:max-w-[75%] mx-auto rounded-lg px-4 py-3 bg-white shadow-sm mt-10">
-                <p className="text-sm sm:text-base md:text-sm text-center text-gray-700 font-medium">
+                <p className="text-center text-emerald-700 font-medium">
                     도서관 내 성별 및 연령별 회원 통계입니다.
                 </p>
             </div>
-      <div style={{ display: "flex", gap: "5px", height: "400px" }}>
-        <div id="piechartdiv1" style={{ width: "100%", height: "100%" }}></div>
-        <div id="piechartdiv2" style={{ width: "100%", height: "100%" }}></div>
-      </div>
+        <div id="piechartscontainer" style={{ width: "100%", height: "400px" }}></div>
       <div className="border border-gray-300 min-h-20 flex items-center justify-center w-full sm:w-full md:max-w-[75%] lg:max-w-[85%] xl:max-w-[75%] mx-auto rounded-lg px-4 py-3 bg-white shadow-sm mt-10">
-                <p className="text-sm sm:text-base md:text-sm text-center text-gray-700 font-medium">
+                <p className="text-center text-emerald-700 font-medium">
                     도서관 내 지역별 회원 통계입니다.
                 </p>
         </div>

@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import com.dglib.dto.book.BookStatusInfoDTO;
 import org.modelmapper.ModelMapper;
@@ -332,6 +333,18 @@ public class MemberServiceImpl implements MemberService {
 				.filter(rental -> rental.getMember().getState() != MemberState.PUNISH
 						&& rental.getMember().getState() != MemberState.LEAVE)
 				.collect(Collectors.groupingBy(Rental::getMember, Collectors.counting()));
+		Set<String> overdueMemberIds = overdueCountByMember.keySet().stream()
+			    .map(Member::getMid)
+			    .collect(Collectors.toSet());
+		
+		List<Reserve> reservesToCancel = Collections.emptyList();
+		if (!overdueMemberIds.isEmpty()) {
+		    reservesToCancel = reserveRepository.findByMemberMidInAndState(overdueMemberIds, ReserveState.RESERVED);
+		}
+		reservesToCancel.forEach(reserve -> {
+		    reserve.setState(ReserveState.CANCELED);
+		});
+		
 		overdueCountByMember.forEach((member, count) -> {
 			LOGGER.info("Member ID: {}, Overdue Count: {}", member.getMid(), count);
 			member.setPenaltyDate(LocalDate.now().plusDays(count - 1));

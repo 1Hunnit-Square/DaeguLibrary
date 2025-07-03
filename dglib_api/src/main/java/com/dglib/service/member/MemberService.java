@@ -128,6 +128,10 @@ public interface MemberService {
 	List<RegionCountDTO> getRegionCount();
 	
 	void sendBookReturnNotification();
+
+	boolean isBorrowedMember(String mid);
+
+	void cancelAllReservesForMember(String mid);
 	
 	
 	

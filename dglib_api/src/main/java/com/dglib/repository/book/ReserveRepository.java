@@ -22,6 +22,7 @@ import com.dglib.dto.book.ReserveStatusDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
+import com.dglib.entity.member.Member;
 
 public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	int countByLibraryBookLibraryBookIdAndState(Long libraryBookId, ReserveState state);
@@ -73,5 +74,7 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long>{
 	@Query("SELECT r FROM Reserve r WHERE r.libraryBook.libraryBookId = :libraryBookId AND r.state = :state")
 	List<Reserve> findReservesByLibraryBookIdAndState(@Param("libraryBookId") Long libraryBookId, 
 	                                                 @Param("state") ReserveState state);
+	
+	List<Reserve> findByMemberAndState(Member member, ReserveState reserved);
 	
 }

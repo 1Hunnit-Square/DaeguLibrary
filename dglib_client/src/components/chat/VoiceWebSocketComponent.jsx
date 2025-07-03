@@ -27,6 +27,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
     const uuidRef = useRef(uuidv4());
     const audioRef = useRef({ audioContext: null, stream: null, workletNode: null });
     const responseAudioRef = useRef(null);
+    const [isMicEnabled, setIsMicEnabled] = useState(true);
 
     const playErrorSound = () => {
         const errorAudio = new Audio('/error.wav');
@@ -111,6 +112,30 @@ const VoiceWebSocketComponent = ({ onClose }) => {
             alert("마이크 접근 권한이 필요하거나 오디오 장치에 문제가 있습니다.");
             handleClose();
         }
+    };
+
+
+    const toggleMicrophone = () => {
+        setIsMicEnabled(prev => {
+            const newState = !prev;
+            
+            if (audioRef.current.stream) {
+                audioRef.current.stream.getAudioTracks().forEach(track => {
+                    track.enabled = newState;
+                });
+            }
+            
+            if (!newState) {
+                setIsMicrophoneActive(false);
+                setIsUserSpeaking(false);
+                if (microphoneTimeoutRef.current) {
+                    clearTimeout(microphoneTimeoutRef.current);
+                    microphoneTimeoutRef.current = null;
+                }
+            }
+            
+            return newState;
+        });
     };
 
     useEffect(() => {
@@ -268,8 +293,37 @@ const VoiceWebSocketComponent = ({ onClose }) => {
                     <button onClick={() => handleClose(false)} className="text-gray-500 hover:text-gray-700">✕</button>
                 </div>
                 <img src={`${ isGumtleSpeaking ? '/gumtle_talking.gif' : isProcessingRef.current ? '/gumtle_walking.gif' : (isMicrophoneActive || isUserSpeaking) ? "/gumtle_hearing.gif" : '/gumtle_standing.jpg'}`} className="w-50 mx-auto" alt="gumtle"/>
+                <div className="flex justify-center mt-4 mb-2">
+                    <button
+                        onClick={toggleMicrophone}
+                        className={`p-3 rounded-full transition-colors duration-200 ${
+                            !isConnected || !isRecording 
+                                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                : isMicEnabled 
+                                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                    : 'bg-red-500 hover:bg-red-600 text-white'
+                        }`}
+                        disabled={!isConnected || !isRecording}
+                    >
+                        {isMicEnabled ? (
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                            </svg>
+                        ) : (
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 1.75a3.25 3.25 0 013.25 3.25v6a3.25 3.25 0 01-6.5 0v-6A3.25 3.25 0 0112 1.75z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 10.75v.5a7 7 0 0014 0v-.5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75V21" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 21h8" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 4.5l15 15" />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+                
+                
                 {isConnected && isRecording ? (
-                    <div className="mb-3 mt-10 flex justify-center">
+                    <div className="mb-3 mt-10 flex justify-center items-center min-h-[36px]">
                         <div className="px-3 sm:px-4 py-2 rounded-lg bg-white text-gray-800 rounded-bl-none shadow">
                             <div className="flex items-center space-x-1">
                                 <div className={`w-4 h-4 rounded-full bg-green-500 ${isMicrophoneActive || isUserSpeaking ? 'animate-bounce' : ''}`}></div>

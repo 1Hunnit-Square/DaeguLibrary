@@ -63,10 +63,13 @@ public class MemberSpecifications {
 	
 	public static Specification<Member> searchState(String state) {
         return (root, query, cb) -> {         
-            if(state != null && !state.equals("ALL"))
-        	return cb.equal(root.get("state"), state);
-            
-            return cb.conjunction();    	
+            if(state != null && !state.equals("ALL")) {
+	            if(state.equals("EVERY")) {
+	            return cb.conjunction(); 
+	            } else
+	        	return cb.equal(root.get("state"), state);
+            }
+            return cb.notEqual(root.get("state"), MemberState.LEAVE);    	
     };
 	}
 	

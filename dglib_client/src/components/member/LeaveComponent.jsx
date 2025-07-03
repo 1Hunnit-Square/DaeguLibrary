@@ -13,7 +13,7 @@ import { ReceiptRussianRuble } from "lucide-react";
 
 const LeaveComponent = () => {
     const [ isOpen, setIsOpen ] = useState(false);
-    const [ phone, setPhone ] = useState("ㅇ");
+    const [ phone, setPhone ] = useState("");
     const [ agree, setAgree ] = useState(false);
     const mid = useRecoilValue(memberIdSelector);
     const { doLogout } = useLogin();
@@ -53,6 +53,11 @@ const LeaveComponent = () => {
 
 
         const handleLeaveApply = () => {
+            const checkConfirm = confirm("정말로 회원 탈퇴하시겠습니까?")
+
+            if(!checkConfirm){
+                return;
+            }
 
             if(!phone){
                 alert("휴대폰 인증이 만료되었습니다. 처음부터 다시 시도해주세요.");
@@ -76,7 +81,11 @@ const LeaveComponent = () => {
                 
 
             }).catch(error => {
-                alert("탈퇴할 수 없습니다.");
+                if(error.response.data.message == "EXIST BORROWED BOOKS"){
+                    alert("반납되지 않은 도서가 있습니다. 반납 후 탈퇴가 가능합니다.");
+                    return;
+                }
+                alert("회원 탈퇴 처리에 오류가 발생하였습니다.");
             })
 
 

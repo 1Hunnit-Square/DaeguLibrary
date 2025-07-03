@@ -53,6 +53,7 @@ const MemberStatsComponent = () => {
   series1.slices.template.setAll({
     stroke: am5.color(0xffffff),
     strokeWidth: 1,
+    tooltipText: "{category}: {value}명"
   });
   series1.setAll({
     alignLabels: true,
@@ -83,7 +84,7 @@ const MemberStatsComponent = () => {
   const series2 = chart2.series.push(
     am5percent.PieSeries.new(pieRoot, {
       valueField: "value",
-      categoryField: "category",
+      categoryField: "category"
     })
   );
   const pieColors2 = [
@@ -105,6 +106,7 @@ const MemberStatsComponent = () => {
   series2.slices.template.setAll({
     stroke: am5.color(0xffffff),
     strokeWidth: 1,
+    tooltipText: "{category}: {value}명"
   });
   series2.labels.template.setAll({
     textType: "adjusted",
@@ -181,7 +183,7 @@ const MemberStatsComponent = () => {
 
     barSeries.columns.template.setAll({
     height: 30,
-    tooltipText: "{category}: {value}",
+    tooltipText: "{category}: {value}명",
     });
 
 

@@ -282,15 +282,18 @@ public class MemberServiceImpl implements MemberService {
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		
+		if(isBorrowedMember(mid)) {
+			 throw new IllegalArgumentException("EXIST BORROWED BOOKS");
+		}
 		
-		// 여기에 대출 이력, 기타 정보 조회해서 있으면 예외 처리 던지기
 		
 		member.setKakao(null);
 		member.setPenaltyDate(null);
+		deletePlaceProgram(mid);
+		cancelAllReservesForMember(mid);
 		member.setState(MemberState.LEAVE);
 			
 		memberRepository.save(member);
-
 	}
 	
 	@Override

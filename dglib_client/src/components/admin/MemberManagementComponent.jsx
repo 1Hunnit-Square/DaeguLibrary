@@ -11,6 +11,8 @@ import MemberModifyComponent from "./MemberModifyComponent";
 import { useSelectHandler } from "../../hooks/useSelectHandler";
 import { useSearchHandler } from "../../hooks/useSearchHandler";
 import Button from "../common/Button";
+import CheckBox from "../common/CheckBox";
+import { EllipseSeries } from "@amcharts/amcharts5/.internal/charts/stock/drawing/EllipseSeries";
 
 const MemberManagementComponent = () => {
 
@@ -75,7 +77,7 @@ const MemberManagementComponent = () => {
             "내림차순": "desc"
         };
 
-        const { handleSearch } = useSearchHandler({});
+        const { handleSearch } = useSearchHandler({ additionalParams : {"state" : searchURLParams.get("state"), "role" : searchURLParams.get("role")}});
 
 
     const filterValue = (value) => {
@@ -119,6 +121,24 @@ const MemberManagementComponent = () => {
 		return <span className = "text-red-500">(D-{days})</span>
 	}
 	
+    const handleEveryBody = (e) => {
+        const newState = e.target.checked ? "EVERY" : "ALL";
+        const newParams = new URLSearchParams(searchURLParams); 
+        newParams.set('state', newState); 
+        setSearchURLParams(newParams); 
+    }
+
+    const useEveryBody = useMemo(() =>{
+        if (!searchURLParams.get("state") || searchURLParams.get("state") == "ALL" || searchURLParams.get("state") == "EVERY"){
+            return true;
+        } else {
+            false;
+        }
+    }, [searchURLParams.get("state")])
+
+    const valueEvery = useMemo(() => {
+        return (searchURLParams.get("state") == "EVERY") ? true : false
+    }, [searchURLParams.get("state")])
     
 
     return (  <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -136,9 +156,10 @@ const MemberManagementComponent = () => {
                         input={searchURLParams.get("query") || ""}
                         handleSearch={handleSearch} />
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-1 z-110">
+                        <div className="flex items-center gap-2 z-110">
                             <SelectComponent onChange={(e) => handleSelectChange('role', e)} value={searchURLParams.get("role") || "ALL"}  options={roleMap} />
-                            <SelectComponent onChange={(e) => handleSelectChange('state', e)} value={searchURLParams.get("state") || "ALL"}  options={stateMap} />
+                            <SelectComponent onChange={(e) => handleSelectChange('state', e)} value={searchURLParams.get("state") == "EVERY" ? "ALL" : ( searchURLParams.get("state") || "ALL")}  options={stateMap} />
+                            <CheckBox label ={<span className={useEveryBody ? "" : "text-gray-400"}>탈퇴 계정 포함</span>} checked={valueEvery} onChange={handleEveryBody} disabled={!useEveryBody}/> 
                         </div>
 
 

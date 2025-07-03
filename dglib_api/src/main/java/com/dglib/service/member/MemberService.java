@@ -129,11 +129,11 @@ public interface MemberService {
 	
 	void sendBookReturnNotification();
 	
-	void deletePlaceProgram(String mid); //이거
+	void deletePlaceProgram(String mid);
 
-	boolean isBorrowedMember(String mid); //이거
+	boolean isBorrowedMember(String mid);
 
-	void cancelAllReservesForMember(String mid); //이거
+	void cancelAllReservesForMember(String mid);
 	
 	void leaveMember(String mid);
 	

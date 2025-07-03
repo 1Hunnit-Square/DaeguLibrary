@@ -60,7 +60,7 @@ const EventMainBannerComponent = () => {
                                 <img
                                     src={getEventBannerImageUrl(banner.imageUrl)}
                                     alt={banner.imageName}
-                                    className="w-full h-full"
+                                    className="w-full h-full cursor-pointer"
                                     style={{ objectFit: "fill" }}
                                 />
                             </div>

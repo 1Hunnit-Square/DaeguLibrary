@@ -42,6 +42,8 @@ const EbookViewerComponent = () => {
     const [hasRestoredOnce, setHasRestoredOnce] = useState(false);
     const [isOptimized, setIsOptimized] = useState(false);
     const optimizedRef = useRef(false);
+    const hasRunOptimization = useRef(false);
+    const [isReadyForOptimization, setIsReadyForOptimization] = useState(false);
     // useEffect(() => {
     //     setTimeout(() => {
     //         setIsLoading(false);
@@ -81,44 +83,46 @@ const EbookViewerComponent = () => {
         }
     }, [data, setBookInfo]);
 
+
     useEffect(() => {
-        console.log("꼈다뺐다");
-        if ((!isLoading || !showRestoreLoading) && data && data.ebookId ) {
-            setIsOptimized(true);
-            setBookOption({
-                ...bookOption,
-                flow: "scrolled-doc"
-            })
-            const timer = setTimeout(() => {
-                setBookOption(prev => ({
-                    ...prev,
-                    flow: "paginated"
-                }));
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    
+        const runOptimizationAndRestore = async () => {
+            try {
+                console.log("최적화 1단계: scrolled-doc으로 변경");
+                setIsOptimized(true);
+                setBookOption(prev => ({ ...prev, flow: "scrolled-doc" }));
+                await wait(2000);
+    
+                console.log("최적화 2단계: paginated로 변경");
+                setBookOption(prev => ({ ...prev, flow: "paginated" }));
+                await wait(2000);
+    
+                console.log("최적화 최종 완료");
                 setIsOptimized(false);
                 optimizedRef.current = true;
-            }, 2000);
-            
-        }
-
-    }, [data])
-
-    useEffect(() => {
-        if (data && !isLoading && viewerRef.current && savedPage && !showRestoreLoading && !hasRestoredOnce && optimizedRef.current) {
-            setShowRestoreLoading(true);
-            setHasRestoredOnce(true);
-            const timer = setTimeout(() => {
-                restorePosition();
-                setTimeout(() => {
+    
+                if (savedPage) {
+                    console.log("페이지 복원 시작");
+                    setShowRestoreLoading(true);
+                    await wait(500);
+                    restorePosition();
+                    await wait(500);
                     setShowRestoreLoading(false);
-                }, 500);
-            }, 2000);
-
-            return () => {
-                clearTimeout(timer);
+                }
+            } catch (error) {
+                console.error("최적화 또는 복원 중 에러 발생:", error);
+                setIsOptimized(false);
                 setShowRestoreLoading(false);
             }
+        };
+    
+        if (!isLoading && data?.ebookId && savedPage !== undefined && !hasRunOptimization.current) {
+            hasRunOptimization.current = true;
+            runOptimizationAndRestore();
         }
-    }, [data, isLoading, restorePosition, optimizedRef.current]);
+    }, [isLoading, data, savedPage, restorePosition]); 
+
 
 
 //     useEffect(() => {

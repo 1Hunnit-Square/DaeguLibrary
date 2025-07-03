@@ -1,6 +1,5 @@
-// 📁 PlaceAdminComponent.jsx
-import React, { useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { usePagination } from "../../hooks/usePage";
@@ -10,12 +9,13 @@ import SearchSelectComponent from "../common/SearchSelectComponent";
 import SelectComponent from "../common/SelectComponent";
 import Loading from "../../routers/Loading";
 import Button from "../common/Button";
+import Modal from "../common/Modal";
 import { getReservationListByAdmin, cancelReservationByAdmin } from "../../api/placeApi";
 
 const PlaceAdminComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [selectedReservation, setSelectedReservation] = useState(null);
 
     const { dateRange, handleDateChange } = useDateRangeHandler();
 
@@ -23,7 +23,6 @@ const PlaceAdminComponent = () => {
     const today = new Date();
     const aMonthAgo = new Date();
     aMonthAgo.setDate(today.getDate() - 30);
-
     const format = (d) => d.toLocaleDateString("sv-SE");
     const startDate = dateRange.startDate || format(aMonthAgo);
     const endDate = dateRange.endDate || format(today);
@@ -144,11 +143,22 @@ const PlaceAdminComponent = () => {
                     <tbody className="text-sm text-gray-800">
                         {data.content.length === 0 ? (
                             <tr>
-                                <td colSpan="9" className="py-10 text-gray-500">신청 내역이 없습니다.</td>
+                                <td colSpan="9" className="py-10 text-gray-500">
+                                    신청 내역이 없습니다.
+                                </td>
                             </tr>
                         ) : (
                             data.content.map((item, index) => (
-                                <tr key={item.pno} className="border border-gray-200">
+                                <tr
+                                    key={item.pno}
+                                    className="border border-gray-200 hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => {
+                                        setSelectedReservation({
+                                            ...item,
+                                            appliedAtFormatted: dayjs(item.appliedAt).format("YYYY-MM-DD HH:mm")
+                                        });
+                                    }}
+                                >
                                     <td className="py-3">{index + 1 + (page - 1) * size}</td>
                                     <td className="py-3">{item.memberMid}</td>
                                     <td className="py-3">{item.memberName}</td>
@@ -158,17 +168,89 @@ const PlaceAdminComponent = () => {
                                     <td className="py-3">{item.startTime} ~ {item.endTime}</td>
                                     <td className="py-3">{item.people}명</td>
                                     <td className="py-3">
-                                        <Button onClick={() => cancelMutation.mutate(item.pno)} className="bg-red-500 hover:bg-red-600 text-white text-xs">취소</Button>
+                                        <Button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                cancelMutation.mutate(item.pno);
+                                            }}
+                                            className="bg-red-500 hover:bg-red-600 text-white text-xs"
+                                        >
+                                            취소
+                                        </Button>
                                     </td>
                                 </tr>
                             ))
                         )}
                     </tbody>
+
                 </table>
             </div>
 
-            {/* 페이지네이션 */}
             <div className="mt-6">{renderPagination()}</div>
+
+            {/* 상세정보 모달 */}
+            <Modal
+                isOpen={!!selectedReservation}
+                title="신청 상세정보"
+                onClose={() => setSelectedReservation(null)}
+                className="max-w-lg"
+            >
+                {selectedReservation && (
+                    <div className="space-y-5 text-base">
+                        {/* 회원ID */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">회원ID</div>
+                            <div className="text-gray-800 break-words">{selectedReservation.memberMid}</div>
+                        </div>
+
+                        {/* 회원 이름 */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">회원 이름</div>
+                            <div className="text-gray-800 break-words">{selectedReservation.memberName}</div>
+                        </div>
+
+                        {/* 신청일시 */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">신청일시</div>
+                            <div className="text-gray-800 break-words">{selectedReservation.appliedAtFormatted}</div>
+                        </div>
+
+                        {/* 이용일자 */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">이용 일자</div>
+                            <div className="text-gray-800 break-words">{selectedReservation.useDate}</div>
+                        </div>
+
+                        {/* 이용시간 */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">이용 시간</div>
+                            <div className="text-gray-800 break-words">
+                                {selectedReservation.startTime} ~ {selectedReservation.endTime}
+                            </div>
+                        </div>
+
+                        {/* 장소 */}
+                        <div className="flex items-center border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">장소</div>
+                            <div className="text-gray-800 break-words">{selectedReservation.room}</div>
+                        </div>
+
+                        {/* 참가자 명단 */}
+                        <div className="flex items-c border-b border-gray-300 pb-1">
+                            <div className="w-28 font-semibold text-green-800">참가자 명단</div>
+                            <div className="text-gray-800 space-y-1 break-words">
+                                {selectedReservation.participants
+                                    ? selectedReservation.participants
+                                        .split(",")
+                                        .map((p, i) => (
+                                            <div key={i}>{p.trim()}</div>
+                                        ))
+                                    : "없음"}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };

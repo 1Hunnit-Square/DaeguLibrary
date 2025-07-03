@@ -50,11 +50,11 @@ const ProgramMainBannerComponent = () => {
                 >
                     {banners.map((banner) => (
                         <SwiperSlide key={banner.programInfoId}>
-                            <div
-                                className="w-full h-full py-4"
-                                onClick={() => handleClick(banner.programInfoId)}
-                            >
-                                <div className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-3xl shadow-lg mx-auto">
+                            <div className="w-full h-full py-4">
+                                <div
+                                    className="w-3/4 h-[110px] sm:h-[200px] lg:h-[270px] overflow-hidden rounded-3xl shadow-lg mx-auto cursor-pointer hover:opacity-80 transition duration-200"
+                                    onClick={() => handleClick(banner.programInfoId)}
+                                >
                                     <img
                                         src={getProgramBannerImageUrl(banner.thumbnailPath)}
                                         alt={banner.progName}
@@ -62,7 +62,10 @@ const ProgramMainBannerComponent = () => {
                                     />
                                 </div>
                                 {/* 텍스트 영역 */}
-                                <div className="w-full pt-3 pb-4 text-center">
+                                <div 
+                                    className="w-fit pt-3 pb-4 text-center cursor-pointer mx-auto"
+                                    onClick={() => handleClick(banner.programInfoId)}    
+                                >
                                     <p className="text-base sm:text-lg font-bold text-green-900">【{banner.progName}】</p>
                                     <p className="text-sm font-bold text-gray-700">{banner.startDate} ~ {banner.endDate}</p>
                                     <p className="text-sm font-bold text-gray-700 mt-1">

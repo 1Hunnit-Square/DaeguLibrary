@@ -128,10 +128,12 @@ public interface MemberService {
 	List<RegionCountDTO> getRegionCount();
 	
 	void sendBookReturnNotification();
+	
+	void deletePlaceProgram(String mid); //이거
 
-	boolean isBorrowedMember(String mid);
+	boolean isBorrowedMember(String mid); //이거
 
-	void cancelAllReservesForMember(String mid);
+	void cancelAllReservesForMember(String mid); //이거
 	
 	void leaveMember(String mid);
 	

@@ -156,7 +156,7 @@ const ProgramDetailComponent = () => {
             <div className="flex justify-center mt-8 space-x-4">
                 <Button
                     onClick={() => window.history.back()}
-                    className="bg-gray-300 text-black hover:bg-gray-400 cursor-pointer"
+                    className="bg-gray-400 text-black hover:bg-gray-500 cursor-pointer"
                 >
                     돌아가기
                 </Button>
@@ -164,7 +164,15 @@ const ProgramDetailComponent = () => {
                 <Button
                     onClick={handleApply}
                     disabled={isDisabled}
-                    className={`${isDisabled ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" : "bg-[#00893B] hover:bg-[#006C2D]"} text-white px-4 py-2 rounded`}
+                    className={`
+                        ${isExpired || isFull
+                            ? "bg-slate-600 hover:bg-slate-600 hover:cursor-not-allowed"
+                            : isBeforeStart
+                                ? "bg-blue-500 hover:bg-blue-500 hover:cursor-not-allowed"
+                                : "bg-green-700 hover:bg-green-800"
+                        }
+                         text-white px-4 py-2 rounded
+                        `}
                 >
                     {isApplied
                         ? "신청완료"

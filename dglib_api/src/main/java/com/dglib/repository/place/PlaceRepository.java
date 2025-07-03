@@ -44,4 +44,12 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, JpaSpecific
 			    GROUP BY p.useDate, p.room
 			""")
 	List<Object[]> sumReservedMinutesByDateAndRoom(@Param("year") int year, @Param("month") int month);
+	
+	// ---------- 탈퇴 회원 시설이용 신청 내역 삭제 ----------
+	
+	// 특정 회원의 시설 예약 신청 내역을 모두 삭제
+	void deleteByMember_Mid(String mid);
+	
+	// 특정 회원의 시설 예약 신청 내역을 모두 조회(필요시 사용하면 됨, 현재는 필요 없음) 
+	List<Place> findAllByMember_Mid(String mid);
 }

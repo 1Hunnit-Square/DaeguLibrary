@@ -26,6 +26,7 @@ import com.dglib.dto.place.PlaceDTO;
 import com.dglib.dto.place.PlaceSearchConditionDTO;
 import com.dglib.dto.place.ReservationStatusDTO;
 import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberState;
 import com.dglib.entity.place.Place;
 import com.dglib.repository.member.MemberRepository;
 import com.dglib.repository.place.PlaceRepository;
@@ -112,6 +113,13 @@ public class PlaceServiceImpl implements PlaceService {
 		Member member = memberRepository.findById(dto.getMemberMid())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
+		if (member.getState() == MemberState.PUNISH) {
+			throw new IllegalStateException("회원이 정지 상태로 인해 시설을 예약할 수 없습니다.");
+		}
+		if (member.getState() == MemberState.LEAVE) {
+			throw new IllegalStateException("탈퇴계정은 시설을 예약할 수 없습니다.");
+		}
+
 		if (dto.getUseDate().isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("지난 날짜는 선택이 불가능합니다.");
 		}
@@ -162,6 +170,14 @@ public class PlaceServiceImpl implements PlaceService {
 					.orElse("Unknown");
 
 			throw new IllegalArgumentException("참가자 ID '" + missingId + "' 는 존재하지 않는 회원입니다.");
+		}
+
+		// 정지, 탈퇴 회원 존재 여부 검사
+		boolean hasInvalidState = existingParticipants.stream()
+				.anyMatch(m -> m.getState() == MemberState.PUNISH || m.getState() == MemberState.LEAVE);
+
+		if (hasInvalidState) {
+			throw new IllegalArgumentException("참가자 명단에 이용이 불가한 회원이 있습니다.");
 		}
 
 		// 동아리실 인원 제한

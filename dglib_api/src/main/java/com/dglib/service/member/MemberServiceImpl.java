@@ -856,6 +856,27 @@ public class MemberServiceImpl implements MemberService {
 		smsService.sendReturnDueApi(smsBookRequestDTO);
 	
 	}
+	
+@Override	
+public boolean isBorrowedMember(String mid) {
+	Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+	// 대출 중인 도서가 있는지 확인
+	boolean hasBorrowedBooks = rentalRepository.existsByMemberAndState(member, RentalState.BORROWED);
+
+	return hasBorrowedBooks;
+}
+
+@Override
+public void cancelAllReservesForMember(String mid) {
+	Member member = memberRepository.findById(mid).orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+	List<Reserve> reserves = reserveRepository.findByMemberAndState(member, ReserveState.RESERVED);
+
+	
+	reserves.forEach(reserve -> reserve.setState(ReserveState.CANCELED));
+
+}
 
 
 

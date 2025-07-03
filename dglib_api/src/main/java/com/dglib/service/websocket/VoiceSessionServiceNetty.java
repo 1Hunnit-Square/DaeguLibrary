@@ -157,6 +157,7 @@ public class VoiceSessionServiceNetty {
         }
         
         @Override
+        //데이터 조각이 도착할 때마다 호출됨
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (!(msg instanceof ByteBuf)) {
                 ctx.fireChannelRead(msg);

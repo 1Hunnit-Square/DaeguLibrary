@@ -22,6 +22,7 @@ import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.book.Reserve;
 import com.dglib.entity.book.ReserveState;
+import com.dglib.entity.member.Member;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 	Optional<Rental> findByLibraryBookLibraryBookIdAndStateNot(Long libraryBookId, RentalState state);
@@ -86,6 +87,9 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	
 	@Query("SELECT r FROM Rental r WHERE r.libraryBook.libraryBookId IN :libraryBookIds")
 	List<Rental> findByLibraryBookIdIn(@Param("libraryBookIds") List<Long> libraryBookIds);
+
+
+	boolean existsByMemberAndState(Member member, RentalState borrowed);
 
 
 	

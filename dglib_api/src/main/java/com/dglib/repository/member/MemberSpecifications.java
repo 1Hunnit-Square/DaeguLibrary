@@ -10,9 +10,11 @@ import com.dglib.dto.member.MemberSearchDTO;
 import com.dglib.entity.book.Rental;
 import com.dglib.entity.book.RentalState;
 import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberState;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 
 public class MemberSpecifications {
 
@@ -25,12 +27,14 @@ public class MemberSpecifications {
 	public static Specification<Member> fromDTO(ContactSearchDTO dto) {
         return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
                 .and((root, query, cb) -> dto.isCheckSms() ? cb.equal(root.get("checkSms"), true) : cb.conjunction())
-                .and(searchOverdue(dto.isCheckOverdue()));
+                .and(searchOverdue(dto.isCheckOverdue()))
+                .and((root, query, cb) -> cb.notEqual(root.get("state"), MemberState.LEAVE));
     }
 	
 	public static Specification<Member> fromDTO(EmailInfoSearchDTO dto) {
         return Specification.where(searchFilter(dto.getOption(), dto.getQuery()))
-                .and((root, query, cb) -> dto.isCheckEmail() ? cb.equal(root.get("checkEmail"), true) : cb.conjunction());
+                .and((root, query, cb) -> dto.isCheckEmail() ? cb.equal(root.get("checkEmail"), true) : cb.conjunction())
+                .and((root, query, cb) -> cb.notEqual(root.get("state"), MemberState.LEAVE));
     }
 	
 	

@@ -53,6 +53,19 @@ if(e.key === "Enter")
 
 useEffect(()=>{
 pwRef.current?.focus();
+
+
+const handleMessage = (event) => {
+    const { leave } = event.data;
+    if(!leave)
+        return;
+    else{
+        navigate("/",{replace: true});
+    }   
+    }
+
+    window.addEventListener("message", handleMessage);
+        return () => window.removeEventListener("message", handleMessage);
 },[])
 
 const handleSuccess = () => {

@@ -68,6 +68,18 @@ export const phoneExist = async (param) => {
     return res.data;
 }
 
+export const checkPhoneId = async (param) => {
+    const res = await axiosClient.get(`${prefix}/checkPhoneId`, { params: param });
+    return res.data;
+}
+
+
+export const leaveApply = async (params) => {
+    const header = { headers: { 'Content-Type': 'x-www-form-urlencoded' } };
+    const res = await axiosClient.post(`${prefix}/leave`, params, header);
+    return res.data;
+}
+
 export const idFind = async (params) => {
     const res = await axios.get(`${prefix}/findId`, { params: params });
     return res.data;

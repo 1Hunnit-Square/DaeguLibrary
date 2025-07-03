@@ -129,8 +129,8 @@ public interface MemberService {
 	
 	void sendBookReturnNotification();
 	
+	void leaveMember(String mid);
 	
+	boolean checkPhoneIdMember(String mid, String phone);
 	
-
-
 }

@@ -39,7 +39,7 @@ const SmsSearch = lazy(() => import("../components/admin/SmsSearchComponent"));
 const EmailRead = lazy(() => import("../components/admin/EmailReadComponent"));
 const EmailWrite = lazy(() => import("../components/admin/EmailWriteComponent"));
 const QRScan = lazy(() => import("../components/admin/QRScanComponent"));
-
+const LeaveComponent = lazy(()=> import("../components/member/LeaveComponent"));
 
 const root = createBrowserRouter([
 
@@ -143,6 +143,10 @@ const root = createBrowserRouter([
       {
             path: "qrscan",
             element: <Suspense fallback={<Loading />}><QRScan /></Suspense>
+     },
+     {
+            path: "leave",
+            element: <Suspense fallback={<Loading />}><LeaveComponent /></Suspense>
      },
 
 

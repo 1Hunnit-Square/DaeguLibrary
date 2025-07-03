@@ -154,7 +154,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public boolean existByPhone(String phone) {
-		return memberRepository.existsByPhone(phone);
+		return memberRepository.existsByPhoneAndStateNot(phone, MemberState.LEAVE);
 	}
 
 	@Override
@@ -223,16 +223,16 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public String findId(MemberFindIdDTO memberFindIdDTO) {
-		Member member = memberRepository.findByNameAndBirthDateAndPhone(memberFindIdDTO.getName(),
-				memberFindIdDTO.getBirthDate(), memberFindIdDTO.getPhone())
+		Member member = memberRepository.findByNameAndBirthDateAndPhoneAndStateNot(memberFindIdDTO.getName(),
+				memberFindIdDTO.getBirthDate(), memberFindIdDTO.getPhone(), MemberState.LEAVE)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		return member.getMid();
 	}
 
 	@Override
 	public boolean existAccount(MemberFindAccountDTO memberFindAccountDTO) {
-		return memberRepository.existsByMidAndBirthDateAndPhone(memberFindAccountDTO.getMid(),
-				memberFindAccountDTO.getBirthDate(), memberFindAccountDTO.getPhone());
+		return memberRepository.existsByMidAndBirthDateAndPhoneAndStateNot(memberFindAccountDTO.getMid(),
+				memberFindAccountDTO.getBirthDate(), memberFindAccountDTO.getPhone(), MemberState.LEAVE);
 	}
 
 	@Override
@@ -269,6 +269,31 @@ public class MemberServiceImpl implements MemberService {
 			member.setPw(oldPw);
 		}
 		memberRepository.save(member);
+	}
+	
+	@Override
+	public void leaveMember(String mid) {
+		if (!mid.equals(JwtFilter.getMid())) {
+			throw new IllegalArgumentException("ID Different");
+		}
+		
+		Member member = memberRepository.findById(mid)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		
+		
+		// 여기에 대출 이력, 기타 정보 조회해서 있으면 예외 처리 던지기
+		
+		member.setKakao(null);
+		member.setPenaltyDate(null);
+		member.setState(MemberState.LEAVE);
+			
+		memberRepository.save(member);
+
+	}
+	
+	@Override
+	public boolean checkPhoneIdMember(String mid, String phone) {	
+		return memberRepository.existsByMidAndPhone(mid, phone);
 	}
 
 	@Override

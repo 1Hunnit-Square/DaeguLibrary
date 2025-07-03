@@ -155,6 +155,11 @@ public class MemberController {
 	public ResponseEntity<Boolean> existByPhone(@RequestParam String phone) {
 		return ResponseEntity.ok(memberService.existByPhone(phone));
 	}
+	
+	@GetMapping("/checkPhoneId")
+	public ResponseEntity<Boolean> checkPhoneId(@RequestParam String phone) {
+		return ResponseEntity.ok(memberService.checkPhoneIdMember(JwtFilter.getMid(), phone));
+	}
 
 	@GetMapping("/findId")
 	public ResponseEntity<String> findId(@ModelAttribute MemberFindIdDTO memberFindIdDTO) {
@@ -185,6 +190,12 @@ public class MemberController {
 		String mid = JwtFilter.getMid();
 		System.out.println(mid);
 		memberService.modifyMember(mid, modMemberDTO);
+		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("/leave")
+	public ResponseEntity<String> leaveMember(@RequestParam String mid){
+		memberService.leaveMember(mid);
 		return ResponseEntity.ok().build();
 	}
 

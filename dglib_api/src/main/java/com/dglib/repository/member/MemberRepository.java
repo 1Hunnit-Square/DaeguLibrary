@@ -47,14 +47,15 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	
 	Long countByMnoLike(String mno);
 	
-	boolean existsByPhone(String phone);
+	boolean existsByPhoneAndStateNot(String phone, MemberState state);
 	
+	boolean existsByMidAndPhone(String mid, String phone);
 
 	Page<Member> findAll (Specification<Member> spec, Pageable pageable);
 	
-	Optional<Member> findByNameAndBirthDateAndPhone (String name, LocalDate birthDate, String phone);
+	Optional<Member> findByNameAndBirthDateAndPhoneAndStateNot (String name, LocalDate birthDate, String phone, MemberState state);
 	
-	boolean existsByMidAndBirthDateAndPhone (String mid, LocalDate birthDate, String phone);
+	boolean existsByMidAndBirthDateAndPhoneAndStateNot (String mid, LocalDate birthDate, String phone, MemberState state);
 	
 
 	@EntityGraph(attributePaths = {"rentals"})
@@ -105,7 +106,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 	List<Member> findByMidInAndState(Set<String> memberIds, MemberState state);
 	
 	 @Query("SELECT new com.dglib.dto.member.GenderCountDTO(m.gender, COUNT(m)) " +
-	           "FROM Member m GROUP BY m.gender ORDER BY m.gender ASC")
+	           "FROM Member m WHERE m.state <> 'LEAVE' GROUP BY m.gender ORDER BY m.gender ASC")
 	    List<GenderCountDTO> countByGender();
 	 
 	 
@@ -121,6 +122,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 			      END AS ageGroup,
 			      COUNT(*) AS count
 			    FROM member
+			    WHERE state <> 'LEAVE'
 			    GROUP BY ageGroup
 			    ORDER BY count DESC
 			""", nativeQuery = true)
@@ -141,6 +143,7 @@ public interface MemberRepository extends JpaRepository<Member, String>, JpaSpec
 				      END AS regionGroup,
 				      COUNT(*) AS count
 				    FROM member
+				    WHERE state <> 'LEAVE'
 				    GROUP BY regionGroup
 				    ORDER BY count DESC
 				""", nativeQuery = true)

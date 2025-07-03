@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, memo, useCallback } from "react";
 const PhoneAuthComponent = ({ handlePage }) => {
 
     const [ phoneNum, setPhoneNum ] = useState({first:"010", second:"", third:""});
-    const inputStyle = "border rounded w-15 h-9 mx-1 pb-1 text-center"
+    const inputStyle = "border rounded w-15 h-9 mx-1 py-1 text-center"
     const phoneFirstArr = ["010","011","016","017","018","019"]
     const phoneRef = { second : useRef(), third : useRef() };
 

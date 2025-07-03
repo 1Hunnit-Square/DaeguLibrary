@@ -46,6 +46,11 @@ const FindPwComponent = () => {
    });
 
     const handleClick = () => {
+        if(!findForm.mid.trim() || !findForm.birthDate){
+            alert("아이디와 생년월일을 입력해주세요.");
+            return;
+        }
+
         setIsOpen(true);
     }
 

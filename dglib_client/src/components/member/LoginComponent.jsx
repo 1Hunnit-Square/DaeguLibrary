@@ -27,10 +27,13 @@ const LoginComponent = () =>{
         localStorage.removeItem("savedId");
 
         doLogin(loginParam).then(data => {
-            console.log(data);
 
             if(data.error){
-                alert("아이디와 비밀번호가 일치하지 않습니다.");
+                if(data.message == "LEAVE MEMBER"){
+                    alert("탈퇴한 회원은 로그인 할 수 없습니다.");
+                } else {
+                    alert("아이디와 비밀번호가 일치하지 않습니다.");
+                }
                 setLoginParam(prev => ({ ...prev, pw : ""}));
             }
             else {

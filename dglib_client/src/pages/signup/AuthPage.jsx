@@ -54,10 +54,14 @@ return (
 <Layout sideOn={false}>
     <SubHeader subTitle="회원가입" mainTitle="기타" print={reactToPrintFn} />
     <div className="p-6 max-w-3xl mx-auto mb-10" ref={contentRef}>
-        <h1 className = "flex text-3xl font-bold mb-10 justify-center">휴대폰 인증</h1>
-        <div className = "flex justify-center">
-        <Button onClick={handleAuth}>인증하기</Button>
-        </div>
+                 <div className = "border border-gray-100 shadow rounded-xl w-xs mx-auto py-10 my-7">
+                <h1 className = "flex text-3xl font-bold my-5 justify-center">휴대폰 인증</h1>
+                <img src="/phoneAuth.png" className="w-25 mx-auto my-7 block" />
+                <div className = "flex flex-col items-center justify-center gap-7">
+                <div className="text-sm text-gray-700 text-center">SMS 문자 전송을 통한<br /> 본인 인증 서비스입니다.</div>
+                <Button onClick={handleAuth}>인증하기</Button>
+                </div>
+                </div>
     </div>
 <PageModal isOpen={isOpen} title={"휴대폰 인증"} onClose={handleClose} PageMap={pageMap} defaultPage={"phoneAuth"}  />
 </Layout>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      

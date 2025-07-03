@@ -24,7 +24,7 @@ const EmailWriteComponent = () =>{
     const [ mailList, setMailList ] = useState([]);
     const [ nameList, setNameList ] = useState([]);
     const [ searchResults, setSearchResults ] = useState([]);
-    const [ searchKey, setSearchKey ] = useState({});
+    const [ searchKey, setSearchKey ] = useState({type:"전체"});
     const [ addkey, setAddkey ] = useState(()=>{});
     const [ readLoading, setReadLoading ] = useState(false);
     const [ useForm, setUseForm ] = useState({});

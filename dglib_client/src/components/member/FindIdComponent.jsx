@@ -23,6 +23,10 @@ const FindIdComponent = () => {
    });
 
     const handleClick = () => {
+            if(!findForm.name.trim() || !findForm.birthDate){
+            alert("이름과 생년월일을 입력해주세요.");
+            return;
+        }
         setIsOpen(true);
     }
 

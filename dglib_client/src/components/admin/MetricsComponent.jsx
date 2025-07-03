@@ -6,13 +6,15 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import * as am5radar from "@amcharts/amcharts5/radar";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import Button from "../common/Button";
 
 const MetricsComponent = () => {
     const [uptimeSec, setUptimeSec] = useState(0);
     const chartRef = useRef(null);
-     const { data, isLoading, isError } = useQuery({
+     const { data, isFetching, isError, refetch } = useQuery({
         queryKey: ['metricsStats'],
-        queryFn: () => getMetricsStats()
+        queryFn: () => getMetricsStats(),
+        refetchOnWindowFocus: false,
     });
 
 useLayoutEffect(() => {
@@ -248,9 +250,9 @@ console.log(data);
     }
 
      return (
-  <div className="w-[85%] mx-auto my-10 p-10 border border-gray-200 text-gray-900 rounded-2xl shadow-lg space-y-8 font-mono">
+  <div className="w-[85%] mx-auto my-10 p-10 border border-gray-200 text-gray-900 rounded-2xl shadow-lg space-y-8">
   <h2 className="text-3xl font-extrabold border-b border-gray-300 pb-4 mb-8"> 시스템 통계 </h2>
-  {isLoading && <Loading text="정보를 가져오는 중..." />}
+  {isFetching && <Loading text="정보를 가져오는 중..." />}
   {data && (
     <>
       <section className="bg-white rounded-lg p-6 border border-gray-300 mb-8">
@@ -262,15 +264,16 @@ console.log(data);
     <div className="flex-shrink-0 min-w-[160px]">
       <p className="text-gray-700 mb-2 font-semibold">가동 시간</p>
       <p className="text-lg font-semibold text-green-700">{durationTime(uptimeSec)}</p>
+      <Button className ="text-sm mt-4" onClick={()=> refetch()}>새로고침</Button>
     </div>
 
     {/* 메모리 */}
     <div className="flex-1">
       <h4 className="font-semibold mb-4 text-gray-800 border-b border-gray-200 pb-1">메모리</h4>
       <ul className="text-sm space-y-1">
-        <li>총 메모리: <span className="text-green-700">{(data.memory.total / 1024 / 1024 / 1024).toFixed(1)} GB</span></li>
-        <li>사용 중: <span className="text-green-700">{(data.memory.used / 1024 / 1024 / 1024).toFixed(1)} GB</span></li>
-        <li>사용률: <span className={`font-bold ${
+        <li>총 메모리: <span className="text-green-700 ml-1">{(data.memory.total / 1024 / 1024 / 1024).toFixed(1)} GB</span></li>
+        <li>사용 중: <span className="text-green-700 ml-1">{(data.memory.used / 1024 / 1024 / 1024).toFixed(1)} GB</span></li>
+        <li>사용률: <span className={`font-bold ml-1 ${
           data.memory.percent > 80
             ? "text-red-600"
             : data.memory.percent > 50
@@ -284,10 +287,10 @@ console.log(data);
     <div className="flex-1">
       <h4 className="font-semibold mb-4 text-gray-800 border-b border-gray-200 pb-1">접속 상태</h4>
       <ul className="space-y-1 text-sm">
-        <li>활성화 된 연결: <span className="text-blue-600 font-semibold">{data.connection.active}</span></li>
-        <li>수신 상태: <span className="text-gray-600 font-mono">{data.connection.reading}</span></li>
-        <li>응답 상태: <span className="text-gray-600 font-mono">{data.connection.writing}</span></li>
-        <li>대기 상태: <span className="text-gray-600 font-mono">{data.connection.waiting}</span></li>
+        <li>활성화 된 연결: <span className="text-blue-600 font-semibold ml-1">{data.connection.active}</span></li>
+        <li>수신 상태: <span className="text-gray-600 ml-1">{data.connection.reading}</span></li>
+        <li>응답 상태: <span className="text-gray-600 ml-1">{data.connection.writing}</span></li>
+        <li>대기 상태: <span className="text-gray-600 ml-1">{data.connection.waiting}</span></li>
       </ul>
     </div>
 
@@ -295,10 +298,10 @@ console.log(data);
     <div className="flex-1">
       <h4 className="font-semibold mb-4 text-gray-800 border-b border-gray-200 pb-1">네트워크 트래픽</h4>
       <ul className="space-y-1 text-sm">
-        <li>총 전송량: <span className="text-green-700 font-mono">{(data.network.bytesSentGauge / 1024 ** 3).toFixed(2)} GB</span></li>
-        <li>총 수신량: <span className="text-green-700 font-mono">{(data.network.bytesRecvGauge / 1024 ** 3).toFixed(2)} GB</span></li>
-        <li>전송 속도: <span className="text-green-700 font-mono">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
-        <li>수신 속도: <span className="text-green-700 font-mono">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
+        <li>총 전송량: <span className="text-green-700 ml-1">{(data.network.bytesSentGauge / 1024 ** 3).toFixed(2)} GB</span></li>
+        <li>총 수신량: <span className="text-green-700 ml-1">{(data.network.bytesRecvGauge / 1024 ** 3).toFixed(2)} GB</span></li>
+        <li>전송 속도: <span className="text-green-700 ml-1">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
+        <li>수신 속도: <span className="text-green-700 ml-1">{((data.network.bytesSentRatePerSec * 8) / (1024 * 1024)).toFixed(2)} Mbps</span></li>
       </ul>
     </div>
   </div>
@@ -308,7 +311,7 @@ console.log(data);
       <section className="bg-white rounded-lg p-6 border border-gray-300">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">CPU 사용률 (코어별)</h3>
-          <span className="text-sm text-orange-500">CPU 온도: <span>{data.sensors}°C</span></span>
+          <span className="text-sm text-orange-500 pr-1">CPU 온도 : <span>{data.sensors}°C</span></span>
         </div>
 
         <div className="overflow-x-auto">

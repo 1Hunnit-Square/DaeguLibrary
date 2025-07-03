@@ -173,6 +173,12 @@ const InfoModComponent = ({data, handleSuccess}) => {
       }
     }
 
+    const handleClickLeave = () => {
+      window.leaveMid = data.mid;
+      window.open(`/leave`, "_blank", "width=1000,height=700");
+    
+    }
+
     return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white border rounded-lg shadow">
       <h2 className="text-xl font-semibold border-b mb-6 pb-6">정보수정</h2>
@@ -282,10 +288,11 @@ const InfoModComponent = ({data, handleSuccess}) => {
     
         {/* 버튼 */}
         <div className="flex justify-center gap-4 py-6">
+          <Button onClick={handleClickLeave} className="bg-red-500 hover:bg-red-600">회원탈퇴</Button>
           <Button onClick={onClickModify}>정보수정</Button>
           <Button className="bg-gray-400 hover:bg-gray-500" onClick={()=>navigate("/")}>취소</Button>
         </div>
-    
+      
       </form>
       <Modal isOpen={isOpen.addr} title={"주소찾기"} onClose={()=>onCloseModal("addr")}><DaumPostcode onComplete={onAddrCode} /></Modal>
       <Modal isOpen={isOpen.modPw} title={"비밀번호 변경"} onClose={()=>onCloseModal("modPw")}><PwModifyComponent handlePwMod={handlePwMod} /></Modal>

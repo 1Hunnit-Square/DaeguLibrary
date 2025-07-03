@@ -195,7 +195,7 @@ const VoiceWebSocketComponent = ({ onClose }) => {
         };
 
         const handleReceivedMessage = (data, audio) => {
-            console.log("📩 메시지 처리 시작:", data.type);
+            console.log("메시지 처리 시작:", data.type);
             switch (data.type) {
                 case 'chatbot_response':
                     console.log(`오디오 데이터: ${audio.length} bytes`);
@@ -246,20 +246,20 @@ const VoiceWebSocketComponent = ({ onClose }) => {
         };
 
         ws.onopen = () => {
-            console.log("✅ WebSocket 연결 성공! 세션 시작 메시지를 전송합니다.");
+            console.log("WebSocket 연결 성공! 세션 시작 메시지를 전송합니다.");
             setIsConnected(true);
             sendTextMessage('start_session');
             startRecordingAndStreaming();
         };
 
         ws.onerror = (error) => {
-            console.error("🔥 WebSocket 연결 오류:", error);
+            console.error("WebSocket 연결 오류:", error);
             setIsConnected(false);
             if (!hasplayedErrorSoundRef.current && !selfclosed.current) playErrorSound();
         };
 
         ws.onclose = (event) => {
-            console.log("🔥 WebSocket 연결 종료:", event);
+            console.log("WebSocket 연결 종료:", event);
             setIsConnected(false);
             if (!hasplayedErrorSoundRef.current && !selfclosed.current) {
                 hasplayedErrorSoundRef.current = true;

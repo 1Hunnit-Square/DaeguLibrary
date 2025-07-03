@@ -44,6 +44,7 @@ const EbookViewerComponent = () => {
     const optimizedRef = useRef(false);
     const hasRunOptimization = useRef(false);
     const [isReadyForOptimization, setIsReadyForOptimization] = useState(false);
+    const [isViewerReady, setIsViewerReady] = useState(false);
     // useEffect(() => {
     //     setTimeout(() => {
     //         setIsLoading(false);
@@ -83,45 +84,63 @@ const EbookViewerComponent = () => {
         }
     }, [data, setBookInfo]);
 
-
+    // useEffect(() => {
+    //     const viewer = viewerRef.current;
+    //     if (viewer && viewer.state.rendition) {
+    //         const rendition = viewer.state.rendition;
+    //         const handleDisplay = () => {
+    //             if (!viewerReady) {
+    //                 console.log("뷰어가 준비되었습니다.");
+    //                 setIsViewerReady(true);
+    //             }
+    //         }
+    //         rendition.on('display', handleDisplay);
+    //         return () => {
+    //             rendition.off('display', handleDisplay);
+    //         };
+    //     }
+    // }, [viewerRef.current, isViewerReady])
     useEffect(() => {
-        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    
-        const runOptimizationAndRestore = async () => {
-            try {
-                console.log("최적화 1단계: scrolled-doc으로 변경");
-                setIsOptimized(true);
-                setBookOption(prev => ({ ...prev, flow: "scrolled-doc" }));
-                await wait(2000);
-    
-                console.log("최적화 2단계: paginated로 변경");
-                setBookOption(prev => ({ ...prev, flow: "paginated" }));
-                await wait(2000);
-    
-                console.log("최적화 최종 완료");
-                setIsOptimized(false);
-                optimizedRef.current = true;
-    
-                if (savedPage) {
-                    console.log("페이지 복원 시작");
-                    setShowRestoreLoading(true);
-                    await wait(500);
-                    restorePosition();
-                    await wait(500);
+        
+        if (currentLocation && currentLocation.startCfi && !hasRunOptimization.current) {
+            console.log("Epub 뷰어 렌더링 완료")
+            hasRunOptimization.current = true;
+            const runOptimizationAndRestore = async () => {
+                try {
+                    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        
+                    console.log("최적화 1단계: scrolled-doc으로 변경");
+                    setIsOptimized(true);
+                    setBookOption(prev => ({ ...prev, flow: "scrolled-doc" }));
+                    await wait(2000);
+        
+                    console.log("최적화 2단계: paginated로 변경");
+                    setBookOption(prev => ({ ...prev, flow: "paginated" }));
+                    await wait(2000);
+        
+                    console.log("최적화 최종 완료");
+                    setIsOptimized(false);
+                    optimizedRef.current = true;
+        
+                    if (savedPage) {
+                        console.log("페이지 복원 시작");
+                        setShowRestoreLoading(true);
+                        await wait(500);
+                        restorePosition();
+                        await wait(500);
+                        setShowRestoreLoading(false);
+                    }
+                } catch (error) {
+                    console.error("최적화 또는 복원 중 에러 발생:", error);
+                    setIsOptimized(false);
                     setShowRestoreLoading(false);
                 }
-            } catch (error) {
-                console.error("최적화 또는 복원 중 에러 발생:", error);
-                setIsOptimized(false);
-                setShowRestoreLoading(false);
-            }
-        };
+            };
     
-        if (!isLoading && data?.ebookId && savedPage !== undefined && !hasRunOptimization.current) {
-            hasRunOptimization.current = true;
+            
             runOptimizationAndRestore();
         }
-    }, [isLoading, data, savedPage, restorePosition]); 
+    }, [currentLocation, savedPage, restorePosition]); 
 
 
 
@@ -166,8 +185,7 @@ const EbookViewerComponent = () => {
     }), []);
 
     const updateCurrentPage = useCallback((location) => {
-      console.log('Current location:', location);
-      console.log('Viewer ref:', viewerRef.current);
+      
 
         const progress = location.currentPage && location.totalPage
             ? Math.round((location.currentPage / location.totalPage) * 100)

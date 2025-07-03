@@ -12,6 +12,7 @@ from dglib_chatbot.services.chatbot_preprocessing import chatbot_preprocessing, 
 import base64
 import torch
 import gc
+import struct
 
 # --- 설정 값 ---
 SAMPLE_RATE = 16000
@@ -95,30 +96,55 @@ async def _transcribe_and_send(writer: asyncio.StreamWriter, audio_buffer: bytea
             logger.info(f"[{client_addr}] 챗봇 응답: {chat_response_clean}")
             if chat_response_clean:
                 tts_audio_data = await tts_post_async(chat_response_clean)
+                logger.info(f"[{client_addr}] TTS 오디오 데이터 길이: {len(tts_audio_data) if tts_audio_data else 'None'} bytes")
                 if tts_audio_data is not None:
-                    audio_base64 = base64.b64encode(tts_audio_data).decode('utf-8')
-                    response = {
-                        "type": "chatbot_response",
-                        "text": chat_response.get('parts', ''),
-                        "request_text": result_text,
-                        "service": chat_response.get('service', ''),
-                        "to": chat_response.get('to', None),
-                        "clientId": chat_response.get('clientId', client_id),
-                        "audio_size": len(tts_audio_data),
-                        "audio_data": audio_base64  
-                    }
+                    response_meta = {
+                            "type": "chatbot_response",
+                            "text": chat_response.get('parts', ''),
+                            "request_text": result_text,
+                            "service": chat_response.get('service', ''),
+                            "to": chat_response.get('to', None),
+                            "clientId": chat_response.get('clientId', client_id),
+                            "audio_length": len(tts_audio_data)
+                        }
+                    await _send_json_and_audio_response(writer, response_meta, tts_audio_data)
+                    logger.info(f"[{client_addr}] TTS 응답 전송 완료. 길이: {len(tts_audio_data)} bytes")
                 else:
                     logger.info(f"[{client_addr}] TTS 생성 실패. 음성 데이터가 None입니다.")
                     response = {"type": "tts_error", "text": "TTS 생성 실패", "clientId": client_id}
+                    await _send_json_response(writer, response)
             else: 
-                response = {"type": "no_chatbot_response", "text": ""}
+                logger.info(f"[{client_addr}] TTS 생성 실패. 음성 데이터가 None입니다.")
+                response = {"type": "tts_error", "text": "TTS 생성 실패", "clientId": client_id}
+                await _send_json_response(writer, response)
 
-        response_json = json.dumps(response, ensure_ascii=False).encode('utf-8')
-        writer.write(len(response_json).to_bytes(4, 'big') + response_json)
-        await writer.drain()
+        
 
     except Exception as e:
         logger.error(f"[{client_addr}] 음성 인식/전송 중 오류: {e}", exc_info=True)
+
+async def _send_json_response(writer: asyncio.StreamWriter, response_data: dict):
+    """JSON만 포함된 응답 전송"""
+    json_bytes = json.dumps(response_data, ensure_ascii=False).encode('utf-8')
+    json_len = len(json_bytes)
+    audio_len = 0
+    
+    # 헤더: [JSON 길이(4바이트)] + [오디오 길이(4바이트)]
+    header = struct.pack('!II', json_len, audio_len)
+    writer.write(header + json_bytes)
+    await writer.drain()
+
+
+async def _send_json_and_audio_response(writer: asyncio.StreamWriter, response_data: dict, audio_data: bytes):
+    """JSON과 오디오를 포함한 응답 전송"""
+    json_bytes = json.dumps(response_data, ensure_ascii=False).encode('utf-8')
+    json_len = len(json_bytes)
+    audio_len = len(audio_data)
+    
+    # 헤더: [JSON 길이(4바이트)] + [오디오 길이(4바이트)]
+    header = struct.pack('!II', json_len, audio_len)
+    writer.write(header + json_bytes + audio_data)
+    await writer.drain()
 
 
 
@@ -158,9 +184,7 @@ async def tcp_service(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     async def _send_status(speaking: bool):
         try:
             status_response = {"type": "speaking_status", "is_speaking": speaking, "clientId": client_id}
-            response_json = json.dumps(status_response, ensure_ascii=False).encode('utf-8')
-            writer.write(len(response_json).to_bytes(4, 'big') + response_json)
-            await writer.drain()
+            await _send_json_response(writer, status_response)
             logger.info(f"[{client_addr}] 상태 전송: is_speaking={speaking}")
         except Exception as e:
             logger.error(f"[{client_addr}] 상태 전송 중 오류: {e}")

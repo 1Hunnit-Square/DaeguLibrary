@@ -129,6 +129,9 @@ public interface MemberService {
 	
 	void sendBookReturnNotification();
 	
+	void deletePlaceProgram(String mid);
+
+	
 	
 	
 

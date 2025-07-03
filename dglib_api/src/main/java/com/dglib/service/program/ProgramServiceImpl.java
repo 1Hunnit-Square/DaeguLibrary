@@ -28,6 +28,7 @@ import com.dglib.dto.program.ProgramInfoDTO;
 import com.dglib.dto.program.ProgramRoomCheckDTO;
 import com.dglib.dto.program.ProgramUseDTO;
 import com.dglib.entity.member.Member;
+import com.dglib.entity.member.MemberState;
 import com.dglib.entity.program.ProgramBanner;
 import com.dglib.entity.program.ProgramInfo;
 import com.dglib.entity.program.ProgramUse;
@@ -135,38 +136,37 @@ public class ProgramServiceImpl implements ProgramService {
 	// 프로그램 삭제
 	@Override
 	public void deleteProgram(Long progNo) {
-	    ProgramInfo programToDelete = infoRepository.findById(progNo)
-	        .orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
+		ProgramInfo programToDelete = infoRepository.findById(progNo)
+				.orElseThrow(() -> new IllegalArgumentException("해당 프로그램이 존재하지 않습니다."));
 
-	    // 연결된 배너 먼저 삭제
-	    bannerRepository.findByProgramInfo_ProgNo(progNo).ifPresent(banner -> {
-	        String imageUrl = banner.getImageUrl();
-	        if (imageUrl != null) {
-	            String fileName = Paths.get(imageUrl).getFileName().toString();
-	            String parent = Paths.get(imageUrl).getParent().toString();
-	            String thumbnailPath = parent + "/s_" + fileName;
-	            fileUtil.deleteFiles(List.of(imageUrl, thumbnailPath));
-	        }
-	        bannerRepository.delete(banner);
-	    });
+		// 연결된 배너 먼저 삭제
+		bannerRepository.findByProgramInfo_ProgNo(progNo).ifPresent(banner -> {
+			String imageUrl = banner.getImageUrl();
+			if (imageUrl != null) {
+				String fileName = Paths.get(imageUrl).getFileName().toString();
+				String parent = Paths.get(imageUrl).getParent().toString();
+				String thumbnailPath = parent + "/s_" + fileName;
+				fileUtil.deleteFiles(List.of(imageUrl, thumbnailPath));
+			}
+			bannerRepository.delete(banner);
+		});
 
-	    // 신청자 데이터 삭제
-	    List<ProgramUse> uses = useRepository.findByProgramInfo_ProgNo(progNo);
-	    useRepository.deleteAll(uses);
+		// 신청자 데이터 삭제
+		List<ProgramUse> uses = useRepository.findByProgramInfo_ProgNo(progNo);
+		useRepository.deleteAll(uses);
 
-	    // 파일 삭제
-	    if (programToDelete.getFilePath() != null && !programToDelete.getFilePath().isEmpty()) {
-	        try {
-	            fileUtil.deleteFiles(List.of(programToDelete.getFilePath()));
-	        } catch (RuntimeException e) {
-	            throw new RuntimeException("파일 삭제 중 문제가 발생했습니다. 관리자에게 문의해주세요.");
-	        }
-	    }
+		// 파일 삭제
+		if (programToDelete.getFilePath() != null && !programToDelete.getFilePath().isEmpty()) {
+			try {
+				fileUtil.deleteFiles(List.of(programToDelete.getFilePath()));
+			} catch (RuntimeException e) {
+				throw new RuntimeException("파일 삭제 중 문제가 발생했습니다. 관리자에게 문의해주세요.");
+			}
+		}
 
-	    // 프로그램 삭제
-	    infoRepository.delete(programToDelete);
+		// 프로그램 삭제
+		infoRepository.delete(programToDelete);
 	}
-
 
 	// 관리자 페이지(복합 필터) - 관리자 일반 목록
 	@Override
@@ -244,8 +244,8 @@ public class ProgramServiceImpl implements ProgramService {
 			return dto;
 		});
 	}
-	
-	public List<ProgramInfoDTO> searchNotEndProgramList(){
+
+	public List<ProgramInfoDTO> searchNotEndProgramList() {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		List<ProgramInfo> infoList = infoRepository.findByEndDateGreaterThanEqual(LocalDate.now(), sort);
 		return infoList.stream().map(p -> {
@@ -253,7 +253,7 @@ public class ProgramServiceImpl implements ProgramService {
 			dto.setCurrent(useRepository.countByProgram(p.getProgNo()));
 			return dto;
 		}).collect(Collectors.toList());
-		
+
 	}
 
 	@Override
@@ -319,6 +319,16 @@ public class ProgramServiceImpl implements ProgramService {
 		// 회원 정보 확인
 		Member member = memberRepository.findById(mid)
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+
+		boolean isMemberPunish = member.getState() == MemberState.PUNISH;
+		boolean isLeave = member.getState() == MemberState.LEAVE;
+
+		if (isMemberPunish) {
+			throw new IllegalStateException("회원이 정지 상태로 인해 프로그램을 신청할 수 없습니다.");
+		}
+		if (isLeave) {
+			throw new IllegalStateException("탈퇴한 계정은 신청할 수 없습니다.");
+		}
 
 		// 신청 대상자 확인
 		if (!isEligible(program.getTarget(), member)) {
@@ -446,9 +456,9 @@ public class ProgramServiceImpl implements ProgramService {
 	// 회원 ID(mid)를 기준으로 해당 회원이 신청한 프로그램 목록을 페이지 형태로 조회
 	@Override
 	public Page<ProgramUseDTO> getUseListByMemberPaged(String mid, Pageable pageable) {
-	    Page<ProgramUse> result = useRepository.findByMember_Mid(mid, pageable);
+		Page<ProgramUse> result = useRepository.findByMember_Mid(mid, pageable);
 
-	    return result.map(this::toDTO);
+		return result.map(this::toDTO);
 	}
 
 	// -------------------------- 배너 --------------------------
@@ -543,7 +553,7 @@ public class ProgramServiceImpl implements ProgramService {
 		bannerRepository.delete(banner);
 	}
 
-	// -------------------공통 메서드--------------------
+	// -------------------------- 공통 메서드 --------------------------
 
 	// ProgramUse → ProgramUseDTO 변환 메서드
 	private ProgramUseDTO toDTO(ProgramUse use) {

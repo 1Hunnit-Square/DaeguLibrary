@@ -2,6 +2,8 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { memberIdSelector } from "../../atoms/loginState";
 import { useMoveTo } from "../../hooks/useMoveTo";
 import { useRecoilValue } from "recoil";
+import { getMemberList } from "../../api/memberApi";
+import { useQuery } from "@tanstack/react-query";
 
 const FacilityComponent = () => {
 
@@ -9,12 +11,34 @@ const FacilityComponent = () => {
   const { moveToLogin } = useMoveTo();
   const mid = useRecoilValue(memberIdSelector);
 
-  const handleReserve = (roomName) => {
+  // 회원 상태 가져오기
+  const { data: memberData } = useQuery({
+    queryKey: ["memberList"],
+    queryFn: () => getMemberList(),
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
 
+  const memberList = memberData?.content || [];
+  const myMember = memberList.find((m) => m.mid === mid);
+  const memberState = myMember?.state;
+
+  const handleReserve = (roomName) => {
     if (!mid) {
       moveToLogin("로그인 후 이용해주세요.");
       return;
     }
+
+    if (memberState === "PUNISH") {
+      alert("회원이 정지 상태로 인해 시설을 예약할 수 없습니다.");
+      return;
+    }
+
+    if (memberState === "LEAVE") {
+      alert("탈퇴 계정은 시설을 예약할 수 없습니다.");
+      return;
+    }
+
     navigate("/reservation/facility/apply", { state: { roomName } });
   };
 
@@ -144,30 +168,44 @@ const FacilityComponent = () => {
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            <tr>
-              <td className="border border-gray-300 px-4 py-3 text-center">동아리실</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">지하 1층</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">동아리 활동 등</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">8</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">
-                <button onClick={() => handleReserve("동아리실")} className="bg-green-700 hover:bg-green-800 text-white text-sm px-3 py-1 rounded cursor-pointer">
-                  바로예약
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td className="border border-gray-300 px-4 py-3 text-center">세미나실</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">지상 3층</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">세미나 활동 등</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">12</td>
-              <td className="border border-gray-300 px-4 py-3 text-center">
-                <button onClick={() => handleReserve("세미나실")} className="bg-green-700 hover:bg-green-800 text-white text-sm px-3 py-1 rounded cursor-pointer">
-                  바로예약
-                </button>
-              </td>
-            </tr>
+            {[
+              { name: "동아리실", floor: "지하 1층", purpose: "동아리 활동 등", capacity: "8" },
+              { name: "세미나실", floor: "지상 3층", purpose: "세미나 활동 등", capacity: "12" },
+            ].map((room) => (
+              <tr key={room.name}>
+                <td className="border border-gray-300 px-4 py-3 text-center">{room.name}</td>
+                <td className="border border-gray-300 px-4 py-3 text-center">{room.floor}</td>
+                <td className="border border-gray-300 px-4 py-3 text-center">{room.purpose}</td>
+                <td className="border border-gray-300 px-4 py-3 text-center">{room.capacity}</td>
+                <td className="border border-gray-300 px-4 py-3 text-center">
+                  <button
+                    onClick={() => handleReserve(room.name)}
+                    disabled={memberState === "PUNISH" || memberState === "LEAVE"}
+                    className={`
+                      ${memberState === "PUNISH" || memberState === "LEAVE"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-700 hover:bg-green-800 cursor-pointer"
+                      }
+                      text-white text-sm px-3 py-1 rounded
+                    `}
+                  >
+                    바로예약
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+        {memberState === "PUNISH" && (
+          <p className="text-red-500 mt-4 text-sm">
+            ※ 정지된 계정은 시설 예약이 불가능합니다.
+          </p>
+        )}
+        {memberState === "LEAVE" && (
+          <p className="text-red-500 mt-4 text-sm">
+            ※ 탈퇴한 계정은 시설 예약이 불가능합니다.
+          </p>
+        )}
       </section>
       <Outlet />
     </div>

@@ -29,14 +29,18 @@ const ApplyFacilityComponent = () => {
     return closedDays.some(day => day.closedDate === formatted && day.isClosed);
   };
 
-  const handleDateClick = (date, room) => {
+  const handleDateClick = async (date, room) => {
     const formattedDate = formatDate(date);
-    navigate('/reservation/facility/apply/form', {
-      state: {
-        roomName: room,
-        date: formattedDate
-      }
-    });
+    try {
+      navigate('/reservation/facility/apply/form', {
+        state: {
+          roomName: room,
+          date: formattedDate
+        }
+      });
+    } catch (e) {
+      alert(e.response?.data?.message || "예약 중 오류 발생");
+    }
   };
 
   const formatDate = (date) => {

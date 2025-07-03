@@ -19,7 +19,7 @@ public interface ProgramUseRepository extends JpaRepository<ProgramUse, Long> {
 	int countByProgram(@Param("progNo") Long progNo);
 
 	List<ProgramUse> findByMember_Mid(String mid);
-	
+
 	Page<ProgramUse> findByMember_Mid(String mid, Pageable pageable);
 
 	List<ProgramUse> findByProgramInfo_ProgNo(Long progNo);
@@ -30,4 +30,11 @@ public interface ProgramUseRepository extends JpaRepository<ProgramUse, Long> {
 	@Query("SELECT pu FROM ProgramUse pu JOIN FETCH pu.member WHERE pu.programInfo.progNo = :progNo")
 	List<ProgramUse> findWithMemberByProgramInfo_ProgNo(@Param("progNo") Long progNo);
 
+	// ---------- 탈퇴 회원 프로그램 신청 내역 삭제 ----------
+
+	// 특정 회원 프로그램 신청 내역 모두 삭제(DB에서 바로 DELETE쿼리 실행)
+	void deleteByMember_Mid(String mid);
+
+	// 특정 회원 프로그램 신청 내역을 모두 조회(필요시 사용하면 됨, 현재는 필요 없음)
+	List<ProgramUse> findAllByMember_Mid(String mid);
 }

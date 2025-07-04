@@ -232,7 +232,7 @@ const EbookViewerComponent = () => {
 
     return (
         <>
-        {(isLoading || showRestoreLoading || isOptimized) && (
+        {(isLoading || showRestoreLoading || isOptimized || !hasRunOptimization.current) && (
             <Loading
                 text={
                     isLoading

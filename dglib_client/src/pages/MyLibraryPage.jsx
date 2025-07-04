@@ -26,15 +26,15 @@ const MyLibraryPage = () => {
     useEffect(() => {
       const currentPath = location.pathname;
       const searchParams = new URLSearchParams(location.search);
-      console.log("🔍 Current Path:", currentPath)
-      console.log("🔍 Search Params:", searchParams.toString());
+      console.log("Current Path:", currentPath)
+      console.log("Search Params:", searchParams.toString());
 
   
         const fromParam = searchParams.get('from');
         if (fromParam) {
           
           const menuItem = LSideMenu.find(menu => menu.id === fromParam);
-          console.log("✅ Setting activeMenuItem from fromParam:", menuItem); 
+          console.log("Setting activeMenuItem from fromParam:", menuItem); 
           if (menuItem) {
             setActiveMenuItem(menuItem);
             return;

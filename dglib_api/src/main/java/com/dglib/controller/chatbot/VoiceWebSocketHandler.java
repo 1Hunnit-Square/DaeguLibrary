@@ -35,7 +35,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        LOGGER.info("WebSocket connection established (unauthenticated): {}", session.getId());
+        LOGGER.info("웹소켓 연결이 설정됨: {}", session.getId());
     }
 
     @Override
@@ -48,7 +48,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
             String uuid = (String) msgMap.get("uuid");
 
             if (uuid == null || type == null) {
-                LOGGER.error("Invalid text message: 'uuid' or 'type' is missing.");
+                
                 return;
             }
 
@@ -90,7 +90,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         String uuid = sessionToUuidMap.get(session);
         if (uuid == null) {
-            LOGGER.warn("Received binary message from an uninitialized session: {}", session.getId());
+            
             return;
         }
 
@@ -106,9 +106,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
             payload.get(audioData);
             
             voiceSessionService.processAudioChunk(uuid, audioData);
-        } else {
-            LOGGER.warn("Unknown binary message type '{}' from UUID: {}", messageType, uuid);
-        }
+        } 
     }
 
     @Override
@@ -118,7 +116,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        LOGGER.error("WebSocket transport error for session: {}", session.getId(), exception);
+        
         cleanupSession(session);
     }
     
@@ -126,7 +124,7 @@ public class VoiceWebSocketHandler extends TextWebSocketHandler {
         String uuid = sessionToUuidMap.remove(session);
         if (uuid != null) {
             uuidToSessionMap.remove(uuid);
-            LOGGER.info("Cleaning up session for UUID: {}", uuid);
+           
             voiceSessionService.endSession(uuid);
         }
     }

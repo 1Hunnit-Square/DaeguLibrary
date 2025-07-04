@@ -270,14 +270,14 @@ const VoiceWebSocketComponent = ({ onClose }) => {
         });
 
         stompClient.onConnect = () => {
-            console.log("✅ STOMP 연결 성공!");
+            console.log("STOMP 연결 성공!");
             setIsConnected(true);
             
             const destination = `/topic/response/${clientRef.current.uuid}`;
             
             stompClient.subscribe(destination, (message) => {
                 const receivedData = JSON.parse(message.body);
-                console.log("📩 서버로부터 메시지 수신:", receivedData);
+                console.log("서버로부터 메시지 수신:", receivedData);
                 
               
                

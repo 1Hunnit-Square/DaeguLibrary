@@ -28,7 +28,6 @@ const MemberModifyComponent = ({data, refetch}) => {
             "일반계정": "NORMAL",
             "제재계정" : "OVERDUE",
             "정지계정" : "PUNISH",
-            "탈퇴계정" : "LEAVE"
         };
 
     const handleRole = (value) => {
@@ -86,6 +85,8 @@ const MemberModifyComponent = ({data, refetch}) => {
         
     }
 
+
+
    
 
     return (<div className="ml-4">
@@ -114,18 +115,21 @@ const MemberModifyComponent = ({data, refetch}) => {
     </div>
     <div className="flex items-center mb-4 z-40 relative">
     <span className="mr-5 font-bold">권한</span>
-    <SelectComponent name="role" onChange={handleRole} value={modData.role}  options={roleMap} selectClassName="!w-30" dropdownClassName="!w-30" />
+    <SelectComponent name="role" onChange={handleRole} value={modData.role}  options={roleMap} selectClassName="!w-30" dropdownClassName="!w-30" disabled={modData.state == "LEAVE"}/>
     </div>
     <div className="flex items-center z-30 relative">
     <span className="mr-5 font-bold">상태</span>
-    <SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} selectClassName="!w-31" dropdownClassName="!w-31"/>
+    {modData.state == "LEAVE" ? 
+    <SelectComponent name="state" onChange={()=>{}} value={"탈퇴계정"}  options={[]} selectClassName="!w-31" dropdownClassName="!w-31" disabled={true}/>
+    :<SelectComponent name="state" onChange={handleState} value={modData.state}  options={stateMap} selectClassName="!w-31" dropdownClassName="!w-31"/>
+    }
     {(modData.state == "OVERDUE") ? <><input type="date" value={modData.penaltyDate} onChange={handlePenalty}
     className ="w-40 px-4 py-2 rounded-2xl bg-white border border-[#00893B] mr-3" /> 까지</>
     : <><input type="date" value={""}
     className ="w-40 px-4 py-2 rounded-2xl bg-gray-200 border border-gray-300 mr-3" disabled={true} /> 까지</>}
     </div>
     <div className="flex mt-10 mr-6 justify-center">
-        <Button onClick={handleUpdate}>적용</Button>
+        {modData.state != "LEAVE" &&<Button onClick={handleUpdate}>적용</Button>}
     </div>
     
     </div>);

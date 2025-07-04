@@ -101,7 +101,7 @@ const EbookViewerComponent = () => {
     //     }
     // }, [viewerRef.current, isViewerReady])
     useEffect(() => {
-        
+        console.log("렌더링 시작");
         if (currentLocation && currentLocation.startCfi && !hasRunOptimization.current) {
             console.log("Epub 뷰어 렌더링 완료")
             hasRunOptimization.current = true;

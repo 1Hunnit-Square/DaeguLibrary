@@ -72,3 +72,4 @@ ENV/
 # 환경설정
 .env
 .env.*
+**/app-secret.properties

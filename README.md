@@ -1,6 +1,7 @@
 # 대구 도서관 프로젝트
 
 - 웹사이트 : [https://dglib.kro.kr](https://dglib.kro.kr) (PC 버전 접속 권장)
+- 프로젝트 상세정보 : [PDF 보기](https://github.com/1Hunnit-Square/DaeguLibrary/blob/main/report/%EB%8C%80%EA%B5%AC%EB%8F%84%EC%84%9C%EA%B4%80%20PPT.pdf)
 - 서버 환경  
   - 기기: Raspberry Pi 4 Model B  
   - 운영체제: Ubuntu Server 24.04 LTS

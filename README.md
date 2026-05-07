@@ -1,12 +1,13 @@
-# 대구 도서관 프로젝트 (본 프로젝트는 대구도서관을 참고하여 샘플로 만든 사이트입니다.)
+# 대구 도서관 프로젝트
 
+** 본 프로젝트는 대구 도서관을 참고하여 만든 샘플 사이트입니다.
 ** 유사 사이트 관련 문제가 있어 도메인을 변경하였고 이로 인해 일부 기능이 동작하지 않습니다. - 20260507
 - 웹사이트 : [http://dglib-sample.kro.kr](http://dglib-sample.kro.kr) (PC 버전 접속 권장)
 - 프로젝트 상세정보 : [PDF 보기](https://github.com/1Hunnit-Square/DaeguLibrary/blob/main/report/%EB%8C%80%EA%B5%AC%EB%8F%84%EC%84%9C%EA%B4%80%20PPT.pdf)
 - 서버 환경  
   - 기기: Raspberry Pi 4 Model B  
   - 운영체제: Ubuntu Server 24.04 LTS
-  - 상태 : ![Server Status](https://img.shields.io/website?url=https%3A%2F%2Fdglib-sample.kro.kr&up_message=Online&down_message=Offline&up_color=brightgreen&down_color=red)
+  - 상태 : ![Server Status](https://img.shields.io/website?url=http%3A%2F%2Fdglib-sample.kro.kr&up_message=Online&down_message=Offline&up_color=brightgreen&down_color=red)
   - (가정 내에서 서버를 구동하다보니 네트워크 환경상 접속 장애가 발생할 수 있는 점 양해 바랍니다.)
 
 ---

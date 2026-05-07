@@ -1,6 +1,6 @@
 # 대구 도서관 프로젝트
 
-- 웹사이트 : [https://dglib.kro.kr](https://dglib.kro.kr) (PC 버전 접속 권장)
+- 웹사이트 : [http://dglib-sample.kro.kr](http://dglib-sample.kro.kr) (PC 버전 접속 권장, 도메인 문제가 있어 변경하였습니다 - 20260507)
 - 프로젝트 상세정보 : [PDF 보기](https://github.com/1Hunnit-Square/DaeguLibrary/blob/main/report/%EB%8C%80%EA%B5%AC%EB%8F%84%EC%84%9C%EA%B4%80%20PPT.pdf)
 - 서버 환경  
   - 기기: Raspberry Pi 4 Model B  

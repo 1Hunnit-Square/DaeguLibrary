@@ -6,7 +6,7 @@
 - 서버 환경  
   - 기기: Raspberry Pi 4 Model B  
   - 운영체제: Ubuntu Server 24.04 LTS
-  - 상태 : ![Server Status](https://img.shields.io/website?url=https%3A%2F%2Fdglib.kro.kr&up_message=Online&down_message=Offline&up_color=brightgreen&down_color=red)
+  - 상태 : ![Server Status](https://img.shields.io/website?url=https%3A%2F%2Fdglib-sample.kro.kr&up_message=Online&down_message=Offline&up_color=brightgreen&down_color=red)
   - (가정 내에서 서버를 구동하다보니 네트워크 환경상 접속 장애가 발생할 수 있는 점 양해 바랍니다.)
 
 ---
